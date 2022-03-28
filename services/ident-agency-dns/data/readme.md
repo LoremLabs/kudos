@@ -1,11 +1,13 @@
 # Mapping Data
 
-You can add your own mappings here. All `.yml` files share the same namespace.
+This is for quick development of dns services for XRP / Identity mapping.
+
+Filenames correspond with the DNS query type. For instance, `txt.yml` will be for text queries.
 
 Format:
 
 ```
-dnslink:
+tree:
     key: value
     key2: value2
 ```
@@ -15,12 +17,12 @@ All keys need to be globally unique.
 For instance:
 
 ```
-dnslink:
-    test: /ipfs/QmTaEZMHiM8eukWs2EQ7BwFyyMdDHdkLEdfiiduqCwhX22
+_kudos:
+    test: XRPaddressHere
 ```
 
 Would convert to:
 
 ```
-_dnslink.test.lorem.computer. 30 IN	TXT	"dnslink=/ipfs/QmTaEZMHiM8eukWs2EQ7BwFyyMdDHdkLEdfiiduqCwhX22"
+_kudos.test 30 IN	TXT	"XRPaddressHere"
 ```
