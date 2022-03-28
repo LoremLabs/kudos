@@ -1,0 +1,39 @@
+{
+  "name": "ident-agency-dns",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --watch src --watch . --watch data -e yml,js,json  index.js start --debug=true",
+    "lint": "eslint --ignore-path .gitignore .",
+    "lint:fix": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+    "pretty": "prettier --check .",
+    "pretty:fix": "prettier --write .",
+    "start": "node index.js start",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "author": "Lorem Labs <dev@loremlabs.com>",
+  "contributors": ["Matt Mankins <matt@loremlabs.com> (https://www.twitter.com/mankins)", "Dev <dev@loremlabs.com>"],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ident-agency-dns": "index.js"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dns2": "^2.0.1",
+    "lodash.get": "^4.4.2",
+    "meow": "^10.1.1",
+    "yaml": "^2.0.0-9"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.4.1"
+  }
+}
