@@ -26,3 +26,17 @@ Would convert to:
 ```
 _kudos.test 30 IN	TXT	"XRPaddressHere"
 ```
+
+## Dig
+
+```
+% dig @127.0.0.1 -p5053 -t txt _kudos.mankins.twitter.ident.agency
+```
+
+```
+;; QUESTION SECTION:
+;_kudos.mankins.twitter.ident.agency. IN	TXT
+
+;; ANSWER SECTION:
+_kudos.mankins.twitter.ident.agency. 30	IN TXT	"rrrrrrrrrrrrrrrrrrrrBZbvji"
+```

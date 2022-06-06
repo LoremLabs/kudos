@@ -37,7 +37,7 @@ const handle = (request, send, { flags }) => {
         });
       } else {
         debug("no mapping found", JSON.stringify({ target, answer, mappings }));
-        const DEV_FORCE_ANSWER = true;
+        const DEV_FORCE_ANSWER = false;
         if (DEV_FORCE_ANSWER) {
           debug("returning hardcoded answer");
           response.answers.push({
