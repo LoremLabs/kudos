@@ -1,4 +1,6 @@
 // import chalk from "chalk";
+import dotenv from "dotenv";
+dotenv.config();
 
 import dns from "dns";
 

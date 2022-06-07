@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import meow from "meow";
 // import updateNotifier from "update-notifier";
+import { URL } from 'url'; 
+const __dirname = new URL('.', import.meta.url).pathname;
 
 import dotenv from "dotenv";
-dotenv.config();
-
-// import fs from "fs";
+dotenv.config({ path: __dirname + '.env' });
 
 import config from "./src/config.js";
 import kudos from "./src/index.js";
