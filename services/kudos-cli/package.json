@@ -1,0 +1,62 @@
+{
+  "name": "kudos-cli",
+  "version": "0.0.1",
+  "description": "kudos command-line tool",
+  "license": "MIT",
+  "repository": "https://github.com/LoremLabs/kudos-cli",
+  "author": {
+    "name": "Matt Mankins",
+    "email": "mankins@gmail.com",
+    "url": "https://github.com/LoremLabs/"
+  },
+  "type": "module",
+  "bin": {
+    "kudos": "kudos-cli.js"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "pretty": "prettier --check .",
+    "pretty:fix": "prettier --write .",
+    "lint": "eslint --ignore-path .gitignore .",
+    "lint:fix": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+    "release": "np",
+    "test": "echo nyet && exit 0"
+  },
+  "files": [
+    "kudos-cli.js",
+    "src"
+  ],
+  "keywords": [
+    "cli",
+    "kudos",
+    "open source",
+    "funding"
+  ],
+  "dependencies": {
+    "@dnslink/js": "^0.12.0",
+    "@iarna/toml": "^2.2.5",
+    "better-sqlite3": "^7.5.3",
+    "chalk": "^4.1.2",
+    "conf": "^10.0.3",
+    "dotenv": "^10.0.0",
+    "env-paths": "^3.0.0",
+    "get-stdin": "^9.0.0",
+    "meow": "^9.0.0",
+    "mkdirp": "^1.0.4",
+    "node-fetch": "^3.1.0",
+    "open": "^8.4.0",
+    "prompts": "^2.4.2",
+    "update-notifier": "^5.1.0",
+    "uuid": "^8.3.2",
+    "xrpl": "^2.3.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "2.4.1"
+  }
+}
