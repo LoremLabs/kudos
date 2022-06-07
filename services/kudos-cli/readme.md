@@ -40,4 +40,3 @@ $ kudos --help
     $ kudos run [command name] [...command params]
 
 ```
-

@@ -20,7 +20,7 @@ const exec = (context) => {
         context.config.set(context.input[2], context.input[3]);
       } else if (context.input.length === 3 && context.stdin.length > 0) {
         let data = context.stdin;
-        data = data.replace(/\n$/, '');
+        data = data.replace(/\n$/, "");
         context.config.set(context.input[2], data);
       } else {
         log(

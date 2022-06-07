@@ -33,14 +33,24 @@ const exec = async (context) => {
     }
     const accounts = JSON.parse(context.stdin);
     // connect to xrpl
-    const seed = flags.seed || process.env.KUDOS_SENDER_SECRET || context.config.get("xrpl.secret") || ""; // TODO: set via config/init
+    const seed =
+      flags.seed ||
+      process.env.KUDOS_SENDER_SECRET ||
+      context.config.get("xrpl.secret") ||
+      ""; // TODO: set via config/init
     if (!seed) {
-      log(chalk.red(`No seed provided. Try: cat seedFile.txt | kudos config set xrpl.secret`));
+      log(
+        chalk.red(
+          `No seed provided. Try: cat seedFile.txt | kudos config set xrpl.secret`
+        )
+      );
       process.exit(2);
     }
     const wallet = xrpl.Wallet.fromSeed(seed);
     const xrplClient = new xrpl.Client(
-      process.env.XRPL_ENDPOINT || context.config.get("xrpl.endpoint") || "wss://s.altnet.rippletest.net:51233"
+      process.env.XRPL_ENDPOINT ||
+        context.config.get("xrpl.endpoint") ||
+        "wss://s.altnet.rippletest.net:51233"
     );
     await xrplClient.connect();
 
@@ -49,7 +59,9 @@ const exec = async (context) => {
         // xrpl account
         const paymentAddress = account.substring(7);
         if (paymentAddress == wallet.address) {
-          log(chalk.cyan(`Skipping[${paymentAddress}]: Cannot settle own account`));
+          log(
+            chalk.cyan(`Skipping[${paymentAddress}]: Cannot settle own account`)
+          );
           continue;
         }
         log(chalk.green(paymentAddress));
@@ -68,7 +80,11 @@ const exec = async (context) => {
           const results = await xrplClient.submitAndWait(signed.tx_blob);
           log("Results:", results);
         } else {
-          log(chalk.yellow("Dry run. Repeat this command with the --yes flag to send."));
+          log(
+            chalk.yellow(
+              "Dry run. Repeat this command with the --yes flag to send."
+            )
+          );
         }
       }
     }
