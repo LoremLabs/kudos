@@ -8,7 +8,6 @@ Integrated into the build process via Kudos for Code, kudos are created per git 
 
 
 
-
 ## Services
 
 Kudos is composed of several services: 
@@ -18,10 +17,26 @@ Kudos is composed of several services:
 - `Kudos Inker` is a process that takes a contributor file and records Kudos transactions.
 - `Kudos Exchange` takes care of settling a user's balance on a monthly basis, converting between XRP and off-ledger balances.
 
+## CLI
+
+In addition, a CLI command is available to be able to run commands on your own infrastructure / locally.
+
+- `Kudos Cli`
+
+```
+    $ kudos ink [identifier.twitter] [--weight=100] [--createTime=now] [--src=cli] [--description=""] [--user=1]
+    $ kudos ledger [reset|weighted|summary] [--cohort=current] [--outFile=STDOUT] [--timestamp=now] [--quiet=false] [--escrow=escrow] [--settle=100]
+    $ kudos resolve [identifier.twitter]
+    $ kudos settle [cohort] --cohort=202223 --amount=10 
+
+    Submit Kudos
+    % kudos ledger | kudos settle cohort --cohort=202223 --amount=10
+```
+
 
 ### Ident.Agency
 
-DNS-based lookup service to map emails, handles, and other identifiers to a payment address. (XRP Account, etc.)
+DNS-based lookup service to map emails, handles, and other identifiers to a payment address. (XRP Account, etc.). You can run your own or use the public `ident.agency` resolver.
 
 ```
 % dig @127.0.0.1 -p5053 -t txt _kudos.mankins.twitter.ident.agency
