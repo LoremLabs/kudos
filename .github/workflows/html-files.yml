@@ -34,11 +34,14 @@ jobs:
         uses: actions/configure-pages@v2
       - name: Search for built .html files
         id: gethtml
-        run: echo "::set-output name=files::$(find . | grep -i '[0-9][0-9][0-9]' | grep \.html)"
+        run: |
+              echo "::set-output name=files::$(find . | grep -i '[0-9][0-9][0-9]' | grep \.html)"
+              mkdir -p dist/html
+              cp `find . | grep -i '[0-9][0-9][0-9]' | grep \.html` dist/html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ${{ steps.gethtml.outputs.files }}
+          path: dist/html
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
