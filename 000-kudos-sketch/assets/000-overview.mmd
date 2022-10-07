@@ -1,0 +1,6 @@
+graph LR
+  LEDGER("Kudos Ledger")
+  Content1("Visit Webpage 1")  -- "@alice, @bob"--> LEDGER
+  Content2("Visit Webpage 2")  -- "@bob" --> LEDGER
+  LEDGER  .-> Settlement_Service
+
