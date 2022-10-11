@@ -42,6 +42,7 @@ jobs:
         run:  |
                mkdir -p dist/html/assets
                cp `find . | grep -i '[0-9][0-9][0-9]' | grep \.png` dist/html/assets
+               cp `find . | grep -i '[0-9][0-9][0-9]' | grep \.pdf` dist/html/assets
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
