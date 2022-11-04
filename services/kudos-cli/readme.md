@@ -2,7 +2,7 @@
 
 > kudos: funding open source CLI
 
-# Install CLI Tool
+## Install CLI Tool
 
 The `kudos` command line tool can be installed with:
 
