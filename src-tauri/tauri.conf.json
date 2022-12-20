@@ -12,11 +12,19 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "all": false,
+      "window": {
+        "maximize": true,
+        "unmaximize": true,
+        "minimize": true,
+        "unminimize": true,
+        "close": true,
+        "startDragging": true
+      }
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Utility",
       "copyright": "",
       "deb": {
         "depends": []
@@ -58,8 +66,14 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "Setler",
-        "width": 800
+        "title": "",
+        "width": 800,
+        "decorations": true,
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "center": true,
+        "acceptFirstMouse": true,
+        "userAgent": "setler/desktop"
       }
     ]
   }
