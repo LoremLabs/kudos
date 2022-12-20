@@ -16,10 +16,14 @@
       "dialog": {
         "all": true
       },
+      "path": {
+        "all": true
+      },
       "shell": {
         "all": true
       },
       "window": {
+        "create": true,
         "maximize": true,
         "unmaximize": true,
         "minimize": true,

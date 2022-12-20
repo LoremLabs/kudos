@@ -6,7 +6,12 @@ const config = {
   preprocess: preprocess(),
 
   kit: {
-    adapter: staticAdapter(),
+    prerender: {
+      entries: ["/", "/collection"],
+    },
+    adapter: staticAdapter({
+      fallback: "index.html",
+    }),
     alias: {
       $i18n: "src/i18n",
       $lib: "src/lib",

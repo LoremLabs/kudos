@@ -28,7 +28,7 @@
       { capture: true }
     );
   };
-
+  let title = "Setler";
   onMount(() => {
     if (!dev) {
       disableContextMenu();
@@ -42,6 +42,10 @@
 
       goto("/preferences");
     });
+
+    // grab the window title from the query params
+    const qp = new URLSearchParams(window.location.search);
+    title = qp.get("title") || "Setler";
   });
 </script>
 
@@ -49,7 +53,7 @@
   data-tauri-drag-region
   class="fixed top-0 left-0 justify-center flex bg-slate-100 h-10 w-full pt-2 italic select-none cursor-default overflow-hidden overscroll-none"
 >
-  Setler
+  {title}
 </div>
 
 <main

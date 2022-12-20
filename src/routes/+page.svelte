@@ -1,8 +1,30 @@
 <script>
   import { open as openFile } from "@tauri-apps/api/dialog";
   import { open as openShell } from "@tauri-apps/api/shell";
+  // import {
+  //   readBinaryFile,
+  //   // writeTextFile,
+  //   // readDir,
+  //   // Dir
+  // } from '@tauri-apps/api/fs';
+  import {
+    //  appWindow,
+    WebviewWindow,
+    // LogicalSize,
+    // UserAttentionType,
+    // PhysicalSize,
+    // PhysicalPosition
+  } from "@tauri-apps/api/window";
 
   import Icon from "$lib/Icon.svelte";
+
+  const basename = (p) => {
+    if (typeof p !== "string") {
+      return "";
+    }
+    const parts = p.split("/");
+    return parts[parts.length - 1];
+  };
 
   const openDialog = async () => {
     const filePath = await openFile({
@@ -12,6 +34,50 @@
       // defaultPath: defaultDir,
     });
     console.log({ filePath });
+    if (filePath) {
+      // open new window
+      // openShell(`setler://import/${filePath}`);
+      const newWindowLabel = `kudos-collection-1`; // TODO
+      const title = `Setler : Kudos Collection : ${basename(filePath)}`;
+      const webview = new WebviewWindow(
+        newWindowLabel,
+
+        {
+          url: `/collection?title=${encodeURIComponent(
+            title
+          )}&windowId=${encodeURIComponent(
+            newWindowLabel
+          )}&file=${encodeURIComponent(filePath)}`,
+          // title: 'Setler',
+          // width:
+          // height: 600,
+          resizable: true,
+          decorations: true,
+          hiddenTitle: true,
+          titleBarStyle: "overlay",
+
+          // frameless: false,
+          // transparent: false,
+          // maximizable: true,
+          // fullscreen: false,
+          // skip_taskbar: false,
+          // always_on_top: false,
+          // visible: true,
+          // decorations: true,
+          // debug: true,
+          // webviewAttributes: {
+          //   nodeintegration: true,
+          //   contextIsolation: false,
+          //   enableRemoteModule: true,
+          //   preload: 'preload.js',
+          // },
+        }
+      );
+      // windowMap[newWindowLabel] = webview
+      webview.once("tauri://error", function (e) {
+        console.log("Error creating new webview", e);
+      });
+    }
   };
 
   const goto = (url) => {
