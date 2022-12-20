@@ -45,11 +45,15 @@
   });
 </script>
 
+<div
+  data-tauri-drag-region
+  class="fixed top-0 left-0 justify-center flex bg-slate-100 h-10 w-full pt-2 italic select-none cursor-default overflow-hidden overscroll-none"
+>
+  Setler
+</div>
 
-<div data-tauri-drag-region class="fixed top-0 left-0 justify-center flex bg-slate-100 h-10 w-full pt-2 italic select-none cursor-default">
-Setler
-</div>        
-
-<main class="w-full bg-slate-100 min-h-screen p-2 mt-8">
+<main
+  class="w-full bg-slate-100 min-h-screen p-2 mt-8 overflow-hidden overscroll-none"
+>
   <slot />
 </main>
