@@ -137,7 +137,18 @@
     <div class="sm:flex-auto">
       <h1 class="text-xl font-semibold text-gray-900">Kudos</h1>
       <p class="mt-2 text-sm text-gray-700">
-        A collection of {kudos?.length.toLocaleString('en-US')} kudos.
+        A collection of {kudos?.length.toLocaleString('en-US')} kudos
+        {#if kudos[0]?.createTime}
+          from <time class="underline"
+            >{new Date(kudos[0].createTime).toLocaleString('en-US')}</time
+          >
+          to
+          <time class="underline"
+            >{new Date(kudos[kudos.length - 1].createTime).toLocaleString(
+              'en-US'
+            )}</time
+          >
+        {/if}
       </p>
 
       {#if false}
@@ -232,7 +243,7 @@
             <button
               type="button"
               class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
-              >Publicize</button
+              >Start Publicize</button
             >
           </div>
         </div>
