@@ -77,7 +77,7 @@
         "height": 600,
         "resizable": true,
         "title": "",
-        "width": 800,
+        "width": 600,
         "decorations": true,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",

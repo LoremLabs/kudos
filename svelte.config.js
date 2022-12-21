@@ -15,6 +15,7 @@ const config = {
     alias: {
       $i18n: "src/i18n",
       $lib: "src/lib",
+      $styles: "src/styles"
     },
   },
 };

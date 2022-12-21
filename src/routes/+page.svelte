@@ -16,7 +16,7 @@
     // PhysicalPosition
   } from "@tauri-apps/api/window";
 
-  import Icon from "$lib/Icon.svelte";
+  import Icon from "$lib/components/Icon.svelte";
 
   const basename = (p) => {
     if (typeof p !== "string") {
@@ -49,8 +49,8 @@
             newWindowLabel
           )}&file=${encodeURIComponent(filePath)}`,
           // title: 'Setler',
-          // width:
-          // height: 600,
+          width: 1024,
+          height: 600,
           resizable: true,
           decorations: true,
           hiddenTitle: true,

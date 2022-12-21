@@ -1,6 +1,6 @@
 <script>
-  import "../styles/app.css";
-  import "../styles/tailwind-output.css";
+  import "$styles/app.css";
+  import "$styles/tailwind-output.css";
 
   import { listen } from "@tauri-apps/api/event";
   import { goto } from "$app/navigation";
