@@ -15,6 +15,7 @@
   let kudos = [];
   let openKudos = {};
   let visuals = false;
+  let settle = false;
 
   let highlightLinkIndexes = [];
 
@@ -172,18 +173,100 @@
         </div>
       {/if}
     </div>
-    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+    <div class="mt-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center">
+      <div class="sr-only" id="visuals-label">Visuals</div>
       <button
         type="button"
         on:click={() => {
           visuals = !visuals;
         }}
-        class="inline-flex items-center justify-center rounded-md border border-transparent bg-cyan-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 sm:w-auto"
+        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent  transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        class:bg-gray-600={visuals}
+        class:bg-gray-200={!visuals}
+        role="switch"
+        aria-checked="false"
+        aria-labelledby="visuals-label"
       >
-        Visualize →
+        <span
+          aria-hidden="true"
+          class="inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+          class:translate-x-5={visuals}
+          class:translate-x-0={!visuals}
+        />
+      </button>
+    </div>
+
+    <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+      <button
+        type="button"
+        on:click={() => {
+          settle = !settle;
+        }}
+        class="inline-flex items-center justify-center rounded-md border border-transparent bg-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 sm:w-auto"
+      >
+        Settle →
       </button>
     </div>
   </div>
+
+  {#if settle}
+    <div class="my-8 bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3
+          class="text-lg font-medium leading-6 text-gray-900"
+          id="settles-label"
+        >
+          Publicize Your Kudos
+        </h3>
+        <div class="mt-2 sm:flex sm:items-start sm:justify-between">
+          <div class="max-w-xl text-sm text-gray-500">
+            <p id="settles-description">
+              Kudos can be published to a global leaderboard. This will give
+              attention to the people who are contributing the most to your
+              community.
+            </p>
+          </div>
+          <div
+            class="mt-5 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center"
+          >
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+              >Publicize</button
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="my-8 bg-white shadow sm:rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-start sm:justify-between">
+          <div>
+            <h3 class="text-lg font-medium leading-6 text-gray-900">
+              Send Money to Your Kudos
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+              <p>
+                This will allow you to send money to your contributors in
+                proportion with their kudos. You set a price and we split it
+                between your contributors.
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-5 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center"
+          >
+            <button
+              type="button"
+              class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+              >Start Transfer</button
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
+
   <div class="scale-[1]">
     {#if processed && visuals}
       <Sankey
