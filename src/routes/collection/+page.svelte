@@ -1,28 +1,46 @@
 <script>
   import { page } from "$app/stores";
-
+import { readKudosDb } from "$lib/kudos/db";
+import Icon from "$lib/Icon.svelte";
+import Ago from "$lib/Ago.svelte";
   import { onMount } from "svelte";
 
   let file, windowId;
 
   let kudos = [];
 
-  onMount(() => {
+  onMount(async () => {
+    console.log('mount!');
     // get windowId from query params
     const query = new URLSearchParams(window.location.search);
-
     // const query = new URLSearchParams($page.url);
-    windowId = query.get("windowId");
-    file = query.get("file");
+    if (!query) {
+        console.log('no query');
+        return;
+    }
+    console.log('mount!3');
+    windowId = query.get("windowId") || '';
+    file = query.get("file") || '';
+    console.log('mount!2');
+//    return;
+    // get kudos from db
+    try {
+        console.log('kudos read', {file});
+        kudos = await readKudosDb({dbFile: file});
+        console.log({kudos});
+
+    } catch (e) {
+        console.log('kudos read error', {e});
+    }
   });
 </script>
 
 <div class="px-4 sm:px-6 lg:px-8">
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
-      <h1 class="text-xl font-semibold text-gray-900">Transactions</h1>
+      <h1 class="text-xl font-semibold text-gray-900">Kudos</h1>
       <p class="mt-2 text-sm text-gray-700">
-        A table of placeholder stock market data that does not make any sense.
+        A collection of kudos.
       </p>
     </div>
     <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
@@ -45,81 +63,74 @@
                 <th
                   scope="col"
                   class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                  >Transaction ID</th
+                  >Date</th
                 >
                 <th
                   scope="col"
                   class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Company</th
+                  >Cohort</th
                 >
                 <th
                   scope="col"
                   class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Share</th
+                  >Identifier</th
                 >
                 <th
                   scope="col"
                   class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Commision</th
+                  >Weight</th
                 >
                 <th
                   scope="col"
                   class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Price</th
+                  >Description</th
                 >
                 <th
                   scope="col"
                   class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Quantity</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Net amount</th
+                  >Id</th
                 >
                 <th
                   scope="col"
                   class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6"
                 >
-                  <span class="sr-only">Edit</span>
+                  <span class="sr-only">More</span>
                 </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white">
+                {#each kudos as kudo}
               <tr>
                 <td
                   class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
-                  >AAPS0L</td
+                  ><Ago at={kudo.createTime} /></td
+                >
+                <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                >{kudo.cohort}</td
                 >
                 <td
                   class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
-                  >Chase &amp; Co.</td
+                  >{kudo.identifier}</td
                 >
                 <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
-                  >CAC</td
+                >{kudo.weight.toFixed(3)}</td
                 >
                 <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                  >+$4.37</td
+                >{kudo.description}</td
                 >
                 <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                  >$3,509.00</td
-                >
-                <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                  >12.00</td
-                >
-                <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                  >$4,397.00</td
+                >{kudo.id}</td
                 >
                 <td
                   class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
                 >
                   <a href="#" class="text-cyan-600 hover:text-cyan-900"
-                    >Edit<span class="sr-only">, AAPS0L</span></a
+                    ><Icon name="eye" class="w-4 h-4" /></a
                   >
                 </td>
               </tr>
+              {/each}
 
-              <!-- More transactions... -->
             </tbody>
           </table>
         </div>

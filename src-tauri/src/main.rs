@@ -15,7 +15,8 @@ fn main() {
     let app_name = &context.package_info().name;
     println!("Starting {}", app_name);
     tauri::Builder::default()
-        .menu(build_menu(app_name))
+    .plugin(tauri_plugin_sqlite::init())
+    .menu(build_menu(app_name))
         .on_menu_event(|event| match event.menu_item_id() {
             "preferences" => {
                 let window = event.window();
