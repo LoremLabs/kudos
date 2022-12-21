@@ -6,6 +6,7 @@ module.exports = {
     tailwindcss: {
       mode: "jit",
       purge: ["./src/**/*.html", "./src/**/*.svelte"],
+      plugins: [require("@tailwindcss/forms")],
       theme: {
         extend: {
           fontFamily: {

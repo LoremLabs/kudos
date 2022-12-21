@@ -1,17 +1,17 @@
 <script>
-  import "$styles/app.css";
-  import "$styles/tailwind-output.css";
+  import '$styles/app.css';
+  import '$styles/tailwind-output.css';
 
-  import { listen } from "@tauri-apps/api/event";
-  import { goto } from "$app/navigation";
-  import { dev } from "$app/environment";
+  import { listen } from '@tauri-apps/api/event';
+  import { goto } from '$app/navigation';
+  import { dev } from '$app/environment';
 
-  import { onMount } from "svelte";
-  import { appWindow } from "@tauri-apps/api/window";
+  import { onMount } from 'svelte';
+  import { appWindow } from '@tauri-apps/api/window';
 
   const disableContextMenu = () => {
     document.addEventListener(
-      "contextmenu",
+      'contextmenu',
       (e) => {
         e.preventDefault();
         return false;
@@ -20,7 +20,7 @@
     );
 
     document.addEventListener(
-      "selectstart",
+      'selectstart',
       (e) => {
         e.preventDefault();
         return false;
@@ -28,36 +28,36 @@
       { capture: true }
     );
   };
-  let title = "Setler";
+  let title = 'Setler';
   onMount(() => {
     if (!dev) {
       disableContextMenu();
     }
 
-    listen("show-preferences", (event) => {
+    listen('show-preferences', (event) => {
       // navigate to page 2
       // https://kit.svelte.dev/docs#routing-pages
       // https://kit.svelte.dev/docs#routing-navigate
       // https://kit.svelte.dev/docs#routing-params
 
-      goto("/preferences");
+      goto('/preferences');
     });
 
     // grab the window title from the query params
     const qp = new URLSearchParams(window.location.search);
-    title = qp.get("title") || "Setler";
+    title = qp.get('title') || 'Setler';
   });
 </script>
 
 <div
   data-tauri-drag-region
-  class="fixed top-0 left-0 justify-center flex bg-slate-100 h-10 w-full pt-2 italic select-none cursor-default overflow-hidden overscroll-none"
+  class="fixed top-0 left-0 flex h-10 w-full cursor-default select-none justify-center overflow-hidden overscroll-none bg-slate-100 pt-2 italic"
 >
   {title}
 </div>
 
 <main
-  class="w-full bg-slate-100 min-h-screen p-2 mt-8 overflow-hidden overscroll-none"
+  class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100 p-2"
 >
   <slot />
 </main>

@@ -1,6 +1,6 @@
 <script>
-  import { open as openFile } from "@tauri-apps/api/dialog";
-  import { open as openShell } from "@tauri-apps/api/shell";
+  import { open as openFile } from '@tauri-apps/api/dialog';
+  import { open as openShell } from '@tauri-apps/api/shell';
   // import {
   //   readBinaryFile,
   //   // writeTextFile,
@@ -14,15 +14,15 @@
     // UserAttentionType,
     // PhysicalSize,
     // PhysicalPosition
-  } from "@tauri-apps/api/window";
+  } from '@tauri-apps/api/window';
 
-  import Icon from "$lib/components/Icon.svelte";
+  import Icon from '$lib/components/Icon.svelte';
 
   const basename = (p) => {
-    if (typeof p !== "string") {
-      return "";
+    if (typeof p !== 'string') {
+      return '';
     }
-    const parts = p.split("/");
+    const parts = p.split('/');
     return parts[parts.length - 1];
   };
 
@@ -54,7 +54,7 @@
           resizable: true,
           decorations: true,
           hiddenTitle: true,
-          titleBarStyle: "overlay",
+          titleBarStyle: 'overlay',
 
           // frameless: false,
           // transparent: false,
@@ -74,8 +74,8 @@
         }
       );
       // windowMap[newWindowLabel] = webview
-      webview.once("tauri://error", function (e) {
-        console.log("Error creating new webview", e);
+      webview.once('tauri://error', function (e) {
+        console.log('Error creating new webview', e);
       });
     }
   };
@@ -91,9 +91,9 @@
       <h2 class="text-lg font-medium text-gray-900">Kudos Actions</h2>
       <div class="mt-1 text-sm text-gray-500">
         Setler helps you add value to your <span
-          class="underline text-cyan-800 cursor-pointer"
+          class="cursor-pointer text-cyan-800 underline"
           on:click={() => {
-            goto("https://www.loremlabs.com/");
+            goto('https://www.loremlabs.com/');
           }}>kudos</span
         >. You can send money to your a collection of kudos, or you can
         recognize them publicly for their work.
@@ -107,7 +107,7 @@
             class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
-              class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-cyan-700"
+              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-cyan-700"
             >
               <Icon name="upload" class="h-6 w-6 text-white" />
             </div>
@@ -131,7 +131,7 @@
             class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
-              class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-cyan-500"
+              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-cyan-500"
             >
               <Icon name="sparkles" class="h-6 w-6 text-white" />
             </div>
@@ -155,7 +155,7 @@
               class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
             >
               <div
-                class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-green-500"
+                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-green-500"
               >
                 <!-- Heroicon name: outline/photo -->
                 <svg
@@ -194,7 +194,7 @@
               class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
             >
               <div
-                class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-blue-500"
+                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500"
               >
                 <!-- Heroicon name: outline/view-columns -->
                 <svg
@@ -233,7 +233,7 @@
               class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
             >
               <div
-                class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-cyan-500"
+                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-cyan-500"
               >
                 <!-- Heroicon name: outline/table-cells -->
                 <svg
@@ -272,7 +272,7 @@
               class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
             >
               <div
-                class="flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-lg bg-purple-500"
+                class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-purple-500"
               >
                 <!-- Heroicon name: outline/clock -->
                 <svg
