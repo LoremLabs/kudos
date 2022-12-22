@@ -102,8 +102,11 @@
     | 'misc/play-button'
     | 'misc/pause-button';
 
+    export type MiniIcons = 
+    | 'mini/exclamation-triangle';
+
   /** <symbol> id's from {@linkcode iconsSvg} */
-  export type IconName = RegularIcons | SolidIcons | BrandIcons | MiscIcons;
+  export type IconName = RegularIcons | SolidIcons | BrandIcons | MiscIcons | MiniIcons;
 </script>
 
 <script lang="ts">
