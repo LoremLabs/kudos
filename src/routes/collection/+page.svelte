@@ -7,7 +7,7 @@
 
   import { onMount } from 'svelte';
   import JSPretty from '$lib/components/JSPretty.svelte';
-  let file, windowId;
+  let file, tmpFile, windowId;
 
   let processed = false;
   let fundingAmount = 10000;
@@ -34,7 +34,6 @@
   };
 
   onMount(async () => {
-    console.log('mount!');
     // get windowId from query params
     const query = new URLSearchParams(window.location.search);
     // const query = new URLSearchParams($page.url);
@@ -42,11 +41,9 @@
       console.log('no query');
       return;
     }
-    console.log('mount!3');
     windowId = query.get('windowId') || '';
     file = query.get('file') || '';
-    console.log('mount!2');
-    //    return;
+    tmpFile = query.get('tmpFile') || '';
     // get kudos from db
     try {
       console.log('kudos read', { file });
@@ -278,7 +275,7 @@
     </div>
   {/if}
 
-  <div class="scale-[1]">
+  <div class="mt-8 scale-[1]">
     {#if processed && visuals}
       <Sankey
         {graph}

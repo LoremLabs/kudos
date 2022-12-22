@@ -19,6 +19,14 @@
       "dialog": {
         "all": true
       },
+      "fs": {
+        "all": true,
+        "scope": ["*"]
+      },
+      "http": {
+        "all": true,
+        "scope": ["https://**", "http://**"]
+      },
       "path": {
         "all": true
       },

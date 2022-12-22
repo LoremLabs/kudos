@@ -39,6 +39,7 @@
     "d3-shape": "^3.2.0",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",
+    "nanoid": "^4.0.0",
     "postcss": "^8.4.20",
     "postcss-cli": "^10.1.0",
     "prettier": "^2.8.1",

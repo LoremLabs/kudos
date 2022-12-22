@@ -17,14 +17,7 @@
   } from '@tauri-apps/api/window';
 
   import Icon from '$lib/components/Icon.svelte';
-
-  const basename = (p) => {
-    if (typeof p !== 'string') {
-      return '';
-    }
-    const parts = p.split('/');
-    return parts[parts.length - 1];
-  };
+  import { basename } from '$lib/utils/path';
 
   const openDialog = async () => {
     const filePath = await openFile({
@@ -37,7 +30,9 @@
     if (filePath) {
       // open new window
       // openShell(`setler://import/${filePath}`);
-      const newWindowLabel = `kudos-collection-1`; // TODO
+      const underPath = filePath.replace(/\//g, '_').replace(/\W/g, '_');
+
+      const newWindowLabel = `kudos-collection-${underPath}`; // TODO
       const title = `Setler : Kudos Collection : ${basename(filePath)}`;
       const webview = new WebviewWindow(
         newWindowLabel,
@@ -81,29 +76,27 @@
   };
 
   const openNewUrl = async () => {
-      const newWindowLabel = `new-from-url`; // TODO
-      const title = `Setler : Import Kudos from the Web`;
-      const webview = new WebviewWindow(
-        newWindowLabel,
+    const newWindowLabel = `new-from-url`; // TODO
+    const title = `Setler : Import Kudos from the Web`;
+    const webview = new WebviewWindow(
+      newWindowLabel,
 
-        {
-          url: `/new/url?title=${encodeURIComponent(
-            title
-          )}&windowId=${encodeURIComponent(
-            newWindowLabel
-          )}`,
-          title,
-          width: 800,
-          height: 250,
-          resizable: true,
-          decorations: true,
-          hiddenTitle: true,
-          titleBarStyle: 'overlay',
-        }
-      );
-      webview.once('tauri://error', function (e) {
-        console.log('Error creating new webview', e);
-      });
+      {
+        url: `/new/url?title=${encodeURIComponent(
+          title
+        )}&windowId=${encodeURIComponent(newWindowLabel)}`,
+        title,
+        width: 800,
+        height: 250,
+        resizable: true,
+        decorations: true,
+        hiddenTitle: true,
+        titleBarStyle: 'overlay',
+      }
+    );
+    webview.once('tauri://error', function (e) {
+      console.log('Error creating new webview', e);
+    });
   };
 
   const goto = (url) => {
@@ -163,9 +156,7 @@
             </div>
             <div>
               <h3 class="text-sm font-medium text-gray-900">
-                <button 
-                on:click={openNewUrl}
-                class="focus:outline-none">
+                <button on:click={openNewUrl} class="focus:outline-none">
                   <span class="absolute inset-0" aria-hidden="true" />
                   <span>Import Kudos from the Web</span>
                   <span aria-hidden="true"> &rarr;</span>
@@ -336,13 +327,15 @@
         {/if}
       </ul>
       <div class="mt-4 flex">
-        <a
-          href="#"
+        <button
+          on:click={() => {
+            goto('https://www.npmjs.com/settings/kudos-protocol/packages');
+          }}
           class="text-sm font-medium text-cyan-600 hover:text-cyan-500"
         >
           Or start an new kudos collection
           <span aria-hidden="true"> &rarr;</span>
-        </a>
+        </button>
       </div>
     </div>
   </div>

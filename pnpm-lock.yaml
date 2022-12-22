@@ -18,6 +18,7 @@ specifiers:
   eslint: ^8.30.0
   eslint-config-prettier: ^8.5.0
   knex: ^2.3.0
+  nanoid: ^4.0.0
   postcss: ^8.4.20
   postcss-cli: ^10.1.0
   prettier: ^2.8.1
@@ -56,6 +57,7 @@ devDependencies:
   d3-shape: 3.2.0
   eslint: 8.30.0
   eslint-config-prettier: 8.5.0_eslint@8.30.0
+  nanoid: 4.0.0
   postcss: 8.4.20
   postcss-cli: 10.1.0_postcss@8.4.20
   prettier: 2.8.1
@@ -2330,6 +2332,15 @@ packages:
         integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==,
       }
     engines: { node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1 }
+    hasBin: true
+    dev: true
+
+  /nanoid/4.0.0:
+    resolution:
+      {
+        integrity: sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg==,
+      }
+    engines: { node: ^14 || ^16 || >=18 }
     hasBin: true
     dev: true
 

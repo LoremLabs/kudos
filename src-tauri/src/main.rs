@@ -28,9 +28,27 @@ fn main() {
         .run(context)
         .expect("error while running tauri application");
 }
-
+  
 fn build_menu(app_name: &str) -> Menu {
-    let mut menu = Menu::new();
+  let edit_menu = Submenu::new("Edit", Menu::new()
+  .add_native_item(MenuItem::Undo)
+  .add_native_item(MenuItem::Redo)
+  .add_native_item(MenuItem::Separator)
+  .add_native_item(MenuItem::Cut)
+  .add_native_item(MenuItem::Copy)
+  .add_native_item(MenuItem::Paste)
+  .add_native_item(MenuItem::SelectAll));
+
+  let view_menu = Submenu::new("View", Menu::new()
+  .add_native_item(MenuItem::EnterFullScreen));
+
+let window_menu = Submenu::new("Window", Menu::new()
+  .add_native_item(MenuItem::Minimize)
+  .add_native_item(MenuItem::Zoom));
+
+let help_menu = Submenu::new("Help", Menu::new()
+  .add_item(CustomMenuItem::new("Learn More", "Learn More")));
+  let mut menu = Menu::new();
     menu = menu.add_submenu(Submenu::new(
         app_name,
         Menu::new()
@@ -52,5 +70,9 @@ fn build_menu(app_name: &str) -> Menu {
             .add_native_item(MenuItem::Separator)
             .add_native_item(MenuItem::Quit),
     ));
+    menu = menu.add_submenu(edit_menu);
+    menu = menu.add_submenu(view_menu);
+    menu = menu.add_submenu(window_menu);
+    menu = menu.add_submenu(help_menu);
     menu
 }
