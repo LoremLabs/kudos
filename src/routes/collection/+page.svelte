@@ -227,7 +227,7 @@
           class="text-lg font-medium leading-6 text-gray-900"
           id="settles-label"
         >
-          Publicize Your Kudos
+          Reward Your Kudos with Public Thanks
         </h3>
         <div class="mt-2 sm:flex sm:items-start sm:justify-between">
           <div class="max-w-xl text-sm text-gray-500">
