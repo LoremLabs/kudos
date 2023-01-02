@@ -1,0 +1,37 @@
+{
+  "name": "diditd",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "main": "src/diditd.js",
+  "bin": {
+    "dosku": "src/diditd.js"
+  },
+  "scripts": {
+    "dev": "nodemon src/index.js start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "@LoremLabs",
+  "license": "MIT",
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^5.4.1",
+    "@chainsafe/libp2p-noise": "^10.2.0",
+    "@iarna/toml": "^2.2.5",
+    "@libp2p/bootstrap": "^5.0.2",
+    "@libp2p/kad-dht": "^6.1.1",
+    "@libp2p/mplex": "^7.1.1",
+    "@libp2p/webrtc-star": "^5.0.3",
+    "@libp2p/websockets": "^5.0.2",
+    "chalk": "^5.2.0",
+    "conf": "^10.2.0",
+    "dotenv": "^16.0.3",
+    "libp2p": "^0.41.0",
+    "meow": "^11.0.0",
+    "open": "^8.4.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
