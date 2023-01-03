@@ -39,9 +39,14 @@ const exec = async (context) => {
         nodes[nextNode].peerId,
         nodes[nextNode].getMultiaddrs()
       );
-      await nodes[i].dial(nodes[nextNode].peerId);
+      // only dial if it's not ourself
+      if (nodes[i].id !== nodes[nextNode].id) {
+        await nodes[i].dial(nodes[nextNode].peerId);
+        log(chalk.dim(`☞ ${i} -> ${nextNode} connected.`));
+      } else {
+        log(chalk.dim(`☞ ${i} -> ${nextNode} skipped.`));
+      }
 
-      log(chalk.dim(`☞ ${i} -> ${nextNode} connected.`));
     } catch (err) {
       log(chalk.red(`❌ Node ${i} failed to connect: ${err}`));
     }
@@ -93,7 +98,7 @@ const startNode = async (context, nodeSequence) => {
       // The `tag` property will be searched when creating the instance of your Peer Discovery service.
       // The associated object, will be passed to the service when it is instantiated.
     },
-    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    pubsub: gossipsub({ allowPublishToZeroPeers: true, emitSelf: true }),
     dht: kadDHT(),
   };
 
@@ -126,11 +131,11 @@ const startNode = async (context, nodeSequence) => {
   node.addEventListener("peer:discovery", (evt) => {
     // dial them when we discover them
     log(
-      colorPrefix(chalk.gray(`Discovered peer:\t%s`), evt.detail.id.toString())
+      colorPrefix(chalk.gray(`Discovered peer:\t${evt.detail.id.toString()}`))
     );
 
     node.dial(evt.detail.id).catch((err) => {
-      log(colorPrefix(chalk.orange(`Could not dial ${evt.detail.id}`), err));
+      log(colorPrefix(chalk.redBright(`Could not dial ${evt.detail.id}`), err));
     });
   });
 
@@ -153,55 +158,56 @@ const startNode = async (context, nodeSequence) => {
       log(colorPrefix(chalk.red(`decode err: ${err}`)));
     }
   });
-  await node.pubsub.subscribe("did.heartbeat");
+  await node.pubsub.subscribe("did.♥");
 
-  const validateTopic = (msgTopic, msg) => {
-    const topic = uint8ArrayToString(msg.data);
+  const validateTopic = (peerTopic, msg) => {
+    // should return quickly, under 100ms or penalty is applied
+
+    const topic = msg.topic;
 
     // valid topics start a set of prefix regular expressions
+    // may want a stronger membrane in the future, we have access to whole msg.    
     const validTopics = [
-      /^did\/.*/,
-      /^kudos\/.*/,
+      /^did\..*/,
+      /^kudos\..*/,
       // tktkt
     ];
 
     // check to see if the topic is valid
     const isValid = validTopics.some((regex) => regex.test(topic));
     if (!isValid) {
+      log(colorPrefix(chalk.red(`topic: ${topic} is not valid`)));
       throw new Error(`topic: ${topic} is not valid`);
     }
   };
-  node.pubsub.topicValidators.set("all", validateTopic);
+  node.pubsub.topicValidators.set("did.♥", validateTopic);
 
   // setup event listeners
   node.addEventListener("peer:discovery", (evt) => {
     log(
-      colorPrefix(
-        chalk.yellow("Discovered peer:\t%s"),
-        evt.detail.id.toString()
-      )
+      colorPrefix(chalk.yellow(`Discovered peer:\t${evt.detail.id.toString()}`))
     ); // Log discovered peer
   });
 
   node.connectionManager.addEventListener("peer:connect", async (evt) => {
-    log(colorPrefix(chalk.cyan("Connected to peer:\t%s"), JSON.stringify(evt))); // Log connected peer
+    log(colorPrefix(chalk.cyan(`Connected to peer:\t${evt?.detail?.remotePeer} `) + JSON.stringify(evt, null, 2))); // Log connected peer
 
-    // send a heartbeat every second
+    // send a ♥ every second
     let doHeartbeat = async () => {};
     doHeartbeat = async () => {
       const heartbeat = {
-        type: "heartbeat",
-        peerId: node.peerId.toString(),
-        timestamp: Date.now(),
+        type: "♥",
+        // peerId: node.peerId.toString(),
+        // timestamp: Date.now(),
       };
-      const heartbeatTopic = "did.heartbeat";
+      const heartbeatTopic = "did.♥";
       await node.pubsub.publish(
         heartbeatTopic,
-        //        new TextEncoder().encode(JSON.stringify(heartbeat))
+        //        new TextEncoder().encode(JSON.stringify(♥))
         encodeCbor(heartbeat)
       );
 
-      log(colorPrefix(chalk.cyan(`published heartbeat to ${heartbeatTopic}`)));
+      log(colorPrefix(chalk.cyan(`published ♥ to ${heartbeatTopic}`)));
       setTimeout(doHeartbeat, 1000);
     };
     setTimeout(doHeartbeat, 1000);
