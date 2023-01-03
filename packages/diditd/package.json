@@ -8,7 +8,8 @@
     "dosku": "src/diditd.js"
   },
   "scripts": {
-    "dev": "nodemon src/index.js start",
+    "dev": "nodemon pnpm dev:cluster",
+    "dev:cluster": "node src/index.js start --nodes=2",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,13 +24,15 @@
     "@libp2p/mplex": "^7.1.1",
     "@libp2p/webrtc-star": "^5.0.3",
     "@libp2p/websockets": "^5.0.2",
+    "cbor-x": "^1.5.0",
     "chalk": "^5.2.0",
     "conf": "^10.2.0",
     "dotenv": "^16.0.3",
     "libp2p": "^0.41.0",
     "meow": "^11.0.0",
     "open": "^8.4.0",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "uint8arrays": "^4.0.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.20"

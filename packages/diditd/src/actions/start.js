@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { decode as decodeCbor, encode as encodeCbor } from "cbor-x";
 
 import { createLibp2p } from "libp2p";
 import { webSockets } from "@libp2p/websockets";
@@ -7,22 +8,72 @@ import { mplex } from "@libp2p/mplex";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { kadDHT } from "@libp2p/kad-dht";
-
 import { bootstrap } from "@libp2p/bootstrap";
+import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
+import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 
 const log = console.log;
 
 // start the daemon
 const exec = async (context) => {
-  const listenAddresses = context.config.get("listenAddresses") || [];
+  const nodeCount = context.flags.nodes || 1;
 
+  const nodes = [];
+
+  // start up the nodes
+  for (let i = 0; i < nodeCount; i++) {
+    try {
+      nodes[i] = await startNode(context, i);
+      log(chalk.green(`✅ Node ${i + 1}/${nodeCount} started.`));
+    } catch (err) {
+      log(chalk.red(`❌ Node ${i} failed to start: ${err}`));
+      process.exit(1);
+    }
+  }
+
+  // connect nodes to their previous peer
+  for (let i = 0; i < nodeCount; i++) {
+    try {
+      let nextNode = (i + 1) % nodeCount;
+      await nodes[i].peerStore.addressBook.set(
+        nodes[nextNode].peerId,
+        nodes[nextNode].getMultiaddrs()
+      );
+      await nodes[i].dial(nodes[nextNode].peerId);
+
+      log(chalk.dim(`☞ ${i} -> ${nextNode} connected.`));
+    } catch (err) {
+      log(chalk.red(`❌ Node ${i} failed to connect: ${err}`));
+    }
+  }
+};
+
+const startNode = async (context, nodeSequence) => {
+  // each node has its own color log(colorPrefix("Node " + nodeSequence)))
+  const colors = [
+    chalk.cyan,
+    chalk.white,
+    chalk.greenBright,
+    chalk.gray,
+    chalk.blue,
+    chalk.yellow,
+    chalk.magenta,
+    chalk.red,
+  ];
+  const nodeColor = colors[nodeSequence % colors.length];
+  // add a colored prefix to the log
+  const colorPrefix = (text) => nodeColor(`●`) + " " + text;
+  log(colorPrefix("Starting Node " + nodeSequence));
+
+  const listenAddresses = context.config.get("listenAddresses") || [];
+  const bindAddress = context.flags.bindAddress || "127.0.0.1";
   if (listenAddresses.length === 0) {
     log(
-      chalk.yellow(
-        "No listen addresses configured, using default:\t/ip4/127.0.0.1/tcp/5051/ws"
+      colorPrefix(
+        chalk.yellow("No listen addresses configured, using defaults")
       )
     );
-    listenAddresses.push(`/ip4/127.0.0.1/tcp/5051/ws`);
+    listenAddresses.push(`/ip4/${bindAddress}/tcp/${5050 + nodeSequence}/ws`);
   }
 
   const wrtcStar = webRTCStar();
@@ -64,32 +115,45 @@ const exec = async (context) => {
   const node = await createLibp2p(nodeConfig);
   // start libp2p
   await node.start();
-  log(chalk.green("diditd started"));
+  log(colorPrefix(chalk.green("diditd started")));
 
   const listenAddrs = node.getMultiaddrs();
   listenAddrs.forEach((addr) => {
-    log(chalk.white(`\t-\t${addr.toString()}`));
+    log(colorPrefix(chalk.white(`\t-\t${addr.toString()}`)));
   });
 
   // Listen for new peers
   node.addEventListener("peer:discovery", (evt) => {
     // dial them when we discover them
-    log(chalk.gray(`Discovered peer:\t%s`), evt.detail.id.toString());
+    log(
+      colorPrefix(chalk.gray(`Discovered peer:\t%s`), evt.detail.id.toString())
+    );
 
-    libP2p.dial(evt.detail.id).catch((err) => {
-      log(chalk.orange(`Could not dial ${evt.detail.id}`), err);
+    node.dial(evt.detail.id).catch((err) => {
+      log(colorPrefix(chalk.orange(`Could not dial ${evt.detail.id}`), err));
     });
   });
 
   // setup pubsub
   node.pubsub.addEventListener("message", (msg) => {
-    log(
-      chalk.cyan(
-        `pubsub message [${msg.detail.topic}]: ${uint8ArrayToString(msg.data)}`
-      )
-    );
+    try {
+      const decoded = decodeCbor(msg.detail.data);
+      log(
+        colorPrefix(
+          chalk.dim(
+            // `pubsub message [${msg.detail.topic}]: ${uint8ArrayToString(
+            //   msg.detail.data
+            // )}`
+            `pubsub message [${msg.detail.topic}]: `
+          )
+        ),
+        decoded
+      );
+    } catch (err) {
+      log(colorPrefix(chalk.red(`decode err: ${err}`)));
+    }
   });
-  await node.pubsub.subscribe("all");
+  await node.pubsub.subscribe("did.heartbeat");
 
   const validateTopic = (msgTopic, msg) => {
     const topic = uint8ArrayToString(msg.data);
@@ -111,15 +175,39 @@ const exec = async (context) => {
 
   // setup event listeners
   node.addEventListener("peer:discovery", (evt) => {
-    log(chalk.yellow("Discovered peer:\t%s"), evt.detail.id.toString()); // Log discovered peer
+    log(
+      colorPrefix(
+        chalk.yellow("Discovered peer:\t%s"),
+        evt.detail.id.toString()
+      )
+    ); // Log discovered peer
   });
 
   node.connectionManager.addEventListener("peer:connect", async (evt) => {
-    log(chalk.green("Connected to peer:\t%s"), evt.peerId.toString()); // Log connected peer
-    await node.stop();
-    log(chalk.red("diditd stopped"));
-    process.exit(0);
+    log(colorPrefix(chalk.cyan("Connected to peer:\t%s"), JSON.stringify(evt))); // Log connected peer
+
+    // send a heartbeat every second
+    let doHeartbeat = async () => {};
+    doHeartbeat = async () => {
+      const heartbeat = {
+        type: "heartbeat",
+        peerId: node.peerId.toString(),
+        timestamp: Date.now(),
+      };
+      const heartbeatTopic = "did.heartbeat";
+      await node.pubsub.publish(
+        heartbeatTopic,
+        //        new TextEncoder().encode(JSON.stringify(heartbeat))
+        encodeCbor(heartbeat)
+      );
+
+      log(colorPrefix(chalk.cyan(`published heartbeat to ${heartbeatTopic}`)));
+      setTimeout(doHeartbeat, 1000);
+    };
+    setTimeout(doHeartbeat, 1000);
   });
+
+  return node;
 };
 
 export { exec };
