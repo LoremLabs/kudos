@@ -231,7 +231,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     log(
       colorPrefix(
         chalk.cyan(
-          `published ♥ to ${heartbeatTopic} to ${result.recipients.join(
+          `>> published ♥ to ${heartbeatTopic} to ${result.recipients.join(
             ","
           )} peers`
         )
@@ -296,7 +296,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     doPX: true, // TODO: sets trust...
     allowPublishToZeroPeers: true,
     signMessages: true, // TODO: how can we test this?
-    strictSigning: false,
+    strictSigning: true,
     // messageCache: false,
     // scoreParams: {},
     // directPeers: [],
@@ -410,7 +410,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
             // `pubsub message [${msg.detail.topic}]: ${uint8ArrayToString(
             //   msg.detail.data
             // )}`
-            `received pubsub message [${msg.detail.topic}]: `
+            `<< received pubsub message [${msg.detail.topic}]: `
           )
         ) + decoded
       );
