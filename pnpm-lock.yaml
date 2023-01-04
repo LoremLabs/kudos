@@ -20,7 +20,9 @@ importers:
       '@libp2p/bootstrap': ^5.0.2
       '@libp2p/kad-dht': ^6.1.1
       '@libp2p/logger': ^2.0.2
+      '@libp2p/mdns': ^5.1.1
       '@libp2p/mplex': ^7.1.1
+      '@libp2p/pubsub-peer-discovery': ^7.0.1
       '@libp2p/webrtc-star': ^5.0.3
       '@libp2p/websockets': ^5.0.2
       cbor-x: ^1.5.0
@@ -32,6 +34,7 @@ importers:
       nodemon: ^2.0.20
       open: ^8.4.0
       prompts: ^2.4.2
+      string-hash: ^1.1.3
       uint8arrays: ^4.0.2
     dependencies:
       '@chainsafe/libp2p-gossipsub': 5.4.1
@@ -40,7 +43,9 @@ importers:
       '@libp2p/bootstrap': 5.0.2
       '@libp2p/kad-dht': 6.1.1
       '@libp2p/logger': 2.0.2
+      '@libp2p/mdns': 5.1.1
       '@libp2p/mplex': 7.1.1
+      '@libp2p/pubsub-peer-discovery': 7.0.1
       '@libp2p/webrtc-star': 5.0.3
       '@libp2p/websockets': 5.0.2
       cbor-x: 1.5.0
@@ -51,6 +56,7 @@ importers:
       meow: 11.0.0
       open: 8.4.0
       prompts: 2.4.2
+      string-hash: 1.1.3
       uint8arrays: 4.0.2
     devDependencies:
       nodemon: 2.0.20
@@ -280,6 +286,10 @@ packages:
 
   /@iarna/toml/2.2.5:
     resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: false
+
+  /@leichtgewicht/ip-codec/2.0.4:
+    resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
     dev: false
 
   /@libp2p/bootstrap/5.0.2:
@@ -571,6 +581,24 @@ packages:
       - supports-color
     dev: false
 
+  /@libp2p/mdns/5.1.1:
+    resolution: {integrity: sha512-fLNcKHtJ1VfAdUHrqLHMiCLrpsWGk8OkZYQN8spwZ1MiX38jqEh5jbPF/m6YmMxnj7UGmaFOnaMhHdhMXWJSvQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      '@libp2p/interface-peer-discovery': 1.0.4
+      '@libp2p/interface-peer-id': 1.1.2
+      '@libp2p/interface-peer-info': 1.0.6
+      '@libp2p/interfaces': 3.1.0
+      '@libp2p/logger': 2.0.2
+      '@libp2p/peer-id': 1.1.18
+      '@multiformats/multiaddr': 11.1.4
+      '@types/multicast-dns': 7.2.1
+      multicast-dns: 7.2.5
+      multiformats: 10.0.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@libp2p/mplex/7.1.1:
     resolution: {integrity: sha512-0owK1aWgXXtjiohXtjwLV7Ehjdj96eBtsapVt7AzlHA+W8uYnI+x058thq3MisyMDlHiiE3BTh6fEf+t2/0dUw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -701,6 +729,23 @@ packages:
       protons-runtime: 4.0.1
       uint8arraylist: 2.4.3
       uint8arrays: 4.0.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@libp2p/pubsub-peer-discovery/7.0.1:
+    resolution: {integrity: sha512-ER6SATLR2RVBoHkN/MGTiGHH11Ht2s6C/N6CfORSFMIVeP7J4HUF2ccLfUUaTMRrFgUbTY7SC8H0fFYwsD6Hcw==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      '@libp2p/interface-peer-discovery': 1.0.4
+      '@libp2p/interface-peer-id': 1.1.2
+      '@libp2p/interface-peer-info': 1.0.6
+      '@libp2p/interface-pubsub': 3.0.4
+      '@libp2p/interfaces': 3.1.0
+      '@libp2p/logger': 2.0.2
+      '@libp2p/peer-id': 1.1.18
+      '@multiformats/multiaddr': 11.1.4
+      protons-runtime: 4.0.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -1080,12 +1125,25 @@ packages:
       '@stablelib/wipe': 1.0.1
     dev: false
 
+  /@types/dns-packet/5.2.4:
+    resolution: {integrity: sha512-OAruArypdNxR/tzbmrtoyEuXeNTLaZCpO19BXaNC10T5ACIbvjmvhmV2RDEy2eLc3w8IjK7SY3cvUCcAW+sfoQ==}
+    dependencies:
+      '@types/node': 18.11.18
+    dev: false
+
   /@types/long/4.0.2:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
     dev: false
 
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
+    dev: false
+
+  /@types/multicast-dns/7.2.1:
+    resolution: {integrity: sha512-A2PmB8MRcNVEkw6wzGT5rtBHqyHOVjiRMkJH+zpJKXipSi+GGkHg6JjNFApDiYK9WefJqkVG0taln1VMl4TGfw==}
+    dependencies:
+      '@types/dns-packet': 5.2.4
+      '@types/node': 18.11.18
     dev: false
 
   /@types/node/18.11.18:
@@ -1472,6 +1530,13 @@ packages:
       undici: 5.14.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /dns-packet/5.4.0:
+    resolution: {integrity: sha512-EgqGeaBB8hLiHLZtp/IbaDQTL8pZ0+IvwzSHA6d7VyMDM+B9hgddEMa9xjK5oYnw0ci0JQ6g2XCD7/f6cafU6g==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@leichtgewicht/ip-codec': 2.0.4
     dev: false
 
   /doctrine/3.0.0:
@@ -2486,6 +2551,14 @@ packages:
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
+  /multicast-dns/7.2.5:
+    resolution: {integrity: sha512-2eznPJP8z2BFLX50tf0LuODrpINqP1RVIm/CObbTcBRITQgmC/TjcREF1NeTBzIcR5XO/ukWo+YHOjBbFwIupg==}
+    hasBin: true
+    dependencies:
+      dns-packet: 5.4.0
+      thunky: 1.1.0
+    dev: false
+
   /multiformats/10.0.3:
     resolution: {integrity: sha512-K2yGSmstS/oEmYiEIieHb53jJCaqp4ERPDQAYrm5sV3UUrVDZeshJQCK6GHAKyIGufU1vAcbS0PdAAZmC7Tzcw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -3110,6 +3183,10 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: false
 
+  /string-hash/1.1.3:
+    resolution: {integrity: sha512-kJUvRUFK49aub+a7T1nNE66EJbZBMnBgoC1UbCZ5n6bsZKBRga4KgBRTMn/pFkeCZSYtNeSyMxPDM0AXWELk2A==}
+    dev: false
+
   /string_decoder/1.3.0:
     resolution: {integrity: sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==}
     dependencies:
@@ -3155,6 +3232,10 @@ packages:
 
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
+    dev: false
+
+  /thunky/1.1.0:
+    resolution: {integrity: sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==}
     dev: false
 
   /timeout-abort-controller/3.0.0:
