@@ -18,6 +18,7 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { webSockets } from "@libp2p/websockets";
 
+// import { createHdKeyFromMnemonic, decryptAES, encryptAES, generateMnemonic } from '../lib/wallet-utils/index';
 // import { decode as decodeCbor, encode as encodeCbor } from "cbor-x";
 // import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 
@@ -275,7 +276,6 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
   // get or create our PeerId
   const peerId = await getPeerId(context, nodeSequence);
   // const peerId = ourId.toString();
-  console.log("2", { peerId });
   const wrtcStar = webRTCStar();
 
   const gossipConfig = {
