@@ -1,13 +1,13 @@
-import { decode as decodeCbor, encode as encodeCbor } from "cbor-x";
+import * as PeerIdFactory from "@libp2p/peer-id-factory";
 
-import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { bootstrap } from "@libp2p/bootstrap";
+import { msgId as calcMsgId } from "@libp2p/pubsub/utils";
 import chalk from "chalk";
 import cluster from "node:cluster";
 import { createLibp2p } from "libp2p";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { kadDHT } from "@libp2p/kad-dht";
-import { logger } from "@libp2p/logger";
+// import { logger } from "@libp2p/logger";
 import { mdns } from "@libp2p/mdns";
 import { mplex } from "@libp2p/mplex";
 import { noise } from "@chainsafe/libp2p-noise";
@@ -18,12 +18,16 @@ import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { webSockets } from "@libp2p/websockets";
 
+// import { decode as decodeCbor, encode as encodeCbor } from "cbor-x";
+// import { PubSubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
+
 const nodes = {};
 let node = null;
 const heartbeatTopic = "/didit/heartbeat/1.0.0";
 const topics = [heartbeatTopic];
 
 const log = (...args) => {
+  // TODO: use `logger` from libp2p too
   // we want to look for our nodeId in the message and color code it
   for (let i = 0; i < args.length; i++) {
     let message = args[i];
@@ -124,11 +128,6 @@ const exec = async (context) => {
           nodes[msg.nodeId] = null; // TODO: not used, convert to set?
           if (msg.nodeId !== node.peerId) {
             console.log(`Worker ${node.peerId} added node ${msg.nodeId}`);
-            // throws error?
-            //           await node.peerStore.addressBook.set(
-            //   msg.nodeId,
-            //   msg.addrs
-            // );
           }
         } else {
           console.log("msg", { msg });
@@ -142,51 +141,6 @@ const exec = async (context) => {
   } else {
     await createNode(context, 0, []);
   }
-
-  // connect nodes to their previous peer
-  // for (let i = 0; i < nodeCount; i++) {
-  //   try {
-  //     let nextNode = (i + 1) % nodeCount;
-  //     await nodes[i].peerStore.addressBook.set(
-  //       nodes[nextNode].peerId,
-  //       nodes[nextNode].getMultiaddrs()
-  //     );
-  //     // only dial if it's not ourself
-  //     if (nodes[i].id !== nodes[nextNode].id) {
-  //       await nodes[i].dial(nodes[nextNode].peerId);
-  //       log(chalk.dim(`☞ ${i} -> ${nextNode} connected.`));
-  //     } else {
-  //       log(chalk.dim(`☞ ${i} -> ${nextNode} skipped.`));
-  //     }
-  //   } catch (err) {
-  //     log(chalk.red(`❌ Node ${i} failed to connect: ${err}`));
-  //   }
-  // }
-
-  // for (let i = 0; i < nodeCount; i++) {
-  //   const node = nodes[i];
-  // send a ♥ every second
-  // let doHeartbeat = async () => {};
-  // doHeartbeat = async () => {
-  //   const heartbeat = {
-  //     type: "♥",
-  //     // peerId: node.peerId.toString(),
-  //     // timestamp: Date.now(),
-  //   };
-  //   await node.pubsub.publish(
-  //     heartbeatTopic,
-  //     uint8ArrayFromString(JSON.stringify({msg:"♥", from:node.peerId.toString()}))
-  //     //        encodeCbor(heartbeat)
-  //   );
-
-  //   const nodeColor = colorForNode(i);
-  //   const colorPrefix = (text) => nodeColor(`●`) + " " + text;
-
-  //   log(colorPrefix(chalk.cyan(`published ♥ to ${heartbeatTopic}`)));
-  //   setTimeout(doHeartbeat, 1000);
-  // };
-  // setTimeout(doHeartbeat, 1000);
-  //    }
 };
 const createNode = async (context, nodeSequence, bootstrappers) => {
   let node, nodeColor, colorPrefix;
@@ -237,6 +191,10 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
         )
       )
     );
+    if (false) {
+      console.log("peer score stats debug", node.pubsub.dumpPeerScoreStats());
+    }
+
     setTimeout(doHeartbeat, 1000);
   };
   setTimeout(doHeartbeat, 1000);
@@ -248,9 +206,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     const from = node.peerId.toString();
     //  const encodedMessage = encodeCbor({ from, data: message, seqno: 1 });
     const msg = JSON.stringify({ from, data: message, now: Date.now() });
-    const encodedMessage = uint8ArrayFromString(
-      msg
-    );
+    const encodedMessage = uint8ArrayFromString(msg);
     log(`☞ Sending ${msg}`);
     node.pubsub.publish(topic, encodedMessage);
   }, 2000);
@@ -275,6 +231,36 @@ const colorForNode = (nodeId) => {
   return nodeColor;
 };
 
+const getPeerId = async (context, nodeSequence) => {
+  // see if it's in our config
+  let peerIdConfig = context.config.get(`nodes.${nodeSequence}.peerId`);
+
+  if (!peerIdConfig) {
+    log(
+      chalk.bgYellow(
+        `⚠️  Node ${nodeSequence} peerId not found, creating new one`
+      )
+    );
+
+    const id = await PeerIdFactory.createEd25519PeerId();
+    peerIdConfig = {
+      id: id.toString(),
+      privKey:
+        id.privateKey != null
+          ? uint8ArrayToString(id.privateKey, "base64pad")
+          : undefined,
+      pubKey: uint8ArrayToString(id.publicKey, "base64pad"),
+      type: "Ed25519",
+    };
+
+    // save it to our config
+    context.config.set(`nodes.${nodeSequence}.peerId`, peerIdConfig);
+  }
+
+  const peerId = await PeerIdFactory.createFromJSON(peerIdConfig);
+  return peerId;
+};
+
 const startNode = async (context, nodeSequence, bootstrappers) => {
   // add a colored prefix to the log
   const listenAddresses = context.config.get("listenAddresses") || [];
@@ -286,6 +272,10 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     listenAddresses.push(`/ip4/${bindAddress}/tcp/${5050 + nodeSequence}/ws`);
   }
 
+  // get or create our PeerId
+  const peerId = await getPeerId(context, nodeSequence);
+  // const peerId = ourId.toString();
+  console.log("2", { peerId });
   const wrtcStar = webRTCStar();
 
   const gossipConfig = {
@@ -304,12 +294,30 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     allowedTopics: topics,
     fanoutTTL: 60 * 1000,
     heartbeatInterval: 700,
-  };
+    msgIdFn: (msg) => {
+      if (msg.type !== "signed") {
+        throw new Error("expected signed message type");
+      }
+      // Should never happen
+      if (msg.sequenceNumber == null) {
+        throw Error("missing sequenceNumber field");
+      }
 
+      // TODO: Should use .from here or key?
+      const msgId = calcMsgId(msg.from.toBytes(), msg.sequenceNumber);
+      // console.log({id: uint8ArrayToString(msgId,'base64'), seq: msg.sequenceNumber});
+      // {
+      //   id: 'ACQIARIg8axa+9Ghi9eGThbTGXIFdxoznW2C+9WKXdZUqmdyBmohoGT4IplgaQ',
+      //   seq: 2423047616420470889n
+      // }
+      return msgId;
+    },
+  };
+  const gsub = gossipsub(gossipConfig);
   const nodeConfig = {
     // libp2p nodes are started by default, pass false to override this
     start: false,
-
+    peerId,
     addresses: {
       listen: [...listenAddresses],
     },
@@ -324,6 +332,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       mdns({
         serviceTag: "diditd.local",
         interval: 5e3,
+        enabled: true,
       }),
     ],
     streamMuxers: [mplex()],
@@ -332,7 +341,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       // The `tag` property will be searched when creating the instance of your Peer Discovery service.
       // The associated object, will be passed to the service when it is instantiated.
     },
-    pubsub: gossipsub(gossipConfig),
+    pubsub: gsub,
     dht: kadDHT(),
     relay: {
       enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
@@ -443,7 +452,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     // const decoded = decodeCbor(msg.data);
     // log(colorPrefix(chalk.dim(`pubsub message [${msg.topic}]: `)), decoded);
     // msg.data -> schema check?
-    return isValid ? "accept": "reject";
+    return isValid ? "accept" : "reject";
   };
   node.pubsub.topicValidators.set(heartbeatTopic, validateTopic);
 
