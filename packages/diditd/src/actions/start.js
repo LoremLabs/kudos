@@ -58,55 +58,91 @@ const exec = async (context) => {
 
       let bootstrappers = new Set();
       let workerCount = -1;
+      const workerMap = {};
+
+      const createWorker = (nodeId) => {
+        const worker = cluster.fork();
+        workerMap[`worker-${worker.id}`] = nodeId;
+
+        worker.on("message", (msg) => {
+          if (msg && msg.type) {
+            switch (msg.type) {
+              case "log":
+                log(msg);
+                break;
+              case "ready":
+                worker.send({
+                  type: "start",
+                  nodeId,
+                  bootstrappers: [...bootstrappers],
+                }); // send the node number to the worker
+                break;
+              case "new":
+                // add to our list of nodes
+                bootstrappers.add(...msg.addrs);
+
+                // relay to other workers
+                for (const id in cluster.workers) {
+                  if (cluster.workers[id] !== worker) {
+                    cluster.workers[id].send(msg);
+                  }
+                }
+
+                // setup another worker if we need to
+                setupWorker();
+                break;
+              default:
+                console.log(
+                  `Worker ${process.pid} received unknown message ${msg.type}`,
+                  msg
+                );
+            }
+          }
+        });
+      };
 
       const setupWorker = () => {
         workerCount++;
         if (workerCount < nodeCount) {
-          const worker = cluster.fork();
-
-          worker.on("message", (msg) => {
-            if (msg && msg.type) {
-              switch (msg.type) {
-                case "log":
-                  log(msg);
-                  break;
-                case "ready":
-                  worker.send({
-                    type: "start",
-                    nodeId: workerCount,
-                    bootstrappers: [...bootstrappers],
-                  }); // send the node number to the worker
-                  break;
-                case "new":
-                  // add to our list of nodes
-                  bootstrappers.add(...msg.addrs);
-
-                  // relay to other workers
-                  for (const id in cluster.workers) {
-                    if (cluster.workers[id] !== worker) {
-                      cluster.workers[id].send(msg);
-                    }
-                  }
-
-                  // setup another worker if we need to
-                  setupWorker();
-                  break;
-                default:
-                  console.log(
-                    `Worker ${process.pid} received unknown message ${msg.type}`,
-                    msg
-                  );
-              }
-            }
-          });
+          createWorker(workerCount);
         }
       };
       setupWorker();
 
-      cluster.on("exit", (worker, code, signal) => {
+      let coolDown = 2000;
+      let restartsActive = new Set();
+      cluster.on("exit", async (worker, code, signal) => {
         console.log(
-          `worker ${worker.process.pid} died with signal ${signal} and code ${code}`
+          worker,
+          `worker ${worker.process.pid} died with signal ${signal} and code ${code} ${worker.id}`
         );
+        workerCount--;
+        // try to restart the worker after a cool down
+        coolDown = coolDown * 2;
+        if (coolDown > 60000) {
+          coolDown = 60000;
+        }
+
+        if (restartsActive.has(worker.id)) {
+          console.log(`❌ node ${worker.id} already restarting`);
+          return;
+        }
+        restartsActive.add(worker.id);
+        setTimeout(async () => {
+          restartsActive.delete(worker.id);
+          const nodeId = workerMap[`worker-${worker.id}`];
+          await createWorker(nodeId);
+          coolDown = coolDown / 2;
+          if (coolDown < 2000) {
+            coolDown = 2000;
+          }
+        }, coolDown);
+
+        // one node down restarts, if both are down, stop
+        if (workerCount === 0) {
+          console.log(`❌ no nodes active, stopping...`);
+          process.exit(0);
+        }
       });
       return;
     } else if (cluster.isWorker) {
