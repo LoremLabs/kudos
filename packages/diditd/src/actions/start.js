@@ -465,7 +465,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
   //  https://github.com/uink45/Light-Client-Server/blob/93a9fd939a7ca90a801c4e368d043a64d3a5d26c/packages/lodestar/src/network/gossip/gossipsub.ts
 
   // setup stream handler
-  node.handle(`/ident.agency/1.0.0`, () => {
+  node.handle(`/${IA_VERSION}`, () => {
     log(colorPrefix(chalk.red(`received stream!`)));
     // https://github.com/canvasxyz/canvas/blob/6494f48ef2d4516a62389d70a3f1b7222e9ad351/packages/core/src/rpc/server.ts#L23
     // https://github.com/ChainSafe/js-libp2p-gossipsub/blob/ad1e6cee2df68141a263ff16c64240a89961b9ab/src/index.ts#L912
@@ -508,7 +508,6 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     // may want a stronger membrane in the future, we have access to whole msg.
     const validTopics = [
       new RegExp(`^\/${IA_VERSION}\/.*`),
-      /^\/kudos.*/,
       // tktkt
     ];
 
