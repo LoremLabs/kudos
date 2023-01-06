@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
+
+// #!/usr/bin/env node
 
 // import updateNotifier from "update-notifier";
 import { URL } from "url";

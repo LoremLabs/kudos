@@ -1,12 +1,16 @@
 import * as PeerIdFactory from "@libp2p/peer-id-factory";
 
+import { TOPIC_HEARTBEAT, topics } from "../lib/gossip/topics";
+import { colorForNode, toHex } from "../lib/utils.js";
+
+import { IA_VERSION } from "../lib/protocols";
 import { bootstrap } from "@libp2p/bootstrap";
 import { msgId as calcMsgId } from "@libp2p/pubsub/utils";
 import chalk from "chalk";
 import cluster from "node:cluster";
-import { createHash } from "node:crypto";
 import { createLibp2p } from "libp2p";
-import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { gossipsub } from "../lib/gossip/index.js";
+// import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { kadDHT } from "@libp2p/kad-dht";
 // import { logger } from "@libp2p/logger";
 import { mdns } from "@libp2p/mdns";
@@ -15,7 +19,6 @@ import { noise } from "@chainsafe/libp2p-noise";
 import process from "node:process";
 import { prometheusMetrics } from "@libp2p/prometheus-metrics";
 import stringHash from "string-hash";
-import { toHex } from "../lib/utils.js";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { webRTCStar } from "@libp2p/webrtc-star";
@@ -27,8 +30,6 @@ import { webSockets } from "@libp2p/websockets";
 
 const nodes = {};
 let node = null;
-const heartbeatTopic = "/didit/heartbeat/1.0.0";
-const topics = [heartbeatTopic];
 
 const log = (...args) => {
   // TODO: use `logger` from libp2p too
@@ -102,6 +103,9 @@ const exec = async (context) => {
 
                 // setup another worker if we need to
                 setupWorker();
+                break;
+              case "dependency":
+                // console.log('ignoring');
                 break;
               default:
                 console.log(
@@ -198,7 +202,6 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     node = await startNode(context, nodeSequence, bootstrappers);
     nodeColor = colorForNode(node.peerId);
     colorPrefix = (text) => nodeColor(`●`) + " " + text;
-
     // subscribe to all topics
     for (let j = 0; j < topics.length; j++) {
       log(
@@ -215,6 +218,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     );
   } catch (err) {
     log(chalk.red(`❌ Node ${nodeSequence} failed to start: ${err}`));
+    console.log(err);
     process.exit(1);
   }
   let doHeartbeat = async () => {};
@@ -226,7 +230,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     };
     try {
       const result = await node.pubsub.publish(
-        heartbeatTopic,
+        TOPIC_HEARTBEAT,
         uint8ArrayFromString(JSON.stringify(heartbeat))
         //        encodeCbor(heartbeat)
       );
@@ -234,14 +238,14 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
       log(
         colorPrefix(
           chalk.cyan(
-            `>> published ♥ to ${heartbeatTopic} to ${result.recipients.length} peers`
+            `>> published ♥ to ${TOPIC_HEARTBEAT} to ${result.recipients.length} peers`
           )
         )
       );
     } catch (err) {
       log(
         colorPrefix(
-          chalk.red(`❌ failed to publish ♥ to ${heartbeatTopic} ${err}`)
+          chalk.red(`❌ failed to publish ♥ to ${TOPIC_HEARTBEAT} ${err}`)
         )
       );
     }
@@ -256,7 +260,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
   setTimeout(() => {
     // simulate a message publish to see if it gets relayed
     const message = "Hello World";
-    const topic = heartbeatTopic;
+    const topic = TOPIC_HEARTBEAT;
     const from = node.peerId.toString();
     //  const encodedMessage = encodeCbor({ from, data: message, seqno: 1 });
     const msg = JSON.stringify({ from, data: message, now: Date.now() });
@@ -266,23 +270,6 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
   }, 2000);
 
   return node;
-};
-
-const colorForNode = (nodeId) => {
-  // each node has its own color log(colorPrefix("Node " + nodeSequence)))
-  const colors = [
-    chalk.cyan,
-    chalk.greenBright,
-    chalk.white,
-    chalk.gray,
-    chalk.blue,
-    chalk.yellow,
-    chalk.magenta,
-    chalk.red,
-  ];
-  const nodeColor = colors[stringHash(nodeId + "") % colors.length]; // gives a consistent color based on id, but given the color space is low may be sometimes confusing.
-
-  return nodeColor;
 };
 
 const getPeerId = async (context, nodeSequence) => {
@@ -328,9 +315,9 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
 
   // get or create our PeerId
   const peerId = await getPeerId(context, nodeSequence);
+  console.log({ peerId });
   // const peerId = ourId.toString();
   const wrtcStar = webRTCStar();
-
   const gossipConfig = {
     emitSelf: false,
     gossipIncoming: true,
@@ -373,7 +360,8 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     //   return msgId;
     // },
   };
-  const gsub = gossipsub(gossipConfig);
+
+  const gsub = gossipsub({ peerId });
   const nodeConfig = {
     // libp2p nodes are started by default, pass false to override this
     start: false,
@@ -435,7 +423,6 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     );
   }
   if (bootstrappers && bootstrappers.length) {
-    console.log("bootstrappers", bootstrappers);
     nodeConfig.peerDiscovery.push(
       bootstrap({
         list: bootstrappers,
@@ -445,7 +432,6 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       })
     );
   }
-  console.log({ bootstrapNodes });
   const node = await createLibp2p(nodeConfig);
   // start libp2p
   await node.start();
@@ -521,7 +507,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     // valid topics start a set of prefix regular expressions
     // may want a stronger membrane in the future, we have access to whole msg.
     const validTopics = [
-      /^\/did.*/,
+      new RegExp(`^\/${IA_VERSION}\/.*`),
       /^\/kudos.*/,
       // tktkt
     ];
@@ -539,7 +525,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     // msg.data -> schema check?
     return isValid ? "accept" : "reject";
   };
-  node.pubsub.topicValidators.set(heartbeatTopic, validateTopic);
+  node.pubsub.topicValidators.set(TOPIC_HEARTBEAT, validateTopic);
 
   // setup event listeners
   // node.addEventListener("peer:discovery", (evt) => {
