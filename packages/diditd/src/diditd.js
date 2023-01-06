@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-import fs from "fs";
-import path from "path";
-import meow from "meow";
+
 // import updateNotifier from "update-notifier";
 import { URL } from "url";
+import config from "./config.js";
+import diditd from "./index.js";
+import dotenv from "dotenv";
+import fs from "fs";
+import meow from "meow";
+import path from "path";
 const __dirname = new URL(".", import.meta.url).pathname;
 const personality = __dirname.split("/").slice(-3)[0];
 
-import dotenv from "dotenv";
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
-import config from "./config.js";
-import diditd from "./index.js";
 
 const pkgJson = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "../package.json"))
@@ -45,10 +45,16 @@ const defaultHelp = `
 const cli = meow(defaultHelp, {
   importMeta: import.meta,
   flags: {
-    // transaction: {
-    //   type: "string",
-    //   default: "",
-    // },
+    nodeId: {
+      type: "string",
+      isMultiple: true,
+      // default: [],
+    },
+    bootstrap: {
+      type: "string",
+      isMultiple: true,
+      // default: [],
+    },
     // wallet: {
     //   type: "string",
     //   default: "",
@@ -71,6 +77,7 @@ diditd({
   personality,
   version: pkgJson.version,
   argv: process.argv.slice(2),
+  startTs: Date.now(),
 });
 
 // updateNotifier({

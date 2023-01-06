@@ -4,6 +4,7 @@ import { bootstrap } from "@libp2p/bootstrap";
 import { msgId as calcMsgId } from "@libp2p/pubsub/utils";
 import chalk from "chalk";
 import cluster from "node:cluster";
+import { createHash } from "node:crypto";
 import { createLibp2p } from "libp2p";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { kadDHT } from "@libp2p/kad-dht";
@@ -12,7 +13,9 @@ import { mdns } from "@libp2p/mdns";
 import { mplex } from "@libp2p/mplex";
 import { noise } from "@chainsafe/libp2p-noise";
 import process from "node:process";
+import { prometheusMetrics } from "@libp2p/prometheus-metrics";
 import stringHash from "string-hash";
+import { toHex } from "../lib/utils.js";
 import { fromString as uint8ArrayFromString } from "uint8arrays/from-string";
 import { toString as uint8ArrayToString } from "uint8arrays/to-string";
 import { webRTCStar } from "@libp2p/webrtc-star";
@@ -49,9 +52,18 @@ const log = (...args) => {
 
 // start the daemon
 const exec = async (context) => {
-  const nodeCount = context.flags.nodes || 1;
-
-  if (nodeCount > 1) {
+  const nodeCount = context.flags.nodes
+    ? context.flags.nodes
+    : context.flags.nodeId.length || 1;
+  const nodeIds = context.flags.nodeId.length
+    ? context.flags.nodeId
+    : [...Array(nodeCount).keys()].map((i) => i.toString()); // 0...nodeCount
+  if (nodeIds.length !== nodeCount) {
+    throw new Error(
+      `nodeIds length (${nodeIds.length}) must match nodeCount (${nodeCount})`
+    );
+  }
+  if (!context.flags.standalone) {
     // assume this is run as a cluster, probably for dev purposes
     if (cluster.isPrimary) {
       console.log(`Primary ${process.pid} is running`);
@@ -104,7 +116,7 @@ const exec = async (context) => {
       const setupWorker = () => {
         workerCount++;
         if (workerCount < nodeCount) {
-          createWorker(workerCount);
+          createWorker(nodeIds[workerCount]);
         }
       };
       setupWorker();
@@ -176,6 +188,7 @@ const exec = async (context) => {
       process.send({ type: "ready" });
     }
   } else {
+    // standalone mode
     await createNode(context, 0, []);
   }
 };
@@ -208,26 +221,30 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
   doHeartbeat = async () => {
     const heartbeat = {
       type: "♥",
-      // peerId: node.peerId.toString(),
-      // timestamp: Date.now(),
+      from: node.peerId.toString(),
+      timestamp: parseInt((Date.now() - context.startTs) / 1000, 10),
     };
-    const result = await node.pubsub.publish(
-      heartbeatTopic,
-      uint8ArrayFromString(
-        JSON.stringify({ msg: "♥", from: node.peerId.toString() })
-      )
-      //        encodeCbor(heartbeat)
-    );
+    try {
+      const result = await node.pubsub.publish(
+        heartbeatTopic,
+        uint8ArrayFromString(JSON.stringify(heartbeat))
+        //        encodeCbor(heartbeat)
+      );
 
-    log(
-      colorPrefix(
-        chalk.cyan(
-          `>> published ♥ to ${heartbeatTopic} to ${result.recipients.join(
-            ","
-          )} peers`
+      log(
+        colorPrefix(
+          chalk.cyan(
+            `>> published ♥ to ${heartbeatTopic} to ${result.recipients.length} peers`
+          )
         )
-      )
-    );
+      );
+    } catch (err) {
+      log(
+        colorPrefix(
+          chalk.red(`❌ failed to publish ♥ to ${heartbeatTopic} ${err}`)
+        )
+      );
+    }
     if (false) {
       console.log("peer score stats debug", node.pubsub.dumpPeerScoreStats());
     }
@@ -330,24 +347,31 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     allowedTopics: topics,
     fanoutTTL: 60 * 1000,
     heartbeatInterval: 700,
-    msgIdFn: (msg) => {
-      if (msg.type !== "signed") {
-        throw new Error("expected signed message type");
-      }
-      // Should never happen
-      if (msg.sequenceNumber == null) {
-        throw Error("missing sequenceNumber field");
-      }
-
-      // TODO: Should use .from here or key?
-      const msgId = calcMsgId(msg.from.toBytes(), msg.sequenceNumber);
-      // console.log({id: uint8ArrayToString(msgId,'base64'), seq: msg.sequenceNumber});
-      // {
-      //   id: 'ACQIARIg8axa+9Ghi9eGThbTGXIFdxoznW2C+9WKXdZUqmdyBmohoGT4IplgaQ',
-      //   seq: 2423047616420470889n
-      // }
-      return msgId;
+    msgIdFn: (msg) => createHash("sha256").update(msg.data).digest(),
+    msgIdToStrFn: (id) => toHex(id),
+    fastMsgIdFn: (msg) => {
+      const hash = createHash("sha256");
+      hash.update(msg.data || new Uint8Array([]));
+      return "0x" + hash.digest("hex");
     },
+    // msgIdFn: (msg) => {
+    //   if (msg.type !== "signed") {
+    //     throw new Error("expected signed message type");
+    //   }
+    //   // Should never happen
+    //   if (msg.sequenceNumber == null) {
+    //     throw Error("missing sequenceNumber field");
+    //   }
+
+    //   // TODO: Should use .from here or key?
+    //   const msgId = calcMsgId(msg.from.toBytes(), msg.sequenceNumber);
+    //   // console.log({id: uint8ArrayToString(msgId,'base64'), seq: msg.sequenceNumber});
+    //   // {
+    //   //   id: 'ACQIARIg8axa+9Ghi9eGThbTGXIFdxoznW2C+9WKXdZUqmdyBmohoGT4IplgaQ',
+    //   //   seq: 2423047616420470889n
+    //   // }
+    //   return msgId;
+    // },
   };
   const gsub = gossipsub(gossipConfig);
   const nodeConfig = {
@@ -377,8 +401,11 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       // The `tag` property will be searched when creating the instance of your Peer Discovery service.
       // The associated object, will be passed to the service when it is instantiated.
     },
+    metrics: prometheusMetrics(),
     pubsub: gsub,
-    dht: kadDHT(),
+    dht: kadDHT({
+      protocolPrefix: "/identagency",
+    }),
     relay: {
       enabled: true, // Allows you to dial and accept relayed connections. Does not make you a relay.
       hop: {
@@ -393,13 +420,19 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
   // //   "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
   // ];
   const bootstrapNodes =
-    (context.flags.bootstrap
-      ? context.flags.bootstrap.split(",")
-      : undefined) ||
-    context.config.get("bootstrap") ||
+    (context.flags.bootstrap.length ? context.flags.bootstrap : undefined) || [
+      context.config.get("bootstrap"),
+    ] ||
     [];
   if (bootstrapNodes.length > 0) {
-    nodeConfig.peerDiscovery.push(bootstrap({ list: bootstrapNodes }));
+    nodeConfig.peerDiscovery.push(
+      bootstrap({
+        list: bootstrapNodes,
+        tagName: "bootstrap",
+        tagValue: 50,
+        tagTTL: 120 * 1000,
+      })
+    );
   }
   if (bootstrappers && bootstrappers.length) {
     console.log("bootstrappers", bootstrappers);
@@ -412,7 +445,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       })
     );
   }
-
+  console.log({ bootstrapNodes });
   const node = await createLibp2p(nodeConfig);
   // start libp2p
   await node.start();
@@ -436,26 +469,42 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       colorPrefix(chalk.gray(`Discovered peer:\t${evt.detail.id.toString()}`))
     );
 
-    node.dial(evt.detail.id, { tag: "abc" }).catch((err) => {
+    node.dial(evt.detail.id, {}).catch((err) => {
       log(colorPrefix(chalk.redBright(`Could not dial ${evt.detail.id}`), err));
     });
+  });
+
+  // TODO: look at these approaches:
+  //  https://github.com/ETL-INTERNATIONAL/js-waku/blob/493ad50d221153fd28c435096dfcb755f895f0fb/src/lib/waku_relay/index.ts
+  //  https://github.com/uink45/Light-Client-Server/blob/93a9fd939a7ca90a801c4e368d043a64d3a5d26c/packages/lodestar/src/network/gossip/gossipsub.ts
+
+  // setup stream handler
+  node.handle(`/ident.agency/1.0.0`, () => {
+    log(colorPrefix(chalk.red(`received stream!`)));
+    // https://github.com/canvasxyz/canvas/blob/6494f48ef2d4516a62389d70a3f1b7222e9ad351/packages/core/src/rpc/server.ts#L23
+    // https://github.com/ChainSafe/js-libp2p-gossipsub/blob/ad1e6cee2df68141a263ff16c64240a89961b9ab/src/index.ts#L912
   });
 
   // setup pubsub
   // node.pubsub.addEventListener("message", (msg) => {
   //   log('msg');
   // });
-  node.pubsub.addEventListener("message", async (msg) => {
+  node.pubsub.addEventListener("message", async ({ detail: message }) => {
+    if (message.type !== "signed") {
+      log(colorPrefix(chalk.red(`message ${message.id} not signed`)));
+      return;
+    }
+    // console.log({message});
     try {
       //      const decoded = decodeCbor(msg.detail.data);
-      const decoded = uint8ArrayToString(msg.detail.data);
+      const decoded = uint8ArrayToString(message.data);
       log(
         colorPrefix(
           chalk.dim(
             // `pubsub message [${msg.detail.topic}]: ${uint8ArrayToString(
             //   msg.detail.data
             // )}`
-            `<< received pubsub message [${msg.detail.topic}]: `
+            `<< received pubsub message [${message.topic}]: `
           )
         ) + decoded
       );

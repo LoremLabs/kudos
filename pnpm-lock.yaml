@@ -24,6 +24,7 @@ importers:
       '@libp2p/mplex': ^7.1.1
       '@libp2p/peer-id': ^1.1.18
       '@libp2p/peer-id-factory': ^1.0.20
+      '@libp2p/prometheus-metrics': ^1.1.3
       '@libp2p/pubsub': ^5.0.1
       '@libp2p/pubsub-peer-discovery': ^7.0.1
       '@libp2p/webrtc-star': ^5.0.3
@@ -39,6 +40,7 @@ importers:
       meow: ^11.0.0
       nodemon: ^2.0.20
       open: ^8.4.0
+      prom-client: ^14.1.1
       prompts: ^2.4.2
       string-hash: ^1.1.3
       uint8arrays: ^4.0.2
@@ -53,6 +55,7 @@ importers:
       '@libp2p/mplex': 7.1.1
       '@libp2p/peer-id': 1.1.18
       '@libp2p/peer-id-factory': 1.0.20
+      '@libp2p/prometheus-metrics': 1.1.3_prom-client@14.1.1
       '@libp2p/pubsub': 5.0.1
       '@libp2p/pubsub-peer-discovery': 7.0.1
       '@libp2p/webrtc-star': 5.0.3
@@ -67,6 +70,7 @@ importers:
       libp2p: 0.41.0
       meow: 11.0.0
       open: 8.4.0
+      prom-client: 14.1.1
       prompts: 2.4.2
       string-hash: 1.1.3
       uint8arrays: 4.0.2
@@ -745,6 +749,22 @@ packages:
       - supports-color
     dev: false
 
+  /@libp2p/prometheus-metrics/1.1.3_prom-client@14.1.1:
+    resolution: {integrity: sha512-4rpn+ND/w2y5oWdP15KADLpD+SX6hdnEN0eZf+L18p8MaMr5qjpQBsCTe51VitKfVy5kIujNlquSVLhPozWFAA==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    peerDependencies:
+      prom-client: ^14.1.0
+    dependencies:
+      '@libp2p/interface-connection': 3.0.6
+      '@libp2p/interface-metrics': 4.0.4
+      '@libp2p/logger': 2.0.2
+      it-foreach: 1.0.0
+      it-stream-types: 1.0.5
+      prom-client: 14.1.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@libp2p/pubsub-peer-discovery/7.0.1:
     resolution: {integrity: sha512-ER6SATLR2RVBoHkN/MGTiGHH11Ht2s6C/N6CfORSFMIVeP7J4HUF2ccLfUUaTMRrFgUbTY7SC8H0fFYwsD6Hcw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -1291,6 +1311,10 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
     dev: true
+
+  /bintrees/1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
+    dev: false
 
   /bip39/3.0.4:
     resolution: {integrity: sha512-YZKQlb752TrUWqHWj7XAwCSjYEgGAk+/Aas3V7NyjQeZYsztO8JnQUaCWhcnL4T+jL8nvB8typ2jRPzTlgugNw==}
@@ -3056,6 +3080,13 @@ packages:
       netmask: 2.0.2
     dev: false
 
+  /prom-client/14.1.1:
+    resolution: {integrity: sha512-hFU32q7UZQ59bVJQGUtm3I2PrJ3gWvoCkilX9sF165ks1qflhugVCeK+S1JjJYHvyt3o5kj68+q3bchormjnzw==}
+    engines: {node: '>=10'}
+    dependencies:
+      tdigest: 0.1.2
+    dev: false
+
   /prompts/2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
@@ -3418,6 +3449,12 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       has-flag: 4.0.0
+    dev: false
+
+  /tdigest/0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
+    dependencies:
+      bintrees: 1.0.2
     dev: false
 
   /text-table/0.2.0:
