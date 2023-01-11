@@ -10,8 +10,10 @@ export class IdentGossipsub extends GossipSub {
       peerId: modules.peerId,
       emitSelf: false,
       gossipIncoming: true,
-      fallbackToFloodsub: true,
-      floodPublish: true,
+      fallbackToFloodsub: false,
+      mcacheLength: 120,
+      mcacheGossip: 90,
+      floodPublish: false,
       doPX: true, // TODO: sets trust...
       allowPublishToZeroPeers: true,
       signMessages: true, // TODO: how can we test this?

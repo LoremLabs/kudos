@@ -3,17 +3,21 @@ import * as PeerIdFactory from "@libp2p/peer-id-factory";
 import { TOPIC_HEARTBEAT, topics } from "../lib/gossip/topics";
 import { colorForNode, toHex } from "../lib/utils.js";
 
+import Database from "better-sqlite3";
 import { IA_VERSION } from "../lib/protocols";
 import { bootstrap } from "@libp2p/bootstrap";
 import { msgId as calcMsgId } from "@libp2p/pubsub/utils";
 import chalk from "chalk";
 import cluster from "node:cluster";
-import { createLibp2p } from "libp2p";
+import { createLibp2p } from "../lib/p2p";
+import envPaths from "env-paths";
+import fs from "fs";
 import { gossipsub } from "../lib/gossip/index.js";
 // import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { kadDHT } from "@libp2p/kad-dht";
 // import { logger } from "@libp2p/logger";
 import { mdns } from "@libp2p/mdns";
+import mkdirp from "mkdirp";
 import { mplex } from "@libp2p/mplex";
 import { noise } from "@chainsafe/libp2p-noise";
 import process from "node:process";
@@ -49,6 +53,46 @@ const log = (...args) => {
     // args[i] = message;
     console.log(message);
   }
+};
+
+const setupNodeDb = (context, nodeId) => {
+  const paths = envPaths("diditd");
+
+  // STEP 1: make sure data directory exists
+  const dataDir = `${paths.data}/${nodeId}`;
+  console.log({ dataDir });
+  try {
+    if (fs.existsSync(dataDir)) {
+      // file exists
+    } else {
+      if (dataDir && dataDir.length > 0) {
+        const made = mkdirp.sync(dataDir); // die on error
+        if (made) {
+          log(`${dataDir} -> dataDir created`);
+        } else {
+          log(`${dataDir} -> dataDir not created`);
+        }
+      } else {
+        throw new Error("dataDir is not defined");
+      }
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+
+  const dbPath = `${dataDir}/tmp.db`;
+  const db = new Database(dbPath, {
+    readonly: false,
+  });
+
+  const statement = `CREATE TABLE IF NOT EXISTS msgs (
+    msgId TEXT,
+    msg TEXT,
+    timestamp INTEGER
+    );`;
+
+  db.exec(statement);
+  return db;
 };
 
 // start the daemon
@@ -199,7 +243,9 @@ const exec = async (context) => {
 const createNode = async (context, nodeSequence, bootstrappers) => {
   let node, nodeColor, colorPrefix;
   try {
+    const db = setupNodeDb(context, nodeSequence);
     node = await startNode(context, nodeSequence, bootstrappers);
+    node.db = db;
     nodeColor = colorForNode(node.peerId);
     colorPrefix = (text) => nodeColor(`●`) + " " + text;
     // subscribe to all topics
@@ -226,7 +272,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     const heartbeat = {
       type: "♥",
       from: node.peerId.toString(),
-      timestamp: parseInt((Date.now() - context.startTs) / 1000, 10),
+      timestamp: Date.now(), // parseInt((Date.now() - context.startTs) / 1000, 10),
     };
     try {
       const result = await node.pubsub.publish(
@@ -263,7 +309,7 @@ const createNode = async (context, nodeSequence, bootstrappers) => {
     const topic = TOPIC_HEARTBEAT;
     const from = node.peerId.toString();
     //  const encodedMessage = encodeCbor({ from, data: message, seqno: 1 });
-    const msg = JSON.stringify({ from, data: message, now: Date.now() });
+    const msg = JSON.stringify({ from, data: message, timestamp: Date.now() });
     const encodedMessage = uint8ArrayFromString(msg);
     log(`☞ Sending ${msg}`);
     node.pubsub.publish(topic, encodedMessage);
@@ -318,48 +364,48 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
   console.log({ peerId });
   // const peerId = ourId.toString();
   const wrtcStar = webRTCStar();
-  const gossipConfig = {
-    emitSelf: false,
-    gossipIncoming: true,
-    fallbackToFloodsub: true,
-    floodPublish: true,
-    doPX: true, // TODO: sets trust...
-    allowPublishToZeroPeers: true,
-    signMessages: true, // TODO: how can we test this?
-    strictSigning: true,
-    // messageCache: false,
-    // scoreParams: {},
-    // directPeers: [],
-    // allowedTopics: [ '/fruit' ]
-    allowedTopics: topics,
-    fanoutTTL: 60 * 1000,
-    heartbeatInterval: 700,
-    msgIdFn: (msg) => createHash("sha256").update(msg.data).digest(),
-    msgIdToStrFn: (id) => toHex(id),
-    fastMsgIdFn: (msg) => {
-      const hash = createHash("sha256");
-      hash.update(msg.data || new Uint8Array([]));
-      return "0x" + hash.digest("hex");
-    },
-    // msgIdFn: (msg) => {
-    //   if (msg.type !== "signed") {
-    //     throw new Error("expected signed message type");
-    //   }
-    //   // Should never happen
-    //   if (msg.sequenceNumber == null) {
-    //     throw Error("missing sequenceNumber field");
-    //   }
+  // const gossipConfig = {
+  //   emitSelf: false,
+  //   gossipIncoming: true,
+  //   fallbackToFloodsub: true,
+  //   floodPublish: true,
+  //   doPX: true, // TODO: sets trust...
+  //   allowPublishToZeroPeers: true,
+  //   signMessages: true, // TODO: how can we test this?
+  //   strictSigning: true,
+  //   // messageCache: false,
+  //   // scoreParams: {},
+  //   // directPeers: [],
+  //   // allowedTopics: [ '/fruit' ]
+  //   allowedTopics: topics,
+  //   fanoutTTL: 60 * 1000,
+  //   heartbeatInterval: 700,
+  //   msgIdFn: (msg) => createHash("sha256").update(msg.data).digest(),
+  //   msgIdToStrFn: (id) => toHex(id),
+  //   fastMsgIdFn: (msg) => {
+  //     const hash = createHash("sha256");
+  //     hash.update(msg.data || new Uint8Array([]));
+  //     return "0x" + hash.digest("hex");
+  //   },
+  //   // msgIdFn: (msg) => {
+  //   //   if (msg.type !== "signed") {
+  //   //     throw new Error("expected signed message type");
+  //   //   }
+  //   //   // Should never happen
+  //   //   if (msg.sequenceNumber == null) {
+  //   //     throw Error("missing sequenceNumber field");
+  //   //   }
 
-    //   // TODO: Should use .from here or key?
-    //   const msgId = calcMsgId(msg.from.toBytes(), msg.sequenceNumber);
-    //   // console.log({id: uint8ArrayToString(msgId,'base64'), seq: msg.sequenceNumber});
-    //   // {
-    //   //   id: 'ACQIARIg8axa+9Ghi9eGThbTGXIFdxoznW2C+9WKXdZUqmdyBmohoGT4IplgaQ',
-    //   //   seq: 2423047616420470889n
-    //   // }
-    //   return msgId;
-    // },
-  };
+  //   //   // TODO: Should use .from here or key?
+  //   //   const msgId = calcMsgId(msg.from.toBytes(), msg.sequenceNumber);
+  //   //   // console.log({id: uint8ArrayToString(msgId,'base64'), seq: msg.sequenceNumber});
+  //   //   // {
+  //   //   //   id: 'ACQIARIg8axa+9Ghi9eGThbTGXIFdxoznW2C+9WKXdZUqmdyBmohoGT4IplgaQ',
+  //   //   //   seq: 2423047616420470889n
+  //   //   // }
+  //   //   return msgId;
+  //   // },
+  // };
 
   const gsub = gossipsub({ peerId });
   const nodeConfig = {
@@ -481,9 +527,11 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       return;
     }
     // console.log({message});
+    let msg = {};
     try {
       //      const decoded = decodeCbor(msg.detail.data);
       const decoded = uint8ArrayToString(message.data);
+      msg = JSON.parse(decoded);
       log(
         colorPrefix(
           chalk.dim(
@@ -494,6 +542,14 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
           )
         ) + decoded
       );
+
+      console.log({ decoded });
+      const statement = `INSERT INTO msgs (msgId, msg, timestamp) VALUES (?, ?, ?)`;
+      const values = [message.id, decoded, msg.timestamp];
+      const result = node.db.prepare(statement).run(values);
+      // if (result) {
+      //   console.log(  chalk.green("stored"));
+      // }
     } catch (err) {
       log(colorPrefix(chalk.red(`decode err: ${err}`)));
     }
@@ -548,6 +604,22 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
     const connectionId = connection.remotePeer.toString();
     nodes[connectionId] = connection;
     log(colorPrefix(chalk.cyan(`Connected to peer:\t${connectionId} `)), evt); // Log connected peer
+
+    // Handle messages for the protocol
+    // await nodeListener.handle('/chat/1.0.0', async ({ stream }) => {
+    //   // Send stdin to the stream
+    //   stdinToStream(stream)
+    //   // Read the stream and output to console
+    //   streamToConsole(stream)
+    // });
+
+    // const stream = await nodeDialer.dialProtocol(listenerMa, '/chat/1.0.0')
+
+    // console.log('Dialer dialed to listener on protocol: /chat/1.0.0')
+    // console.log('Type a message and see what happens')
+
+    // // Send stdin to the stream
+    // stdinToStream(stream)
   });
 
   return node;
