@@ -1,0 +1,16 @@
+"""User account data"""
+type User {
+  """E-mail"""
+  email: String!
+
+  """First name"""
+  firstName: String
+
+  """Last name"""
+  lastName: String
+
+  """
+  Time zone information for this user, including offset from UTC, name, and abbreviation
+  """
+  timeZone: TimeZone!
+}

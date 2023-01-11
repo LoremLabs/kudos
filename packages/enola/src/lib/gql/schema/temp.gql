@@ -1,0 +1,14 @@
+"""
+Temp testing
+"""
+type Person {
+	name: String
+	age: Int
+	isAlive: Boolean
+}
+
+type Query {
+	sayHello: Person
+  getPerson: Person
+  user: User
+}

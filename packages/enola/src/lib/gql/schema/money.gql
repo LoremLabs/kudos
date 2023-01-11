@@ -1,0 +1,36 @@
+"""
+A monetary value represented in micros (1/1,000,000th of a US Dollar).
+
+For example, a value of 10,000 micros is equivalent to 0.01 USD.
+
+__Note__ that values are only represented in increments of 10 micros.
+This means that you cannot provide a micro value of 10,001.
+
+## Why micros?
+
+While it's tempting to using floats to represent monetary values, floating
+point arithmetic naturally causes rounding errors.  These rounding errors
+can surface in final calculations being off by pennies or more.
+
+The problem with floats is rooted in the fact that they cannot be accurately
+represented in base 10 multiples.
+
+To ensure that all monetary values are accurately stored and represented
+to exact precision, we have adopted the "micros" standard.  Micros allow
+you to provide fractional values while still maintaining
+exact precision.
+
+## How to convert from micros to dollars and back
+
+To convert from micros to dollars, the calculation is relatively simple:
+
+```
+dollars = micros / 1,000,000
+```
+
+Note, however, that the only way to ensure exact precision is to use a
+proper data type in your programming language (such as decimal or
+bigdecimal).
+
+"""
+scalar Money
