@@ -12,3 +12,8 @@ type Query {
   getPerson: Person
   user: User
 }
+
+scalar DIDDocument
+extend type Query {
+	resolveDid(didUrl: String!): DIDDocument
+}
