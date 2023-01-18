@@ -37,3 +37,22 @@ type TimeZone {
   """
   utcOffset: String!
 }
+
+"""
+The DateFormat enum list all the supported styles available
+when formatting Time values.
+"""
+enum DateFormat {
+  """
+  Example: "2006-01-02T15:04:05Z07:00"
+  """
+  RFC3339
+  """
+  Example: "02 Jan 06 15:04 MST"
+  """
+  RFC822
+  """
+  Returns the date as its UNIX timestamp value (in seconds)
+  """
+  UNIX
+}

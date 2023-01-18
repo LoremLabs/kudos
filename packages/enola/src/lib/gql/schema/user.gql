@@ -1,7 +1,7 @@
-"""User account data"""
-type User {
+"""Account data"""
+type Account {
   """E-mail"""
-  email: String!
+  email: EmailAddress!
 
   """First name"""
   firstName: String
@@ -13,4 +13,6 @@ type User {
   Time zone information for this user, including offset from UTC, name, and abbreviation
   """
   timeZone: TimeZone!
+
+  thing: BigInt
 }

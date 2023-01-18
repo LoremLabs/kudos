@@ -1,0 +1,16 @@
+
+"""
+Supported standard for generating hash values. All hashes are
+displayed as hex encoded strings.
+"""
+enum Digest {
+  """
+  Returns a 32 byte hash using the SHA256 standard.
+  """
+  SHA2
+
+  """
+  Returns a 32 byte hash using the SHA3-256 standard.
+  """
+  SHA3
+}

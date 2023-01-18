@@ -1,27 +1,8 @@
-type Identity {
-	did: String!
-	provider: String
+input Pagination {
+    # pageNum starts in 1, the default is 1.
+    pageNum: Int
+    pageSize: Int!
+    # default false
+    needTotal: Boolean
 }
-scalar Object
-
-# type Message {
-# 	id: ID!
-# 	createdAt: DateTime
-# 	expiresAt: DateTime
-# 	threadId: String
-# 	type: String!
-# 	raw: String
-# 	data: Object
-# 	replyTo: [String]
-# 	replyUrl: String
-# 	from: String
-# 	to: String
-# 	metaData: [MetaData]
-# 	presentations: [VerifiablePresentation]
-# 	credentials: [VerifiableCredential]
-# }
-# type MetaData {
-# 	type: String!
-# 	value: String
-# }
 

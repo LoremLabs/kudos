@@ -10,7 +10,7 @@ type Person {
 type Query {
 	sayHello: Person
   getPerson: Person
-  user: User
+  account: Account
 }
 
 scalar DIDDocument

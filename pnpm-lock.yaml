@@ -108,6 +108,7 @@ importers:
       eslint-config-prettier: ^8.5.0
       eslint-plugin-svelte3: ^4.0.0
       graphql: ^16.6.0
+      graphql-scalars: ^1.20.1
       graphql-tag: ^2.12.6
       graphql-yoga: ^3.3.0
       postcss: ^8.4.21
@@ -137,6 +138,7 @@ importers:
       eslint: 8.31.0
       eslint-config-prettier: 8.5.0_eslint@8.31.0
       eslint-plugin-svelte3: 4.0.0_btuntbn75dxkba3nofpps2nvzm
+      graphql-scalars: 1.20.1_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
       postcss: 8.4.21
       prettier: 2.8.1
@@ -3411,6 +3413,16 @@ packages:
       lodash.merge: 4.6.2
       lodash.mergewith: 4.6.2
     dev: false
+
+  /graphql-scalars/1.20.1_graphql@16.6.0:
+    resolution: {integrity: sha512-HCSosMh8l/DVYL3/wCesnZOb+gbiaO/XlZQEIKOkWDJUGBrc15xWAs5TCQVmrycT0tbEInii+J8eoOyMwxx8zg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      graphql: 16.6.0
+      tslib: 2.4.1
+    dev: true
 
   /graphql-tag/2.12.6_graphql@16.6.0:
     resolution: {integrity: sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==}
