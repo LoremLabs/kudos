@@ -21,6 +21,7 @@
     "@tauri-apps/api": "^1.2.0",
     "knex": "^2.3.0",
     "tauri-plugin-sqlite-api": "github:lzdyes/tauri-plugin-sqlite",
+    "tauri-plugin-stronghold-api": "github:tauri-apps/tauri-plugin-stronghold",
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
