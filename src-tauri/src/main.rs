@@ -8,13 +8,30 @@ fn greet(name: &str) -> String {
     format!("Hello there, {}!", name)
 }
 
-#[path = "app.rs"] mod app;
+#[tauri::command]
+    fn get_environment_variable() -> String {
+        // let app_salt_hex = hex::decode(app_salt.as_ref().unwrap()).unwrap_or_else(|_| {
+        //     // check for error
+        //     info!("Error decoding app salt");
+        // });
+        
+        // return app_salt as string
+        return "blah".to_string();
+    }
+
+// fn get_environment_variable (name: &str) -> String {
+//   std::env::var(name).unwrap_or_else(|_| "".to_string())
+// }
+
+#[path = "app.rs"]
+mod app;
 
 use dotenv::dotenv;
 use std::env;
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
-use tracing::{info};
+use tracing::info;
 use tracing_subscriber;
+
 
 fn main() {
     // check from environment variable
@@ -29,6 +46,7 @@ fn main() {
 
     let app_salt = app::get_salt(app_name);
     info!("appSalt: {}", app_salt.as_ref().unwrap());
+    // env::set_var("SETLER_SALT", app_salt.as_ref().unwrap());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_sqlite::init())
@@ -65,6 +83,7 @@ fn main() {
             _ => {}
         })
         .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![get_environment_variable])
         .run(context)
         .expect("error while running tauri application")
 }
