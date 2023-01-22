@@ -6,7 +6,7 @@
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
 
-  import configStore from '$lib/stores/config';
+  import walletStore from '$lib/stores/wallet';
 
   import { onMount } from 'svelte';
   import { appWindow } from '@tauri-apps/api/window';
@@ -36,10 +36,6 @@
       disableContextMenu();
     }
 
-    console.log({ configStore: configStore });
-
-    (await configStore).update('thing', Date.now());
-
     listen('show-preferences', (event) => {
       // navigate to page 2
       // https://kit.svelte.dev/docs#routing-pages
@@ -64,6 +60,6 @@
 
 <main
   class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100 p-2"
->{$configStore.thing}?
+>{JSON.stringify($walletStore)}?
   <slot />
 </main>

@@ -8,9 +8,7 @@ fn greet(name: &str) -> String {
     format!("Hello there, {}!", name)
 }
 
-extern crate keyring;
-
-// #[path = "app.rs"] mod app;
+#[path = "app.rs"] mod app;
 
 use dotenv::dotenv;
 use std::env;
@@ -29,8 +27,8 @@ fn main() {
     let app_name = &context.package_info().name;
     info!("Starting {}", app_name);
 
-    // let app_salt = app::get_salt(app_name);
-    // info!("appSalt: {}", app_salt.as_ref().unwrap());
+    let app_salt = app::get_salt(app_name);
+    info!("appSalt: {}", app_salt.as_ref().unwrap());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_sqlite::init())

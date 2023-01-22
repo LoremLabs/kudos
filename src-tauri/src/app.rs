@@ -1,16 +1,22 @@
 // #[path = "app.rs"] mod app;
 
+extern crate keyring;
+extern crate whoami;
+
 use tracing::{info, warn};
 
 pub fn get_salt(app_name: &str) -> Result<String, keyring::Error> {
     let env_salt = std::env::var("SETLER_SALT");
     if env_salt.is_ok() {
+        info!("Salt from env");
         return Ok(env_salt.unwrap());
     }
 
     // setup keyring secrets
+    // TODO: this on the mac is asking for the password everytime. Not sure if this is a dev thing or not.
     let service = app_name;
-    let username = "salt";
+    // let username = "salt";
+    let username: String = whoami::username();
 
     let entry = keyring::Entry::new(&service, &username);
     match entry.get_password() {

@@ -1,4 +1,4 @@
-const basename = (p) => {
+const basename = (/** @type {string} */ p: string) => {
   if (typeof p !== 'string') {
     return '';
   }
