@@ -6,9 +6,9 @@ const config = {
   preprocess: preprocess(),
 
   kit: {
-    prerender: {
-      entries: ["/", "/collection"],
-    },
+    // prerender: {
+    //   entries: ["/", "/collection"],
+    // },
     adapter: staticAdapter({
       fallback: "index.html",
     }),

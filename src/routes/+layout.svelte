@@ -35,7 +35,8 @@
     if (!dev) {
       disableContextMenu();
     }
-
+    await walletStore.init();
+    
     listen('show-preferences', (event) => {
       // navigate to page 2
       // https://kit.svelte.dev/docs#routing-pages
@@ -59,6 +60,7 @@
 </div>
 <main
   class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100 p-2"
->{JSON.stringify($walletStore)}
+>  {JSON.stringify($walletStore)}
+
   <slot />
 </main>

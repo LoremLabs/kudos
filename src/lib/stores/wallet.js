@@ -1,45 +1,32 @@
+import createOrReadSeed from '$lib/utils/createOrReadSeed';
 import { invoke } from '@tauri-apps/api/tauri';
 import { writable } from 'svelte/store';
 
-export const createWalletStore = async () => {
-  let data = {};
-  const salt = await invoke('get_salt');
-  data.salt = salt;
-
-
-  const { subscribe, update } = writable(data);
+export const createWalletStore = () => {
+  const data = {
+    seed: '',
+    salt: '',
+  };
+  const { subscribe, update, set } = writable(data);
 
   return {
+    init: async () => {
+      data.salt = await invoke('get_salt');
+      // data.seed = await createOrReadSeed();
+      try {
+        const seed = await createOrReadSeed({ password: data.salt, id: 0 });
+        console.log({ seed });
+        data.seed = seed.seed;  
+        console.log({ data });
+        set(data);
+        } catch (e) {
+        console.log({ e });
+        alert(e.message);
+        }
+    },
     subscribe,
     update,
   };
 };
-export const walletStore = await createWalletStore();
 
-
-export const wallet2 = async () => {
-  
-
-  // try {
-  //   data = await getAllData();
-  // } catch (e) {
-  //   console.log('e1', e);
-  // }
-  // console.log('data2', data);
-  const { subscribe, set, update } = writable(data);
-
-  return {
-    subscribe,
-    // update: async (key, value) => {
-    //   await SaveKey(key, value);
-    //   update((data) => {
-    //     data[key] = value;
-    //     return data;
-    //   });
-    // },
-    set,
-    // increment: () => update(n => n + 1),
-    // decrement: () => update(n => n - 1),
-    // reset: () => set({}),
-  };
-};
+export const walletStore = createWalletStore();
