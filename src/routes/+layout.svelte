@@ -1,6 +1,4 @@
 <script>
-  import { invoke } from '@tauri-apps/api/tauri';
-
   import '$styles/app.css';
   import '$styles/tailwind-output.css';
 
@@ -8,7 +6,7 @@
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
 
-  import { wallet } from '$lib/stores/wallet';
+  import { walletStore } from '$lib/stores/wallet';
 
   import { onMount } from 'svelte';
   import { appWindow } from '@tauri-apps/api/window';
@@ -38,10 +36,6 @@
       disableContextMenu();
     }
 
-    invoke('get_environment_variable').then((res) => {
-      console.log({res});
-    });
-
     listen('show-preferences', (event) => {
       // navigate to page 2
       // https://kit.svelte.dev/docs#routing-pages
@@ -65,6 +59,6 @@
 </div>
 <main
   class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100 p-2"
->
+>{JSON.stringify($walletStore)}
   <slot />
 </main>

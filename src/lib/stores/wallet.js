@@ -1,7 +1,25 @@
+import { invoke } from '@tauri-apps/api/tauri';
 import { writable } from 'svelte/store';
 
-export const wallet = async () => {
+export const createWalletStore = async () => {
   let data = {};
+  const salt = await invoke('get_salt');
+  data.salt = salt;
+
+
+  const { subscribe, update } = writable(data);
+
+  return {
+    subscribe,
+    update,
+  };
+};
+export const walletStore = await createWalletStore();
+
+
+export const wallet2 = async () => {
+  
+
   // try {
   //   data = await getAllData();
   // } catch (e) {
@@ -22,6 +40,6 @@ export const wallet = async () => {
     set,
     // increment: () => update(n => n + 1),
     // decrement: () => update(n => n - 1),
-    reset: () => set({}),
+    // reset: () => set({}),
   };
 };
