@@ -16,14 +16,17 @@ fn greet(name: &str) -> String {
 mod app;
 
 use dotenv::dotenv;
+use std::collections::HashMap;
 use std::env;
 use std::sync::Mutex;
 use tauri::State;
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
-use tracing::info;
+use tracing::{info, warn, debug};
 use tracing_subscriber;
 
-struct Salt(Mutex<String>);
+//struct Shared(Mutex<HashMap<String,String>>);
+#[derive(Default)]
+struct Shared(Mutex<HashMap<String, String>>);
 
 fn main() {
     // check from environment variable
@@ -36,11 +39,51 @@ fn main() {
     let app_name = &context.package_info().name;
     info!("Starting {}", app_name);
 
-    let app_salt = app::get_salt(app_name);
+    let mut shared = HashMap::new();
+    shared.insert("app_name".to_string(), app_name.to_string());
 
     #[tauri::command]
-    fn get_salt(salt: State<Salt>) -> String {
-        salt.0.lock().unwrap().to_string()
+    fn get_salt(shared: State<Shared>) -> String {
+        let mut binding = shared.0.lock().unwrap();
+
+        let app_name = binding.get("app_name").unwrap();
+        // if no app_name, exit
+        if app_name.is_empty() {
+            warn!("App name not found");
+            std::process::exit(1);
+        }
+
+        // let binding = map.unwrap();
+        if !binding.contains_key("salt") {
+            debug!("Salt not found?");
+
+            let app_salt = app::get_salt(app_name);
+            if app_salt.is_err() {
+                info!("Error getting salt: {}", app_salt.unwrap_err());
+                std::process::exit(1);
+            }
+            let app_salt = app_salt.unwrap();
+            binding.insert("salt".to_string(), app_salt);
+        } else {
+            debug!("Salt found");
+        }
+        // let salt = binding.get("salt");
+        // if salt.is_none() {
+        //     info!("Salt not found");
+        //     return "abc".to_string();
+        // }
+        // info!("Salt Found");
+        // return salt.unwrap().to_string();
+        match binding.get("salt") {
+            Some(salt) => {
+                info!("Salt found {}", salt);
+                return salt.to_string();
+            }
+            None => {
+                info!("Salt not found");
+                return "".to_string();
+            }
+        }
     }
 
     tauri::Builder::default()
@@ -77,7 +120,8 @@ fn main() {
             }
             _ => {}
         })
-        .manage(Salt(Mutex::new(app_salt.as_ref().unwrap().to_string())))
+        //        .manage(Shared(Mutex::new(app_salt.as_ref().unwrap().to_string(),),"hi".to_string()))
+        .manage(Shared(shared.into()))
         .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![get_salt])
         .run(context)
