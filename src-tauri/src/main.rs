@@ -17,9 +17,13 @@ mod app;
 
 use dotenv::dotenv;
 use std::env;
+use std::sync::Mutex;
+use tauri::State;
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
 use tracing::info;
 use tracing_subscriber;
+
+struct Salt(Mutex<String>);
 
 fn main() {
     // check from environment variable
@@ -33,13 +37,10 @@ fn main() {
     info!("Starting {}", app_name);
 
     let app_salt = app::get_salt(app_name);
-    info!("appSalt: {}", app_salt.as_ref().unwrap());
-    env::set_var("SETLER_SALT", app_salt.as_ref().unwrap()); // TODO
 
     #[tauri::command]
-    fn get_salt() -> String {
-        // TODO: I can't figure out how to share this variable, so using env var for now
-        std::env::var("SETLER_SALT").unwrap_or_else(|_| "".to_string())
+    fn get_salt(salt: State<Salt>) -> String {
+        salt.0.lock().unwrap().to_string()
     }
 
     tauri::Builder::default()
@@ -76,6 +77,7 @@ fn main() {
             }
             _ => {}
         })
+        .manage(Salt(Mutex::new(app_salt.as_ref().unwrap().to_string())))
         .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![get_salt])
         .run(context)
