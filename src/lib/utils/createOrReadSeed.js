@@ -15,16 +15,13 @@ import {generateMnemonic} from './wallet/generateMnemonic';
 export default async function createOrReadSeed({ password = 'password', id = 0 }) {
 
   const s = {};
-  console.log('z');
   const baseDir = await appLocalDataDir();
-  console.log('baseDir', baseDir);
   await createDir(`${baseDir}state`, {
     // dir: baseDir,
     recursive: true,
   });
 
   const fullPath = `${baseDir}state/setlr-${id}.seed`;
-  console.log({ fullPath });
 
   try {
     const fileFound = await exists(fullPath);
@@ -32,10 +29,10 @@ export default async function createOrReadSeed({ password = 'password', id = 0 }
       console.log('Seed phrase exists');
 
         const data = await readTextFile(fullPath);
-        s.seed = decryptAES(data, password);
+        s.mnemonic = decryptAES(data, password);
         // generate hd key
-        s.hdkey = createHdKeyFromMnemonic(s.seed, password);
-        console.log("Read Existing Seed from storage");
+        s.hdkey = createHdKeyFromMnemonic(s.mnemonic, password);
+        console.log("Read Existing Mnemonic from storage");
         return s;
     
       // fs.readFile(filename, 'utf8', async function (err, data) {
@@ -52,11 +49,11 @@ export default async function createOrReadSeed({ password = 'password', id = 0 }
     if (err && err.message === 'File not found') {
         console.log('No Seed yet. Creating new one', err);
 
-        s.seed = generateMnemonic();
+        s.mnemonic = generateMnemonic();
     
         // generate hd key and encrypt with password
-        s.hdkey = createHdKeyFromMnemonic(s.seed, password);
-        const encryptedS = encryptAES(s.seed, password);
+        s.hdkey = createHdKeyFromMnemonic(s.mnemonic, password);
+        const encryptedS = encryptAES(s.mnemonic, password);
     
         // save in local file
         console.log('saving new encrypted seed phrase!', encryptedS, { s });
