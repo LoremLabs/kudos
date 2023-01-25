@@ -15,7 +15,7 @@ import xrpl from "xrpl";
 dotenv.config();
 
 const createHdKeyFromMnemonic = (mnemonicSeedphrase, password) => {
-  const masterSeed = bip39.mnemonicToSeedSync(mnemonicSeedphrase, "banister"); // Setlr default
+  const masterSeed = bip39.mnemonicToSeedSync(mnemonicSeedphrase, password);
 
   // See: https://github.com/paulmillr/micro-ed25519-hdkey
   return HDKey.fromMasterSeed(masterSeed); // NB: No versions are passed in here, so the default versions are used.

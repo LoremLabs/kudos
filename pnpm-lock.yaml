@@ -26,6 +26,7 @@ specifiers:
   esbuild: ^0.17.4
   eslint: ^8.30.0
   eslint-config-prettier: ^8.5.0
+  focusable-selectors: ^0.7.0
   hash.js: ^1.1.7
   knex: ^2.3.0
   micro-ed25519-hdkey: ^0.1.2
@@ -86,6 +87,7 @@ devDependencies:
   esbuild: 0.17.4
   eslint: 8.30.0
   eslint-config-prettier: 8.5.0_eslint@8.30.0
+  focusable-selectors: 0.7.0
   hash.js: 1.1.7
   micro-ed25519-hdkey: 0.1.2
   nanoid: 4.0.0
@@ -2006,6 +2008,10 @@ packages:
 
   /flatted/3.2.7:
     resolution: {integrity: sha512-5nqDSxl8nn5BSNxyR3n4I6eDmbolI6WT+QqR547RwxQapgjQBmtktdP+HTBb/a/zLsbzERTONyUB5pefh5TtjQ==}
+    dev: true
+
+  /focusable-selectors/0.7.0:
+    resolution: {integrity: sha512-4yLy+6cmn5rAGNd+qgtWHrZC2E+u+VxvWcn3K6KVLrhenm/2GAmAKbkC/R9oUhhsrOcLkXUv0PNPFCLUahxN6Q==}
     dev: true
 
   /for-each/0.3.3:

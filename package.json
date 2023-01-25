@@ -49,6 +49,7 @@
     "esbuild": "^0.17.4",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",
+    "focusable-selectors": "^0.7.0",
     "hash.js": "^1.1.7",
     "micro-ed25519-hdkey": "^0.1.2",
     "nanoid": "^4.0.0",

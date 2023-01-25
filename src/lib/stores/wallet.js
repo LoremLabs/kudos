@@ -6,22 +6,26 @@ export const createWalletStore = () => {
   const data = {
     seed: '',
     salt: '',
+    mnemonic: '',
+    xrpl: {
+      address: '',
+    }
   };
   const { subscribe, update, set } = writable(data);
 
   return {
-    init: async (id = 0) => {
-      data.salt = await invoke('get_salt');
+    init: async (id = 0, passPhrase = '') => {
+      const salt = await invoke('get_salt') || ''; // used to encrypt local seed data only
 
       let seed;
       try {
-        seed = await createOrReadSeed({ password: data.salt, id });
+        seed = await createOrReadSeed({ salt, id, passPhrase });
         // console.log({ seed });
         data.mnemonic = seed.mnemonic;
         data.xrpl = seed.xrpl;
       } catch (e) {
         console.log({ e });
-        // alert(e.message);
+        alert(e.message);
       }
 
       // console.log({ data });

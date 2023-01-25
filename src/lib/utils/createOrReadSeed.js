@@ -12,12 +12,13 @@ import {
 import { appLocalDataDir } from '@tauri-apps/api/path';
 import { bytesToHex } from '@noble/hashes/utils';
 import { createHdKeyFromMnemonic } from './wallet/createHdKeyFromMnemonic';
-import { decryptAES } from './wallet/decryptAES';
-import { encryptAES } from './wallet/encryptAES';
+import { decryptAES } from './wallet/decryptSeedAES';
+import { encryptAES } from './wallet/encryptSeedAES';
 import { generateMnemonic } from './wallet/generateMnemonic';
 
 export default async function createOrReadSeed({
-  password = 'password',
+  salt = '',
+  passPhrase = '',
   id = 0,
 }) {
   const s = {};
@@ -35,9 +36,9 @@ export default async function createOrReadSeed({
       console.log('Seed phrase exists');
 
       const data = await readTextFile(fullPath);
-      s.mnemonic = decryptAES(data, password);
+      s.mnemonic = decryptAES(data, salt);
       // generate hd key
-      s.hdkey = createHdKeyFromMnemonic(s.mnemonic, password);
+      s.hdkey = createHdKeyFromMnemonic(s.mnemonic, passPhrase);
       console.log('Read Existing Mnemonic from storage');
     } else {
       throw new Error('File not found');
@@ -49,8 +50,8 @@ export default async function createOrReadSeed({
       s.mnemonic = generateMnemonic();
 
       // generate hd key and encrypt with password
-      s.hdkey = createHdKeyFromMnemonic(s.mnemonic, password);
-      const encryptedS = encryptAES(s.mnemonic, password);
+      s.hdkey = createHdKeyFromMnemonic(s.mnemonic, passPhrase);
+      const encryptedS = encryptAES(s.mnemonic, salt);
 
       // save in local file
       console.log('saving new encrypted seed phrase!', encryptedS, { s });
