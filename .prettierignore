@@ -1,0 +1,12 @@
+# Don't ever lint node_modules
+node_modules
+
+# External libs ignore
+src/lib/extern
+
+# ignore built sveltekit
+.svelte-kit
+
+build
+
+src-tauri/target

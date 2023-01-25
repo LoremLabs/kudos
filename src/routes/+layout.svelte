@@ -62,7 +62,5 @@
 <main
   class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100 p-2"
 >
-  {JSON.stringify($walletStore)}
-
   <slot />
 </main>

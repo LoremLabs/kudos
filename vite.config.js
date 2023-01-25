@@ -31,7 +31,7 @@ export default defineConfig({
   envPrefix: ["VITE_", "TAURI_"],
   define: {
     global: {},
-    process
+    process,
   },
   //   //    Buffer,
   //   // process: {
@@ -54,7 +54,7 @@ export default defineConfig({
       define: {
         global: "globalThis",
       },
-        inject: ['./src/utils/buffer-shim.js'],
+      inject: ["./src/utils/buffer-shim.js"],
       // plugins: [
       //   NodeGlobalsPolyfillPlugin({
       //     process: true,
