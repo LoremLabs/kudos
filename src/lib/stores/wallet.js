@@ -9,13 +9,13 @@ export const createWalletStore = () => {
     mnemonic: '',
     xrpl: {
       address: '',
-    }
+    },
   };
   const { subscribe, update, set } = writable(data);
 
   return {
     init: async (id = 0, passPhrase = '') => {
-      const salt = await invoke('get_salt') || ''; // used to encrypt local seed data only
+      const salt = (await invoke('get_salt')) || ''; // used to encrypt local seed data only
 
       let seed;
       try {

@@ -6,7 +6,10 @@ module.exports = {
     tailwindcss: {
       mode: "jit",
       purge: ["./src/**/*.html", "./src/**/*.svelte"],
-      plugins: [require("@tailwindcss/forms")],
+      plugins: [
+        require("@tailwindcss/forms"),
+        require("@tailwindcss/aspect-ratio"),
+      ],
       theme: {
         extend: {
           fontFamily: {

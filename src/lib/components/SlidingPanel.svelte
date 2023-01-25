@@ -82,7 +82,7 @@
   {#if modal}
     <div
       transition:fade
-      class="backdrop fixed inset-0 w-full h-full z-50 {modalBackground}"
+      class="backdrop fixed inset-0 z-50 h-full w-full {modalBackground}"
       class:cursor-pointer={closeOnBackdropClick}
     />
   {/if}
@@ -92,7 +92,7 @@
     role="dialog"
     aria-modal={modal}
     aria-labelledby={$$slots.header ? 'slide-over-heading' : undefined}
-    class="fixed top-0 h-full overflow-hidden z-50 shadow-2xl"
+    class="fixed top-0 z-50 h-full overflow-hidden shadow-2xl"
     class:right-0={direction === 'right'}
     class:left-0={direction === 'left'}
     transition:fly={{
@@ -101,9 +101,9 @@
     }}
     use:focusTrap
   >
-    <div class="w-full h-full overflow-hidden flex">
+    <div class="flex h-full w-full overflow-hidden">
       <div
-        class="flex-auto min-h-screen overflow-y-auto overscroll-y-contain flex flex-col {klass}"
+        class="flex min-h-screen flex-auto flex-col overflow-y-auto overscroll-y-contain {klass}"
       >
         <slot name="header" ariaLabelId="slide-over-heading" />
         <slot />
@@ -115,10 +115,10 @@
     <slot name="close">
       <button
         type="button"
-        class="bg-gray-100 outline-none text-gray-500
-        focus:bg-gray-200 focus:text-black focus:scale-110
-        hover:bg-gray-200 hover:text-black hover:scale-110
-        absolute right-1 top-1"
+        class="absolute right-1 top-1
+        bg-gray-100 text-gray-500 outline-none
+        hover:scale-110 hover:bg-gray-200 hover:text-black
+        focus:scale-110 focus:bg-gray-200 focus:text-black"
         on:click={close}
         aria-label="Close"
         title="Close"

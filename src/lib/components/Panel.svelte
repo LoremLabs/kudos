@@ -12,19 +12,19 @@
   modal
   closeOnEscape
   closeOnBackdropClick
-  class="w-[95vw] max-w-md bg-white scroll-p-12"
+  class="w-[95vw] max-w-md scroll-p-12 bg-white"
 >
   <div
     slot="header"
-    class="py-6 px-4 bg-gray-100 sm:px-6 flex items-center justify-between"
+    class="flex items-center justify-between bg-gray-100 py-6 px-4 sm:px-6"
     let:ariaLabelId
   >
     <h2 class="text-lg font-bold text-black" id={ariaLabelId}>{heading}</h2>
     <button
       type="button"
-      class="bg-gray-100 outline-none text-gray-500
-        focus:bg-gray-200 focus:text-black focus:scale-110
-        hover:bg-gray-200 hover:text-black hover:scale-110"
+      class="bg-gray-100 text-gray-500 outline-none
+        hover:scale-110 hover:bg-gray-200 hover:text-black
+        focus:scale-110 focus:bg-gray-200 focus:text-black"
       on:click={() => (opener = null)}
       aria-label="Close"
       title="Close"
@@ -36,21 +36,21 @@
   <!-- Hide default close button -->
   <div slot="close" />
 
-  <div class="flex flex-col h-full" class:p-4={!nopadding}>
+  <div class="flex h-full flex-col" class:p-4={!nopadding}>
     <slot />
   </div>
 
-  <div slot="footer" class="p-4 border-t">
+  <div slot="footer" class="border-t p-4">
     {#if $$slots.footer}
       <slot name="footer" />
     {:else}
       <button
         on:click={() => (opener = null)}
         type="button"
-        class="py-2 px-4 border border-gray-300 shadow-sm rounded-full
-        text-sm font-medium bg-gray-200 text-gray-700
-        hover:bg-gray-50 cursor-pointer
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        class="cursor-pointer rounded-full border border-gray-300 bg-gray-200 py-2
+        px-4 text-sm font-medium text-gray-700
+        shadow-sm hover:bg-gray-50
+        focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
       >
         Cancel
       </button>

@@ -7,7 +7,7 @@
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
 
-//  import { walletStore } from '$lib/stores/wallet';
+  //  import { walletStore } from '$lib/stores/wallet';
 
   import { onMount } from 'svelte';
   import { appWindow } from '@tauri-apps/api/window';
@@ -36,7 +36,7 @@
     if (!dev) {
       disableContextMenu();
     }
-//    await walletStore.init();
+    //    await walletStore.init();
 
     listen('show-preferences', (event) => {
       // navigate to page 2

@@ -182,34 +182,28 @@
 </div>
 <div class="absolute top-20 right-8 text-gray-500">
   <button
-  id="panel-open"
-  class="focus:outline-none"
-  on:click={() => {
-    panelOpen = document.getElementById('panel-open');
-  }}>
+    id="panel-open"
+    class="focus:outline-none"
+    on:click={() => {
+      panelOpen = document.getElementById('panel-open');
+    }}
+  >
     <Icon name="cog" class="mx-2 h-6 w-6" />
   </button>
 </div>
-<Panel
-heading="Settings"
-
-  bind:opener={panelOpen}>
-
+<Panel heading="Settings" bind:opener={panelOpen}>
   <div slot="footer">
-  <button
-  on:click={() => (panelOpen = null)}
-  type="button"
-  class="py-2 px-4 border border-gray-300 shadow-sm rounded-full
-  text-sm font-medium bg-blue-700 text-white
-  hover:bg-gray-700 cursor-pointer transition delay-150 ease-in-out
-  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
->
-  Save
-</button>
-
-</div>
-
-
+    <button
+      on:click={() => (panelOpen = null)}
+      type="button"
+      class="cursor-pointer rounded-full border border-gray-300 bg-blue-700 py-2
+  px-4 text-sm font-medium text-white
+  shadow-sm transition delay-150 ease-in-out hover:bg-gray-700
+  focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+    >
+      Save
+    </button>
+  </div>
 </Panel>
 {#if modal === 'seed'}
   <Modal
