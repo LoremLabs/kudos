@@ -164,9 +164,7 @@ const ED25519_SEED = [0x01, 0xe1, 0x4b]
 
 const codecOptions = {
   sha256(bytes: Uint8Array): Buffer {
-    console.log('here', bytes);
     const hash256 = hashjs.sha256().update(bytes).digest();
-    console.log('h', hash256);
     return hash256;
     //return createHash('sha256').update(Buffer.from(bytes)).digest()
   },
@@ -217,15 +215,11 @@ export function decodeSeed(
 }
 
 export function encodeAccountID(bytes: Buffer): string {
-  console.log('z');
   const opts = { versions: [ACCOUNT_ID], expectedLength: 20 }
-  console.log('z1');
   try {
   const thing = codecWithXrpAlphabet.encode(bytes, opts)
-  console.log('z2', thing);
   return thing;
   } catch (e) {
-  console.log('z3', e);
   throw e;
   }
 }

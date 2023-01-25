@@ -1,8 +1,14 @@
-import * as addressCodec from "$lib/extern/ripple-address-codec/src";
-import * as bip32 from "ripple-bip32";
+import * as addressCodec from '$lib/extern/ripple-address-codec/src';
+import * as bip32 from 'ripple-bip32';
 import * as hashjs from 'hash.js';
 
-import { bytesToHex, concatBytes, createView, hexToBytes, utf8ToBytes } from '@noble/hashes/utils';
+import {
+  bytesToHex,
+  concatBytes,
+  createView,
+  hexToBytes,
+  utf8ToBytes,
+} from '@noble/hashes/utils';
 
 //import { Buffer } from 'buffer';
 //import xrpl from "xrpl";
@@ -18,8 +24,6 @@ import { writable } from 'svelte/store';
 
 //import * as rippleBip39 from "bip39";
 
-
-
 export const createWalletStore = () => {
   const data = {
     seed: '',
@@ -34,30 +38,27 @@ export const createWalletStore = () => {
       let seed;
       try {
         seed = await createOrReadSeed({ password: data.salt, id: 0 });
-        console.log({ seed });
-        data.seed = seed.mnemonic;  
-        } catch (e) {
+        // console.log({ seed });
+        data.seed = seed.mnemonic;
+      } catch (e) {
         console.log({ e });
         // alert(e.message);
-        }
+      }
 
-        // compute for xrpl
-        // const seedBytes = hexToBytes(seed.mnemonic);
-        // const seedHex = bytesToHex(seedBytes);
-        const keyPair = seed?.hdkey.derive("m/44'/144'/0'/0'/0'"); // hardened from .derive("m/44'/144'/0'/0/0"); 
-        // data.keyPair = keyPair?.publicKey;
-// console.log({ keyPair: keyPair?.publicKey });
-        data.publicKey = bytesToHex(keyPair?.publicKey);
-        data.privateKey = bytesToHex(keyPair?.privateKey);
+      // compute for xrpl
+      // const seedBytes = hexToBytes(seed.mnemonic);
+      // const seedHex = bytesToHex(seedBytes);
+      const keyPair = seed?.hdkey.derive("m/44'/144'/0'/0'/0'"); // hardened from .derive("m/44'/144'/0'/0/0");
+      // data.keyPair = keyPair?.publicKey;
+      // console.log({ keyPair: keyPair?.publicKey });
+      data.publicKey = bytesToHex(keyPair?.publicKey);
+      data.privateKey = bytesToHex(keyPair?.privateKey);
 
-        // const address = xrpl.deriveAddress(keyPair.publicKey);
-        const address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
-        data.address = address;
-// //.deriveAddress(keyPair.publicKey);
-// console.log({ address });
-
-        console.log({ data });
-        set(data);
+      // const address = xrpl.deriveAddress(keyPair.publicKey);
+      const address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
+      data.address = address;
+      // console.log({ data });
+      set(data);
     },
     subscribe,
     update,
@@ -65,11 +66,7 @@ export const createWalletStore = () => {
 };
 
 function deriveAddressFromBytes(publicKeyBytes) {
-  console.log('aaaa');
   const publicKeyHash = computePublicKeyHash(publicKeyBytes);
-  console.log('bbb', publicKeyHash);
-  window.z = addressCodec;
-  
   return addressCodec.encodeAccountID(publicKeyHash);
 }
 function computePublicKeyHash(publicKeyBytes) {
@@ -77,6 +74,5 @@ function computePublicKeyHash(publicKeyBytes) {
   const hash160 = hashjs.ripemd160().update(hash256).digest();
   return hash160; // was Buffer.from(hash160);
 }
-
 
 export const walletStore = createWalletStore();

@@ -33,14 +33,6 @@
   };
   let title = 'Setler';
   onMount(async () => {
-    if (browser) {
-      // const { Buffer } = await import('buffer');
-      // window.Buffer = Buffer;
-
-      // const process = await import('process');
-
-      // window.process = process;
-    }
     if (!dev) {
       disableContextMenu();
     }
