@@ -85,10 +85,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 769,
         "resizable": true,
         "title": "",
-        "width": 600,
+        "width": 769,
         "decorations": true,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",

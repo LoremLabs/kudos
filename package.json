@@ -31,6 +31,7 @@
     "@scure/bip39": "^1.1.0",
     "@sveltejs/adapter-static": "next",
     "@sveltejs/kit": "next",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
     "@tauri-apps/cli": "^1.2.3",
     "autoprefixer": "^10.4.13",
