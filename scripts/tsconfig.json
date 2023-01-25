@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "esModuleInterop": true,
+      "moduleResolution": "node"
+    },
+    "include": ["../../**/*.ts", "connect-xrpl.js"],
+    "exclude": ["node_modules"],
+    "target": "es6"
+  }
