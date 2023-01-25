@@ -47,8 +47,10 @@ export const createWalletStore = () => {
         const keyPair = seed?.hdkey.derive("m/44'/144'/0'/0'/0'"); // hardened from .derive("m/44'/144'/0'/0/0"); 
         // data.keyPair = keyPair?.publicKey;
 // console.log({ keyPair: keyPair?.publicKey });
+        data.publicKey = bytesToHex(keyPair?.publicKey);
+        data.privateKey = bytesToHex(keyPair?.privateKey);
 
-// const address = xrpl.deriveAddress(keyPair.publicKey);
+        // const address = xrpl.deriveAddress(keyPair.publicKey);
         const address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
         data.address = address;
 // //.deriveAddress(keyPair.publicKey);
