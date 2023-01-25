@@ -21,6 +21,7 @@
   let disabledModalSubmit = false;
   let modalOpen = false;
   let panelOpen = null;
+  let passPhrase = '';
 
   const onConnectWallet = async () => {
     await onCreateWallet();
@@ -29,7 +30,6 @@
     const salt = await invoke('get_salt');
 
     let id = 0;
-    let passPhrase = '';
     let data = {};
     let seed;
     try {
@@ -77,12 +77,12 @@
 <div class="overflow-hidden bg-white">
   <section aria-labelledby="features-heading" class="relative min-h-screen">
     <div
-      class="aspect-w-3 aspect-h-2 md:aspect-none hidden overflow-hidden pt-2 md:absolute md:block md:h-full md:w-2/5 md:pr-4 xl:pr-16"
+      class="hidden overflow-hidden pt-2 md:absolute md:block md:h-full md:w-2/5 md:pr-4 xl:pr-16"
     >
       <img
         src="/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
         alt=""
-        class="borderz h-full w-full border-r-4 border-r-gray-200 object-cover object-center md:h-full md:w-full"
+        class="h-full w-full border-r-4 border-r-gray-200 object-cover object-center md:h-full md:w-full"
       />
     </div>
     <div class="absolute bottom-10 left-5 hidden opacity-50 md:block">
@@ -191,7 +191,30 @@
     <Icon name="cog" class="mx-2 h-6 w-6" />
   </button>
 </div>
-<Panel heading="Settings" bind:opener={panelOpen}>
+<Panel heading="Advanced Settings" bind:opener={panelOpen}>
+  <form
+    id="advanced-form"
+    class="p-5 py-4 sm:py-5"
+    on:submit|preventDefault={() => {}}
+  >
+    <label class="block text-sm">
+      <span class="text-sm font-medium text-gray-500"> Mneumonic Phrase </span>
+      <input
+        type="text"
+        placeholder=""
+        bind:value={passPhrase}
+        autofocus={true}
+        class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
+      />
+      <span class="text-xs font-medium text-gray-500">
+        Note: this is not the 12 word mneumonic, but a pass phrase used in
+        conjunction with the mneumonic to derive your keys. Use of this is
+        optional and recommended for advanced users only.
+      </span>
+    </label>
+    <div class="mt-1 text-sm text-gray-900 sm:mt-0" />
+  </form>
+
   <div slot="footer">
     <button
       on:click={() => (panelOpen = null)}
