@@ -24,6 +24,7 @@
   let panelOpen = null;
   let passPhrase = '';
   let config = {};
+  let startTs = Date.now();
 
   const onConnectWallet = async () => {
     await onCreateWallet();
@@ -182,7 +183,7 @@
                 This creates your keys and stores in your computer's key chain.
               </span>
             </div>
-          {:else}
+          {:else if Date.now() - startTs > 3000}
             <!-- shouldn't happen? -->
             <div class="w-full">
               <div class="border-l-4 border-red-400 bg-red-50 p-2">

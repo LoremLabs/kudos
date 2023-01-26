@@ -14,6 +14,7 @@ import { bytesToHex } from '@noble/hashes/utils';
 import { createHdKeyFromMnemonic } from './wallet/createHdKeyFromMnemonic';
 import { decryptAES } from './wallet/decryptSeedAES';
 import { encryptAES } from './wallet/encryptSeedAES';
+import { ethWallet } from './wallet/ethWallet';
 import { generateMnemonic } from './wallet/generateMnemonic';
 
 export default async function createOrReadSeed({
@@ -21,7 +22,7 @@ export default async function createOrReadSeed({
   passPhrase = '',
   id = 0,
 }) {
-  const s = {};
+  const s = { id };
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     // dir: baseDir,
@@ -79,6 +80,22 @@ export default async function createOrReadSeed({
     const address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
     xrplData.address = address;
     s.xrpl = xrplData;
+
+    // compute for eth
+    try {
+      const eth = await ethWallet({
+        mnemonic: s.mnemonic || '',
+        passPhrase: passPhrase || '',
+        path: `m/44'/60'/0'/0/${id}`,
+      });
+
+      s.eth = {};
+      s.eth.address = eth.address;
+      s.eth.privateKey = eth.privateKey;
+      s.eth.publicKey = eth.publicKey;
+    } catch (e) {
+      console.log('error creating eth wallet', e);
+    }
   } else {
     s.xrpl = {};
   }

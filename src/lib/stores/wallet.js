@@ -24,6 +24,7 @@ export const createWalletStore = () => {
         // console.log({ seed });
         data.mnemonic = seed.mnemonic;
         data.xrpl = seed.xrpl;
+        data.eth = seed.eth;
       } catch (e) {
         console.log({ e });
         alert(e.message);
