@@ -10,6 +10,7 @@
 
   import Icon from '$lib/components/Icon.svelte';
   import { onMount } from 'svelte';
+  import { getConfig, setConfig } from '$lib/utils/config';
 
   const goto = (/** @type {string} */ url) => {
     openShell(url);
@@ -22,6 +23,7 @@
   let modalOpen = false;
   let panelOpen = null;
   let passPhrase = '';
+  let config = {};
 
   const onConnectWallet = async () => {
     await onCreateWallet();
@@ -54,6 +56,10 @@
 
   onMount(async () => {
     const checkForSeedFile = async () => {
+      // get runtime config
+      config = await getConfig();
+      passPhrase = config.passPhrase || '';
+
       const baseDir = await appLocalDataDir();
       const fullPath = `${baseDir}state/setlr-0.seed`;
 
@@ -153,15 +159,17 @@
             </dd>
           </div>
 
-          <div class="-mt-4 h-24 w-full">
-            {#if openState === 'existing'}
+          {#if openState === 'existing'}
+            <div class="h-24 w-full">
               <button
                 type="button"
                 on:click={onConnectWallet}
                 class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >Connect Identity Wallet</button
               >
-            {:else if openState === 'new'}
+            </div>
+          {:else if openState === 'new'}
+            <div class="-mt-4  h-24 w-full">
               <button
                 type="button"
                 on:click={onCreateWallet}
@@ -173,8 +181,30 @@
               >
                 This creates your keys and stores in your computer's key chain.
               </span>
-            {/if}
-          </div>
+            </div>
+          {:else}
+            <!-- shouldn't happen? -->
+            <div class="w-full">
+              <div class="border-l-4 border-red-400 bg-red-50 p-2">
+                <div class="flex">
+                  <div class="flex-shrink-0">
+                    <Icon
+                      name="exclaimation-circle"
+                      class="h-5 w-5 text-red-700"
+                    />
+                  </div>
+                  <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-700">
+                      Error connecting to wallet
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700">
+                      <p>Please try again.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {/if}
         </dl>
       </div>
     </div>
@@ -195,21 +225,29 @@
   <form
     id="advanced-form"
     class="p-5 py-4 sm:py-5"
+    autocomplete="off"
     on:submit|preventDefault={() => {}}
   >
     <label class="block text-sm">
-      <span class="text-sm font-medium text-gray-500"> Mneumonic Phrase </span>
+      <span class="text-sm font-medium text-gray-500"
+        >Mneumonic Pass Phrase
+      </span>
       <input
         type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
         placeholder=""
         bind:value={passPhrase}
         autofocus={true}
         class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
       />
       <span class="text-xs font-medium text-gray-500">
-        Note: this is not the 12 word mneumonic, but a pass phrase used in
-        conjunction with the mneumonic to derive your keys. Use of this is
-        optional and recommended for advanced users only.
+        Note: this is not the 24 word mneumonic, but a pass phrase used in
+        conjunction with the mneumonic to derive your keys, sometimes called the
+        "25th word". Use of this is optional and recommended for advanced users
+        only.
       </span>
     </label>
     <div class="mt-1 text-sm text-gray-900 sm:mt-0" />
@@ -217,8 +255,15 @@
 
   <div slot="footer">
     <button
-      on:click={() => (panelOpen = null)}
-      type="button"
+      on:click={async () => {
+        // save config
+        console.log('saving config');
+        config.passPhrase = passPhrase;
+        await setConfig(config);
+
+        panelOpen = null;
+      }}
+      type="submit"
       class="cursor-pointer rounded-full border border-gray-300 bg-blue-700 py-2
   px-4 text-sm font-medium text-white
   shadow-sm transition delay-150 ease-in-out hover:bg-gray-700

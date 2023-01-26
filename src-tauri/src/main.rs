@@ -43,6 +43,38 @@ fn main() {
     shared.insert("app_name".to_string(), app_name.to_string());
 
     #[tauri::command]
+    fn get_config(shared: State<Shared>) -> String {
+        let binding = shared.0.lock().unwrap();
+
+        match binding.get("config") {
+            Some(config_json) => {
+                info!("config found {}", config_json);
+                return config_json.to_string();
+            }
+            None => {
+                info!("Config not found");
+                return "{}".to_string();
+            }
+        }
+    }
+
+    #[tauri::command]
+    fn set_config(config_json: &str, shared: State<Shared>) -> bool {
+        let mut binding = shared.0.lock().unwrap();
+
+            match binding.insert("config".to_string(), config_json.to_string()) {
+                Some(config_json) => {
+                    info!("set config found {}", config_json);
+                    return true;
+                }
+                None => {
+                    info!("set Config not found");
+                    return false;
+                }
+            }
+    }
+
+    #[tauri::command]
     fn get_salt(shared: State<Shared>) -> String {
         let mut binding = shared.0.lock().unwrap();
 
@@ -122,8 +154,7 @@ fn main() {
         })
         //        .manage(Shared(Mutex::new(app_salt.as_ref().unwrap().to_string(),),"hi".to_string()))
         .manage(Shared(shared.into()))
-        .invoke_handler(tauri::generate_handler![greet])
-        .invoke_handler(tauri::generate_handler![get_salt])
+        .invoke_handler(tauri::generate_handler![greet, get_salt, get_config, set_config])
         .run(context)
         .expect("error while running tauri application")
 }

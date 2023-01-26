@@ -15,9 +15,18 @@
     // PhysicalSize,
     // PhysicalPosition
   } from '@tauri-apps/api/window';
+  import { onMount } from 'svelte';
 
   import Icon from '$lib/components/Icon.svelte';
+  import { getConfig } from '$lib/utils/config';
   import { basename } from '$lib/utils/path';
+  import { walletStore } from '$lib/stores/wallet';
+
+  onMount(async () => {
+    const config = await getConfig();
+    const ws = await walletStore.init({ passPhrase: config.passPhrase });
+    console.log({ ws, config });
+  });
 
   const openDialog = async () => {
     const filePath = await openFile({
