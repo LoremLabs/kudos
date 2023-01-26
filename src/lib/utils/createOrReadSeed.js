@@ -22,7 +22,7 @@ export default async function createOrReadSeed({
   passPhrase = '',
   id = 0,
 }) {
-  const s = { id };
+  const s = { id, mnemonic: '' };
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     // dir: baseDir,

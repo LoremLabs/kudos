@@ -1,16 +1,18 @@
-<script>
+<script lang="ts">
   // import { WebviewWindow } from '@tauri-apps/api/window';
   import { open as openShell } from '@tauri-apps/api/shell';
   import { appLocalDataDir } from '@tauri-apps/api/path';
   import { invoke } from '@tauri-apps/api/tauri';
   import createOrReadSeed from '$lib/utils/createOrReadSeed';
   import Modal from '$lib/components/Modal.svelte';
+  import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
   import Panel from '$lib/components/Panel.svelte';
   import { exists } from '@tauri-apps/api/fs';
 
   import Icon from '$lib/components/Icon.svelte';
   import { onMount } from 'svelte';
   import { getConfig, setConfig } from '$lib/utils/config';
+  import { clearConfigStore } from '$lib/stores/clearConfig';
 
   const goto = (/** @type {string} */ url) => {
     openShell(url);
@@ -25,37 +27,80 @@
   let passPhrase = '';
   let config = {};
   let startTs = Date.now();
+  let walletId = 0;
+  let clearConfig = {};
+  let processing = 0;
 
-  const onConnectWallet = async () => {
-    await onCreateWallet();
+  let shouldAskForPassPhrase = false;
+  let askForPassPhraseModal = false;
+
+  let askForPassPhrasePromise: Promise<void>;
+  const askForPassPhrase = async () => {
+    askForPassPhraseModal = true;
+    let userData = await askForPassPhrasePromise;
+    askForPassPhraseModal = false;
+    return userData;
   };
-  const onCreateWallet = async () => {
-    const salt = await invoke('get_salt');
 
-    let id = 0;
-    let data = {};
-    let seed;
+  const readWalletState = async () => {
+    if (passPhrase === '' && shouldAskForPassPhrase) {
+      const userData = await askForPassPhrase();
+      console.log({ userData }, '2');
+      // allow empty passPhrase
+      if (userData.passPhrase) {
+        passPhrase = userData.passPhrase;
+        config.passPhrase = passPhrase;
+        await setConfig(config);
+      }
+    }
+
+    const salt: string = await invoke('get_salt');
+
     try {
-      seed = await createOrReadSeed({ salt, id, passPhrase });
-      // console.log({ seed });
-      data.mnemonic = seed.mnemonic;
+      const seed = await createOrReadSeed({ salt, id: walletId, passPhrase });
       mnemonic = seed.mnemonic;
-      data.xrpl = seed.xrpl;
     } catch (e) {
       console.log({ e });
       alert(e.message);
     }
-    //alert(JSON.stringify(data));
-    modal = 'seed';
-    modalOpen = true;
-    disabledModalSubmit = true;
+  };
 
-    setTimeout(() => {
-      disabledModalSubmit = false;
-    }, 2000);
+  const onConnectWallet = async () => {
+    processing++;
+    await onCreateWallet();
+    processing--;
+  };
+  const onCreateWallet = async () => {
+    processing++;
+    try {
+      await readWalletState();
+      if (!clearConfig.hasSeenSeed) {
+        modal = 'seed';
+        modalOpen = true;
+        disabledModalSubmit = true;
+
+        setTimeout(() => {
+          disabledModalSubmit = false;
+        }, 2000);
+      } else {
+        window.location.href = '/kudos';
+      }
+    } catch (e) {
+      console.log({ e });
+      alert(e.message);
+    } finally {
+      processing--;
+    }
   };
 
   onMount(async () => {
+    clearConfig = await clearConfigStore.init();
+    if (clearConfig && clearConfig.shouldAskForPassPhrase) {
+      shouldAskForPassPhrase = true;
+    } else {
+      shouldAskForPassPhrase = false;
+    }
+
     const checkForSeedFile = async () => {
       // get runtime config
       config = await getConfig();
@@ -166,8 +211,16 @@
                 type="button"
                 on:click={onConnectWallet}
                 class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >Connect Identity Wallet</button
-              >
+                >Connect Identity Wallet
+                {#if processing > 0}
+                  <span
+                    aria-label={'processing'}
+                    class="ml-2 mr-3 animate-spin ease-in-out"
+                  >
+                    <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+                  </span>
+                {/if}
+              </button>
             </div>
           {:else if openState === 'new'}
             <div class="-mt-4  h-24 w-full">
@@ -240,6 +293,13 @@
         autocapitalize="off"
         spellcheck="false"
         placeholder=""
+        on:keydown={(e) => {
+          // keep before bind:value
+          if (passPhrase === '') {
+            // automatically set this when we transition from '' => something
+            shouldAskForPassPhrase = true;
+          }
+        }}
         bind:value={passPhrase}
         autofocus={true}
         class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
@@ -250,8 +310,57 @@
         "25th word". Use of this is optional and recommended for advanced users
         only.
       </span>
+      <div class="m-auto mt-2 max-w-xl text-sm text-gray-500">
+        <div class="rounded-md bg-red-50 p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <!-- Heroicon name: mini/x-circle -->
+              <svg
+                class="h-5 w-5 text-red-400"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                If you lose your pass phrase, you will lose access to your
+                wallet which contains your identity and may result in financial
+                loss.
+              </h3>
+              <div class="mt-2 text-sm text-red-700">
+                <ul role="list" class="list-disc space-y-1 pl-5">
+                  <li>
+                    We do not save your pass phrase so you will need to enter it
+                    every time you start this application.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </label>
     <div class="mt-1 text-sm text-gray-900 sm:mt-0" />
+    <label class="mt-12 block text-sm" for="shouldAsk">
+      <span class="text-sm font-medium text-gray-500"
+        >Prompt for Pass Phrase on Startup?
+      </span>
+      <input
+        id="shouldAsk"
+        type="checkbox"
+        name="shouldAsk"
+        bind:checked={shouldAskForPassPhrase}
+        value={true}
+      />
+    </label>
   </form>
 
   <div slot="footer">
@@ -261,6 +370,9 @@
         console.log('saving config');
         config.passPhrase = passPhrase;
         await setConfig(config);
+
+        clearConfig.shouldAskForPassPhrase = shouldAskForPassPhrase;
+        await clearConfigStore.save(clearConfig);
 
         panelOpen = null;
       }}
@@ -278,11 +390,11 @@
   <Modal
     bind:open={modalOpen}
     ariaLabelledBy="modal"
-    class="top-8 bg-gray-50 pl-4 pt-5 pb-4 pr-8 shadow-xl sm:p-6"
+    class="top-8 bg-white pl-4 pt-2 pb-4 pr-8 shadow-xl sm:p-6"
   >
     <div class="bg-white sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
-        <p class="mt-4 text-4xl font-bold tracking-tight text-gray-900">
+        <p class="-mt-4 text-4xl font-bold tracking-tight text-gray-900">
           Important!
         </p>
         <h3 class="my-8 text-lg font-medium leading-6 text-gray-900">
@@ -320,6 +432,9 @@
                   <ul role="list" class="list-disc space-y-1 pl-5">
                     <li>It's recommended to use paper.</li>
                     <li>Order matters.</li>
+                    <li>
+                      If you use a phase phrase you should remember it too.
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -342,9 +457,14 @@
         </dl>
         <div class="mt-12">
           <button
-            on:click={() => {
+            on:click={async () => {
               modal = '';
               modalOpen = false;
+
+              // save that we've seen these
+              clearConfig.hasSeenSeed = true;
+              await clearConfigStore.save(clearConfig);
+
               window.location.href = '/kudos';
             }}
             type="button"
@@ -357,3 +477,16 @@
     </div>
   </Modal>
 {/if}
+<ModalPassPhrase
+  bind:open={askForPassPhraseModal}
+  bind:done={askForPassPhrasePromise}
+  handleCancel={() => {
+    processing = 0;
+  }}
+>
+  <div slot="header">
+    <h3 class="text-lg font-black leading-6 text-gray-900" id="modal-headline">
+      &nbsp;
+    </h3>
+  </div>
+</ModalPassPhrase>

@@ -21,11 +21,15 @@
   import { getConfig } from '$lib/utils/config';
   import { basename } from '$lib/utils/path';
   import { walletStore } from '$lib/stores/wallet';
+  import { clearConfigStore } from '$lib/stores/clearConfig';
 
   onMount(async () => {
     const config = await getConfig();
     const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    console.log({ ws, config });
+    const clearConfig = await clearConfigStore.init();
+    // clearConfig.ts = Date.now();
+    // await clearConfigStore.save(clearConfig);
+    console.log({ ws, config, clearConfig });
   });
 
   const openDialog = async () => {
@@ -113,7 +117,7 @@
   };
 </script>
 
-<div class="overflow-hidden bg-white">
+<div class="mt-4 overflow-hidden bg-white">
   <div class="px-4 py-5 sm:p-6">
     <div>
       <h2 class="text-lg font-medium text-gray-900">Kudos Actions</h2>
