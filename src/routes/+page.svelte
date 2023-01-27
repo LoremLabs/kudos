@@ -13,6 +13,7 @@
   import { onMount } from 'svelte';
   import { getConfig, setConfig } from '$lib/utils/config';
   import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { fade, fly } from 'svelte/transition';
 
   const goto = (/** @type {string} */ url) => {
     openShell(url);
@@ -30,6 +31,7 @@
   let walletId = 0;
   let clearConfig = {};
   let processing = 0;
+  let ready = false;
 
   let shouldAskForPassPhrase = false;
   let askForPassPhraseModal = false;
@@ -123,151 +125,157 @@
       }
     };
     openState = await checkForSeedFile();
+    ready = true;
   });
 </script>
 
 <div class="overflow-hidden bg-white">
-  <section aria-labelledby="features-heading" class="relative min-h-screen">
-    <div
-      class="hidden overflow-hidden pt-2 md:absolute md:block md:h-full md:w-2/5 md:pr-4 xl:pr-16"
-    >
-      <img
-        src="/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
-        alt=""
-        class="h-full w-full border-r-4 border-r-gray-200 object-cover object-center md:h-full md:w-full"
-      />
-    </div>
-    <div class="absolute bottom-10 left-5 hidden opacity-50 md:block">
-      <button
-        on:click={() => {
-          goto(
-            'https://unsplash.com/photos/9b4jtcBEP4A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText'
-          );
-        }}
+  {#if ready}
+    <section aria-labelledby="features-heading" class="relative min-h-screen">
+      <div
+        class="hidden overflow-hidden pt-2 md:absolute md:block md:h-full md:w-2/5 md:pr-4 xl:pr-16"
       >
-        <span
-          class="inline-flex items-center rounded-full bg-gray-100 py-0.5 pl-2 pr-0.5 text-xs font-medium text-gray-700"
+        <img
+          src="/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
+          alt=""
+          class="h-full w-full border-r-4 border-r-gray-200 object-cover object-center md:h-full md:w-full"
+        />
+      </div>
+      <div class="absolute bottom-10 left-5 hidden opacity-50 md:block">
+        <button
+          on:click={() => {
+            goto(
+              'https://unsplash.com/photos/9b4jtcBEP4A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText'
+            );
+          }}
         >
-          <!-- TODO: make this kudos work! -->
-          kudos: João Guimarães
-          <Icon name="external-link" class="mx-2 h-3 w-3" />
-        </span>
-      </button>
-    </div>
+          <span
+            class="inline-flex items-center rounded-full bg-gray-100 py-0.5 pl-2 pr-0.5 text-xs font-medium text-gray-700"
+          >
+            <!-- TODO: make this kudos work! -->
+            kudos: João Guimarães
+            <Icon name="external-link" class="mx-2 h-3 w-3" />
+          </span>
+        </button>
+      </div>
 
-    <div
-      class="white mx-auto max-w-2xl px-4 sm:px-6 md:grid md:max-w-7xl md:grid-cols-5 md:gap-x-8 md:px-4 md:pt-12"
-    >
-      <div class="mt-4 pl-8 pr-12 md:col-span-3 md:col-start-3">
-        <h2 id="features-heading" class="font-thin text-gray-500">
-          Setler: an <span class="font-medium italic">identity wallet</span> for
-          your digital life
-        </h2>
-        <p class="mt-4 text-4xl font-bold tracking-tight text-gray-900">
-          Welcome!
-        </p>
-        <p class="mt-4 text-gray-700">
-          Setler helps you manage your decentralized, self-sovereign identity
-          with a suite of communications, payment, and authoring tools powered
-          by cryptography.
-        </p>
+      <div
+        class="white mx-auto max-w-2xl px-4 sm:px-6 md:grid md:max-w-7xl md:grid-cols-5 md:gap-x-8 md:px-4 md:pt-12"
+      >
+        <div class="mt-4 pl-8 pr-12 md:col-span-3 md:col-start-3">
+          <h2 id="features-heading" class="font-thin text-gray-500">
+            Setler: an <span class="font-medium italic">identity wallet</span> for
+            your digital life
+          </h2>
+          <p class="mt-4 text-4xl font-bold tracking-tight text-gray-900">
+            Welcome!
+          </p>
+          <p class="mt-4 text-gray-700">
+            Setler helps you manage your decentralized, self-sovereign identity
+            with a suite of communications, payment, and authoring tools powered
+            by cryptography.
+          </p>
 
-        <dl
-          class="mt-10 grid grid-cols-1 gap-y-10 gap-x-8 text-sm sm:grid-cols-1"
-        >
-          <div>
-            <dt class="font-medium text-gray-900">
-              Distributed Identifier Registry
-            </dt>
-            <dd class="mt-2 text-gray-700">
-              Use your identity wallet to store Distributed Identifiers (DIDs)
-              which enable no one but you to control your identity data.
-            </dd>
-          </div>
-
-          <div>
-            <dt class="font-medium text-gray-900">Kudos Settlement</dt>
-            <dd class="mt-2 text-gray-700">
-              Manage your digital reputation by sending and settling <button
-                class="underline"
-                on:click={() => {
-                  goto('https://www.loremlabs.com/?utm_campaign=setler');
-                }}>kudos</button
-              >.
-            </dd>
-          </div>
-
-          <div>
-            <dt class="font-medium text-gray-900">Non-custodial Wallet</dt>
-            <dd class="mt-2 text-gray-700">
-              Your cryptographic keys enable you to interface with the
-              blockchain.
-            </dd>
-          </div>
-
-          {#if openState === 'existing'}
-            <div class="h-24 w-full">
-              <button
-                type="button"
-                on:click={onConnectWallet}
-                class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >Connect Identity Wallet
-                {#if processing > 0}
-                  <span
-                    aria-label={'processing'}
-                    class="ml-2 mr-3 animate-spin ease-in-out"
-                  >
-                    <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-                  </span>
-                {/if}
-              </button>
+          <dl
+            class="mt-10 grid grid-cols-1 gap-y-10 gap-x-8 text-sm sm:grid-cols-1"
+          >
+            <div>
+              <dt class="font-medium text-gray-900">
+                Distributed Identifier Registry
+              </dt>
+              <dd class="mt-2 text-gray-700">
+                Use your identity wallet to store Distributed Identifiers (DIDs)
+                which enable no one but you to control your identity data.
+              </dd>
             </div>
-          {:else if openState === 'new'}
-            <div class="-mt-4  h-24 w-full">
-              <button
-                type="button"
-                on:click={onCreateWallet}
-                class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >Create Identity Wallet</button
-              >
-              <span
-                class="m-auto mt-4 inline-flex w-full items-center justify-center text-xs text-gray-500"
-              >
-                This creates your keys and stores in your computer's key chain.
-              </span>
+
+            <div>
+              <dt class="font-medium text-gray-900">Kudos Settlement</dt>
+              <dd class="mt-2 text-gray-700">
+                Manage your digital reputation by sending and settling <button
+                  class="underline"
+                  on:click={() => {
+                    goto('https://www.loremlabs.com/?utm_campaign=setler');
+                  }}>kudos</button
+                >.
+              </dd>
             </div>
-          {:else if Date.now() - startTs > 3000}
-            <!-- shouldn't happen? -->
-            <div class="w-full">
-              <div class="border-l-4 border-red-400 bg-red-50 p-2">
-                <div class="flex">
-                  <div class="flex-shrink-0">
-                    <Icon
-                      name="exclaimation-circle"
-                      class="h-5 w-5 text-red-700"
-                    />
-                  </div>
-                  <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-700">
-                      Error connecting to wallet
-                    </h3>
-                    <div class="mt-2 text-sm text-red-700">
-                      <p>Please try again.</p>
+
+            <div>
+              <dt class="font-medium text-gray-900">Non-custodial Wallet</dt>
+              <dd class="mt-2 text-gray-700">
+                Your cryptographic keys enable you to interface with the
+                blockchain.
+              </dd>
+            </div>
+
+            {#if openState === 'existing'}
+              <div class="h-24 w-full" in:fade out:fade>
+                <button
+                  type="button"
+                  in:fly={{ y: -20, duration: 1000 }}
+                  on:click={onConnectWallet}
+                  class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >Connect Identity Wallet
+                  {#if processing > 0}
+                    <span
+                      aria-label={'processing'}
+                      class="ml-2 mr-3 animate-spin ease-in-out"
+                    >
+                      <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+                    </span>
+                  {/if}
+                </button>
+              </div>
+            {:else if openState === 'new'}
+              <div class="-mt-4  h-24 w-full" in:fade out:fade>
+                <button
+                  in:fly={{ y: -20, duration: 1000 }}
+                  type="button"
+                  on:click={onCreateWallet}
+                  class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >Create Identity Wallet</button
+                >
+                <span
+                  class="m-auto mt-4 inline-flex w-full items-center justify-center text-xs text-gray-500"
+                >
+                  This creates your keys and stores in your computer's key
+                  chain.
+                </span>
+              </div>
+            {:else if Date.now() - startTs > 3000}
+              <!-- shouldn't happen? -->
+              <div class="w-full" in:fade out:fade>
+                <div class="border-l-4 border-red-400 bg-red-50 p-2">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <Icon
+                        name="exclaimation-circle"
+                        class="h-5 w-5 text-red-700"
+                      />
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-700">
+                        Error connecting to wallet
+                      </h3>
+                      <div class="mt-2 text-sm text-red-700">
+                        <p>Please try again.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          {/if}
-        </dl>
+            {/if}
+          </dl>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  {/if}
 </div>
 <div class="absolute top-20 right-8 text-gray-500">
   <button
     id="panel-open"
-    class="focus:outline-none"
+    class="rounded-full p-2 hover:bg-gray-100 focus:outline-none"
     on:click={() => {
       panelOpen = document.getElementById('panel-open');
     }}
