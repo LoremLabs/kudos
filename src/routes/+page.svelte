@@ -7,6 +7,8 @@
   import Modal from '$lib/components/Modal.svelte';
   import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
   import Panel from '$lib/components/Panel.svelte';
+  import Switch from '$lib/components/Switch.svelte';
+
   import { exists } from '@tauri-apps/api/fs';
 
   import Icon from '$lib/components/Icon.svelte';
@@ -323,7 +325,7 @@
     on:submit|preventDefault={() => {}}
   >
     <label class="block text-sm">
-      <span class="text-sm font-medium text-gray-500"
+      <span class="text-sm font-medium text-gray-900"
         >Mneumonic Pass Phrase
       </span>
       <input
@@ -344,13 +346,13 @@
         autofocus={true}
         class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
       />
-      <span class="text-xs font-medium text-gray-500">
+      <span class="text-sm font-medium text-gray-500">
         Note: this is not the 24 word mneumonic, but a pass phrase used in
         conjunction with the mneumonic to derive your keys, sometimes called the
         "25th word". Use of this is optional and recommended for advanced users
         only.
       </span>
-      <div class="m-auto mt-2 max-w-xl text-sm text-gray-500">
+      <div class="m-auto mt-8 max-w-xl text-sm text-gray-500">
         <div class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
@@ -388,19 +390,14 @@
         </div>
       </div>
     </label>
-    <div class="mt-1 text-sm text-gray-900 sm:mt-0" />
-    <label class="mt-12 block text-sm" for="shouldAsk">
-      <span class="text-sm font-medium text-gray-500"
-        >Prompt for Pass Phrase on Startup?
-      </span>
-      <input
-        id="shouldAsk"
-        type="checkbox"
-        name="shouldAsk"
-        bind:checked={shouldAskForPassPhrase}
-        value={true}
-      />
-    </label>
+    <div class="mt-12 w-full">
+      <Switch
+      bind:value={shouldAskForPassPhrase}
+      label="Pass Phrase on Startup"
+      description="Prompt for Pass Phrase on Startup?"
+      id="passphrase-on-startup"
+    />
+</div>
   </form>
 
   <div slot="footer">
