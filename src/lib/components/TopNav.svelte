@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
 
-  // import Icon from '$lib/components/Icon.svelte';
+  import { browser } from '$app/environment';
+
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
@@ -26,7 +27,7 @@
 {#if ready}
   <nav class="overflow-visible bg-slate-900">
     <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-      <div class="relative flex h-16 items-center justify-between">
+      <div class="relative flex h-12 items-center justify-between">
         <div class="flex items-center px-2 lg:px-0">
           <div class="flex-shrink-0">
             <h2

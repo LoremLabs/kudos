@@ -21,6 +21,7 @@ module.exports = {
         extend: {
           colors: {
             ...colors,
+            primary: colors.fuchsia,
           },
           fontFamily: {
             sans: ["Inter var", ...defaultTheme.fontFamily.sans],
