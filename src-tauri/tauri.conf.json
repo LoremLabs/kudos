@@ -40,6 +40,7 @@
         "minimize": true,
         "unminimize": true,
         "close": true,
+        "center": true,
         "startDragging": true
       }
     },
@@ -87,7 +88,7 @@
         "fullscreen": false,
         "height": 769,
         "resizable": true,
-        "title": "",
+        "title": "Setler",
         "width": 769,
         "decorations": true,
         "hiddenTitle": true,

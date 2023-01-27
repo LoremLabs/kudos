@@ -15,6 +15,37 @@
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { fade, fly } from 'svelte/transition';
 
+  import { WebviewWindow } from '@tauri-apps/api/window';
+  import { appWindow } from '@tauri-apps/api/window';
+
+  const LOGIN_URL = '/app';
+
+  const openMainWindow = async () => {
+    const webview = new WebviewWindow('app', {
+      url: LOGIN_URL,
+
+      // window features
+      title: '',
+      resizable: true,
+      width: 1024,
+      height: 768,
+      decorations: true,
+      hiddenTitle: true,
+      titleBarStyle: 'Overlay',
+      center: true,
+      acceptFirstMouse: true,
+      userAgent: 'setler/desktop',
+    });
+    webview.once('tauri://created', async () => {
+      // webview window successfully created
+      await appWindow.close();
+    });
+    webview.once('tauri://error', function (e) {
+      console.log({ e });
+      openState = 'error';
+    });
+  };
+
   const goto = (/** @type {string} */ url) => {
     openShell(url);
   };
@@ -85,7 +116,7 @@
           disabledModalSubmit = false;
         }, 2000);
       } else {
-        window.location.href = '/kudos';
+        await openMainWindow();
       }
     } catch (e) {
       console.log({ e });
@@ -125,6 +156,7 @@
       }
     };
     openState = await checkForSeedFile();
+    await appWindow.center();
     ready = true;
   });
 </script>
@@ -163,7 +195,7 @@
         class="white mx-auto max-w-2xl px-4 sm:px-6 md:grid md:max-w-7xl md:grid-cols-5 md:gap-x-8 md:px-4 md:pt-12"
       >
         <div class="mt-4 pl-8 pr-12 md:col-span-3 md:col-start-3">
-          <h2 id="features-heading" class="font-thin text-gray-500">
+          <h2 id="features-heading" class="font-medium text-gray-500">
             Setler: an <span class="font-medium italic">identity wallet</span> for
             your digital life
           </h2>
@@ -272,7 +304,7 @@
     </section>
   {/if}
 </div>
-<div class="absolute top-20 right-8 text-gray-500">
+<div class="absolute top-12 right-4 text-gray-500">
   <button
     id="panel-open"
     class="rounded-full p-2 hover:bg-gray-100 focus:outline-none"
@@ -283,7 +315,7 @@
     <Icon name="cog" class="mx-2 h-6 w-6" />
   </button>
 </div>
-<Panel heading="Advanced Settings" bind:opener={panelOpen}>
+<Panel heading="Login Settings" bind:opener={panelOpen}>
   <form
     id="advanced-form"
     class="p-5 py-4 sm:py-5"
@@ -472,8 +504,7 @@
               // save that we've seen these
               clearConfig.hasSeenSeed = true;
               await clearConfigStore.save(clearConfig);
-
-              window.location.href = '/kudos';
+              await openMainWindow();
             }}
             type="button"
             disabled={disabledModalSubmit}

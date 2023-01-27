@@ -1,11 +1,18 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
-export const getConfig = async () => {
+let configCache = null;
+
+export const getConfig = async (useCache) => {
+  if (useCache && configCache) {
+    return configCache;
+  }
+
   let config = {};
   try {
     const configJson = await invoke('get_config');
     console.log('configJson', configJson);
     config = JSON.parse(configJson);
+    configCache = config;
   } catch (e) {
     console.log('error getting config', e);
   }

@@ -11,9 +11,11 @@ export const createWalletStore = () => {
     },
   };
   const { subscribe, update, set } = writable(data);
+  let initDone = false;
 
   return {
     init: async ({ id = 0, passPhrase = '' }) => {
+      if (initDone) return data;
       const salt = (await invoke('get_salt')) || ''; // used to encrypt local seed data only
 
       data.salt = salt;
@@ -32,6 +34,7 @@ export const createWalletStore = () => {
 
       // console.log({ data });
       set(data);
+      initDone = true;
       return data;
     },
     subscribe,
