@@ -25,7 +25,7 @@
   <pre><JsPretty obj={$walletStore} /></pre>
 {/if}
 {#if ready}
-  <nav class="overflow-visible bg-slate-900">
+  <nav class="z-30 overflow-visible bg-slate-900">
     <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
       <div class="relative flex h-12 items-center justify-between">
         <div class="flex items-center px-2 lg:px-0">
@@ -33,7 +33,7 @@
             <h2
               class="text-center text-lg font-bold tracking-tight text-gray-50"
             >
-              My Identity
+              &nbsp;
             </h2>
           </div>
         </div>
