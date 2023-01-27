@@ -14,7 +14,6 @@
     const clearConfig = await clearConfigStore.init();
     console.log({ ws, config, clearConfig });
   });
-
 </script>
 
 <div class="mt-4 overflow-visible bg-white">

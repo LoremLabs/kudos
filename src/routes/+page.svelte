@@ -392,12 +392,12 @@
     </label>
     <div class="mt-12 w-full">
       <Switch
-      bind:value={shouldAskForPassPhrase}
-      label="Pass Phrase on Startup"
-      description="Prompt for Pass Phrase on Startup?"
-      id="passphrase-on-startup"
-    />
-</div>
+        bind:value={shouldAskForPassPhrase}
+        label="Pass Phrase on Startup"
+        description="Prompt for Pass Phrase on Startup?"
+        id="passphrase-on-startup"
+      />
+    </div>
   </form>
 
   <div slot="footer">

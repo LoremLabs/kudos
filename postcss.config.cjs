@@ -13,7 +13,7 @@ module.exports = {
       plugins: [
         require("@tailwindcss/forms"),
         require("@tailwindcss/aspect-ratio"),
-        require('tailwindcss-font-inter')({
+        require("tailwindcss-font-inter")({
           importFontFace: true,
         }),
       ],

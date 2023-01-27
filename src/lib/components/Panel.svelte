@@ -12,7 +12,7 @@
   modal
   closeOnEscape
   closeOnBackdropClick
-  class="w-[95vw] max-w-2xl scroll-p-12 bg-white rounded-lg shadow-xl border-l-2 border-t-2 border-gray-200 z-20 mt-10"
+  class="z-20 mt-10 w-[95vw] max-w-2xl scroll-p-12 rounded-lg border-l-2 border-t-2 border-gray-200 bg-white shadow-xl"
 >
   <div
     slot="header"
@@ -22,9 +22,9 @@
     <h2 class="text-lg font-bold text-black" id={ariaLabelId}>{heading}</h2>
     <button
       type="button"
-      class="bg-gray-100 text-gray-500 outline-none rounded-full p-2
-       hover:text-black
-        hover:scale-110 hover:bg-gray-300 hover:text-black
+      class="rounded-full bg-gray-100 p-2 text-gray-500 outline-none
+       hover:scale-110
+        hover:bg-gray-300 hover:text-black hover:text-black
         focus:scale-110 focus:bg-gray-200 focus:text-black"
       on:click={() => (opener = null)}
       aria-label="Close"
@@ -41,7 +41,7 @@
     <slot />
   </div>
 
-  <div slot="footer" class="border-t p-4 fixed absolute bottom-0 w-full">
+  <div slot="footer" class="fixed absolute bottom-0 w-full border-t p-4">
     {#if $$slots.footer}
       <slot name="footer" />
     {:else}

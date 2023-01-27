@@ -18,7 +18,7 @@
   export type Shape = keyof typeof shapes;
 </script>
 
-<svg class="w-0 h-0" tabindex="-1" aria-hidden="true">
+<svg class="h-0 w-0" tabindex="-1" aria-hidden="true">
   <defs>
     <clipPath
       id="shape1"
