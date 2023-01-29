@@ -51,6 +51,7 @@
   <pre><JsPretty obj={$walletStore} /></pre>
 {/if}
 <nav
+  data-tauri-drag-region
   class="z-30 flex w-full flex-row items-center justify-end justify-items-end overflow-visible bg-slate-900"
 >
   <div class="mx-auto w-full px-2">
@@ -123,7 +124,7 @@
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
                 tabindex="-1"
-                class:hidden={!showPersonaMenu}                
+                class:hidden={!showPersonaMenu}
                 class:animate-entering={showPersonaMenu}
                 class:animate-leaving={!showPersonaMenu}
               >
@@ -132,7 +133,7 @@
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
                   role="menuitem"
                   tabindex="-1"
-                  id="user-menu-item-0">Your Profile</a
+                  id="user-menu-item-0">Edit Persona</a
                 >
                 <a
                   href="#"
@@ -140,13 +141,6 @@
                   role="menuitem"
                   tabindex="-1"
                   id="user-menu-item-1">Settings</a
-                >
-                <a
-                  href="#"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
-                  role="menuitem"
-                  tabindex="-1"
-                  id="user-menu-item-2">Sign out</a
                 >
               </div>
             </div>

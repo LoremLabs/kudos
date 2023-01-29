@@ -5,12 +5,15 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 import { writable } from 'svelte/store';
 
 export const createClearConfigStore = () => {
-  const data = {};
-  const { subscribe, update, set } = writable(data);
+  let clearConfig = {
+    _init: false,
+  };
+  const { subscribe, update, set } = writable(clearConfig);
+  let initDone = false;
 
   return {
     init: async () => {
-      let clearConfig = {};
+      if (initDone) return clearConfig;
       try {
         const baseDir = await appLocalDataDir();
         await createDir(`${baseDir}config`, {
@@ -48,12 +51,18 @@ export const createClearConfigStore = () => {
         console.log('error getting clear config', e);
       }
 
+      clearConfig._init = true; // allow derived stores to know when init is done
+      initDone = true;
       console.log({ clearConfig });
       set(clearConfig);
       return clearConfig;
     },
     subscribe,
-    save: async (newData = {}) => {
+    save: async (
+      newData = {
+        _init: false,
+      }
+    ) => {
       try {
         const baseDir = await appLocalDataDir();
         await createDir(`${baseDir}config`, {
