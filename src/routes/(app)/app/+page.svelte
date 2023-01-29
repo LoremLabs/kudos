@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
 
+  import Tooltip from '$lib/components/tooltip.svelte';
+
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
@@ -45,17 +47,20 @@
         class="mt-2 flex flex-1 flex-col items-start gap-2 overflow-x-auto border-r border-gray-200 bg-slate-900 p-2 md:overflow-x-visible"
         orientation="vertical"
       >
-        {#each TABS as tab}
-          <Tab id={tab.id} class="" let:selected>
-            <button
-              class="border-0.5 group flex w-full items-center gap-3 rounded-full border-blue-400 bg-blue-300 p-2 text-xs font-medium"
-              title={tab.id}
-            >
-              <Icon
-                name={tab.icon}
-                class="h-4 w-4 flex-shrink-0 text-blue-900 group-hover:text-gray-800"
-              />
-            </button>
+        {#each TABS as tab, i}
+          <Tab id={tab.id} class="tooltip group" let:selected>
+            <Tooltip text={`${tab.id}`} placement="right" class="p-1.5 px-4">
+              <button
+                id={`tab-nav-${i}`}
+                class="border-0.5 flex w-full items-center gap-3 rounded-full border-blue-400 bg-blue-300 p-2 text-xs font-medium"
+                title={tab.id}
+              >
+                <Icon
+                  name={tab.icon}
+                  class="h-4 w-4 flex-shrink-0 text-blue-900 group-hover:text-gray-800"
+                />
+              </button>
+            </Tooltip>
           </Tab>
         {/each}
       </TabList>
