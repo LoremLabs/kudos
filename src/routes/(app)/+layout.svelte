@@ -1,6 +1,9 @@
 <script>
+  import '$styles/inter.css';
   import '$styles/app.css';
   import '$styles/tailwind-output.css';
+  import '$styles/twemoji.scss';
+
   import { browser } from '$app/environment';
 
   import { listen } from '@tauri-apps/api/event';

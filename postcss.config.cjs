@@ -14,7 +14,7 @@ module.exports = {
         require("@tailwindcss/forms"),
         require("@tailwindcss/aspect-ratio"),
         require("tailwindcss-font-inter")({
-          importFontFace: true,
+          importFontFace: false, // we don't want to pull from the network
         }),
       ],
       theme: {

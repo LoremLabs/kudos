@@ -1,4 +1,5 @@
 <script>
+  import '$styles/inter.css';
   import '$styles/app.css';
   import '$styles/tailwind-output.css';
   import { browser } from '$app/environment';

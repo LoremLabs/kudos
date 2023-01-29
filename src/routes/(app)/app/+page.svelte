@@ -15,10 +15,10 @@
   import { Tabs, Tab, TabPanel, TabList } from '$lib/components/Tabs';
   let activeSection = 'Members';
 
-  const TABS: { id: string; icon: IconName }[] = [
-    { id: 'Dossier', icon: 'badge-check' },
-    { id: 'Channels', icon: 'at-symbol' },
-    { id: 'Settings', icon: 'cog' },
+  const TABS: { id: string; icon?: IconName; twe?: string }[] = [
+    { id: 'Dossier', twe: 'identification-card' },
+    { id: 'Email', twe: 'e-mail' },
+    { id: 'Settings', twe: 'winking-face' },
   ];
 
   onMount(async () => {
@@ -38,7 +38,6 @@
     console.log({ ws, config, clearConfig });
   });
 </script>
-
 <div class="min-h-screen overflow-visible">
   <Tabs bind:active={activeSection} class="">
     <main class="flex flex-row bg-slate-400">
@@ -55,10 +54,14 @@
                 class="border-0.5 flex w-full items-center gap-3 rounded-full border-blue-400 bg-blue-300 p-2 text-xs font-medium"
                 title={tab.id}
               >
-                <Icon
-                  name={tab.icon}
-                  class="h-4 w-4 flex-shrink-0 text-blue-900 group-hover:text-gray-800"
-                />
+                {#if tab.twe}
+                  <i class={`twe twe-2x twe-${tab.twe}`} />
+                {:else if tab.icon}
+                  <Icon
+                    name={tab.icon}
+                    class="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                  />
+                {/if}
               </button>
             </Tooltip>
           </Tab>

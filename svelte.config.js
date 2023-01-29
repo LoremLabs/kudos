@@ -3,8 +3,9 @@ import staticAdapter from "@sveltejs/adapter-static";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: preprocess(),
-
+  preprocess: preprocess({
+    postcss: true,
+  }),
   kit: {
     // prerender: {
     //   entries: ["/", "/collection"],

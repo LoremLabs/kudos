@@ -68,6 +68,7 @@
     "ripple-bip32": "^0.0.3",
     "ripple-keypairs": "^1.1.4",
     "safe-stable-stringify": "^2.4.1",
+    "sass": "^1.57.1",
     "string-hash": "^1.1.3",
     "svelte": "^3.54.0",
     "svelte-check": "^2.9.2",
