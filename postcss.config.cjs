@@ -21,6 +21,8 @@ module.exports = {
         extend: {
           animation: {
             "fade-in": "fade-in 0.5s linear forwards",
+            entering: "entering 0.1s ease-out forwards",
+            leaving: "leaving 0.075s ease-in forwards",
             marquee: "marquee var(--marquee-duration) linear infinite",
             "spin-slow": "spin 4s linear infinite",
             "spin-slower": "spin 6s linear infinite",
@@ -35,6 +37,26 @@ module.exports = {
               },
               to: {
                 opacity: 1,
+              },
+            },
+            entering: {
+              from: {
+                opacity: 0,
+                scale: 0.95,
+              },
+              to: {
+                opacity: 1,
+                scale: 1,
+              },
+            },
+            leaving: {
+              from: {
+                opacity: 1,
+                scale: 1,
+              },
+              to: {
+                opacity: 0,
+                scale: 0.95,
               },
             },
             marquee: {

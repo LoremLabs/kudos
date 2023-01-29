@@ -61,6 +61,8 @@
   <TopNav />
 </div>
 
-<main class="min-h-screen w-full overflow-hidden overscroll-none bg-slate-900">
+<main
+  class="min-h-screen w-full overflow-hidden overscroll-none bg-slate-900 focus:outline-none"
+>
   <slot />
 </main>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
@@ -37,7 +38,6 @@
 </script>
 
 <div class="overflow-visible bg-white">
-
   <Tabs bind:active={activeSection} class="">
     <nav class="">
       <TabList
