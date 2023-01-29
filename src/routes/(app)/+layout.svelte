@@ -6,6 +6,7 @@
   import { listen } from '@tauri-apps/api/event';
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
+  import TopNav from '$lib/components/TopNav.svelte';
 
   //  import { walletStore } from '$lib/stores/wallet';
 
@@ -55,10 +56,11 @@
 
 <div
   data-tauri-drag-region
-  class="fixed top-0 left-0 flex h-10 w-full cursor-default select-none justify-center overflow-hidden overscroll-none bg-slate-900 pt-1 font-medium text-white"
+  class="fixed top-0 left-0 flex h-10 w-full cursor-default select-none justify-end overscroll-none bg-slate-900 pt-1"
 >
-  {title}
+  <TopNav />
 </div>
+
 <main class="min-h-screen w-full overflow-hidden overscroll-none bg-slate-900">
   <slot />
 </main>

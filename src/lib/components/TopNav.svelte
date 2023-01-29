@@ -7,11 +7,13 @@
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
+  import Icon from '$lib/components/Icon.svelte';
   import Identicon from '$lib/components/Identicon.svelte';
   import JsPretty from '$lib/components/JSPretty.svelte';
 
   export let debug = false;
   let ready = false;
+  let showPersonaMenu = false;
 
   onMount(async () => {
     const config = await getConfig(true); // using cached config
@@ -25,13 +27,15 @@
   <pre><JsPretty obj={$walletStore} /></pre>
 {/if}
 {#if ready}
-  <nav class="z-30 overflow-visible bg-slate-900">
-    <div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-      <div class="relative flex h-12 items-center justify-between">
-        <div class="flex items-center px-2 lg:px-0">
+  <nav
+    class="z-30 flex w-full flex-row items-center justify-end justify-items-end overflow-visible bg-slate-900"
+  >
+    <div class="mx-auto w-full px-2 sm:px-4 lg:px-8">
+      <div class="relative flex h-6 items-center justify-between">
+        <div class="flex items-center px-12 lg:px-0">
           <div class="flex-shrink-0">
             <h2
-              class="text-center text-lg font-bold tracking-tight text-gray-50"
+              class="text-md text-center font-medium tracking-tight text-gray-50"
             >
               &nbsp;
             </h2>
@@ -41,18 +45,33 @@
           <div class="flex items-center">
             <!-- Profile dropdown -->
             <div class="relative ml-4 flex-shrink-0">
-              <div>
-                <button
-                  type="button"
-                  class="flex rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  id="user-menu-button"
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                >
-                  <span class="sr-only">Open persona menu</span>
-                  <Identicon address={$walletStore.eth.address} />
-                </button>
-              </div>
+              <button
+                type="button"
+                id="user-menu-button"
+                aria-expanded="false"
+                aria-haspopup="true"
+                on:click={() => (showPersonaMenu = !showPersonaMenu)}
+              >
+                <div class="bg-slate-300 border-0.5 border-gray-900 rounded-full pr-3">
+                  <div
+                    class="flex justify-center justify-items-center items-center rounded-full text-sm text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                  >
+                    <span class="sr-only">Open persona menu</span>
+                    <Identicon
+                    class="pt-1 pl-1 mr-2"
+                      diameter={20}
+                      address={$walletStore.eth.address}
+                    />
+                    <div class="m-auto text-xs text-gray-900">
+                      {#if $clearConfigStore.name}
+                        {$clearConfigStore.name}
+                      {:else}
+                        Persona {$clearConfigStore.id || 1}
+                      {/if}</div>
+                    <Icon name="chevron-down" class="ml-2 w-3 h-3" />
+                  </div>
+                </div>
+              </button>
 
               <!--
                 Dropdown menu, show/hide based on menu state.
@@ -65,11 +84,12 @@
                   To: "transform opacity-0 scale-95"
               -->
               <div
-                class="absolute right-0 z-10 mt-2 hidden w-48 origin-top-right rounded-md bg-red-100 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none animate-fade-in-down"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
                 tabindex="-1"
+                class:hidden={!showPersonaMenu}
               >
                 <!-- Active: "bg-gray-100", Not Active: "" -->
                 <a

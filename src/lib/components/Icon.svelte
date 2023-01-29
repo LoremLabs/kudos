@@ -13,6 +13,7 @@
     | 'chat-alt-2'
     | 'check'
     | 'chevron-double-right'
+    | 'chevron-down'
     | 'chevron-right'
     | 'chevron-left'
     | 'clipboard-copy'

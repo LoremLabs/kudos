@@ -5,7 +5,6 @@
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
-  import TopNav from '$lib/components/TopNav.svelte';
   import Settings from '$lib/components/Settings.svelte';
 
   import type { IconName } from '$lib/components/Icon.svelte';
@@ -38,7 +37,6 @@
 </script>
 
 <div class="overflow-visible bg-white">
-  <TopNav />
 
   <Tabs bind:active={activeSection} class="">
     <nav class="">
