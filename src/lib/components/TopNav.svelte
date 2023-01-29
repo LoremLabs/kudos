@@ -123,6 +123,7 @@
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
                 tabindex="-1"
+                class:hidden={!showPersonaMenu}                
                 class:animate-entering={showPersonaMenu}
                 class:animate-leaving={!showPersonaMenu}
               >
