@@ -28,6 +28,7 @@
     | 'exclaimation'
     | 'exclaimation-circle'
     | 'eye'
+    | 'globe-alt'
     | 'home'
     | 'inbox'
     | 'information-circle'

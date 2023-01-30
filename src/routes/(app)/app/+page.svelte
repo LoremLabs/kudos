@@ -58,7 +58,11 @@
         orientation="vertical"
       >
         {#each TABS as tab, i}
-          <Tab id={tab.id} class="tooltip group" let:selected>
+          <Tab
+            id={tab.id}
+            class="tooltip justified-center group flex flex-row items-end"
+            let:selected
+          >
             <Tooltip
               text={`${tab.id}`}
               placement="right"
@@ -75,9 +79,7 @@
                 {:else if tab.icon}
                   <Icon
                     name={tab.icon}
-                    class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
-                      tab.class || ''
-                    }`}
+                    class={`h-7 w-7 text-gray-400 ${tab.class || ''}`}
                   />
                 {/if}
               </button>
