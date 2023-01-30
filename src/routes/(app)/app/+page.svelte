@@ -9,17 +9,20 @@
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import Settings from '$lib/components/Settings.svelte';
+  import KudosLedgerPane from '$lib/components/KudosLedgerPane.svelte';
 
   import type { IconName } from '$lib/components/Icon.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { Tabs, Tab, TabPanel, TabList } from '$lib/components/Tabs';
   let activeSection = 'Members';
 
-  const TABS: { id: string; icon?: IconName; twe?: string }[] = [
-    { id: 'Dossier', twe: 'identification-card' },
-    { id: 'Email', twe: 'e-mail' },
-    { id: 'Settings', twe: 'winking-face' },
-  ];
+  const TABS: { id: string; icon?: IconName; twe?: string; class?: string }[] =
+    [
+      // { id: 'Dossier', twe: 'identification-card', class: 'twe-2x-tight' },
+      // { id: 'Email', twe: 'e-mail', class:"twe-2x-tight" },
+      { id: 'Kudos', twe: 'folded-hands', class: 'twe-2x-tight' },
+      { id: 'XRPL', icon: 'brand/xrpl', class: 'text-black' },
+    ];
 
   onMount(async () => {
     if (!browser) {
@@ -38,9 +41,10 @@
     console.log({ ws, config, clearConfig });
   });
 </script>
+
 <div class="min-h-screen overflow-visible">
   <Tabs bind:active={activeSection} class="">
-    <main class="flex flex-row bg-slate-400">
+    <main class="flex flex-row bg-slate-100">
       <TabList
         label="Account navigation"
         class="mt-2 flex flex-1 flex-col items-start gap-2 overflow-x-auto border-r border-gray-200 bg-slate-900 p-2 md:overflow-x-visible"
@@ -48,28 +52,52 @@
       >
         {#each TABS as tab, i}
           <Tab id={tab.id} class="tooltip group" let:selected>
-            <Tooltip text={`${tab.id}`} placement="right" class="p-1.5 px-4">
+            <Tooltip
+              text={`${tab.id}`}
+              placement="right"
+              class="border border-slate-300 p-1.5 px-4 shadow"
+            >
               <button
                 id={`tab-nav-${i}`}
-                class="border-0.5 flex w-full items-center gap-3 rounded-full border-blue-400 bg-blue-300 p-2 text-xs font-medium"
+                class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 bg-slate-300 p-2 text-xs font-medium group-hover:bg-white"
                 title={tab.id}
               >
                 {#if tab.twe}
-                  <i class={`twe twe-2x twe-${tab.twe}`} />
+                  <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
                 {:else if tab.icon}
                   <Icon
                     name={tab.icon}
-                    class="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                    class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
+                      tab.class || ''
+                    }`}
                   />
                 {/if}
               </button>
             </Tooltip>
           </Tab>
         {/each}
+        <Tooltip
+          text={`Add Keys`}
+          placement="right"
+          class="border border-slate-300 p-1.5 px-4 shadow"
+        >
+          <button
+            id={`tab-add`}
+            class="border-0.5 flex w-full items-center gap-3 rounded-full bg-slate-900 p-2 text-xs font-medium group-hover:bg-white"
+            title="Add"
+          >
+            <Icon
+              name="solid/plus-sm"
+              class="h-7 w-7 flex-shrink-0 text-gray-400"
+            />
+          </button>
+        </Tooltip>
       </TabList>
-      <TabPanel class="min-h-screen w-full">hi</TabPanel>
-      <TabPanel class="min-h-screen w-full">hi2</TabPanel>
-      <TabPanel class="min-h-screen w-full">hi3</TabPanel>
+      {#if TABS.find((tab) => tab.id === 'Kudos')}
+        <TabPanel class="min-h-screen w-full"><KudosLedgerPane /></TabPanel>
+      {:else if TABS.find((tab) => tab.id === 'XRPL')}
+        <TabPanel class="min-h-screen w-full">xrpl</TabPanel>
+      {/if}
     </main>
   </Tabs>
 </div>

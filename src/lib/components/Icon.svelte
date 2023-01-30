@@ -39,6 +39,7 @@
     | 'logout'
     | 'menu-alt-2'
     | 'microphone'
+    | 'paper-airplane'
     | 'paper-clip'
     | 'pencil'
     | 'pencil-alt'
@@ -95,7 +96,8 @@
     | 'brand/twitter'
     | 'brand/unlock'
     | 'brand/unlock-square'
-    | 'brand/webmon';
+    | 'brand/webmon'
+    | 'brand/xrpl';
 
   export type MiscIcons =
     | 'misc/spinner'
