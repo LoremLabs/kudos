@@ -32,10 +32,23 @@
       _sourceName: 'Kudos',
     },
   ];
+  ledgerParts = [...ledgerParts, ...ledgerParts, ...ledgerParts];
+  ledgerParts = [...ledgerParts, ...ledgerParts, ...ledgerParts];
+
+  const scrollToBottom = node => {
+    const scroll = () => node.scroll({
+        top: node.scrollHeight,
+        behavior: 'smooth',
+    });
+    scroll();
+
+    return { update: scroll }
+};
 </script>
 
 <div
   class="w-full overflow-y-scroll"
+  use:scrollToBottom={ledgerParts}
   style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}`}
 >
   <ul class="max-h-screen overflow-y-auto rounded-lg">
