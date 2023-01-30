@@ -67,7 +67,6 @@ dependencies:
   knex: 2.3.0_better-sqlite3@8.0.1
   tauri-plugin-sqlite-api: github.com/lzdyes/tauri-plugin-sqlite/fec1c22af5c30307a4c09f0a91200783cc27600e
   tauri-plugin-stronghold-api: github.com/tauri-apps/tauri-plugin-stronghold/0ff2d600966a33caef06f915b45a33cc18119d7a
-  timeago.js: 4.0.2
 
 devDependencies:
   "@esbuild-plugins/node-globals-polyfill": 0.1.1_esbuild@0.17.4
@@ -121,6 +120,7 @@ devDependencies:
   svelte-preprocess: 5.0.0_nq7iz5ahyq7ey7rsxvk46dafhu
   tailwindcss: 3.2.4_postcss@8.4.20
   tailwindcss-font-inter: 3.0.1_tailwindcss@3.2.4
+  timeago.js: 4.0.2
   typescript: 4.9.4
   vite: 4.0.4_sass@1.57.1
   vite-plugin-top-level-await: 1.2.2_vite@4.0.4
@@ -5642,7 +5642,7 @@ packages:
       {
         integrity: sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==,
       }
-    dev: false
+    dev: true
 
   /timers-browserify/2.0.12:
     resolution:
