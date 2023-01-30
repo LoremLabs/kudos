@@ -9,12 +9,16 @@
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import Settings from '$lib/components/Settings.svelte';
-  import KudosLedgerPane from '$lib/components/KudosLedgerPane.svelte';
+  import KudosLedgerPane from '$lib/components/ledgers/kudos/KudosLedgerPane.svelte';
+  import XRPLLedgerPane from '$lib/components/ledgers/xrpl/XRPLLedgerPane.svelte';
 
   import type { IconName } from '$lib/components/Icon.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { Tabs, Tab, TabPanel, TabList } from '$lib/components/Tabs';
-  let activeSection = 'Members';
+  let activeSection = 'Kudos';
+
+  let sidebarWidth = 0;
+  let sidebarHeight = 0;
 
   const TABS: { id: string; icon?: IconName; twe?: string; class?: string }[] =
     [
@@ -42,7 +46,10 @@
   });
 </script>
 
-<div class="min-h-screen overflow-visible">
+<div
+  class="-mt-2 min-h-screen overflow-visible"
+  bind:clientHeight={sidebarHeight}
+>
   <Tabs bind:active={activeSection} class="">
     <main class="flex flex-row bg-slate-100">
       <TabList
@@ -51,30 +58,33 @@
         orientation="vertical"
       >
         {#each TABS as tab, i}
-          <Tab id={tab.id} class="tooltip group" let:selected>
-            <Tooltip
-              text={`${tab.id}`}
-              placement="right"
-              class="border border-slate-300 p-1.5 px-4 shadow"
-            >
-              <button
-                id={`tab-nav-${i}`}
-                class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 bg-slate-300 p-2 text-xs font-medium group-hover:bg-white"
-                title={tab.id}
+          <div bind:clientWidth={sidebarWidth}>
+            <Tab id={tab.id} class="tooltip group" let:selected>
+              <Tooltip
+                text={`${tab.id}`}
+                placement="right"
+                class="border border-slate-300 p-1.5 px-4 shadow"
               >
-                {#if tab.twe}
-                  <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
-                {:else if tab.icon}
-                  <Icon
-                    name={tab.icon}
-                    class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
-                      tab.class || ''
-                    }`}
-                  />
-                {/if}
-              </button>
-            </Tooltip>
-          </Tab>
+                <button
+                  id={`tab-nav-${i}`}
+                  class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 p-2 text-xs font-medium group-hover:bg-white"
+                  class:bg-slate-50={selected}
+                  title={tab.id}
+                >
+                  {#if tab.twe}
+                    <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
+                  {:else if tab.icon}
+                    <Icon
+                      name={tab.icon}
+                      class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
+                        tab.class || ''
+                      }`}
+                    />
+                  {/if}
+                </button>
+              </Tooltip>
+            </Tab>
+          </div>
         {/each}
         <Tooltip
           text={`Add Keys`}
@@ -93,11 +103,12 @@
           </button>
         </Tooltip>
       </TabList>
-      {#if TABS.find((tab) => tab.id === 'Kudos')}
-        <TabPanel class="min-h-screen w-full"><KudosLedgerPane /></TabPanel>
-      {:else if TABS.find((tab) => tab.id === 'XRPL')}
-        <TabPanel class="min-h-screen w-full">xrpl</TabPanel>
-      {/if}
+      <TabPanel class="min-h-screen w-full" id="Kudos">
+        <KudosLedgerPane {sidebarWidth} {sidebarHeight} />
+      </TabPanel>
+      <TabPanel class="min-h-screen w-full" id="XRPL">
+        <XRPLLedgerPane {sidebarWidth} {sidebarHeight} />
+      </TabPanel>
     </main>
   </Tabs>
 </div>

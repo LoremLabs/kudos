@@ -5,9 +5,16 @@
 
   const dispatch = createEventDispatcher();
 
+  export let sidebarWidth = 0;
+  export let sidebarHeight = 0;
+
+  let innerWidth = 0;
+  let innerHeight = 0;
+
   let commanderActive = false;
   let inputActive = false;
   let commandInput = '';
+  let mainWidth = 0;
 
   const onCommand = async (e: CustomEvent) => {
     console.log('onCommand', e.detail);
@@ -16,16 +23,23 @@
   const onAction = async (e: CustomEvent) => {
     console.log('onAction', e.detail);
   };
+
+  $: mainWidth = innerWidth - sidebarWidth - 22;
 </script>
 
-<div class="h-full">
+<svelte:window bind:innerWidth bind:innerHeight />
+
+<div class="h-full w-full">
   <div class="flex h-full flex-col justify-end">
     <div class="h-full">
-      <div class="flex h-full flex-row justify-start">
+      <div class="mt-2 flex h-full w-full flex-row justify-start overflow-auto">
         <slot name="main" />
       </div>
     </div>
-    <div class="h-32 p-2">
+    <div
+      class={`absolute -bottom-6 right-0 mr-1 h-32 w-full p-2`}
+      style={`width: ${mainWidth}px;`}
+    >
       <div
         class="flex h-16 w-full flex-row items-center rounded-lg p-2"
         class:shadow-md={commanderActive}
@@ -67,10 +81,12 @@
               on:keydown={(e) => {
                 if (e.key === 'Escape') {
                   commandInput = '';
+                  inputActive = false;
                 }
                 // submit on enter
                 if (e.key === 'Enter') {
                   dispatch('command', { command: commandInput });
+                  inputActive = false;
                   commandInput = '';
                 }
               }}
@@ -87,7 +103,7 @@
               on:blur={() => {
                 commanderActive = false;
               }}
-              class="border-0.5 flex h-10 w-full border-transparent pl-4 font-mono text-sm focus:border-gray-100 focus:ring-0"
+              class="border-0.5 flex h-10 w-full rounded border-transparent pl-4 font-mono text-sm focus:border-gray-100 focus:ring-0"
               class:bg-gray-100={commanderActive}
               class:bg-gray-200={!commanderActive}
             />
@@ -112,7 +128,7 @@
             </button>
           </div>
         </div>
-        <div class="ml-4">
+        <div class="ml-3">
           <button
             class="flex flex-shrink-0 items-center justify-center rounded-full py-2 pr-2 text-white hover:bg-blue-600"
             class:bg-blue-700={inputActive}
