@@ -62,7 +62,7 @@
             <Tooltip
               text={`${tab.id}`}
               placement="right"
-              class="z-50 border border-slate-300 p-1.5 px-4 shadow z-50"
+              class="z-50 z-50 border border-slate-300 p-1.5 px-4 shadow"
             >
               <button
                 id={`tab-nav-${i}`}
@@ -84,23 +84,23 @@
             </Tooltip>
           </Tab>
         {/each}
-          <Tooltip
-            text={`Add Keys`}
-            placement="right"
-            class="z-50 border border-slate-300 p-1.5 px-4 shadow"
+        <Tooltip
+          text={`Add Keys`}
+          placement="right"
+          class="z-50 border border-slate-300 p-1.5 px-4 shadow"
+        >
+          <button
+            id={`tab-add`}
+            class="border-0.5 flex w-full items-center gap-3 rounded-full bg-slate-900 p-2 text-xs font-medium group-hover:bg-white"
+            title="Add"
+            bind:clientWidth={sidebarWidth}
           >
-            <button
-              id={`tab-add`}
-              class="border-0.5 flex w-full items-center gap-3 rounded-full bg-slate-900 p-2 text-xs font-medium group-hover:bg-white"
-              title="Add"
-              bind:clientWidth={sidebarWidth}
-            >
-              <Icon
-                name="solid/plus-sm"
-                class="h-7 w-7 flex-shrink-0 text-gray-400"
-              />
-            </button>
-          </Tooltip>
+            <Icon
+              name="solid/plus-sm"
+              class="h-7 w-7 flex-shrink-0 text-gray-400"
+            />
+          </button>
+        </Tooltip>
       </TabList>
       <TabPanel class="min-h-screen w-full" id="Kudos">
         <KudosLedgerPane {sidebarWidth} {sidebarHeight} />

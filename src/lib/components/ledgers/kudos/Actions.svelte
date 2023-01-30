@@ -117,16 +117,8 @@
   };
 </script>
 
-{#if false}
-<div class="bg-white h-32z relative">
-hi
-
-
-</div>
-{/if}
-{#if true}
-<div class="bg-white">
-  <div class="px-4 py-5 sm:p-6">
+<div class="m-2 rounded bg-white">
+  <div class="px-6 py-2">
     <div>
       <h2 class="text-lg font-medium text-gray-900">Kudos Actions</h2>
       <div class="mt-1 text-sm text-gray-500">
@@ -361,4 +353,3 @@ hi
     </div>
   </div>
 </div>
-{/if}
