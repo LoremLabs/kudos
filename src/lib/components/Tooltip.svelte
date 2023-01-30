@@ -37,20 +37,6 @@
 {/if}
 
 <style>
-  #tooltip2 {
-    background: #f00;
-    color: #fff;
-    font-weight: bold;
-    padding: 4px 8px;
-    font-size: 13px;
-    border-radius: 4px;
-  }
-
-  :global(.dark-mode) #tooltip2 {
-    background: #fff;
-    color: #333;
-  }
-
   #arrow,
   #arrow::before {
     position: absolute;

@@ -58,50 +58,49 @@
         orientation="vertical"
       >
         {#each TABS as tab, i}
-          <div bind:clientWidth={sidebarWidth}>
-            <Tab id={tab.id} class="tooltip group" let:selected>
-              <Tooltip
-                text={`${tab.id}`}
-                placement="right"
-                class="border border-slate-300 p-1.5 px-4 shadow"
+          <Tab id={tab.id} class="tooltip group" let:selected>
+            <Tooltip
+              text={`${tab.id}`}
+              placement="right"
+              class="z-50 border border-slate-300 p-1.5 px-4 shadow z-50"
+            >
+              <button
+                id={`tab-nav-${i}`}
+                class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 p-2 text-xs font-medium group-hover:bg-white"
+                class:bg-slate-50={selected}
+                title={tab.id}
               >
-                <button
-                  id={`tab-nav-${i}`}
-                  class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 p-2 text-xs font-medium group-hover:bg-white"
-                  class:bg-slate-50={selected}
-                  title={tab.id}
-                >
-                  {#if tab.twe}
-                    <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
-                  {:else if tab.icon}
-                    <Icon
-                      name={tab.icon}
-                      class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
-                        tab.class || ''
-                      }`}
-                    />
-                  {/if}
-                </button>
-              </Tooltip>
-            </Tab>
-          </div>
+                {#if tab.twe}
+                  <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
+                {:else if tab.icon}
+                  <Icon
+                    name={tab.icon}
+                    class={`h-7 w-7 flex-shrink-0 text-gray-400 ${
+                      tab.class || ''
+                    }`}
+                  />
+                {/if}
+              </button>
+            </Tooltip>
+          </Tab>
         {/each}
-        <Tooltip
-          text={`Add Keys`}
-          placement="right"
-          class="border border-slate-300 p-1.5 px-4 shadow"
-        >
-          <button
-            id={`tab-add`}
-            class="border-0.5 flex w-full items-center gap-3 rounded-full bg-slate-900 p-2 text-xs font-medium group-hover:bg-white"
-            title="Add"
+          <Tooltip
+            text={`Add Keys`}
+            placement="right"
+            class="z-50 border border-slate-300 p-1.5 px-4 shadow"
           >
-            <Icon
-              name="solid/plus-sm"
-              class="h-7 w-7 flex-shrink-0 text-gray-400"
-            />
-          </button>
-        </Tooltip>
+            <button
+              id={`tab-add`}
+              class="border-0.5 flex w-full items-center gap-3 rounded-full bg-slate-900 p-2 text-xs font-medium group-hover:bg-white"
+              title="Add"
+              bind:clientWidth={sidebarWidth}
+            >
+              <Icon
+                name="solid/plus-sm"
+                class="h-7 w-7 flex-shrink-0 text-gray-400"
+              />
+            </button>
+          </Tooltip>
       </TabList>
       <TabPanel class="min-h-screen w-full" id="Kudos">
         <KudosLedgerPane {sidebarWidth} {sidebarHeight} />

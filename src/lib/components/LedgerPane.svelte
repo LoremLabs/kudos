@@ -24,7 +24,7 @@
     console.log('onAction', e.detail);
   };
 
-  $: mainWidth = innerWidth - sidebarWidth - 22;
+  $: mainWidth = innerWidth - sidebarWidth - 12;
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />

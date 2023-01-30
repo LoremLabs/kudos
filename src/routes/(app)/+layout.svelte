@@ -59,7 +59,7 @@
 
 <div
   data-tauri-drag-region
-  class="fixed top-0 left-0 flex h-10 w-full cursor-default select-none justify-end overscroll-none bg-slate-900 pt-1"
+  class="absolute top-0 left-0 flex h-10 w-full cursor-default select-none justify-end overscroll-none bg-slate-900 pt-1"
 >
   <TopNav />
 </div>

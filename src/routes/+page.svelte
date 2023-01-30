@@ -251,14 +251,13 @@
                   on:click={onConnectWallet}
                   class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >Connect Identity Wallet
-                  {#if processing > 0}
                     <span
                       aria-label={'processing'}
-                      class="ml-2 mr-3 animate-spin ease-in-out"
+                      class="ml-2 mr-3 animate-spin ease-in-out opacity-0"
+                      class:opacity-100={processing > 0}
                     >
                       <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
                     </span>
-                  {/if}
                 </button>
               </div>
             {:else if openState === 'new'}
