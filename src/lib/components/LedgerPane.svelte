@@ -37,7 +37,7 @@
       </div>
     </div>
     <div
-      class={`absolute -bottom-6 right-0 mr-1 h-32 w-full p-2`}
+      class={`absolute -bottom-6 right-0 mx-1 h-32 w-full p-2`}
       style={`width: ${mainWidth}px;`}
     >
       <div
@@ -70,24 +70,30 @@
         {/if}
         <div class="ml-1 flex-grow">
           <div class="relative w-full">
-            <input
-              type="text"
+            <textarea
+              rows="3"
               autocomplete="off"
               placeholder="Type a command or /help"
               autocorrect={'off'}
               autocapitalize={'off'}
               spellcheck={'false'}
               bind:value={commandInput}
-              on:keydown={(e) => {
+              on:keyup={(e) => {
+                console.log('keydown', e.key);
                 if (e.key === 'Escape') {
                   commandInput = '';
                   inputActive = false;
                 }
                 // submit on enter
                 if (e.key === 'Enter') {
-                  dispatch('command', { command: commandInput });
-                  inputActive = false;
-                  commandInput = '';
+                  if (!e.shiftKey) {
+                    dispatch('command', { command: commandInput });
+                    inputActive = false;
+                    commandInput = '';
+                  } else {
+                    // shift + enter
+                    commandInput = commandInput + '\n';
+                  }
                 }
               }}
               on:input={() => {
@@ -133,6 +139,11 @@
             class="flex flex-shrink-0 items-center justify-center rounded-full py-2 pr-2 text-white hover:bg-blue-600"
             class:bg-blue-700={inputActive}
             class:bg-gray-400={!inputActive}
+            on:click={() => {
+              dispatch('command', { command: commandInput });
+              inputActive = false;
+              commandInput = '';
+            }}
           >
             <span class="ml-2">
               <Icon

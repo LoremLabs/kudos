@@ -14,6 +14,7 @@ specifiers:
   "@tauri-apps/api": ^1.2.0
   "@tauri-apps/cli": ^1.2.3
   autoprefixer: ^10.4.13
+  base58: ^2.0.1
   better-sqlite3: ^8.0.1
   bip39: ^3.0.4
   buffer: ^6.0.3
@@ -47,6 +48,7 @@ specifiers:
   ripple-keypairs: ^1.1.4
   safe-stable-stringify: ^2.4.1
   sass: ^1.57.1
+  snarkdown: ^2.0.0
   string-hash: ^1.1.3
   svelte: ^3.54.0
   svelte-check: ^2.9.2
@@ -58,6 +60,8 @@ specifiers:
   tauri-plugin-stronghold-api: github:tauri-apps/tauri-plugin-stronghold
   timeago.js: ^4.0.2
   typescript: ^4.8.4
+  uuid: ^9.0.0
+  uuid-encoder: ^1.2.0
   vite: 4.0.4
   vite-plugin-top-level-await: ^1.2.2
   xrpl: 2.8.0-beta.0
@@ -81,6 +85,7 @@ devDependencies:
   "@tailwindcss/forms": 0.5.3_tailwindcss@3.2.4
   "@tauri-apps/cli": 1.2.3
   autoprefixer: 10.4.13_postcss@8.4.20
+  base58: 2.0.1
   better-sqlite3: 8.0.1
   bip39: 3.0.4
   buffer: 6.0.3
@@ -113,6 +118,7 @@ devDependencies:
   ripple-keypairs: 1.1.4
   safe-stable-stringify: 2.4.1
   sass: 1.57.1
+  snarkdown: 2.0.0
   string-hash: 1.1.3
   svelte: 3.55.0
   svelte-check: 2.10.2_z65gjjye4e5pmogqkv4yolh7vq
@@ -122,6 +128,8 @@ devDependencies:
   tailwindcss-font-inter: 3.0.1_tailwindcss@3.2.4
   timeago.js: 4.0.2
   typescript: 4.9.4
+  uuid: 9.0.0
+  uuid-encoder: 1.2.0
   vite: 4.0.4_sass@1.57.1
   vite-plugin-top-level-await: 1.2.2_vite@4.0.4
   xrpl: 2.8.0-beta.0
@@ -1858,6 +1866,14 @@ packages:
       }
     dependencies:
       safe-buffer: 5.2.1
+    dev: true
+
+  /base58/2.0.1:
+    resolution:
+      {
+        integrity: sha512-qK6gt2fMSxN2xGOi+btI5oAnXL+vEq0AsHWHhf5jfm2hE6MwmW+2414qF96utV3Xfg3En8hEA9Q4lif4lbXcgw==,
+      }
+    engines: { node: ">= 6" }
     dev: true
 
   /base64-js/1.5.1:
@@ -5205,6 +5221,13 @@ packages:
     engines: { node: ">=14.16" }
     dev: true
 
+  /snarkdown/2.0.0:
+    resolution:
+      {
+        integrity: sha512-MgL/7k/AZdXCTJiNgrO7chgDqaB9FGM/1Tvlcenenb7div6obaDATzs16JhFyHHBGodHT3B7RzRc5qk8pFhg3A==,
+      }
+    dev: true
+
   /sorcery/0.10.0:
     resolution:
       {
@@ -5836,6 +5859,23 @@ packages:
       is-generator-function: 1.0.10
       is-typed-array: 1.1.10
       which-typed-array: 1.1.9
+    dev: true
+
+  /uuid-encoder/1.2.0:
+    resolution:
+      {
+        integrity: sha512-uL/aXk+EFP0wxDjOuPulXo5LV8y6jqFX3yCGxm0qN041bJZ1jfOgqagkkOzZ4h5atYdezhyQuw6CWt6+og0pmQ==,
+      }
+    dependencies:
+      big-integer: 1.6.51
+    dev: true
+
+  /uuid/9.0.0:
+    resolution:
+      {
+        integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==,
+      }
+    hasBin: true
     dev: true
 
   /vite-plugin-top-level-await/1.2.2_vite@4.0.4:

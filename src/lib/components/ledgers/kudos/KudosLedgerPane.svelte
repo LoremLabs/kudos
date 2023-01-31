@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { message } from '@tauri-apps/api/dialog';
+
   import { createEventDispatcher, onMount } from 'svelte';
 
+  import { shortId } from '$lib/utils/short-id';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
 
   import Actions from './Actions.svelte';
@@ -11,6 +14,22 @@
 
   let feedHeight = 0;
   let actionHeight = 0;
+  let ledgerParts = [];
+
+  onMount(() => {
+    // setInterval(()=>{
+    //   ledgerParts.push({
+    //     _ts: new Date().toISOString(),
+    //     _id: shortId(),
+    //     _type: 'thingy',
+    //     _source: 'kudos',
+    //     _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+    //     _sourceType: 'kudos',
+    //     _sourceName: 'Kudos',
+    //   });
+    //   ledgerParts = ledgerParts; // update
+    // }, 1000);
+  });
 
   // onMount(() => {
   //   setTimeout(() => {
@@ -25,7 +44,47 @@
   // });
 
   const onCommand = async (e: CustomEvent) => {
-    console.log('onCommand', e.detail);
+    let { command } = e.detail || { command: '' };
+
+    let slashCommand = '';
+    if (command.startsWith('/')) {
+      slashCommand = command.substring(1);
+      command = '';
+
+      ledgerParts.push({
+        _ts: new Date().toISOString(),
+        _id: shortId(),
+        _type: 'help',
+        _publish: false,
+        _message: `\`\`\`
+      :smile: Kudos
+
+      /help - this help
+      /kudos - show kudos
+      /kudos [name] - show kudos for [name]
+      /kudos [name] [amount] - give [amount] kudos to [name]
+      /kudos [name] [amount] [reason] - give [amount] kudos to [name] for [reason]
+      \`\`\`
+      `,
+      });
+
+      ledgerParts = ledgerParts; // update
+    }
+
+    if (command) {
+      ledgerParts.push({
+        _ts: new Date().toISOString(),
+        _id: shortId(),
+        _type: 'chat',
+        _message: command,
+        _source: 'kudos',
+        _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+        _sourceType: 'kudos',
+        _sourceName: 'Kudos',
+      });
+
+      ledgerParts = ledgerParts; // update
+    }
   };
 
   const onAction = async (e: CustomEvent) => {
@@ -40,16 +99,47 @@
   //   }
   // });
 
+  ledgerParts = [
+    {
+      // get current iso date
+      _ts: new Date().toISOString(),
+      _id: '5f9f1b5b0b9b9b0001b0b1b1',
+      _type: 'kudos',
+      _source: 'kudos',
+      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+      _sourceType: 'kudos',
+      _sourceName: 'Kudos',
+    },
+    {
+      _ts: new Date().toISOString(),
+      _id: '5f9f1b5b0b9b9b0001b0b1b1',
+      _type: 'kudos3',
+      _source: 'kudos',
+      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+      _sourceType: 'kudos',
+      _sourceName: 'Kudos',
+    },
+    {
+      _ts: new Date('2021-03-03').toISOString(),
+      _id: '5f9f1b5b0b9b9b0001b0b1b1',
+      _type: 'kudos2',
+      _source: 'kudos',
+      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+      _sourceType: 'kudos',
+      _sourceName: 'Kudos',
+    },
+  ];
+
   $: feedHeight = sidebarHeight - actionHeight - 100;
 </script>
 
 <LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
-  <div slot="main" class="w-full overflow-y-scroll">
+  <div slot="main" class="overflow-none w-full">
     <div class="flex w-full flex-col">
       <div id="inner-action" bind:clientHeight={actionHeight}>
         <Actions />
       </div>
-      <Feed {feedHeight} />
+      <Feed {feedHeight} feed={ledgerParts} />
     </div>
   </div>
 </LedgerPane>

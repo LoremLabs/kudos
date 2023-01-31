@@ -5,7 +5,7 @@
 </script>
 
 <div
-  class="flex h-12 items-center justify-end rounded border-b border-gray-200 shadow-sm"
+  class="flex h-12 items-center justify-end border-b border-gray-200 shadow-sm"
 >
   <div
     class="mx-2 flex w-full flex-row items-center justify-start text-slate-900"

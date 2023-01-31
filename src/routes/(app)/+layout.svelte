@@ -59,13 +59,13 @@
 
 <div
   data-tauri-drag-region
-  class="absolute top-0 left-0 flex h-10 w-full cursor-default select-none justify-end overscroll-none bg-slate-900 pt-1"
+  class="absolute top-0 left-0 flex h-12 w-full cursor-default select-none justify-end overscroll-none bg-slate-900 pt-1"
 >
   <TopNav />
 </div>
 
 <main
-  class="mt-2 min-h-screen w-full overflow-hidden overscroll-none bg-slate-900 focus:outline-none"
+  class="z-10 mt-2 min-h-screen w-full overflow-hidden overscroll-none bg-slate-900 focus:outline-none"
 >
   <slot />
 </main>

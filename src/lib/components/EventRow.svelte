@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
 
   import DefaultEventRow from '$lib/components/events/DefaultEventRow.svelte';
+  import ChatEventRow from '$lib/components/events/ChatEventRow.svelte';
+  import HelpRow from '$lib/components/events/HelpRow.svelte';
 
   export let ev = {};
   export let isLast = false;
@@ -18,6 +20,11 @@
       aria-hidden="true"
     />
   {/if}
-  <!-- TODO, other event types -->
-  <DefaultEventRow {ev} {allowDetails} {opened} />
+  {#if ev?._type === 'chat'}
+    <ChatEventRow {ev} {allowDetails} {opened} />
+  {:else if ev?._type === 'help'}
+    <HelpRow {ev} {allowDetails} {opened} />
+  {:else}
+    <DefaultEventRow {ev} {allowDetails} {opened} />
+  {/if}
 </div>
