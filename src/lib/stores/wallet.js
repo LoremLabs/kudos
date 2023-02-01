@@ -9,6 +9,9 @@ export const createWalletStore = () => {
     xrpl: {
       address: '',
     },
+    kudos: {
+      address: '',
+    },
   };
   const { subscribe, update, set } = writable(data);
   let initDone = false;
@@ -27,6 +30,7 @@ export const createWalletStore = () => {
         data.mnemonic = seed.mnemonic;
         data.xrpl = seed.xrpl;
         data.eth = seed.eth;
+        data.kudos = { address: seed.eth.address }; // TEMP
       } catch (e) {
         console.log({ e });
         alert(e.message);

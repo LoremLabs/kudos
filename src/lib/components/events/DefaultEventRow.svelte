@@ -26,7 +26,7 @@
   }}
 >
   <div
-    class="flex h-7 w-7 items-center justify-center rounded-full"
+    class="flex h-8 w-8 items-center justify-center rounded-full"
     style={`background-color:${colorizer(ev._type)}`}
   >
     <Icon name="sparkles" class="h-4 w-4 text-white" />

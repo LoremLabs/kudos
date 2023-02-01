@@ -6,6 +6,7 @@
   import { colorizer } from '$lib/utils/colorizer';
   import JSPretty from '$lib/components/JSPretty.svelte';
   import Icon from '$lib/components/Icon.svelte';
+  import Identicon from '$lib/components/Identicon.svelte';
 
   import { renderMessage } from '$lib/utils/render-message';
 
@@ -18,6 +19,11 @@
   onMount(() => {});
 </script>
 
+<span
+  class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
+  aria-hidden="true"
+/>
+
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="relative flex cursor-pointer items-center justify-center space-x-3"
@@ -28,28 +34,51 @@
   }}
 >
   <div
-    class="flex h-7 w-7 items-center justify-center rounded-full"
+    class="flex h-8 w-8 items-center justify-center rounded-full"
     style={`background-color:${colorizer(ev._type)}`}
   >
     <Icon name="chat-alt" class="h-4 w-4 text-white" />
   </div>
-  <div class="align-end flex min-w-0 flex-1 justify-start space-x-4 pt-1.5">
-    <div class="flex w-full flex-row justify-start pt-2 pb-2">
-      <div class="align-start mr-12 flex flex-col justify-start">
-        <p class="w-full text-xs text-gray-500">
-          {@html renderMessage(ev._message || ev._type || '')}
-        </p>
+
+  <div class="flex-1 overflow-y-auto pb-4 pl-1">
+    <!-- chat message -->
+
+    <div class="-ml-4 flex items-center pt-6">
+      {#if ev._from}
+        <div
+          class="flex h-7 w-7 flex-none flex-col items-center justify-center space-y-1 rounded-full"
+        >
+          <Identicon class="mt-4 ml-4" diameter={20} address={ev._from} />
+        </div>
+      {/if}
+      <div
+        class="relative mb-2 ml-4 flex-1 rounded-lg border border-slate-200 bg-white p-2 text-white shadow"
+      >
+        <div>
+          <div class="align-start flex flex-col items-start justify-start p-2">
+            <p class="w-full text-xs text-black">
+              {@html renderMessage(ev._message || ev._type || '')}
+            </p>
+          </div>
+        </div>
+
+        <!-- arrow -->
+        <div
+          class="absolute left-0 top-1/2 h-4 w-4 -translate-x-1/2 rotate-45 transform border-b border-l border-slate-200 bg-white"
+        />
+        <!-- end arrow -->
       </div>
     </div>
     <div
-      class="flex flex-row items-center justify-end whitespace-nowrap text-left text-sm text-gray-500"
+      class="flex flex-row items-start justify-end whitespace-nowrap text-right text-sm text-gray-500"
     >
       {#if ev._ts}
-        <p class="text-[10px] text-gray-500"><Ago at={ev._ts} /></p>
+        <p class="ml-6 text-[10px] text-gray-500"><Ago at={ev._ts} /></p>
       {/if}
     </div>
   </div>
 </div>
+
 {#if opened}
   <div class="ml-10"><pre class="text-xs"><JSPretty obj={ev} /></pre></div>
 {/if}

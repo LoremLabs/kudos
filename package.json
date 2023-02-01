@@ -48,6 +48,7 @@
     "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.0.0",
     "d3-shape": "^3.2.0",
+    "dompurify": "^2.4.3",
     "esbuild": "^0.17.4",
     "eslint": "^8.30.0",
     "eslint-config-prettier": "^8.5.0",

@@ -2,12 +2,18 @@
   import { message } from '@tauri-apps/api/dialog';
 
   import { createEventDispatcher, onMount } from 'svelte';
+  import { browser } from '$app/environment';
 
   import { shortId } from '$lib/utils/short-id';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
 
+  import { getConfig } from '$lib/utils/config';
+  import { walletStore } from '$lib/stores/wallet';
+  import { clearConfigStore } from '$lib/stores/clearConfig';
+
   import Actions from './Actions.svelte';
   import Feed from './Feed.svelte';
+  import { ethWallet } from '$lib/utils/wallet/ethWallet';
 
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
@@ -15,8 +21,18 @@
   let feedHeight = 0;
   let actionHeight = 0;
   let ledgerParts = [];
+  let ready = false;
 
-  onMount(() => {
+  onMount(async () => {
+    if (!browser) {
+      return;
+    }
+
+    const config = await getConfig(true); // using cached config
+    const ws = await walletStore.init({ passPhrase: config.passPhrase });
+    const clearConfig = await clearConfigStore.init();
+    ready = true;
+
     // setInterval(()=>{
     //   ledgerParts.push({
     //     _ts: new Date().toISOString(),
@@ -56,7 +72,7 @@
         _id: shortId(),
         _type: 'help',
         _publish: false,
-        _message: `\`\`\`
+        _message: `\`\`\`Javascript
       :smile: Kudos
 
       /help - this help
@@ -64,7 +80,7 @@
       /kudos [name] - show kudos for [name]
       /kudos [name] [amount] - give [amount] kudos to [name]
       /kudos [name] [amount] [reason] - give [amount] kudos to [name] for [reason]
-      \`\`\`
+\`\`\`
       `,
       });
 
@@ -76,6 +92,7 @@
         _ts: new Date().toISOString(),
         _id: shortId(),
         _type: 'chat',
+        _from: $walletStore.kudos.address,
         _message: command,
         _source: 'kudos',
         _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
@@ -133,13 +150,15 @@
   $: feedHeight = sidebarHeight - actionHeight - 100;
 </script>
 
-<LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
-  <div slot="main" class="overflow-none w-full">
-    <div class="flex w-full flex-col">
-      <div id="inner-action" bind:clientHeight={actionHeight}>
-        <Actions />
+{#if ready}
+  <LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
+    <div slot="main" class="overflow-none w-full">
+      <div class="flex w-full flex-col">
+        <div id="inner-action" bind:clientHeight={actionHeight}>
+          <Actions />
+        </div>
+        <Feed {feedHeight} feed={ledgerParts} />
       </div>
-      <Feed {feedHeight} feed={ledgerParts} />
     </div>
-  </div>
-</LedgerPane>
+  </LedgerPane>
+{/if}

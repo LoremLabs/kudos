@@ -1,6 +1,7 @@
 <script lang="ts">
   import EventRow from '$lib/components/EventRow.svelte';
   import { afterUpdate, beforeUpdate } from 'svelte';
+  import '$styles/code.css';
 
   export let feedHeight = 0;
   let element;
@@ -95,7 +96,7 @@
 >
   <ul class="max-h-screen rounded-lg">
     {#each feed as ev, i}
-      <li class="py pr-4" class:bg-slate-200={i % 2 == 0}>
+      <li class="py pr-4">
         <!-- for each new date, put a header -->
         {#if i == 0 || new Date(feed[i - 1]?._ts).getDate() != new Date(ev._ts).getDate()}
           <div class="relative flex justify-start">

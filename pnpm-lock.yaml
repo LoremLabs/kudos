@@ -26,6 +26,7 @@ specifiers:
   d3-scale: ^4.0.2
   d3-scale-chromatic: ^3.0.0
   d3-shape: ^3.2.0
+  dompurify: ^2.4.3
   esbuild: ^0.17.4
   eslint: ^8.30.0
   eslint-config-prettier: ^8.5.0
@@ -97,6 +98,7 @@ devDependencies:
   d3-scale: 4.0.2
   d3-scale-chromatic: 3.0.0
   d3-shape: 3.2.0
+  dompurify: 2.4.3
   esbuild: 0.17.4
   eslint: 8.30.0
   eslint-config-prettier: 8.5.0_eslint@8.30.0
@@ -2833,6 +2835,13 @@ packages:
         integrity: sha512-IGBwjF7tNk3cwypFNH/7bfzBcgSCbaMOD3GsaY1AU/JRrnHnYgEM0+9kQt52iZxjNsjBtJYtao146V+f8jFZNw==,
       }
     engines: { node: ">=10" }
+    dev: true
+
+  /dompurify/2.4.3:
+    resolution:
+      {
+        integrity: sha512-q6QaLcakcRjebxjg8/+NP+h0rPfatOgOzc46Fst9VAA3jF2ApfKBNKMzdP4DYTqtUMXSCd5pRS/8Po/OmoCHZQ==,
+      }
     dev: true
 
   /ecurve/1.0.6:
