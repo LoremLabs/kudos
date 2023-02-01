@@ -35,7 +35,7 @@
 >
   <div
     class="flex h-7 w-7 items-center justify-center rounded-full"
-    style={`background-color:${colorizer(ev._type)}`}
+    style={`background-color:${colorizer(ev.type)}`}
   >
     <Icon name="chat-alt" class="h-4 w-4 text-white" />
   </div>
@@ -44,11 +44,11 @@
     <!-- chat message -->
 
     <div class="-ml-4 flex items-center">
-      {#if ev._from}
+      {#if ev.from}
         <div
           class="mr-2 flex h-8 w-8 flex-none flex-col items-center justify-center space-y-1 rounded-full"
         >
-          <Identicon class="mt-4 ml-4" diameter={20} address={ev._from} />
+          <Identicon class="mt-4 ml-4" diameter={20} address={ev.from} />
         </div>
       {/if}
       <div
@@ -57,7 +57,7 @@
         <div>
           <div class="align-start flex flex-col items-start justify-start p-2">
             <p class="w-full text-xs text-black">
-              {@html renderMessage(ev._message || ev._type || '')}
+              {@html renderMessage(ev.message || ev.type || '')}
             </p>
           </div>
         </div>
@@ -72,8 +72,8 @@
     <div
       class="flex flex-row items-start justify-end whitespace-nowrap text-right text-sm text-gray-500"
     >
-      {#if ev._ts}
-        <p class="ml-6 text-[10px] text-gray-500"><Ago at={ev._ts} /></p>
+      {#if ev.ts}
+        <p class="ml-6 text-[10px] text-gray-500"><Ago at={ev.ts} /></p>
       {/if}
     </div>
   </div>

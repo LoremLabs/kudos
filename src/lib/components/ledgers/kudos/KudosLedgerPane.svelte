@@ -10,6 +10,7 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
+  import { eventsStore } from '$lib/stores/events';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import Actions from './Actions.svelte';
@@ -32,6 +33,24 @@
     const config = await getConfig(true); // using cached config
     const ws = await walletStore.init({ passPhrase: config.passPhrase });
     const clearConfig = await clearConfigStore.init();
+    await eventsStore.init({
+      scope: 'kudos',
+      count: 10,
+      startTs: new Date().toISOString(),
+    });
+
+    await eventsStore.addEvent({
+      ts: new Date().toISOString(),
+      id: shortId(),
+      type: 'kudos',
+      channel: 'kudos',
+      event: {
+        _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+        _sourceType: 'kudos',
+        _sourceName: 'Kudos',
+      },
+    });
+
     ready = true;
 
     // setInterval(()=>{
@@ -117,36 +136,36 @@
   //   }
   // });
 
-  ledgerParts = [
-    {
-      // get current iso date
-      _ts: new Date().toISOString(),
-      _id: '5f9f1b5b0b9b9b0001b0b1b1',
-      _type: 'kudos',
-      _source: 'kudos',
-      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-      _sourceType: 'kudos',
-      _sourceName: 'Kudos',
-    },
-    {
-      _ts: new Date().toISOString(),
-      _id: '5f9f1b5b0b9b9b0001b0b1b1',
-      _type: 'kudos3',
-      _source: 'kudos',
-      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-      _sourceType: 'kudos',
-      _sourceName: 'Kudos',
-    },
-    {
-      _ts: new Date('2021-03-03').toISOString(),
-      _id: '5f9f1b5b0b9b9b0001b0b1b1',
-      _type: 'kudos2',
-      _source: 'kudos',
-      _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-      _sourceType: 'kudos',
-      _sourceName: 'Kudos',
-    },
-  ];
+  // ledgerParts = [
+  //   {
+  //     // get current iso date
+  //     _ts: new Date().toISOString(),
+  //     _id: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _type: 'kudos',
+  //     _source: 'kudos',
+  //     _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _sourceType: 'kudos',
+  //     _sourceName: 'Kudos',
+  //   },
+  //   {
+  //     _ts: new Date().toISOString(),
+  //     _id: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _type: 'kudos3',
+  //     _source: 'kudos',
+  //     _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _sourceType: 'kudos',
+  //     _sourceName: 'Kudos',
+  //   },
+  //   {
+  //     _ts: new Date('2021-03-03').toISOString(),
+  //     _id: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _type: 'kudos2',
+  //     _source: 'kudos',
+  //     _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+  //     _sourceType: 'kudos',
+  //     _sourceName: 'Kudos',
+  //   },
+  // ];
 
   $: feedHeight = sidebarHeight - actionHeight - 100;
 </script>
@@ -158,7 +177,7 @@
         <div id="inner-action" bind:clientHeight={actionHeight}>
           <Actions />
         </div>
-        <Feed {feedHeight} feed={ledgerParts} />
+        <Feed {feedHeight} feed={$eventsStore?.events || []} />
       </div>
     </div>
   </LedgerPane>

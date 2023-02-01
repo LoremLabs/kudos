@@ -61,7 +61,7 @@
     if (feed.length) {
       // sort feed
       feed = feed.sort((a, b) => {
-        return new Date(a._ts).getTime() - new Date(b._ts).getTime();
+        return new Date(a.ts).getTime() - new Date(b.ts).getTime();
       });
     }
   });
@@ -73,7 +73,7 @@
   });
 
   // feed = feed.sort((a, b) => {
-  //   return new Date(a._ts).getTime() - new Date(b._ts).getTime();
+  //   return new Date(a.ts).getTime() - new Date(b.ts).getTime();
   // });
 
   $: if (feed && feed.length && element) {
@@ -106,21 +106,24 @@
       </li>
     {/if}
     {#each feed as ev, i}
-      <li class="py pr-4">
-        <!-- for each new date, put a header -->
-        {#if i == 0 || new Date(feed[i - 1]?._ts).getDate() != new Date(ev._ts).getDate()}
-          <div class="relative flex justify-start">
-            <span class="mt-8 mb-4 ml-2 px-2 text-sm font-medium text-gray-900"
-              >{fmt.format(new Date(ev._ts))}</span
-            >
-          </div>
-        {/if}
-        {#if feed[i + 1] && new Date(feed[i + 1]?._ts).getDate() != new Date(ev._ts).getDate()}
-          <EventRow {ev} allowDetails={true} isLast={true} />
-        {:else}
-          <EventRow {ev} allowDetails={true} isLast={i == feed.length - 1} />
-        {/if}
-      </li>
+      {#if ev.ts}
+        <li class="py pr-4">
+          <!-- for each new date, put a header -->
+          {#if i == 0 || new Date(feed[i - 1]?.ts).getDate() != new Date(ev.ts).getDate()}
+            <div class="relative flex justify-start">
+              <span
+                class="mt-8 mb-4 ml-2 px-2 text-sm font-medium text-gray-900"
+                >{fmt.format(new Date(ev.ts))}</span
+              >
+            </div>
+          {/if}
+          {#if feed[i + 1] && new Date(feed[i + 1]?.ts).getDate() != new Date(ev.ts).getDate()}
+            <EventRow {ev} allowDetails={true} isLast={true} />
+          {:else}
+            <EventRow {ev} allowDetails={true} isLast={i == feed.length - 1} />
+          {/if}
+        </li>
+      {/if}
     {/each}
   </ul>
 </div>

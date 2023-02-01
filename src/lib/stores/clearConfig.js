@@ -4,16 +4,20 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 // import { invoke } from '@tauri-apps/api/tauri';
 import { writable } from 'svelte/store';
 
+let initDone = false;
+
 export const createClearConfigStore = () => {
   let clearConfig = {
     _init: false,
   };
   const { subscribe, update, set } = writable(clearConfig);
-  let initDone = false;
 
   return {
     init: async () => {
-      if (initDone) return clearConfig;
+      if (initDone) {
+        console.log('using cached init config');
+        return clearConfig;
+      }
       try {
         const baseDir = await appLocalDataDir();
         await createDir(`${baseDir}config`, {

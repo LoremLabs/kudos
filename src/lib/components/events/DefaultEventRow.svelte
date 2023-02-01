@@ -27,7 +27,7 @@
 >
   <div
     class="flex h-8 w-8 items-center justify-center rounded-full"
-    style={`background-color:${colorizer(ev._type)}`}
+    style={`background-color:${colorizer(ev.type)}`}
   >
     <Icon name="sparkles" class="h-4 w-4 text-white" />
   </div>
@@ -35,18 +35,18 @@
     <div class="flex w-full flex-row justify-start pt-2 pb-2">
       <div class="align-start mr-12 flex flex-col justify-start">
         <p class="w-12 text-xs text-gray-500">
-          {ev._message || ev._type || ''}
+          {ev.message || ev.type || ''}
         </p>
       </div>
       <p class="font-mono text-xs text-gray-500">
-        {ev._id || '?'}
+        {ev.id || '?'}
       </p>
     </div>
     <div
       class="flex flex-row items-center justify-end whitespace-nowrap text-left text-sm text-gray-500"
     >
-      {#if ev._ts}
-        <p class="text-[10px] text-gray-500"><Ago at={ev._ts} /></p>
+      {#if ev.ts}
+        <p class="text-[10px] text-gray-500"><Ago at={ev.ts} /></p>
       {/if}
     </div>
   </div>
