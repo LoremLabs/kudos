@@ -6,6 +6,7 @@
 
   import { shortId } from '$lib/utils/short-id';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
+  import Waiting from '$lib/components/Waiting.svelte';
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
@@ -13,7 +14,7 @@
 
   import Actions from './Actions.svelte';
   import Feed from './Feed.svelte';
-  import { ethWallet } from '$lib/utils/wallet/ethWallet';
+  // import JsPretty from '$lib/components/JSPretty.svelte';
 
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
@@ -92,7 +93,7 @@
         _ts: new Date().toISOString(),
         _id: shortId(),
         _type: 'chat',
-        _from: $walletStore.kudos.address,
+        _from: $walletStore.keys.kudos?.address,
         _message: command,
         _source: 'kudos',
         _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
@@ -161,4 +162,6 @@
       </div>
     </div>
   </LedgerPane>
+{:else}
+  <Waiting />
 {/if}

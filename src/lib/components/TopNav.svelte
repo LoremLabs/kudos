@@ -104,7 +104,7 @@
                     <Identicon
                       class="mr-2 pt-1.5 pl-1"
                       diameter={20}
-                      address={$walletStore.eth.address}
+                      address={$walletStore.keys.eth?.address}
                     />
                     <div class="m-auto text-xs text-gray-900">
                       {#if $clearConfigStore.name}

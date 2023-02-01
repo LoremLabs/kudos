@@ -1,17 +1,15 @@
-import createOrReadSeed from '$lib/utils/createOrReadSeed';
+import { createOrReadSeed, deriveKeys } from '$lib/utils/keys-manager';
+
 import { invoke } from '@tauri-apps/api/tauri';
 import { writable } from 'svelte/store';
 
 export const createWalletStore = () => {
-  const data = {
+  let data = {
     salt: '',
     mnemonic: '',
-    xrpl: {
-      address: '',
-    },
-    kudos: {
-      address: '',
-    },
+    passPhrase: '',
+    keys: {},
+    id: 0,
   };
   const { subscribe, update, set } = writable(data);
   let initDone = false;
@@ -26,11 +24,19 @@ export const createWalletStore = () => {
       let seed;
       try {
         seed = await createOrReadSeed({ salt, id, passPhrase });
-        // console.log({ seed });
+
         data.mnemonic = seed.mnemonic;
-        data.xrpl = seed.xrpl;
-        data.eth = seed.eth;
-        data.kudos = { address: seed.eth.address }; // TEMP
+
+        const keys = await deriveKeys({
+          mnemonic: seed.mnemonic,
+          passPhrase,
+          id,
+        });
+        // data.xrpl = xrpl;
+        // data.eth = eth;
+        // data.kudos = { address: eth.address }; // TEMP
+        data = { ...data, keys };
+        data.id = id;
       } catch (e) {
         console.log({ e });
         alert(e.message);

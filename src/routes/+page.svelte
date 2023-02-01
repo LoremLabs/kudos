@@ -3,7 +3,7 @@
   import { open as openShell } from '@tauri-apps/api/shell';
   import { appLocalDataDir } from '@tauri-apps/api/path';
   import { invoke } from '@tauri-apps/api/tauri';
-  import createOrReadSeed from '$lib/utils/createOrReadSeed';
+  import { createOrReadSeed, deriveKeys } from '$lib/utils/keys-manager';
   import Modal from '$lib/components/Modal.svelte';
   import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
   import Panel from '$lib/components/Panel.svelte';

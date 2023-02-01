@@ -29,7 +29,7 @@
     const clearConfig = await clearConfigStore.init();
     // clearConfig.ts = Date.now();
     // await clearConfigStore.save(clearConfig);
-    console.log({ ws, config, clearConfig });
+    // console.log({ ws, config, clearConfig });
   });
 
   const openDialog = async () => {

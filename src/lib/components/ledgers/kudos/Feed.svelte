@@ -1,8 +1,11 @@
 <script lang="ts">
   import EventRow from '$lib/components/EventRow.svelte';
+  import JsPretty from '$lib/components/JSPretty.svelte';
+
   import { afterUpdate, beforeUpdate } from 'svelte';
   import '$styles/code.css';
 
+  export let debugThis = {};
   export let feedHeight = 0;
   let element;
 
@@ -95,6 +98,13 @@
   on:scroll={handleScroll}
 >
   <ul class="max-h-screen rounded-lg">
+    {#if Object.keys(debugThis).length > 0}
+      <li>
+        <div class="text-xs">
+          <pre><JsPretty obj={debugThis} /></pre>
+        </div>
+      </li>
+    {/if}
     {#each feed as ev, i}
       <li class="py pr-4">
         <!-- for each new date, put a header -->

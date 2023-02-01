@@ -102,6 +102,7 @@
 
   export type MiscIcons =
     | 'misc/spinner'
+    | 'misc/spinner-2'
     | 'misc/share-arrow'
     | 'misc/play-button'
     | 'misc/pause-button';

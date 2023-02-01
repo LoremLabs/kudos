@@ -42,7 +42,7 @@
     const config = await getConfig();
     const ws = await walletStore.init({ passPhrase: config.passPhrase });
     const clearConfig = await clearConfigStore.init();
-    console.log({ ws, config, clearConfig });
+    // console.log({ ws, config, clearConfig });
   });
 </script>
 
