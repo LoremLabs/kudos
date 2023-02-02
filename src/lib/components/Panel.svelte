@@ -5,6 +5,8 @@
   export let opener = false;
   export let heading: string;
   export let nopadding = false;
+  let klass = `bg-white`;
+  export { klass as class };
 </script>
 
 <SlidingPanel
@@ -37,11 +39,14 @@
   <!-- Hide default close button -->
   <div slot="close" />
 
-  <div class="flex h-full flex-col" class:p-4={!nopadding}>
+  <div class={`flex h-full flex-col ${klass}`} class:p-4={!nopadding}>
     <slot />
   </div>
 
-  <div slot="footer" class="fixed absolute bottom-0 w-full border-t p-4">
+  <div
+    slot="footer"
+    class="fixed absolute bottom-0 w-full border-t bg-slate-100 p-4"
+  >
     {#if $$slots.footer}
       <slot name="footer" />
     {:else}

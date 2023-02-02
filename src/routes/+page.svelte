@@ -250,17 +250,21 @@
                   in:fly={{ y: -20, duration: 1000 }}
                   on:click={onConnectWallet}
                   class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <div
+                    class="items-justify-between flex w-full flex-row items-center justify-end transition"
+                    in:fade
+                    out:fade
                   >
-                  <div class="flex flex-row items-center justify-end items-justify-between transition w-full" in:fade out:fade>
-                  <span class="mr-6 ">Connect Identity Wallet</span>
-                  <span
-                    aria-label={'processing'}
-                    class="ml-2 mr-3 animate-spin ease-in-out"
-                    class:opacity-0={processing <= 0}
-                    class:opacity-100={processing > 0}
-                  >
-                    <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-                  </span>
+                    <span class="mr-6 ">Connect Identity Wallet</span>
+                    <span
+                      aria-label={'processing'}
+                      class="ml-2 mr-3 animate-spin ease-in-out"
+                      class:opacity-0={processing <= 0}
+                      class:opacity-100={processing > 0}
+                    >
+                      <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+                    </span>
                   </div>
                 </button>
               </div>
@@ -271,8 +275,12 @@
                   type="button"
                   on:click={onCreateWallet}
                   class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  <div
+                    class="items-justify-between flex w-full flex-row items-center justify-end transition"
+                    in:fade
+                    out:fade
                   >
-                  <div class="flex flex-row items-center justify-end items-justify-between transition w-full" in:fade out:fade>
                     <span class="mr-6 ">Create Identity Wallet</span>
                     <span
                       aria-label={'processing'}
@@ -283,9 +291,7 @@
                       <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
                     </span>
                   </div>
-                  
-                  </button
-                >
+                </button>
                 <span
                   class="m-auto mt-4 inline-flex w-full items-center justify-center text-xs text-gray-500"
                 >
@@ -333,89 +339,96 @@
     <Icon name="cog" class="mx-2 h-6 w-6" />
   </button>
 </div>
-<Panel heading="Login Settings" bind:opener={panelOpen}>
+<Panel heading="Login Settings" bind:opener={panelOpen} class="bg-slate-200">
   <form
     id="advanced-form"
     class="p-5 py-4 sm:py-5"
     autocomplete="off"
     on:submit|preventDefault={() => {}}
   >
-    <label class="block text-sm">
-      <span class="text-sm font-medium text-gray-900"
-        >Mneumonic Pass Phrase
-      </span>
-      <input
-        type="text"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        placeholder=""
-        on:keydown={(e) => {
-          // keep before bind:value
-          if (passPhrase === '') {
-            // automatically set this when we transition from '' => something
-            shouldAskForPassPhrase = true;
-          }
-        }}
-        bind:value={passPhrase}
-        autofocus={true}
-        class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
-      />
-      <span class="text-sm font-medium text-gray-500">
-        Note: this is not the 24 word mneumonic, but a pass phrase used in
-        conjunction with the mneumonic to derive your keys, sometimes called the
-        "25th word". Use of this is optional and recommended for advanced users
-        only.
-      </span>
-      <div class="m-auto mt-8 max-w-xl text-sm text-gray-500">
-        <div class="rounded-md bg-red-50 p-4">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <!-- Heroicon name: mini/x-circle -->
-              <svg
-                class="h-5 w-5 text-red-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+    <div class="mt-2 rounded-md bg-white p-4">
+      <div class="w-full">
+        <Switch
+          bind:value={shouldAskForPassPhrase}
+          label="Pass Phrase on Startup"
+          description="Prompt for Pass Phrase on Startup?"
+          id="passphrase-on-startup"
+        />
+      </div>
+    </div>
+    {#if shouldAskForPassPhrase}
+      <div class="mt-12 rounded-md bg-white p-4" in:fade out:fade>
+        <label class="block text-sm">
+          <span class="text-sm font-medium text-gray-900"
+            >Mneumonic Pass Phrase
+          </span>
+          <input
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder=""
+            on:keydown={(e) => {
+              // keep before bind:value
+              if (passPhrase === '') {
+                // automatically set this when we transition from '' => something
+                shouldAskForPassPhrase = true;
+              }
+            }}
+            bind:value={passPhrase}
+            autofocus={true}
+            class="mt-1 mb-4 block w-full rounded-sm border-gray-200 outline-none ring-gray-50 invalid:ring-1 invalid:ring-red-500 focus:border-current focus:ring-0 sm:text-sm"
+          />
+          <div class="flex flex-row text-sm font-medium text-gray-500">
+            <div class="ml-4 mr-4">
+              <Icon name="information-circle" class="h-4 w-4 text-gray-400" />
             </div>
-            <div class="ml-3">
-              <h3 class="text-sm font-medium text-red-800">
-                If you lose your pass phrase, you will lose access to your
-                wallet which contains your identity and may result in financial
-                loss.
-              </h3>
-              <div class="mt-2 text-sm text-red-700">
-                <ul role="list" class="list-disc space-y-1 pl-5">
-                  <li>
-                    We do not save your pass phrase so you will need to enter it
-                    every time you start this application.
-                  </li>
-                </ul>
+            Note: this is not the 24 word mneumonic, but a pass phrase used in conjunction
+            with the mneumonic to derive your keys, sometimes called the "25th word".
+            Use of this is optional and recommended for advanced users only.
+          </div>
+          <div class="m-auto mt-8 max-w-xl text-sm text-gray-500">
+            <div class="rounded-md bg-red-50 p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <!-- Heroicon name: mini/x-circle -->
+                  <svg
+                    class="h-5 w-5 text-red-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">
+                    If you lose your pass phrase, you will lose access to your
+                    wallet which contains your identity and may result in
+                    financial loss.
+                  </h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul role="list" class="list-disc space-y-1 pl-5">
+                      <li>
+                        We do not save your pass phrase so you will need to
+                        enter it every time you start this application.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </label>
       </div>
-    </label>
-    <div class="mt-12 w-full">
-      <Switch
-        bind:value={shouldAskForPassPhrase}
-        label="Pass Phrase on Startup"
-        description="Prompt for Pass Phrase on Startup?"
-        id="passphrase-on-startup"
-      />
-    </div>
+    {/if}
   </form>
-
   <div slot="footer">
     <button
       on:click={async () => {
