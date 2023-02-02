@@ -196,7 +196,7 @@
       <div
         class="white mx-auto max-w-2xl px-4 sm:px-6 md:grid md:max-w-7xl md:grid-cols-5 md:gap-x-8 md:px-4 md:pt-12"
       >
-        <div class="mt-4 pl-8 pr-12 md:col-span-3 md:col-start-3">
+        <div class="pl-8 pr-12 md:col-span-3 md:col-start-3">
           <h2 id="features-heading" class="font-medium text-gray-500">
             Setler: an <span class="font-medium italic">identity wallet</span> for
             your digital life
@@ -250,14 +250,18 @@
                   in:fly={{ y: -20, duration: 1000 }}
                   on:click={onConnectWallet}
                   class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >Connect Identity Wallet
+                  >
+                  <div class="flex flex-row items-center justify-end items-justify-between transition w-full" in:fade out:fade>
+                  <span class="mr-6 ">Connect Identity Wallet</span>
                   <span
                     aria-label={'processing'}
-                    class="ml-2 mr-3 animate-spin opacity-0 ease-in-out"
+                    class="ml-2 mr-3 animate-spin ease-in-out"
+                    class:opacity-0={processing <= 0}
                     class:opacity-100={processing > 0}
                   >
                     <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
                   </span>
+                  </div>
                 </button>
               </div>
             {:else if openState === 'new'}
@@ -267,7 +271,20 @@
                   type="button"
                   on:click={onCreateWallet}
                   class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >Create Identity Wallet</button
+                  >
+                  <div class="flex flex-row items-center justify-end items-justify-between transition w-full" in:fade out:fade>
+                    <span class="mr-6 ">Create Identity Wallet</span>
+                    <span
+                      aria-label={'processing'}
+                      class="ml-2 mr-3 animate-spin ease-in-out"
+                      class:opacity-0={processing <= 0}
+                      class:opacity-100={processing > 0}
+                    >
+                      <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+                    </span>
+                  </div>
+                  
+                  </button
                 >
                 <span
                   class="m-auto mt-4 inline-flex w-full items-center justify-center text-xs text-gray-500"
