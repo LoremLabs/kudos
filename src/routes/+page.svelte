@@ -3,9 +3,10 @@
   import { open as openShell } from '@tauri-apps/api/shell';
   import { appLocalDataDir } from '@tauri-apps/api/path';
   import { invoke } from '@tauri-apps/api/tauri';
-  import { createOrReadSeed, deriveKeys } from '$lib/utils/keys-manager';
+  import { createOrReadSeed, saveSeed } from '$lib/utils/keys-manager';
   import Modal from '$lib/components/Modal.svelte';
   import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
+  import ModalMnemonic from '$lib/components/ModalMnemonic.svelte';
   import Panel from '$lib/components/Panel.svelte';
   import Switch from '$lib/components/Switch.svelte';
 
@@ -77,6 +78,18 @@
     return userData;
   };
 
+  let enterMnemonicModal = false;
+
+  let enterMnemonicPromise;
+  const enterMnemonic = async () => {
+    enterMnemonicModal = true;
+    processing++;
+    let userData = await enterMnemonicPromise;
+    processing--;
+    enterMnemonicModal = false;
+    return userData;
+  };
+
   const readWalletState = async () => {
     if (passPhrase === '' && shouldAskForPassPhrase) {
       const userData = await askForPassPhrase();
@@ -98,6 +111,50 @@
       console.log({ e });
       alert(e.message);
     }
+  };
+
+  const onImportWallet = async () => {
+    const { customMnemonic } = await enterMnemonic();
+    if (!customMnemonic) {
+      return;
+    }
+    processing++;
+    console.log({ customMnemonic });
+    // TODO: reset any data?
+
+    const salt = await invoke('get_salt');
+    if (shouldAskForPassPhrase) {
+      const userData = await askForPassPhrase();
+      console.log({ userData }, '3');
+      // allow empty passPhrase
+      if (userData.passPhrase) {
+        // TODO: refactor passphrase not implemented correctly
+        passPhrase = userData.passPhrase;
+        config.passPhrase = passPhrase;
+        await setConfig(config);
+      }
+    }
+
+    try {
+      saveSeed({
+        mnemonic: customMnemonic,
+        salt: `${salt}`, // used for local encryption at rest
+        id: walletId,
+        passPhrase,
+      });
+    } catch (e) {
+      alert(e.message);
+      processing--;
+
+      return;
+    }
+
+    clearConfig.hasSeenSeed = false;
+    await clearConfigStore.save(clearConfig);
+
+    // login, now that seed is saved
+    await onCreateWallet();
+    processing--;
   };
 
   const onConnectWallet = async () => {
@@ -244,19 +301,23 @@
             </div>
 
             {#if openState === 'existing'}
-              <div class="h-24 w-full" in:fade out:fade>
+              <div
+                class="-mt-4 flex h-24 w-full flex-col items-center justify-center"
+                in:fade
+                out:fade
+              >
                 <button
                   type="button"
                   in:fly={{ y: -20, duration: 1000 }}
                   on:click={onConnectWallet}
-                  class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  class="inline-flex items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   <div
                     class="items-justify-between flex w-full flex-row items-center justify-end transition"
                     in:fade
                     out:fade
                   >
-                    <span class="mr-6 ">Connect Identity Wallet</span>
+                    <span class="mr-6z ">Connect Identity Wallet</span>
                     <span
                       aria-label={'processing'}
                       class="ml-2 mr-3 animate-spin ease-in-out"
@@ -267,37 +328,48 @@
                     </span>
                   </div>
                 </button>
+                <button on:click={onImportWallet} class="m-auto mt-2 underline"
+                  >Import existing mneumonic seed</button
+                >
               </div>
             {:else if openState === 'new'}
-              <div class="-mt-4  h-24 w-full" in:fade out:fade>
-                <button
-                  in:fly={{ y: -20, duration: 1000 }}
-                  type="button"
-                  on:click={onCreateWallet}
-                  class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  <div
-                    class="items-justify-between flex w-full flex-row items-center justify-end transition"
-                    in:fade
-                    out:fade
+              <div
+                class="-mt-4 flex h-24 w-full flex-row items-center justify-center"
+                in:fade
+                out:fade
+              >
+                <div class="flex flex-col">
+                  <button
+                    in:fly={{ y: -20, duration: 1000 }}
+                    type="button"
+                    on:click={onCreateWallet}
+                    class="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
-                    <span class="mr-6 ">Create Identity Wallet</span>
-                    <span
-                      aria-label={'processing'}
-                      class="ml-2 mr-3 animate-spin ease-in-out"
-                      class:opacity-0={processing <= 0}
-                      class:opacity-100={processing > 0}
+                    <div
+                      class="items-justify-between flex w-full flex-row items-center justify-end transition"
+                      in:fade
+                      out:fade
                     >
-                      <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-                    </span>
-                  </div>
-                </button>
-                <span
-                  class="m-auto mt-4 inline-flex w-full items-center justify-center text-xs text-gray-500"
-                >
-                  This creates your keys and stores in your computer's key
-                  chain.
-                </span>
+                      <span class="mr-6z">Create Identity Wallet</span>
+                      <span
+                        aria-label={'processing'}
+                        class="ml-2 mr-3 animate-spin ease-in-out"
+                        class:opacity-0={processing <= 0}
+                        class:opacity-100={processing > 0}
+                      >
+                        <Icon
+                          name="misc/spinner"
+                          class="h-5 w-5 text-gray-50"
+                        />
+                      </span>
+                    </div>
+                  </button>
+                  <button
+                    on:click={onImportWallet}
+                    class="m-auto mt-2 underline"
+                    >Import existing mneumonic seed</button
+                  >
+                </div>
               </div>
             {:else if Date.now() - startTs > 3000}
               <!-- shouldn't happen? -->
@@ -356,7 +428,7 @@
         />
       </div>
     </div>
-    {#if shouldAskForPassPhrase}
+    {#if false && shouldAskForPassPhrase}
       <div class="mt-12 rounded-md bg-white p-4" in:fade out:fade>
         <label class="block text-sm">
           <span class="text-sm font-medium text-gray-900"
@@ -429,7 +501,7 @@
       </div>
     {/if}
   </form>
-  <div slot="footer">
+  <div slot="footer" class="mr-6 flex items-end justify-end">
     <button
       on:click={async () => {
         // save config
@@ -555,3 +627,19 @@
     </h3>
   </div>
 </ModalPassPhrase>
+<ModalMnemonic
+  bind:open={enterMnemonicModal}
+  bind:done={enterMnemonicPromise}
+  handleCancel={() => {
+    processing = 0;
+  }}
+>
+  <div slot="header">
+    <h3
+      class="text-lg font-black leading-6 text-gray-900"
+      id="mnemonic-modal-headline"
+    >
+      &nbsp;
+    </h3>
+  </div>
+</ModalMnemonic>

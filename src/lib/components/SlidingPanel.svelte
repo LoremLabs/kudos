@@ -11,6 +11,7 @@
    * It is automatically set to `null` when panel is closed, so you can `bind:opener` to access panel state.
    */
   export let opener: HTMLElement | null | true = null;
+
   /** Location of panel (the panel slides from this direction). */
   export let direction: 'left' | 'right' = 'right';
   /**
@@ -29,6 +30,7 @@
 
   let panel: HTMLElement;
   let lastOpener = opener;
+  let openNow = false;
 
   function open() {
     if (!opener) {
@@ -51,6 +53,12 @@
     open();
   } else if (!opener && panel) {
     close();
+  }
+
+  $: if (opener) {
+    openNow = true;
+  } else {
+    openNow = false;
   }
 
   function handleOutsideClick(ev: MouseEvent) {
@@ -87,44 +95,46 @@
     />
   {/if}
 
-  <div
-    bind:this={panel}
-    role="dialog"
-    aria-modal={modal}
-    aria-labelledby={$$slots.header ? 'slide-over-heading' : undefined}
-    class="fixed top-0 z-50 h-full overflow-hidden shadow-2xl"
-    class:right-0={direction === 'right'}
-    class:left-0={direction === 'left'}
-    transition:fly={{
-      duration: 300,
-      x: (direction === 'right' ? 1 : -1) * 500,
-    }}
-    use:focusTrap
-  >
-    <div class="flex h-full w-full overflow-hidden">
-      <div
-        class="flex min-h-screen flex-auto flex-col overflow-y-auto overscroll-y-contain {klass}"
-      >
-        <slot name="header" ariaLabelId="slide-over-heading" />
-        <slot />
-        {#if $$slots.footer}
-          <div class="mt-auto"><slot name="footer" /></div>
-        {/if}
+  {#if openNow}
+    <div
+      bind:this={panel}
+      role="dialog"
+      aria-modal={modal}
+      aria-labelledby={$$slots.header ? 'slide-over-heading' : undefined}
+      class="fixed top-0 z-50 h-full overflow-hidden shadow-2xl"
+      class:right-0={direction === 'right'}
+      class:left-0={direction === 'left'}
+      transition:fly={{
+        duration: 300,
+        x: (direction === 'right' ? 1 : -1) * 500,
+      }}
+      use:focusTrap
+    >
+      <div class="flex h-full w-full overflow-hidden">
+        <div
+          class="flex min-h-screen flex-auto flex-col overflow-y-auto overscroll-y-contain {klass}"
+        >
+          <slot name="header" ariaLabelId="slide-over-heading" />
+          <slot />
+          {#if $$slots.footer}
+            <div class="mt-auto"><slot name="footer" /></div>
+          {/if}
+        </div>
       </div>
-    </div>
-    <slot name="close">
-      <button
-        type="button"
-        class="absolute right-1 top-1
+      <slot name="close">
+        <button
+          type="button"
+          class="absolute right-1 top-1
         bg-gray-100 text-gray-500 outline-none
         hover:scale-110 hover:bg-gray-200 hover:text-black
         focus:scale-110 focus:bg-gray-200 focus:text-black"
-        on:click={close}
-        aria-label="Close"
-        title="Close"
-      >
-        <Icon class="h-6 w-6 p-1" name="x" />
-      </button>
-    </slot>
-  </div>
+          on:click={close}
+          aria-label="Close"
+          title="Close"
+        >
+          <Icon class="h-6 w-6 p-1" name="x" />
+        </button>
+      </slot>
+    </div>
+  {/if}
 {/if}

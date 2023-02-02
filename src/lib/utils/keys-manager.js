@@ -1,4 +1,6 @@
 import * as addressCodec from '$lib/extern/ripple-address-codec/src';
+import { shortId } from '$lib/utils/short-id';
+
 import * as hashjs from 'hash.js';
 
 import {
@@ -7,6 +9,7 @@ import {
   exists,
   readTextFile,
   writeFile,
+  copyFile,
 } from '@tauri-apps/api/fs';
 
 import { appLocalDataDir } from '@tauri-apps/api/path';
@@ -85,6 +88,60 @@ export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {
 }
 
 /* Returns { mnemonic } */
+export async function saveSeed({
+  mnemonic = '',
+  id = 0,
+  salt = '', // used to encrypt local seed data only
+  backupExisting = true,
+  passPhrase, // ? TODO: this usage isn't right
+}) {
+  // if we already have a seed file, we'll make a backup in case the user
+  // is doing this by mistake. They'll still need their phrase though.
+  // And TODO: there's no interface for this now, but it could exist on
+  // the settings page to restore one.
+  // see if seed currently exists
+
+  const s = { id, mnemonic };
+  const baseDir = await appLocalDataDir();
+  await createDir(`${baseDir}state`, {
+    // dir: baseDir,
+    recursive: true,
+  });
+
+  const fullPath = `${baseDir}state/setlr-${id}.seed`;
+
+  try {
+    const fileFound = await exists(fullPath);
+    if (fileFound && backupExisting) {
+      console.log('Seed phrase exists, backing up');
+
+      const backupId = shortId();
+
+      // copy to backup path ... date should give an idea even if id doesn't
+      const backupPath = `${baseDir}state/setlr-backup-${id}-${backupId}.seed`;
+      console.log({ backupPath });
+      await copyFile(fullPath, backupPath);
+    }
+  } catch (e) {
+    console.log('e', e);
+    throw new Error('Error saving seed backup');
+  }
+
+  // TODO: check if valid mnemonic?
+  const encryptedS = encryptAES(s.mnemonic, salt);
+  // save in local file
+  // console.log('saving new encrypted seed phrase!', encryptedS, { s });
+  try {
+    await writeFile({ contents: encryptedS, path: fullPath });
+  } catch (ee) {
+    console.log('error writing file', ee);
+    throw new Error('Error writing seed file [1]');
+  }
+
+  return s;
+}
+
+/* Returns { mnemonic } */
 export async function createOrReadSeed({
   salt = '', // used to encrypt local seed data only
   passPhrase = '', // 25th word, part of the seed phrase
@@ -123,6 +180,7 @@ export async function createOrReadSeed({
         await writeFile({ contents: encryptedS, path: fullPath });
       } catch (ee) {
         console.log('error writing file', ee);
+        throw new Error('Error writing seed file [2]');
       }
     } else {
       //  Invalid mnemonic
