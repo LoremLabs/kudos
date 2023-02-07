@@ -79,7 +79,7 @@
               spellcheck={'false'}
               bind:value={commandInput}
               on:keyup={(e) => {
-                console.log('keydown', e.key);
+                // console.log('keydown', e.key);
                 if (e.key === 'Escape') {
                   commandInput = '';
                   inputActive = false;
@@ -87,12 +87,12 @@
                 // submit on enter
                 if (e.key === 'Enter') {
                   if (!e.shiftKey) {
-                    dispatch('command', { command: commandInput });
+                    // remove final newline
+                    const command = commandInput.replace(/\n$/, '');
+                    console.log('dispatch', command);
+                    dispatch('command', { command });
                     inputActive = false;
                     commandInput = '';
-                  } else {
-                    // shift + enter
-                    commandInput = commandInput + '\n';
                   }
                 }
               }}

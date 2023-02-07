@@ -6,9 +6,9 @@
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { colorizer } from '$lib/utils/colorizer';
 
   import Icon from '$lib/components/Icon.svelte';
-  import Identicon from '$lib/components/Identicon.svelte';
   import JsPretty from '$lib/components/JSPretty.svelte';
 
   export let debug = false;
@@ -95,25 +95,35 @@
                 }}
               >
                 <div
-                  class="border-0.5 rounded-full border-gray-900 bg-slate-300 pr-3"
+                  class="border-0.5 zpr-3 rounded-full border-gray-900 bg-slate-300"
                 >
                   <div
                     class="flex items-center justify-center justify-items-center rounded-full text-sm text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                   >
                     <span class="sr-only">Open persona menu</span>
-                    <Identicon
-                      class="mr-2 pt-1.5 pl-1"
-                      diameter={20}
-                      address={$walletStore.keys.eth?.address}
-                    />
-                    <div class="m-auto text-xs text-gray-900">
-                      {#if $clearConfigStore.name}
-                        {$clearConfigStore.name}
-                      {:else}
-                        Persona {$clearConfigStore.id || 1}
-                      {/if}
+                    <div
+                      class="border-0.5 zpr-3 rounded-full border-gray-900 bg-slate-300"
+                    >
+                      <div
+                        class="flex h-8 w-full items-center justify-start justify-items-center rounded-full text-sm text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                      >
+                        <div
+                          class="ml-1 mr-2 h-6 w-6 rounded-full pt-1.5 pl-1"
+                          style={`background-color:${colorizer(
+                            `p-${$clearConfigStore.id || 1}`
+                          )}`}
+                        />
+                        <div class="m-auto text-xs text-gray-900">
+                          {#if $clearConfigStore.name}
+                            {$clearConfigStore.name}
+                          {:else}
+                            Persona {$clearConfigStore.id || 1}
+                          {/if}
+                        </div>
+                      </div>
                     </div>
-                    <Icon name="chevron-down" class="ml-2 h-3 w-3" />
+
+                    <Icon name="chevron-down" class="mx-2 h-3 w-3" />
                   </div>
                 </div>
               </button>

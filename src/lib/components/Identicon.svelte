@@ -58,7 +58,7 @@
 </script>
 
 {#if browser}
-  <div {style} class={klass}>
+  <div {style} class={klass} title={address}>
     {@html identiconHtml}
   </div>
 {/if}

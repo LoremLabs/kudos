@@ -19,11 +19,6 @@
   onMount(() => {});
 </script>
 
-<span
-  class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
-  aria-hidden="true"
-/>
-
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="relative flex cursor-pointer items-center justify-center space-x-3"

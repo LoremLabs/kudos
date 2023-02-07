@@ -6,7 +6,7 @@
   import { colorizer } from '$lib/utils/colorizer';
   import JSPretty from '$lib/components/JSPretty.svelte';
   import Icon from '$lib/components/Icon.svelte';
-  import Identicon from '$lib/components/Identicon.svelte';
+  import KeyIcon from '$lib/components/KeyIcon.svelte';
 
   import { renderMessage } from '$lib/utils/render-message';
 
@@ -18,11 +18,6 @@
 
   onMount(() => {});
 </script>
-
-<span
-  class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
-  aria-hidden="true"
-/>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
@@ -41,14 +36,12 @@
   </div>
 
   <div class="flex-1 overflow-y-auto pb-4 pl-1">
-    <!-- chat message -->
-
     <div class="-ml-4 flex items-center pt-6">
-      {#if ev.from}
+      {#if ev.event?.from}
         <div
           class="flex h-7 w-7 flex-none flex-col items-center justify-center space-y-1 rounded-full"
         >
-          <Identicon class="mt-4 ml-4" diameter={20} address={ev.from} />
+          <KeyIcon class="mt-4 ml-4" address={ev.event?.body?.from} />
         </div>
       {/if}
       <div
@@ -57,7 +50,7 @@
         <div>
           <div class="align-start flex flex-col items-start justify-start p-2">
             <p class="w-full text-xs text-black">
-              {@html renderMessage(ev.message || ev.type || '')}
+              {@html renderMessage(ev.event?.body?.message || ev.type || '')}
             </p>
           </div>
         </div>

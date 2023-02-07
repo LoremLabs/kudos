@@ -39,18 +39,6 @@
       startTs: new Date().toISOString(),
     });
 
-    await eventsStore.addEvent({
-      ts: new Date().toISOString(),
-      id: shortId(),
-      type: 'kudos',
-      channel: 'kudos',
-      event: {
-        _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-        _sourceType: 'kudos',
-        _sourceName: 'Kudos',
-      },
-    });
-
     ready = true;
 
     // setInterval(()=>{
@@ -81,7 +69,6 @@
 
   const onCommand = async (e: CustomEvent) => {
     let { command } = e.detail || { command: '' };
-
     let slashCommand = '';
     if (command.startsWith('/')) {
       slashCommand = command.substring(1);
@@ -105,23 +92,49 @@
       });
 
       ledgerParts = ledgerParts; // update
+      return;
     }
 
     if (command) {
-      ledgerParts.push({
-        _ts: new Date().toISOString(),
-        _id: shortId(),
-        _type: 'chat',
-        _from: $walletStore.keys.kudos?.address,
-        _message: command,
-        _source: 'kudos',
-        _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-        _sourceType: 'kudos',
-        _sourceName: 'Kudos',
+      console.log('should do chat', command);
+
+      if (!eventsStore.ready()) {
+        console.error('eventsStore not ready');
+        return;
+      }
+
+      //       [event.id, event.type, event.channel, JSON.stringify(event), event.ts]
+
+      await eventsStore.addEvent({
+        ts: new Date().toISOString(),
+        id: shortId(),
+        type: 'chat',
+        channel: 'kudos',
+        body: {
+          from: $walletStore.keys.kudos?.address,
+          message: command,
+        },
       });
 
-      ledgerParts = ledgerParts; // update
+      // ledgerParts.push({
+      //   _ts: new Date().toISOString(),
+      //   _id: shortId(),
+      //   _type: 'chat',
+      //   _from: $walletStore.keys.kudos?.address,
+      //   _message: command,
+      //   _source: 'kudos',
+      //   _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
+      //   _sourceType: 'kudos',
+      //   _sourceName: 'Kudos',
+      // });
+
+      //      ledgerParts = ledgerParts; // update
     }
+  };
+
+  const loadMore = async (isTop) => {
+    // request the store to load more events, from isTop = top, or bottom
+    return await eventsStore.loadMore({ isTop, count: 10 });
   };
 
   const onAction = async (e: CustomEvent) => {
@@ -174,10 +187,10 @@
   <LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
-        <div id="inner-action" bind:clientHeight={actionHeight}>
-          <Actions />
+        <div id="inner-action" class="" bind:clientHeight={actionHeight}>
+          <Actions walletStore={$walletStore} />
         </div>
-        <Feed {feedHeight} feed={$eventsStore?.events || []} />
+        <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
       </div>
     </div>
   </LedgerPane>

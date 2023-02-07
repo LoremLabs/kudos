@@ -200,7 +200,6 @@
 
       const baseDir = await appLocalDataDir();
       const fullPath = `${baseDir}state/setlr-0.seed`;
-
       try {
         const fileFound = await exists(fullPath);
         console.log({ fileFound });
@@ -317,18 +316,20 @@
                     in:fade
                     out:fade
                   >
-                    <span class="mr-6z ">Connect Identity Wallet</span>
+                    <span class="mx-6">Connect Identity Wallet</span>
                     <span
                       aria-label={'processing'}
                       class="ml-2 mr-3 animate-spin ease-in-out"
-                      class:opacity-0={processing <= 0}
-                      class:opacity-100={processing > 0}
+                      class:hidden={processing <= 0}
+                      class:block={processing > 0}
                     >
                       <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
                     </span>
                   </div>
                 </button>
-                <button on:click={onImportWallet} class="m-auto mt-2 underline"
+                <button
+                  on:click={onImportWallet}
+                  class="m-auto mt-2 text-xs text-gray-500 underline"
                   >Import existing mneumonic seed</button
                 >
               </div>
@@ -338,7 +339,7 @@
                 in:fade
                 out:fade
               >
-                <div class="flex flex-col">
+                <div class="flex flex-col items-center justify-center">
                   <button
                     in:fly={{ y: -20, duration: 1000 }}
                     type="button"
@@ -350,12 +351,12 @@
                       in:fade
                       out:fade
                     >
-                      <span class="mr-6z">Create Identity Wallet</span>
+                      <span class="mx-6">Create Identity Wallet</span>
                       <span
                         aria-label={'processing'}
                         class="ml-2 mr-3 animate-spin ease-in-out"
-                        class:opacity-0={processing <= 0}
-                        class:opacity-100={processing > 0}
+                        class:hidden={processing <= 0}
+                        class:block={processing > 0}
                       >
                         <Icon
                           name="misc/spinner"
@@ -366,7 +367,7 @@
                   </button>
                   <button
                     on:click={onImportWallet}
-                    class="m-auto mt-2 underline"
+                    class="m-auto mt-2 text-xs text-gray-500 underline"
                     >Import existing mneumonic seed</button
                   >
                 </div>

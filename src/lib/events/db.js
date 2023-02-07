@@ -18,7 +18,8 @@ export const initDb = async ({ id = 0 }) => {
   });
 
   const dbFullPath = `${baseDir}state/db-${id}.seed`;
-
+  //console.log('dbFullPath', dbFullPath);
+  // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/db-0.seed
   const db = await SQLite.open(dbFullPath);
 
   // only init once per session (or time period?)
@@ -80,19 +81,33 @@ export const addEvents = async ({ id = 0, events = [] }) => {
   return await db.execute(`END TRANSACTION`);
 };
 
-export const readEvents = async ({ id = 0, startTs, count }) => {
+export const readEvents = async ({
+  id = 0,
+  startTs,
+  count = 1,
+  direction = 'ASC',
+}) => {
   const db = await initDb({ id });
   if (!db) {
     throw new Error('db is not defined');
   }
 
+  console.log(
+    `SELECT * FROM events WHERE ts ${
+      direction.toLowerCase() === 'earlier' ? '<' : '>'
+    } ${startTs} ORDER BY ts ${
+      direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
+    } LIMIT ${count}}`
+  );
   const result = await db.select(
-    `SELECT * FROM events WHERE ts < ? ORDER BY ts ASC LIMIT ?`,
+    `SELECT * FROM events WHERE ts ${
+      direction.toLowerCase() === 'earlier' ? '<' : '>'
+    } ? ORDER BY ts ${
+      direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
+    } LIMIT ?`,
     [startTs, count]
   );
-  console.log(
-    `SELECT * FROM events WHERE ts < ${startTs} ORDER BY ts ASC LIMIT ${count}}`
-  );
+  console.log({ result }, 'result');
   // iterate through result, JSON.parse context
   result.forEach((row) => {
     try {

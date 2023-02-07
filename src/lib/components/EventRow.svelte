@@ -7,6 +7,7 @@
 
   export let ev = {};
   export let isLast = false;
+  export let isFirst = false;
   export let allowDetails = false;
   export let opened = false;
 
@@ -15,14 +16,30 @@
 
 <div class="relative ml-2">
   {#if !isLast}
+    {#if isFirst}
+      <span
+        class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-transparent"
+        aria-hidden="true"
+      />
+      <span
+        class="absolute top-16 left-4 -ml-px h-full w-0.5 bg-gray-200"
+        aria-hidden="true"
+      />
+    {:else}
+      <span
+        class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+        aria-hidden="true"
+      />
+    {/if}
+  {:else}
     <span
-      class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+      class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
       aria-hidden="true"
     />
   {/if}
-  {#if ev?._type === 'chat'}
+  {#if ev?.type === 'chat'}
     <ChatEventRow {ev} {allowDetails} {opened} />
-  {:else if ev?._type === 'help'}
+  {:else if ev?.type === 'help'}
     <HelpRow {ev} {allowDetails} {opened} />
   {:else}
     <DefaultEventRow {ev} {allowDetails} {opened} />

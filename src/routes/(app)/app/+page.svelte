@@ -25,7 +25,11 @@
       // { id: 'Dossier', twe: 'identification-card', class: 'twe-2x-tight' },
       // { id: 'Email', twe: 'e-mail', class:"twe-2x-tight" },
       { id: 'Kudos', twe: 'folded-hands', class: 'twe-2x-tight' },
-      { id: 'XRPL', icon: 'brand/xrpl', class: 'text-black' },
+      {
+        id: 'XRPL',
+        icon: 'brand/xrpl',
+        class: 'text-gray-300 hover:text-black',
+      },
     ];
 
   onMount(async () => {
@@ -77,10 +81,7 @@
                 {#if tab.twe}
                   <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
                 {:else if tab.icon}
-                  <Icon
-                    name={tab.icon}
-                    class={`h-7 w-7 text-gray-400 ${tab.class || ''}`}
-                  />
+                  <Icon name={tab.icon} class={`h-7 w-7 ${tab.class || ''}`} />
                 {/if}
               </button>
             </Tooltip>
