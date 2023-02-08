@@ -88,13 +88,51 @@ export const createEventStore = () => {
       console.log('ready', initDone);
       return initDone;
     },
+    addEphemeralEvent: async (event) => {
+      // this doesn't save the event
+      data.events.push({
+        id: event.id,
+        channel: event.channel,
+        ts: event.ts,
+        ephemeral: true,
+        type: event.type,
+        event,
+      });
+
+      data.events.sort((a, b) => a.ts - b.ts);
+      data = data;
+      set(data);
+    },
     addEvent: async (event) => {
       console.log('addEvent', { event });
 
       try {
         await addEvents({ scope: data.scope, events: [event] });
 
-        data.events.push({ event });
+        // {
+        //    channel: "kudos",
+        //    event: {
+        //       body: {
+        //          from: "0x0b32B0Ded51fF30ef12FE1C3B23a692CaE6F4393",
+        //          message: "f"
+        //       },
+        //       channel: "kudos",
+        //       id: "Gph5JPVLp8bH1hHDoT5xaF",
+        //       ts: "2023-02-08T10:22:33.485Z",
+        //       type: "chat"
+        //    },
+        //    id: "Gph5JPVLp8bH1hHDoT5xaF",
+        //    ts: "2023-02-08T10:22:33.485Z",
+        //    type: "chat"
+        // }
+
+        data.events.push({
+          id: event.id,
+          channel: event.channel,
+          ts: event.ts,
+          type: event.type,
+          event,
+        });
         // sort
         data.events.sort((a, b) => a.ts - b.ts);
       } catch (e) {

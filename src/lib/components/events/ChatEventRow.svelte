@@ -37,7 +37,7 @@
 
   <div class="flex-1 overflow-y-auto pb-4 pl-1">
     <div class="-ml-4 flex items-center pt-6">
-      {#if ev.event?.from}
+      {#if ev.event?.body?.from}
         <div
           class="flex h-7 w-7 flex-none flex-col items-center justify-center space-y-1 rounded-full"
         >

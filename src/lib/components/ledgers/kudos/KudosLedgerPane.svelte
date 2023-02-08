@@ -38,34 +38,12 @@
       count: 10,
       startTs: new Date().toISOString(),
     });
+    // eventsStore.subscribe((thing) => {
+    //   console.log({thing});
+    // });
 
     ready = true;
-
-    // setInterval(()=>{
-    //   ledgerParts.push({
-    //     _ts: new Date().toISOString(),
-    //     _id: shortId(),
-    //     _type: 'thingy',
-    //     _source: 'kudos',
-    //     _sourceId: '5f9f1b5b0b9b9b0001b0b1b1',
-    //     _sourceType: 'kudos',
-    //     _sourceName: 'Kudos',
-    //   });
-    //   ledgerParts = ledgerParts; // update
-    // }, 1000);
   });
-
-  // onMount(() => {
-  //   setTimeout(() => {
-  //     // This is annoying because there's a bug in svelte's bind:clientHeight that sets a position = relative
-  //     // which causes the tooltips to shop up behind this element. So we have to wait for the element to be
-  //     // rendered and then set the height "manually".
-  //     const action = document.getElementById('inner-action');
-  //     if (action) {
-  //       actionHeight = action.clientHeight;
-  //     }
-  //   }, 10);
-  // });
 
   const onCommand = async (e: CustomEvent) => {
     let { command } = e.detail || { command: '' };
@@ -74,12 +52,15 @@
       slashCommand = command.substring(1);
       command = '';
 
-      ledgerParts.push({
-        _ts: new Date().toISOString(),
-        _id: shortId(),
-        _type: 'help',
-        _publish: false,
-        _message: `\`\`\`Javascript
+      const helpEvent = {
+        ts: new Date().toISOString(),
+        id: shortId(),
+        type: 'help',
+        channel: 'kudos',
+        ephemeral: true,
+        body: {
+          from: '0x0',
+          message: `\`\`\`Javascript
       :smile: Kudos
 
       /help - this help
@@ -89,9 +70,9 @@
       /kudos [name] [amount] [reason] - give [amount] kudos to [name] for [reason]
 \`\`\`
       `,
-      });
-
-      ledgerParts = ledgerParts; // update
+        },
+      };
+      eventsStore.addEphemeralEvent(helpEvent);
       return;
     }
 

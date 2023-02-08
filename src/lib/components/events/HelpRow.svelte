@@ -6,7 +6,7 @@
   import { colorizer } from '$lib/utils/colorizer';
   import JSPretty from '$lib/components/JSPretty.svelte';
   import Icon from '$lib/components/Icon.svelte';
-  import Identicon from '$lib/components/Identicon.svelte';
+  import KeyIcon from '$lib/components/KeyIcon.svelte';
 
   import { renderMessage } from '$lib/utils/render-message';
 
@@ -29,30 +29,21 @@
   }}
 >
   <div
-    class="flex h-7 w-7 items-center justify-center rounded-full"
+    class="flex h-8 w-8 items-center justify-center rounded-full"
     style={`background-color:${colorizer(ev.type)}`}
   >
-    <Icon name="chat-alt" class="h-4 w-4 text-white" />
+    <Icon name="chevron-right" class="h-4 w-4 text-white" />
   </div>
 
-  <div class="flex-1 overflow-y-auto py-4 pl-1">
-    <!-- chat message -->
-
-    <div class="-ml-4 flex items-center">
-      {#if ev.from}
-        <div
-          class="mr-2 flex h-8 w-8 flex-none flex-col items-center justify-center space-y-1 rounded-full"
-        >
-          <Identicon class="mt-4 ml-4" diameter={20} address={ev.from} />
-        </div>
-      {/if}
+  <div class="flex-1 overflow-y-auto pb-4 pl-1">
+    <div class="-ml-4 flex items-center pt-6">
       <div
         class="relative mb-2 ml-4 flex-1 rounded-lg border border-slate-200 bg-white p-2 text-white shadow"
       >
         <div>
           <div class="align-start flex flex-col items-start justify-start p-2">
             <p class="w-full text-xs text-black">
-              {@html renderMessage(ev.message || ev.type || '')}
+              {@html renderMessage(ev.event?.body?.message || ev.type || '')}
             </p>
           </div>
         </div>
