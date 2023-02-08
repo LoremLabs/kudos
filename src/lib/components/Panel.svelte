@@ -45,7 +45,7 @@
 
   <div
     slot="footer"
-    class="fixed absolute bottom-0 w-full border-t bg-slate-100 p-4"
+    class="fixed absolute bottom-0 flex w-full flex-row items-center justify-end border-t bg-slate-100 p-4"
   >
     {#if $$slots.footer}
       <slot name="footer" />
