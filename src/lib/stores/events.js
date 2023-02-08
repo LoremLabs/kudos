@@ -141,6 +141,16 @@ export const createEventStore = () => {
       data = data;
       set(data);
     },
+    reset: async () => {
+      initDone = false;
+      data = {
+        events: [],
+        scope: '',
+        startTs: new Date().toISOString(),
+        count: COUNT,
+      };
+      set(data);
+    },
     subscribe,
     update,
   };

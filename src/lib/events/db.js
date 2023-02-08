@@ -11,23 +11,23 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 
 const cache = {};
 
-export const initDb = async ({ id = 0 }) => {
+export const initDb = async ({ id = 0, address = '0x0' }) => {
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     recursive: true,
   });
 
-  const dbFullPath = `${baseDir}state/db-${id}.seed`;
+  const dbFullPath = `${baseDir}state/db-${address}-${id}.seed`;
   //console.log('dbFullPath', dbFullPath);
   // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/db-0.seed
   const db = await SQLite.open(dbFullPath);
 
   // only init once per session (or time period?)
   // @ts-ignore
-  if (cache[`db-${id}`]) {
+  if (cache[`db-${address}-${id}`]) {
     return db;
   }
-  cache[`Db-${id}`] = Date.now();
+  cache[`db-${address}-${id}`] = Date.now();
 
   // get the current file's schema version
   await db.execute(`
@@ -60,8 +60,8 @@ export const initDb = async ({ id = 0 }) => {
 };
 
 // @ts-ignore
-export const addEvents = async ({ id = 0, events = [] }) => {
-  const db = await initDb({ id });
+export const addEvents = async ({ id = 0, address = '0x0', events = [] }) => {
+  const db = await initDb({ address, id });
   if (!db) {
     throw new Error('db is not defined');
   }
@@ -82,23 +82,25 @@ export const addEvents = async ({ id = 0, events = [] }) => {
 };
 
 export const readEvents = async ({
+  address = '0x0',
   id = 0,
   startTs,
   count = 1,
+  ledgerAddress = '0x0',
   direction = 'ASC',
 }) => {
-  const db = await initDb({ id });
+  const db = await initDb({ id, address });
   if (!db) {
     throw new Error('db is not defined');
   }
 
-  console.log(
-    `SELECT * FROM events WHERE ts ${
-      direction.toLowerCase() === 'earlier' ? '<' : '>'
-    } ${startTs} ORDER BY ts ${
-      direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
-    } LIMIT ${count}}`
-  );
+  // console.log(
+  //   `SELECT * FROM events WHERE ts ${
+  //     direction.toLowerCase() === 'earlier' ? '<' : '>'
+  //   } ${startTs} ORDER BY ts ${
+  //     direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
+  //   } LIMIT ${count}}`
+  // );
   const result = await db.select(
     `SELECT * FROM events WHERE ts ${
       direction.toLowerCase() === 'earlier' ? '<' : '>'
@@ -107,7 +109,7 @@ export const readEvents = async ({
     } LIMIT ?`,
     [startTs, count]
   );
-  console.log({ result }, 'result');
+  // console.log({ result }, 'result');
   // iterate through result, JSON.parse context
   result.forEach((row) => {
     try {

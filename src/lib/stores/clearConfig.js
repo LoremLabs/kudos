@@ -61,6 +61,13 @@ export const createClearConfigStore = () => {
       set(clearConfig);
       return clearConfig;
     },
+    reset: async () => {
+      initDone = false;
+      clearConfig = {
+        _init: false,
+      };
+      set(clearConfig);
+    },
     subscribe,
     save: async (
       newData = {

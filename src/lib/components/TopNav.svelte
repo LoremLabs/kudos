@@ -139,7 +139,7 @@
                 class:animate-leaving={!showPersonaMenu}
               >
                 <a
-                  href="#"
+                  href="/app"
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
                   role="menuitem"
                   tabindex="-1"
@@ -151,6 +151,13 @@
                   role="menuitem"
                   tabindex="-1"
                   id="user-menu-item-1">Settings</a
+                >
+                <a
+                  href="/logout"
+                  class="block border-t border-gray-400 px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                  role="menuitem"
+                  tabindex="-1"
+                  id="user-menu-item-1">Logout</a
                 >
               </div>
             </div>

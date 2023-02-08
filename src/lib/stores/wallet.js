@@ -50,6 +50,17 @@ export const createWalletStore = () => {
       initDone = true;
       return data;
     },
+    reset: async () => {
+      initDone = false;
+      data = {
+        salt: '',
+        mnemonic: '',
+        passPhrase: '',
+        keys: {},
+        id: 0,
+      };
+      set(data);
+    },
     subscribe,
     update,
   };
