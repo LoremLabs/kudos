@@ -3,13 +3,14 @@
   import Panel from '$lib/components/Panel.svelte';
   import KeyIcon from '$lib/components/KeyIcon.svelte';
   let panelOpen: HTMLElement | null = null;
+  let panelImportOpen: HTMLElement | null = null;
 
   export let walletStore = null;
 </script>
 
 {#if walletStore}
   <div
-    class="flex h-12 items-center justify-end border-b border-gray-200 shadow-sm"
+    class="flex h-16 items-center justify-end items-justify-center border-b border-gray-200 shadow-sm"
   >
     <div
       class="mx-2 flex w-full flex-row items-center justify-start space-x-2 text-slate-900"
@@ -26,7 +27,7 @@
         id="panel-open-1"
         class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
         on:click={() => {
-          panelOpen = document.getElementById('panel-open-1');
+          panelImportOpen = document.getElementById('panel-open-1');
         }}
       >
         <Icon name="upload" class="h-6 w-6" />
@@ -58,9 +59,9 @@
     </div>
   </div>
 
-  <Panel heading="Kudos Settings" bind:opener={panelOpen}>
+  <Panel heading="Kudos Import" bind:opener={panelImportOpen}>
     <form
-      id="advanced-form"
+      id="import-kudos"
       class="p-5 py-4 sm:py-5"
       autocomplete="off"
       on:submit|preventDefault={() => {}}
@@ -71,15 +72,15 @@
         on:click={async () => {
           // save config
           console.log('saving config');
-          panelOpen = null;
+          panelImportOpen = null;
         }}
         type="submit"
-        class="cursor-pointer rounded-full border border-gray-300 bg-blue-700 py-2
+        class="cursor-pointer rounded-full border border-gray-300 bg-gray-700 py-2
     px-4 text-sm font-medium text-white
     shadow-sm transition delay-150 ease-in-out hover:bg-gray-700
     focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
       >
-        Save
+        Close
       </button>
     </div>
   </Panel>
