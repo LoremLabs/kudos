@@ -1,11 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { goto } from '$app/navigation';
+  //   import { goto } from '$app/navigation';
 
   import { shortId } from '$lib/utils/short-id';
 
-  //   import { getConfig } from '$lib/utils/config';
+  import { setConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { eventsStore } from '$lib/stores/events';
@@ -27,20 +27,17 @@
     await walletStore.reset({});
     await clearConfigStore.reset();
     await eventsStore.reset();
-
-    // navigate
-    // goto('/');
-    const LOGIN_URL = '/';
+    await setConfig({});
 
     const openMainWindow = async () => {
-      const webview = new WebviewWindow(`app-${shortId()}`, {
-        url: LOGIN_URL,
+      const webview = new WebviewWindow(`login-${shortId()}`, {
+        url: '/',
 
         // window features
-        title: '',
+        title: 'Setler',
         resizable: true,
-        width: 1024,
-        height: 768,
+        width: 769,
+        height: 769,
         decorations: true,
         hiddenTitle: true,
         titleBarStyle: 'Overlay',
