@@ -146,10 +146,14 @@ fn main() {
         // )
         .menu(build_menu(app_name))
         .on_menu_event(|event| match event.menu_item_id() {
-            "preferences" => {
+            // "preferences" => {
+            //     let window = event.window();
+            //     window.emit("show-preferences", "").unwrap();
+            // },
+            "Product Homepage" => {
                 let window = event.window();
-                window.emit("show-preferences", "").unwrap();
-            }
+                window.emit("goto-homepage", "").unwrap();
+            },
             _ => {}
         })
         //        .manage(Shared(Mutex::new(app_salt.as_ref().unwrap().to_string(),),"hi".to_string()))
@@ -186,7 +190,7 @@ fn build_menu(app_name: &str) -> Menu {
 
     let help_menu = Submenu::new(
         "Help",
-        Menu::new().add_item(CustomMenuItem::new("Learn More", "Learn More")),
+        Menu::new().add_item(CustomMenuItem::new("Product Homepage", "Product Homepage"))
     );
     let mut menu = Menu::new();
     menu = menu.add_submenu(Submenu::new(
@@ -197,12 +201,12 @@ fn build_menu(app_name: &str) -> Menu {
                 AboutMetadata::default(),
             ))
             .add_native_item(MenuItem::Separator)
-            .add_item(
-                CustomMenuItem::new("preferences", "Preferences...")
-                    .accelerator("CmdOrCtrl+,")
-                    .into(),
-            )
-            .add_item(CustomMenuItem::new("thing", "Thing").into())
+            // .add_item(
+            //     CustomMenuItem::new("preferences", "Preferences...")
+            //         .accelerator("CmdOrCtrl+,")
+            //         .into(),
+            // )
+            // .add_item(CustomMenuItem::new("thing", "Thing").into())
             .add_native_item(MenuItem::Separator)
             .add_native_item(MenuItem::Hide)
             .add_native_item(MenuItem::HideOthers)

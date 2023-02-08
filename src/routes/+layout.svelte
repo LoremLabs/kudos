@@ -7,6 +7,7 @@
   import { listen } from '@tauri-apps/api/event';
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
+  import { open as openShell } from '@tauri-apps/api/shell';
 
   //  import { walletStore } from '$lib/stores/wallet';
 
@@ -46,6 +47,17 @@
       // https://kit.svelte.dev/docs#routing-params
 
       goto('/preferences');
+    });
+
+    listen('goto-homepage', (event) => {
+      // navigate to page 2
+      // https://kit.svelte.dev/docs#routing-pages
+      // https://kit.svelte.dev/docs#routing-navigate
+      // https://kit.svelte.dev/docs#routing-params
+
+      openShell(
+        'https://www.loremlabs.com/?app=setler&utm_campaign=app&utm_src=setler'
+      );
     });
 
     // grab the window title from the query params
