@@ -15,8 +15,15 @@
 </script>
 
 <div class="relative ml-2">
-  {#if !isLast}
-    {#if isFirst}
+  {#if isFirst}
+    {#if isLast}
+      <!-- first and last-->
+      <span
+        class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-transparent"
+        aria-hidden="true"
+      />
+    {:else}
+      <!-- first, but not last -->
       <span
         class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-transparent"
         aria-hidden="true"
@@ -25,18 +32,32 @@
         class="absolute top-16 left-4 -ml-px h-full w-0.5 bg-gray-200"
         aria-hidden="true"
       />
-    {:else}
+    {/if}
+  {:else}
+    <!-- not first -->
+    {#if isLast}
+      <!-- not first, last -->
       <span
-        class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
+        class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-transparent"
+        aria-hidden="true"
+      />
+      <span
+        class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
+        aria-hidden="true"
+      />
+    {:else}
+      <!-- not first, not last  -->
+      <span
+        class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-transparent"
+        aria-hidden="true"
+      />
+      <span
+        class="absolute top-16 left-4 -ml-px h-full w-0.5 bg-gray-200"
         aria-hidden="true"
       />
     {/if}
-  {:else}
-    <span
-      class="absolute top-4 left-4 -ml-px h-1/2 w-0.5 bg-gray-200"
-      aria-hidden="true"
-    />
   {/if}
+
   {#if ev?.type === 'chat'}
     <ChatEventRow {ev} {allowDetails} {opened} />
   {:else if ev?.type === 'help'}

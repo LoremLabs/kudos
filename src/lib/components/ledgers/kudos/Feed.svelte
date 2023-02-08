@@ -81,6 +81,53 @@
     node.scroll({ top: node.scrollHeight + 50, behavior: 'smooth' });
   };
 
+  const isEventFirst = (feed, i) => {
+    const ev = feed[i];
+
+    // determine if this is the first in the date range
+    if (
+      feed[i + 1] &&
+      fmt.format(new Date(feed[i + 1]?.ts)) != fmt.format(new Date(ev.ts))
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const isEventLast = (feed, i) => {
+    const ev = feed[i];
+
+    if (!feed[i + 1]) {
+      // no more
+      return true;
+    }
+
+    if (
+      feed[i + 1] &&
+      new Date(feed[i + 1]?.ts).getDate() != new Date(ev.ts).getDate()
+    ) {
+      // more, but not our date
+      return true;
+    }
+
+    // not last
+    return false;
+  };
+
+  const isEventNewDate = (feed, i) => {
+    const ev = feed[i];
+
+    if (
+      i == 0 ||
+      new Date(feed[i - 1]?.ts).getDate() != new Date(ev.ts).getDate()
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
   beforeUpdate(() => {
     if (feed.length) {
       // sort feed
@@ -171,40 +218,21 @@
       </li>
     {/if}
     {#each feed as ev, i}
+      {@const isFirst = isEventFirst(feed, i)}
+      {@const isLast = isEventLast(feed, i)}
+      {@const isNewDate = isEventNewDate(feed, i)}
       {#if ev.ts}
         <li class="py pr-4">
           <!-- for each new date, put a header -->
-          {#if i == 0 || new Date(feed[i - 1]?.ts).getDate() != new Date(ev.ts).getDate()}
+          {#if isNewDate}
             <div class="relative flex justify-start">
               <span
                 class="mt-8 mb-4 ml-2 px-2 text-sm font-medium text-gray-900"
                 >{fmt.format(new Date(ev.ts))}</span
               >
             </div>
-            <!-- determine if this is the first in the date range -->
-
-            {#if feed[i + 1] && fmt.format(new Date(feed[i + 1]?.ts)) != fmt.format(new Date(ev.ts))}
-              <EventRow
-                {ev}
-                allowDetails={true}
-                isLast={true}
-                isFirst={true}
-              />?
-            {:else}
-              <EventRow
-                {ev}
-                allowDetails={true}
-                isLast={false}
-                isFirst={true}
-              />
-            {/if}
-          {:else if feed[i + 1] && new Date(feed[i + 1]?.ts).getDate() != new Date(ev.ts).getDate()}
-            <EventRow {ev} allowDetails={true} isLast={true} isFirst={false} />
-          {:else if feed[i + 1]}
-            <EventRow {ev} allowDetails={true} isLast={false} isFirst={false} />
-          {:else}
-            <EventRow {ev} allowDetails={true} isLast={true} isFirst={false} />
           {/if}
+          <EventRow {ev} allowDetails={true} {isLast} {isFirst} />
         </li>
       {/if}
     {/each}
