@@ -4,10 +4,15 @@
   import KeyIcon from '$lib/components/KeyIcon.svelte';
   import KudosStartImport from '$lib/components/KudosStartImport.svelte';
 
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
   let panelOpen: HTMLElement | null = null;
   let panelImportOpen: HTMLElement | null = null;
 
   export let walletStore = null;
+  export let utilsOpen = false;
 </script>
 
 {#if walletStore}
@@ -17,19 +22,23 @@
     <div
       class="mx-2 flex w-full flex-row items-center justify-start space-x-2 text-slate-900"
     >
-      <Icon name="key" class="h-6 w-6 -rotate-45 transform text-slate-500" />
-      <h2 class="text-xs font-medium">Keys:</h2>
+      <Icon
+        name="key"
+        class="-mr-3 h-6 w-6 -rotate-45 transform text-slate-700"
+      />
+      <KeyIcon type="kudos" address={walletStore.keys.kudos?.address} />
       <div class="flex flex-row items-center justify-start">
-        <span class="text-xs font-medium text-slate-600">Kudos</span>
-        <KeyIcon type="kudos" address={walletStore.keys.kudos?.address} />
+        <span class="text-sm font-bold text-slate-700">Kudos</span>
       </div>
     </div>
     <div class="mx-2 text-gray-500">
       <button
         id="panel-open-1"
         class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
+        class:bg-slate-200={utilsOpen}
+        class:rotate-45={utilsOpen}
         on:click={() => {
-          panelImportOpen = document.getElementById('panel-open-1');
+          dispatch('action', { action: 'utils:add' });
         }}
       >
         <Icon name="solid/plus-sm" class="h-6 w-6" />

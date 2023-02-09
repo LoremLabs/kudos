@@ -183,7 +183,7 @@
           }
         }}
       >
-        <div class="h-8 w-full opacity-0" />
+        <div class="h-2 w-full opacity-0" />
         {#if processing > 1}
           <button
             on:click={() => {
@@ -205,10 +205,10 @@
       </Visibility>
     </li>
     {#if feed.length === 0}
-      <li class="m-auto mx-8 flex overflow-hidden rounded-full bg-white p-12">
+      <li class="m-auto m-8 flex overflow-hidden rounded-full bg-slate-50 p-12">
         <Icon
           name="exclaimation-circle"
-          class="ml-4 h-10 w-10 text-slate-800"
+          class="ml-4 h-10 w-10 text-slate-500"
         />
         <h3 class="p-2">No events found</h3>
       </li>

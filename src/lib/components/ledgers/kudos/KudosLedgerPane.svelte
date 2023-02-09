@@ -13,9 +13,15 @@
   import { eventsStore } from '$lib/stores/events';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
+  import KudosStartImport from '$lib/components/KudosStartImport.svelte';
+
+  import { fly } from 'svelte/transition';
+
   import Actions from './Actions.svelte';
   import Feed from './Feed.svelte';
   // import JsPretty from '$lib/components/JSPretty.svelte';
+
+  const dispatch = createEventDispatcher();
 
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
@@ -24,8 +30,10 @@
 
   let feedHeight = 0;
   let actionHeight = 0;
+  let utilsHeight = 0;
   let ledgerParts = [];
   let ready = false;
+  let utilsOpen = false;
 
   onMount(async () => {
     if (!browser) {
@@ -47,6 +55,18 @@
 
     ready = true;
   });
+
+  const onAction = async (e: CustomEvent) => {
+    const action = e.detail?.action || '';
+
+    switch (action) {
+      case 'utils:add':
+        utilsOpen = !utilsOpen;
+        break;
+      default:
+        console.log('unknown action', action);
+    }
+  };
 
   const onCommand = async (e: CustomEvent) => {
     let { command } = e.detail || { command: '' };
@@ -121,10 +141,6 @@
     return await eventsStore.loadMore({ isTop, count: 10 });
   };
 
-  const onAction = async (e: CustomEvent) => {
-    console.log('onAction', e.detail);
-  };
-
   // on window resize, recalculate the height of actions (due to svelte bug, to get the tooltips and command to work)
   // window.addEventListener('resize', () => {
   //   const action = document.getElementById('inner-action');
@@ -164,7 +180,8 @@
   //   },
   // ];
 
-  $: feedHeight = sidebarHeight - actionHeight - 100;
+  $: feedHeight =
+    sidebarHeight - actionHeight - (utilsOpen ? utilsHeight : 0) - 100;
 </script>
 
 {#if ready}
@@ -172,7 +189,11 @@
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
         <div id="inner-action" class="" bind:clientHeight={actionHeight}>
-          <Actions walletStore={$walletStore} />
+          <Actions
+            walletStore={$walletStore}
+            on:action={onAction}
+            bind:utilsOpen
+          />
         </div>
         {#if DEBUG_WALLET_STORE}
           <pre class="pre-wrap my-12 text-xs">{JSON.stringify(
@@ -180,6 +201,16 @@
               null,
               2
             )}</pre>
+        {/if}
+        {#if utilsOpen}
+          <li
+            class="m-auto m-4 flex overflow-hidden rounded-2xl bg-white px-12 pb-12 pt-4 shadow"
+            in:fly={{ y: -20, duration: 400 }}
+            out:fly={{ y: -20, duration: 200 }}
+            bind:clientHeight={utilsHeight}
+          >
+            <KudosStartImport />
+          </li>
         {/if}
         <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
       </div>

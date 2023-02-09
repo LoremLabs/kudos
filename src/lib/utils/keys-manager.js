@@ -1,24 +1,26 @@
 import * as addressCodec from '$lib/extern/ripple-address-codec/src';
-import { shortId } from '$lib/utils/short-id';
-
 import * as hashjs from 'hash.js';
 
 import {
   BaseDirectory,
+  copyFile,
   createDir,
   exists,
   readTextFile,
   writeFile,
-  copyFile,
 } from '@tauri-apps/api/fs';
+import {
+  createHdKeyFromMnemonic,
+  mnemonicIsValid,
+} from './wallet/createHdKeyFromMnemonic';
 
 import { appLocalDataDir } from '@tauri-apps/api/path';
 import { bytesToHex } from '@noble/hashes/utils';
-import { createHdKeyFromMnemonic } from './wallet/createHdKeyFromMnemonic';
 import { decryptAES } from './wallet/decryptSeedAES';
 import { encryptAES } from './wallet/encryptSeedAES';
 import { ethWallet } from './wallet/ethWallet';
 import { generateMnemonic } from './wallet/generateMnemonic';
+import { shortId } from '$lib/utils/short-id';
 
 export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
   if (!mnemonic && !coinId) {
@@ -85,6 +87,14 @@ export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {
   manager.id = id ? id : 0;
 
   return manager;
+}
+
+export function seedIsValid({ mnemonic, passPhrase }) {
+  if (!mnemonic) {
+    throw new Error('No mnemonic provided');
+  }
+
+  return mnemonicIsValid({ mnemonic, passPhrase });
 }
 
 /* Returns { mnemonic } */

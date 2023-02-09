@@ -121,7 +121,7 @@
   <div class="px-4 py-5 sm:p-6">
     <div>
       <div class="mt-1 text-sm text-gray-500">
-        Setler helps you add value to your <span
+        Add value to your <span
           class="cursor-pointer text-cyan-800 underline"
           on:click={() => {
             goto('https://www.loremlabs.com/');
@@ -138,7 +138,7 @@
             class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
-              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-cyan-700"
+              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-700"
             >
               <Icon name="upload" class="h-6 w-6 text-white" />
             </div>
@@ -162,7 +162,7 @@
             class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
-              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg bg-cyan-500"
+              class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-500"
             >
               <Icon name="globe-alt" class="h-6 w-6 text-white" />
             </div>

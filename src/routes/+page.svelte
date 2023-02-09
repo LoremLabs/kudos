@@ -3,7 +3,11 @@
   import { open as openShell } from '@tauri-apps/api/shell';
   import { appLocalDataDir } from '@tauri-apps/api/path';
   import { invoke } from '@tauri-apps/api/tauri';
-  import { createOrReadSeed, saveSeed } from '$lib/utils/keys-manager';
+  import {
+    createOrReadSeed,
+    saveSeed,
+    seedIsValid,
+  } from '$lib/utils/keys-manager';
   import Modal from '$lib/components/Modal.svelte';
   import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
   import ModalMnemonic from '$lib/components/ModalMnemonic.svelte';
@@ -79,7 +83,6 @@
   };
 
   let enterMnemonicModal = false;
-
   let enterMnemonicPromise;
   const enterMnemonic = async () => {
     enterMnemonicModal = true;
@@ -93,7 +96,7 @@
   const readWalletState = async () => {
     if (passPhrase === '' && shouldAskForPassPhrase) {
       const userData = await askForPassPhrase();
-      console.log({ userData }, '2');
+      // console.log({ userData }, '2');
       // allow empty passPhrase
       if (userData.passPhrase) {
         passPhrase = userData.passPhrase;
@@ -119,13 +122,20 @@
       return;
     }
     processing++;
-    console.log({ customMnemonic });
+    // console.log({ customMnemonic });
     // TODO: reset any data?
+
+    // see if this is valid
+    if (!seedIsValid({ mnemonic: customMnemonic })) {
+      processing--;
+      alert('Invalid mnemonic. Use 12-24 words separated by spaces.'); // TODO: i18n and better error inline
+      return;
+    }
 
     const salt = await invoke('get_salt');
     if (shouldAskForPassPhrase) {
       const userData = await askForPassPhrase();
-      console.log({ userData }, '3');
+      // console.log({ userData }, '3');
       // allow empty passPhrase
       if (userData.passPhrase) {
         // TODO: refactor passphrase not implemented correctly
@@ -138,12 +148,12 @@
     try {
       saveSeed({
         mnemonic: customMnemonic,
-        salt: `${salt}`, // used for local encryption at rest
+        salt: `${salt}`, // used for local encryption at rest, stored in keychain
         id: walletId,
         passPhrase,
       });
     } catch (e) {
-      alert(e.message);
+      alert(`Error saving: ${e.message}`);
       processing--;
 
       return;

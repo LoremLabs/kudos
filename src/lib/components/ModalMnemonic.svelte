@@ -80,12 +80,14 @@
 
   let processing = false;
 
-  // onMount(async () => {
-  //   if (!browser) {
-  //     return;
-  //   }
-  // });
+  const handleKeydown = (e) => {
+    if (e.key === 'Enter') {
+      handleConfirm();
+    }
+  };
 </script>
+
+<svelte:body on:keydown={handleKeydown} />
 
 <Modal
   bind:open
