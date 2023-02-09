@@ -53,6 +53,11 @@
     //   console.log({thing});
     // });
 
+    // detect if we have no events, and if so set utilsOpen to true
+    if ($eventsStore.events.length === 0) {
+      utilsOpen = true;
+    }
+
     ready = true;
   });
 
