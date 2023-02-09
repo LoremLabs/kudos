@@ -20,6 +20,8 @@
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
 
+  const DEBUG_WALLET_STORE = false;
+
   let feedHeight = 0;
   let actionHeight = 0;
   let ledgerParts = [];
@@ -37,6 +39,7 @@
       scope: 'kudos',
       count: 10,
       startTs: new Date().toISOString(),
+      address: ws.keys?.kudos?.address,
     });
     // eventsStore.subscribe((thing) => {
     //   console.log({thing});
@@ -171,6 +174,13 @@
         <div id="inner-action" class="" bind:clientHeight={actionHeight}>
           <Actions walletStore={$walletStore} />
         </div>
+        {#if DEBUG_WALLET_STORE}
+          <pre class="pre-wrap my-12 text-xs">{JSON.stringify(
+              $walletStore,
+              null,
+              2
+            )}</pre>
+        {/if}
         <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
       </div>
     </div>

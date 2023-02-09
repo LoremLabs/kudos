@@ -7,7 +7,7 @@
   export let open = false;
   export let handleCancel = () => {};
   export let handleConfirm = async () => {
-    console.log('saving', JSON.stringify(formData));
+    // console.log('saving', JSON.stringify(formData));
     modalDone(formData);
     // reset
     done = new Promise((resolve) => {
@@ -85,7 +85,15 @@
   //     return;
   //   }
   // });
+
+  const handleKeydown = (e) => {
+    if (e.key === 'Enter') {
+      handleConfirm();
+    }
+  };
 </script>
+
+<svelte:body on:keydown={handleKeydown} />
 
 <Modal
   bind:open

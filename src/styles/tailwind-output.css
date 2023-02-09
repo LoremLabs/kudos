@@ -840,6 +840,14 @@ select {
   margin-left: 2rem;
   margin-right: 2rem;
 }
+.mx-12 {
+  margin-left: 3rem;
+  margin-right: 3rem;
+}
+.my-12 {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+}
 .mt-8 {
   margin-top: 2rem;
 }

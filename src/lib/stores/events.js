@@ -14,12 +14,15 @@ export const createEventStore = () => {
   };
   const { subscribe, update, set } = writable(data);
   let initDone = false;
+  let eventsAddress = '';
 
   return {
-    init: async ({ scope, startTs, count }) => {
+    init: async ({ scope, startTs, count, address }) => {
       if (initDone) return data;
+      eventsAddress = address || '0x0';
 
       data.events = await readEvents({
+        address,
         scope,
         startTs,
         count,
@@ -50,6 +53,7 @@ export const createEventStore = () => {
           startTs: firstEvent.ts,
           count: count || COUNT,
           direction: 'earlier',
+          address: eventsAddress,
         });
         // make sure we don't add duplicates
         // create a set of event ids which are unique
@@ -72,6 +76,7 @@ export const createEventStore = () => {
           startTs: lastEvent.ts,
           count: count || COUNT,
           direction: 'asc',
+          address: eventsAddress,
         });
 
         // make sure we don't add duplicates
@@ -107,7 +112,11 @@ export const createEventStore = () => {
       console.log('addEvent', { event });
 
       try {
-        await addEvents({ scope: data.scope, events: [event] });
+        await addEvents({
+          scope: data.scope,
+          events: [event],
+          address: eventsAddress,
+        });
 
         // {
         //    channel: "kudos",
@@ -143,6 +152,8 @@ export const createEventStore = () => {
     },
     reset: async () => {
       initDone = false;
+      eventsAddress = '0x0';
+
       data = {
         events: [],
         scope: '',

@@ -420,7 +420,13 @@
     on:submit|preventDefault={() => {}}
   >
     <div class="mt-2 rounded-md bg-white p-4">
-      <div class="w-full">
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <div
+        class="w-full cursor-pointer"
+        on:click={() => {
+          shouldAskForPassPhrase = !shouldAskForPassPhrase;
+        }}
+      >
         <Switch
           bind:value={shouldAskForPassPhrase}
           label="Pass Phrase on Startup"

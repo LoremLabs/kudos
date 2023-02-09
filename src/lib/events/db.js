@@ -12,14 +12,15 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 const cache = {};
 
 export const initDb = async ({ id = 0, address = '0x0' }) => {
+  console.log('initDb', { id, address });
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     recursive: true,
   });
 
-  const dbFullPath = `${baseDir}state/db-${address}-${id}.seed`;
+  const dbFullPath = `${baseDir}state/events-${address}-${id}.db`;
   //console.log('dbFullPath', dbFullPath);
-  // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/db-0.seed
+  // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/events-0x0-0.db
   const db = await SQLite.open(dbFullPath);
 
   // only init once per session (or time period?)
@@ -89,6 +90,8 @@ export const readEvents = async ({
   ledgerAddress = '0x0',
   direction = 'ASC',
 }) => {
+  console.log('readEvents', { id, address });
+
   const db = await initDb({ id, address });
   if (!db) {
     throw new Error('db is not defined');
