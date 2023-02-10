@@ -10,6 +10,7 @@
 
   import Icon from '$lib/components/Icon.svelte';
   import JsPretty from '$lib/components/JSPretty.svelte';
+  import { goto } from '$app/navigation';
 
   export let debug = false;
   let ready = false;
@@ -138,27 +139,43 @@
                 class:animate-entering={showPersonaMenu}
                 class:animate-leaving={!showPersonaMenu}
               >
-                <a
-                  href="/app"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
-                  role="menuitem"
-                  tabindex="-1"
-                  id="user-menu-item-0">Edit Persona</a
+                <button
+                  class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                  id="user-menu-item-0"
                 >
-                <a
-                  href="#"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
-                  role="menuitem"
-                  tabindex="-1"
-                  id="user-menu-item-1">Settings</a
+                  <div class="w-6">
+                    <Icon name="mini/plus" class="mr-2 h-4 w-4" />
+                  </div>
+                  <div class="">Add Persona</div>
+                </button>
+                {#if false}
+                  <button
+                    class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                    id="user-menu-item-1"
+                    on:click={() => {
+                      showPersonaMenu = false;
+                      goto('/app/settings');
+                    }}
+                  >
+                    <div class="w-6">
+                      <Icon name="cog" class="mr-2 h-4 w-4" />
+                    </div>
+                    <div class="">Settings</div>
+                  </button>
+                {/if}
+                <button
+                  on:click={() => {
+                    showPersonaMenu = false;
+                    goto('/logout');
+                  }}
+                  class="block flex w-full flex-row items-center justify-start border-t border-gray-400 px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                  id="user-menu-item-2"
                 >
-                <a
-                  href="/logout"
-                  class="block border-t border-gray-400 px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
-                  role="menuitem"
-                  tabindex="-1"
-                  id="user-menu-item-1">Logout</a
-                >
+                  <div class="w-6">
+                    <Icon name="logout" class="mr-2 h-4 w-4" />
+                  </div>
+                  <div class="">Logout</div>
+                </button>
               </div>
             </div>
           </div>

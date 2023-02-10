@@ -22,8 +22,6 @@
       return;
     }
 
-    // TODO: how to logout "properly?" close stores / connections?
-    // const config = await getConfig(true); // using cached config
     await walletStore.reset({});
     await clearConfigStore.reset();
     await eventsStore.reset();

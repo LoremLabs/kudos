@@ -193,7 +193,11 @@
   <LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
-        <div id="inner-action" class="" bind:clientHeight={actionHeight}>
+        <div
+          id="inner-action"
+          class="mt-2 bg-slate-50"
+          bind:clientHeight={actionHeight}
+        >
           <Actions
             walletStore={$walletStore}
             on:action={onAction}

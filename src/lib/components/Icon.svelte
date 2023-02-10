@@ -74,6 +74,7 @@
     | 'solid/calendar'
     | 'solid/check-circle'
     | 'solid/chevron-down'
+    | 'solid/cog-6-tooth'
     | 'solid/external-link'
     | 'solid/heart'
     | 'solid/information-circle'
@@ -105,9 +106,13 @@
     | 'misc/spinner-2'
     | 'misc/share-arrow'
     | 'misc/play-button'
-    | 'misc/pause-button';
+    | 'misc/pause-button'
+    | 'mini/queue-list';
 
-  export type MiniIcons = 'mini/exclamation-triangle';
+  export type MiniIcons =
+    | 'mini/exclamation-triangle'
+    | 'mini/chevron-right'
+    | 'mini/plus';
 
   /** <symbol> id's from {@linkcode iconsSvg} */
   export type IconName =

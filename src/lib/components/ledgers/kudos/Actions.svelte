@@ -22,13 +22,21 @@
     <div
       class="mx-2 flex w-full flex-row items-center justify-start space-x-2 text-slate-900"
     >
-      <Icon
-        name="key"
-        class="-mr-3 h-6 w-6 -rotate-45 transform text-slate-700"
-      />
-      <KeyIcon type="kudos" address={walletStore.keys.kudos?.address} />
       <div class="flex flex-row items-center justify-start">
-        <span class="text-sm font-bold text-slate-700">Kudos</span>
+        <ol class="ml-2 flex items-center space-x-2">
+          <li>
+            <div>
+              <span class="text-sm font-bold text-slate-700">Kudos</span>
+              <span class="ml-2 text-sm text-slate-700">&raquo;</span>
+            </div>
+          </li>
+
+          <li>
+            <div class="flex items-center">
+              <KeyIcon type="kudos" address={walletStore.keys.kudos?.address} />
+            </div>
+          </li>
+        </ol>
       </div>
     </div>
     <div class="mx-2 text-gray-500">
