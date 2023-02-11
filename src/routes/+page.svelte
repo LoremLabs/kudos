@@ -277,7 +277,7 @@
           </p>
 
           <dl
-            class="mt-10 grid grid-cols-1 gap-y-10 gap-x-8 text-sm sm:grid-cols-1"
+            class="mt-10 grid grid-cols-1 gap-y-10 gap-x-8 text-xs sm:grid-cols-1"
           >
             <div>
               <dt class="font-medium text-gray-900">
@@ -296,8 +296,8 @@
                   class="underline"
                   on:click={() => {
                     goto('https://www.loremlabs.com/?utm_campaign=setler');
-                  }}>kudos</button
-                >.
+                  }}>kudos.</button
+                >
               </dd>
             </div>
 
@@ -326,7 +326,14 @@
                     in:fade
                     out:fade
                   >
-                    <span class="mx-6">Connect Identity Wallet</span>
+                    <div class="mx-6 flex flex-row px-12">
+                      <span class="pr-2">Enter</span>
+                      <Icon
+                        name="arrow-sm-right"
+                        class="mt-1 h-5 w-5 text-white"
+                      />
+                    </div>
+
                     <span
                       aria-label={'processing'}
                       class="ml-2 mr-3 animate-spin ease-in-out"
@@ -339,8 +346,8 @@
                 </button>
                 <button
                   on:click={onImportWallet}
-                  class="m-auto mt-2 text-xs text-gray-500 underline"
-                  >Import existing mneumonic seed</button
+                  class="m-auto mt-4 text-xs text-gray-500 underline"
+                  >Forgot password?</button
                 >
               </div>
             {:else if openState === 'new'}
