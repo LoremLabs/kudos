@@ -93,17 +93,14 @@ export function seedIsValid({ mnemonic, passPhrase }) {
   if (!mnemonic) {
     throw new Error('No mnemonic provided');
   }
-
-  return mnemonicIsValid({ mnemonic, passPhrase });
+  return mnemonicIsValid({ mnemonicSeedphrase: mnemonic, passPhrase });
 }
-
 /* Returns { mnemonic } */
 export async function saveSeed({
   mnemonic = '',
   id = 0,
   salt = '', // used to encrypt local seed data only
   backupExisting = true,
-  passPhrase, // ? TODO: this usage isn't right
 }) {
   // if we already have a seed file, we'll make a backup in case the user
   // is doing this by mistake. They'll still need their phrase though.

@@ -20,7 +20,7 @@
   </span>
   <button
     type="button"
-    on:click={() => (value = !value)}
+    on:click|stopPropagation={() => (value = !value)}
     class="focus:ring-success-500 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border border-transparent border-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
     class:bg-gray-200={!value}
     class:bg-gray-500={value}

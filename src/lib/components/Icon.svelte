@@ -76,6 +76,7 @@
     | 'solid/chevron-down'
     | 'solid/cog-6-tooth'
     | 'solid/external-link'
+    | 'solid/fire'
     | 'solid/heart'
     | 'solid/information-circle'
     | 'solid/lock'

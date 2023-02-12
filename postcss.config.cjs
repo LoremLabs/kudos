@@ -24,6 +24,7 @@ module.exports = {
             entering: "entering 0.1s ease-out forwards",
             leaving: "leaving 0.075s ease-in forwards",
             marquee: "marquee var(--marquee-duration) linear infinite",
+            shake: "shake 0.75s infinite",
             "spin-slow": "spin 4s linear infinite",
             "spin-slower": "spin 6s linear infinite",
             "spin-reverse": "spin-reverse 1s linear infinite",
@@ -62,6 +63,17 @@ module.exports = {
             marquee: {
               "100%": {
                 transform: "translateY(-50%)",
+              },
+            },
+            shake: {
+              "0%, 100%": {
+                transform: "translateX(0)",
+              },
+              "10%, 30%, 50%, 70%, 90%": {
+                transform: "translateX(-10px)",
+              },
+              "20%, 40%, 60%, 80%": {
+                transform: "translateX(10px)",
               },
             },
             "spin-reverse": {

@@ -14,11 +14,16 @@ export const createHdKeyFromMnemonic = (
 };
 
 export const mnemonicIsValid = ({ mnemonicSeedphrase, wordlist }) => {
-  if (!wordlist) {
+  if (
+    !wordlist ||
+    wordlist === 'english' ||
+    wordlist === 'en' ||
+    wordlist.length !== 2048
+  ) {
     wordlist = wordlistEnglish;
   }
-
-  return bip39.validateMnemonic(mnemonicSeedphrase, wordlist); // NB: default word list (english)
+  // alert(mnemonicSeedphrase + ' ' + wordlist[0]);
+  return bip39.validateMnemonic(mnemonicSeedphrase, wordlist); // NB: default word list (english) & mnemonicSeedphrase with lower phrase
 };
 
 export default createHdKeyFromMnemonic;

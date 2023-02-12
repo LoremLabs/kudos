@@ -21,7 +21,7 @@ use std::env;
 use std::sync::Mutex;
 use tauri::State;
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
-use tracing::{info, warn, debug};
+use tracing::{debug, info, warn};
 use tracing_subscriber;
 
 //struct Shared(Mutex<HashMap<String,String>>);
@@ -43,6 +43,38 @@ fn main() {
     shared.insert("app_name".to_string(), app_name.to_string());
 
     #[tauri::command]
+    fn validate_password(shared: State<Shared>, password: &str) -> bool {
+        let binding = shared.0.lock().unwrap();
+
+        let app_name = binding.get("app_name").unwrap();
+        // if no app_name, exit
+        if app_name.is_empty() {
+            warn!("App name not found");
+            std::process::exit(1);
+        }
+
+        let valid = app::validate_password(app_name, password);
+        return valid;
+    }
+
+    #[tauri::command]
+    fn store_password(shared: State<Shared>, password: &str) -> bool {
+        let binding = shared.0.lock().unwrap();
+
+        let app_name = binding.get("app_name").unwrap();
+        // if no app_name, exit
+        if app_name.is_empty() {
+            warn!("App name not found");
+            std::process::exit(1);
+        }
+
+        info!("Storing password {} for {}", password, app_name);
+
+        let valid = app::store_password(app_name, password);
+        return valid;
+    }
+
+    #[tauri::command]
     fn get_config(shared: State<Shared>) -> String {
         let binding = shared.0.lock().unwrap();
 
@@ -62,16 +94,16 @@ fn main() {
     fn set_config(config_json: &str, shared: State<Shared>) -> bool {
         let mut binding = shared.0.lock().unwrap();
 
-            match binding.insert("config".to_string(), config_json.to_string()) {
-                Some(config_json) => {
-                    info!("set config found {}", config_json);
-                    return true;
-                }
-                None => {
-                    info!("set Config not found");
-                    return false;
-                }
+        match binding.insert("config".to_string(), config_json.to_string()) {
+            Some(config_json) => {
+                info!("set config found {}", config_json);
+                return true;
             }
+            None => {
+                info!("set Config not found");
+                return false;
+            }
+        }
     }
 
     #[tauri::command]
@@ -153,12 +185,14 @@ fn main() {
             "Product Homepage" => {
                 let window = event.window();
                 window.emit("goto-homepage", "").unwrap();
-            },
+            }
             _ => {}
         })
         //        .manage(Shared(Mutex::new(app_salt.as_ref().unwrap().to_string(),),"hi".to_string()))
         .manage(Shared(shared.into()))
-        .invoke_handler(tauri::generate_handler![greet, get_salt, get_config, set_config])
+        .invoke_handler(tauri::generate_handler![
+            greet, get_salt, get_config, set_config, validate_password, store_password
+        ])
         .run(context)
         .expect("error while running tauri application")
 }
@@ -190,7 +224,7 @@ fn build_menu(app_name: &str) -> Menu {
 
     let help_menu = Submenu::new(
         "Help",
-        Menu::new().add_item(CustomMenuItem::new("Product Homepage", "Product Homepage"))
+        Menu::new().add_item(CustomMenuItem::new("Product Homepage", "Product Homepage")),
     );
     let mut menu = Menu::new();
     menu = menu.add_submenu(Submenu::new(

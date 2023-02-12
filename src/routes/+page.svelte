@@ -11,6 +11,7 @@
   import Modal from '$lib/components/Modal.svelte';
   import ModalPassPhrase from '$lib/components/ModalPassPhrase.svelte';
   import ModalMnemonic from '$lib/components/ModalMnemonic.svelte';
+  import ModalPassword from '$lib/components/ModalPassword.svelte';
   import Panel from '$lib/components/Panel.svelte';
   import Switch from '$lib/components/Switch.svelte';
 
@@ -63,16 +64,27 @@
   let disabledModalSubmit = false;
   let modalOpen = false;
   let panelOpen = null;
-  let passPhrase = '';
+  let passPhrase = ''; // TODO: no longer used, refactor
+  let passwordInput = '';
   let config = {};
   let startTs = Date.now();
   let walletId = 0;
   let clearConfig = {};
   let processing = 0;
   let ready = false;
+  let shakePassword = false;
 
   let shouldAskForPassPhrase = false;
   let askForPassPhraseModal = false;
+  let askForPasswordModal = false;
+
+  let askForPasswordPromise: Promise<void>;
+  const askForPassword = async () => {
+    askForPasswordModal = true;
+    let userData = await askForPasswordPromise;
+    askForPasswordModal = false;
+    return userData;
+  };
 
   let askForPassPhrasePromise: Promise<void>;
   const askForPassPhrase = async () => {
@@ -124,6 +136,7 @@
     processing++;
     // console.log({ customMnemonic });
     // TODO: reset any data?
+    await noop();
 
     // see if this is valid
     if (!seedIsValid({ mnemonic: customMnemonic })) {
@@ -138,10 +151,9 @@
       // console.log({ userData }, '3');
       // allow empty passPhrase
       if (userData.passPhrase) {
-        // TODO: refactor passphrase not implemented correctly
         passPhrase = userData.passPhrase;
-        config.passPhrase = passPhrase;
-        await setConfig(config);
+        // config.passPhrase = passPhrase;
+        // await setConfig(config);
       }
     }
 
@@ -155,7 +167,6 @@
     } catch (e) {
       alert(`Error saving: ${e.message}`);
       processing--;
-
       return;
     }
 
@@ -167,29 +178,65 @@
     processing--;
   };
 
+  const noop = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  };
+
+  const checkPassword = async ({ password }) => {
+    // allow event loop to update to get spinner working
+    await noop();
+
+    const isValid = await invoke('validate_password', { password });
+    return isValid;
+  };
+
   const onConnectWallet = async () => {
     processing++;
-    await onCreateWallet();
-    processing--;
+    try {
+      const matches = await checkPassword({ password: passwordInput });
+      if (!matches) {
+        shakePassword = true;
+        setTimeout(() => {
+          shakePassword = false;
+        }, 500);
+        return;
+      }
+
+      await readWalletState();
+      await openMainWindow();
+    } catch (e) {
+      console.log({ e });
+      alert(e.message || 'Error connecting wallet');
+    } finally {
+      processing--;
+    }
   };
+
   const onCreateWallet = async () => {
     processing++;
     try {
-      await readWalletState();
-      if (!clearConfig.hasSeenSeed) {
-        modal = 'seed';
-        modalOpen = true;
-        disabledModalSubmit = true;
-
-        setTimeout(() => {
-          disabledModalSubmit = false;
-        }, 2000);
+      const userData = await askForPassword();
+      if (userData.password) {
+        passwordInput = userData.password;
+        // save password at end when we know the rest is good
       } else {
-        await openMainWindow();
+        return;
       }
+      console.log('reading wallet state');
+      await readWalletState();
+      console.log('storing password');
+      await invoke('store_password', { password: passwordInput });
+      console.log('done storing password');
+      modal = 'seed';
+      modalOpen = true;
+      disabledModalSubmit = true;
+
+      setTimeout(() => {
+        disabledModalSubmit = false;
+      }, 2000);
     } catch (e) {
       console.log({ e });
-      alert(e.message);
+      alert(e.message || 'Error creating wallet');
     } finally {
       processing--;
     }
@@ -204,16 +251,13 @@
     }
 
     const checkForSeedFile = async () => {
-      // get runtime config
-      config = await getConfig();
-      passPhrase = config.passPhrase || '';
-
       const baseDir = await appLocalDataDir();
       const fullPath = `${baseDir}state/setlr-0.seed`;
       try {
         const fileFound = await exists(fullPath);
         console.log({ fileFound });
         if (fileFound) {
+          //          return 'new';
           return 'existing';
         } else {
           return 'new';
@@ -271,9 +315,9 @@
             Welcome!
           </p>
           <p class="mt-4 text-gray-700">
-            Setler helps you manage your decentralized, self-sovereign identity
-            with a suite of communications, payment, and authoring tools powered
-            by cryptography.
+            Manage your decentralized, self-sovereign identity with a suite of
+            communications, payment, and authoring tools powered by
+            cryptography.
           </p>
 
           <dl
@@ -311,6 +355,31 @@
 
             {#if openState === 'existing'}
               <div
+                class="-mt-4 flex w-full flex-col items-start justify-center"
+                in:fade
+                out:fade
+              >
+                <form class="w-full">
+                  <input
+                    autofocus={true}
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                    bind:value={passwordInput}
+                    on:keydown={(e) => {
+                      if (e.key === 'Enter') {
+                        onConnectWallet();
+                      }
+                    }}
+                    placeholder="Password"
+                    name="password"
+                    type="password"
+                    class="h-8 w-full border-0 border-b border-slate-300 p-2 focus:border-b-2 focus:outline-transparent focus:ring-0"
+                  />
+                </form>
+              </div>
+              <div
                 class="-mt-4 flex h-24 w-full flex-col items-center justify-center"
                 in:fade
                 out:fade
@@ -318,8 +387,15 @@
                 <button
                   type="button"
                   in:fly={{ y: -20, duration: 1000 }}
-                  on:click={onConnectWallet}
+                  on:click={() => {
+                    if (processing > 0) {
+                      return;
+                    }
+                    onConnectWallet();
+                  }}
                   class="inline-flex items-center justify-center rounded-full border border-transparent bg-blue-700 px-6 py-3 text-base font-medium text-white shadow-sm shadow-lg transition delay-150 ease-in-out hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  class:animate-shake={shakePassword}
+                  class:opacity-75={shakePassword || processing > 0}
                 >
                   <div
                     class="items-justify-between flex w-full flex-row items-center justify-end transition"
@@ -328,20 +404,20 @@
                   >
                     <div class="mx-6 flex flex-row px-12">
                       <span class="pr-2">Enter</span>
-                      <Icon
-                        name="arrow-sm-right"
-                        class="mt-1 h-5 w-5 text-white"
-                      />
+                      {#if processing > 0}
+                        <span
+                          aria-label={'processing'}
+                          class="animate-spin ease-in-out"
+                        >
+                          <Icon name="globe-alt" class="h-6 w-6 text-gray-50" />
+                        </span>
+                      {:else}
+                        <Icon
+                          name="arrow-sm-right"
+                          class="mt-1 h-5 w-5 text-white"
+                        />
+                      {/if}
                     </div>
-
-                    <span
-                      aria-label={'processing'}
-                      class="ml-2 mr-3 animate-spin ease-in-out"
-                      class:hidden={processing <= 0}
-                      class:block={processing > 0}
-                    >
-                      <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-                    </span>
                   </div>
                 </button>
                 <button
@@ -375,10 +451,7 @@
                         class:hidden={processing <= 0}
                         class:block={processing > 0}
                       >
-                        <Icon
-                          name="misc/spinner"
-                          class="h-5 w-5 text-gray-50"
-                        />
+                        <Icon name="globe-alt" class="h-6 w-6 text-gray-50" />
                       </span>
                     </div>
                   </button>
@@ -440,7 +513,7 @@
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <div
         class="w-full cursor-pointer"
-        on:click={() => {
+        on:click|stopPropagation={() => {
           shouldAskForPassPhrase = !shouldAskForPassPhrase;
         }}
       >
@@ -638,6 +711,17 @@
     </div>
   </Modal>
 {/if}
+<ModalPassword
+  bind:open={askForPasswordModal}
+  bind:done={askForPasswordPromise}
+  handleCancel={() => {}}
+>
+  <div slot="header">
+    <h3 class="text-lg font-black leading-6 text-gray-900" id="modal-headline">
+      &nbsp;
+    </h3>
+  </div>
+</ModalPassword>
 <ModalPassPhrase
   bind:open={askForPassPhraseModal}
   bind:done={askForPassPhrasePromise}

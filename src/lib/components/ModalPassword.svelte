@@ -7,6 +7,16 @@
   export let open = false;
   export let handleCancel = () => {};
   export let handleConfirm = async () => {
+    if (
+      formData?.password !== formData?.password2 ||
+      (formData?.password && formData?.password.length < 4)
+    ) {
+      shakePassword = true;
+      setTimeout(() => {
+        shakePassword = false;
+      }, 750);
+      return;
+    }
     // console.log('saving', JSON.stringify(formData));
     modalDone(formData);
     // reset
@@ -18,6 +28,8 @@
   export let confirmActive = true;
   export let cancelActive = false;
 
+  let shakePassword = false;
+
   let modalDone = (fd: {}) => {
     console.log({ fd });
   };
@@ -26,14 +38,20 @@
   });
 
   export let form = {
-    id: 'mnemonic',
+    id: 'extra',
     inputs: [
       // { type: 'integer', displayName: 'Age', name: 'age' },
       {
-        name: 'customMnemonic',
+        name: 'password',
         required: true,
-        type: 'string',
-        displayName: 'Import Custom Mnemonic Words (12-24 words)',
+        type: 'password',
+        displayName: 'Password',
+      },
+      {
+        name: 'password2',
+        required: true,
+        type: 'password',
+        displayName: 'Verify Password',
       },
       // {
       //   type: 'string',
@@ -80,6 +98,12 @@
 
   let processing = false;
 
+  // onMount(async () => {
+  //   if (!browser) {
+  //     return;
+  //   }
+  // });
+
   const handleKeydown = (e) => {
     if (e.key === 'Enter') {
       handleConfirm();
@@ -99,27 +123,27 @@
     <slot name="header" />
     <div class="block h-full min-h-[6rem] w-full ">
       <Form {form} bind:formData />
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <Icon name="solid/fire" class="h-8 w-8 text-red-400" />
-        </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-red-800">Danger</h3>
-          <div class="mt-2 text-sm text-red-700">
-            <p>
-              Importing a custom mnemonic will overwrite your existing keys and
-              local events.
-            </p>
-            <p class="mt-2">
-              Only do this if you have a backup of your existing data.
-            </p>
-          </div>
-        </div>
+      {#if formData.password && formData.password2 && formData.password !== formData.password2}
+        <p class="text-sm text-red-500">Passwords do not match.</p>
+      {/if}
+      <div class="flex flex-row items-center">
+        <Icon
+          name="information-circle"
+          class="ml-4 mr-2 h-4 w-4 text-gray-400"
+        />
+        <p class="text-xs text-gray-400">
+          Passwords should be at least 4 characters long.
+        </p>
       </div>
     </div>
   </div>
   <div class="mt-4 ml-4 flex flex-row-reverse">
-    <button on:click={handleConfirm} type="button" class={`${buttonClass}`}>
+    <button
+      on:click={handleConfirm}
+      type="button"
+      class={`${buttonClass}`}
+      class:animate-shake={shakePassword}
+    >
       Ok
       {#if processing}
         <span aria-label={'processing'} class="ml-2 mr-3 animate-spin">

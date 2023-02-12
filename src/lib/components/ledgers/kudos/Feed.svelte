@@ -96,6 +96,10 @@
       return true;
     }
 
+    if (isEventNewDate(feed, i)) {
+      return true;
+    }
+
     return false;
   };
 

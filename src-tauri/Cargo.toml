@@ -15,6 +15,7 @@ rust-version = "1.59"
 tauri-build = { version = "1.2.1", features = [] }
 
 [dependencies]
+bcrypt = "0.14"
 keyring = "1"
 dotenv = "0.15.0"
 tracing = "0.1"
