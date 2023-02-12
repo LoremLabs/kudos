@@ -20,6 +20,7 @@ import { decryptAES } from './wallet/decryptSeedAES';
 import { encryptAES } from './wallet/encryptSeedAES';
 import { ethWallet } from './wallet/ethWallet';
 import { generateMnemonic } from './wallet/generateMnemonic';
+import { noop } from '$lib/utils/noop';
 import { shortId } from '$lib/utils/short-id';
 
 export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
@@ -81,9 +82,13 @@ export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {
   // generate hierarchical deterministic key
   const hdkey = createHdKeyFromMnemonic(mnemonic, passPhrase);
 
+  await noop(); // give the ui time to do its thing
   manager.xrpl = deriveXrplKeys({ hdkey, id });
+  await noop(); // give the ui time to do its thing
   manager.eth = await deriveEthKeys({ mnemonic, passPhrase, id });
+  await noop(); // give the ui time to do its thing
   manager.kudos = await deriveKudosKeys({ mnemonic, passPhrase, id });
+  await noop(); // give the ui time to do its thing
   manager.id = id ? id : 0;
 
   return manager;

@@ -15,6 +15,16 @@ export const createWalletStore = () => {
   const { subscribe, update, set } = writable(data);
 
   return {
+    changeActivePersona: async ({ id = 0 }) => {
+      const { mnemonic, passPhrase } = data;
+      const keys = await deriveKeys({
+        mnemonic,
+        passPhrase,
+        id,
+      });
+      data = { ...data, keys, id };
+      set(data);
+    },
     init: async ({ id = 0, passPhrase = '' }) => {
       if (initDone) {
         console.log('using cached init');

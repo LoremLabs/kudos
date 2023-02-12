@@ -9,10 +9,34 @@ let initDone = false;
 export const createClearConfigStore = () => {
   let clearConfig = {
     _init: false,
+    personas: [{ id: 0, name: 'Persona 1' }],
   };
   const { subscribe, update, set } = writable(clearConfig);
 
   return {
+    addPersona: async ({ name = 'Persona' }) => {
+      const newPersona = {
+        id: clearConfig?.personas.length || 0,
+        name,
+      };
+      clearConfig.personas.push(newPersona);
+      set(clearConfig);
+      return newPersona;
+    },
+    changeActivePersona: async ({ id = 0 }) => {
+      clearConfig.personas.forEach((p) => {
+        p.active = p.id === id;
+      });
+      set(clearConfig);
+    },
+    updatePersona: async (id, newPersona) => {
+      const index = clearConfig.personas.findIndex((p) => p.id === id);
+      if (index === -1) {
+        throw new Error('Persona not found');
+      }
+      clearConfig.personas[index] = newPersona;
+      set(clearConfig);
+    },
     init: async () => {
       if (initDone) {
         console.log('using cached init config');
@@ -31,7 +55,7 @@ export const createClearConfigStore = () => {
         try {
           const fileFound = await exists(fullPath);
           if (fileFound) {
-            console.log('config exists');
+            // console.log('config exists');
 
             const configJsonData = await readTextFile(fullPath);
             clearConfig = JSON.parse(configJsonData);
@@ -56,6 +80,9 @@ export const createClearConfigStore = () => {
       }
 
       clearConfig._init = true; // allow derived stores to know when init is done
+      clearConfig.personas = clearConfig.personas || [
+        { id: 0, name: 'Persona 1' },
+      ];
       initDone = true;
       console.log({ clearConfig });
       set(clearConfig);

@@ -5,3 +5,6 @@
 
 export const buttonClass =
   'cursor-pointer rounded-full border border-gray-300 bg-blue-700 py-2 px-4 text-sm font-medium text-white shadow-sm transition delay-150 ease-in-out hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2';
+
+export const buttonInactiveClass =
+  'cursor-pointer rounded-full border border-gray-300 bg-gray-700 py-2 px-4 text-sm font-medium text-white shadow-sm transition delay-150 ease-in-out hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2';

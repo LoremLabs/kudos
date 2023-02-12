@@ -103,6 +103,7 @@
     | 'brand/xrpl';
 
   export type MiscIcons =
+    | 'misc/arrows-right-left'
     | 'misc/spinner'
     | 'misc/spinner-2'
     | 'misc/share-arrow'

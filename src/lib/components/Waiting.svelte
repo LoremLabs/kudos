@@ -27,14 +27,14 @@
 {#if show}
   {#if graceUp}
     <div
-      class="flex h-full w-full bg-gradient-to-b from-slate-50 to-slate-400 "
+      class="flex h-full w-full bg-gradient-to-b from-slate-50 to-slate-400"
       in:fade
       out:fade
     >
       <div class="m-auto">
         <div class="flex items-center justify-center">
           <Icon
-            name="misc/spinner"
+            name="globe-alt"
             class="h-16 w-16 animate-spin text-slate-600"
           />
         </div>

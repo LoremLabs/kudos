@@ -5,16 +5,63 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
+  import { activePersonaStore } from '$lib/stores/persona';
   import { clearConfigStore } from '$lib/stores/clearConfig';
-  import { colorizer } from '$lib/utils/colorizer';
 
+  import { colorizer } from '$lib/utils/colorizer';
+  import ModalCreatePersona from '$lib/components/ModalCreatePersona.svelte';
+
+  import Blocker from '$lib/components/Blocker.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import JsPretty from '$lib/components/JSPretty.svelte';
   import { goto } from '$app/navigation';
+  import { noop } from '$lib/utils/noop';
+
+  let createPersonaModal = false;
+  let isSwitchingPersonas = false;
+
+  let createPersonaPromise: Promise<void>;
+  const createPersona = async () => {
+    createPersonaModal = true;
+    let userData = await createPersonaPromise;
+    createPersonaModal = false;
+    return userData;
+  };
 
   export let debug = false;
   let ready = false;
   let showPersonaMenu = false;
+
+  const onSwitchPersona = async () => {
+    isSwitchingPersonas = true;
+    await noop();
+    // TODO: make an interface
+    // get the total persona count
+    const count = $activePersonaStore?.count || 1;
+    // get the current persona index
+    const index = $activePersonaStore?.id || 0;
+    // get the next persona index
+    const nextIndex = (index + 1) % count;
+    // get the next persona id
+    await noop();
+    await walletStore.changeActivePersona({ id: nextIndex });
+    await noop();
+    await clearConfigStore.changeActivePersona({ id: nextIndex });
+    await noop();
+    isSwitchingPersonas = false;
+  };
+
+  const onCreatePersona = async () => {
+    isSwitchingPersonas = true;
+    await noop();
+    let personaData = await createPersona(); // get user data from modal
+    const { id } = await clearConfigStore.addPersona(personaData);
+    await walletStore.changeActivePersona({ id });
+    await noop();
+    await clearConfigStore.changeActivePersona({ id });
+    await noop();
+    isSwitchingPersonas = false;
+  };
 
   function handleOutsideClick(ev: MouseEvent) {
     // if the click comes from the opener tree we do nothing, otherwise we close the menu
@@ -111,12 +158,12 @@
                         <div
                           class="ml-1 mr-2 h-6 w-6 rounded-full pt-1.5 pl-1"
                           style={`background-color:${colorizer(
-                            `p-${$clearConfigStore.id || 1}`
+                            `p-${$activePersonaStore.id || 1}`
                           )}`}
                         />
                         <div class="m-auto text-xs text-gray-900">
-                          {#if $clearConfigStore.name}
-                            {$clearConfigStore.name}
+                          {#if $activePersonaStore.name}
+                            {$activePersonaStore.name}
                           {:else}
                             Persona {$clearConfigStore.id || 1}
                           {/if}
@@ -142,12 +189,28 @@
                 <button
                   class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
                   id="user-menu-item-0"
+                  on:click={onCreatePersona}
                 >
                   <div class="w-6">
                     <Icon name="mini/plus" class="mr-2 h-4 w-4" />
                   </div>
                   <div class="">Add Persona</div>
                 </button>
+                {#if $activePersonaStore?.count}
+                  <button
+                    class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                    id="user-menu-item-0"
+                    on:click={onSwitchPersona}
+                  >
+                    <div class="w-6">
+                      <Icon
+                        name="mini/arrows-right-left"
+                        class="mr-2 h-4 w-4"
+                      />
+                    </div>
+                    <div class="">Switch Persona</div>
+                  </button>
+                {/if}
                 {#if false}
                   <button
                     class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
@@ -184,3 +247,19 @@
     </div>
   </div>
 </nav>
+<Blocker active={isSwitchingPersonas} />
+<ModalCreatePersona
+  cancelActive={true}
+  bind:open={createPersonaModal}
+  bind:done={createPersonaPromise}
+  handleCancel={() => {}}
+>
+  <div slot="header">
+    <h3
+      class="text-lg font-black leading-6 text-gray-900"
+      id="modal-persona-headline"
+    >
+      &nbsp;
+    </h3>
+  </div>
+</ModalCreatePersona>
