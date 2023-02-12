@@ -78,7 +78,7 @@
       }
     },
     "security": {
-      "csp": null
+      "csp": "self"
     },
     "updater": {
       "active": false
