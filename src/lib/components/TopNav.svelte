@@ -196,7 +196,7 @@
                   </div>
                   <div class="">Add Persona</div>
                 </button>
-                {#if $activePersonaStore?.count}
+                {#if $activePersonaStore?.count > 1}
                   <button
                     class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
                     id="user-menu-item-0"

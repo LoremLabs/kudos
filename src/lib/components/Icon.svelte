@@ -27,6 +27,7 @@
     | 'external-link'
     | 'exclaimation'
     | 'exclaimation-circle'
+    | 'exclamation-triangle'
     | 'eye'
     | 'globe-alt'
     | 'home'
@@ -114,7 +115,8 @@
   export type MiniIcons =
     | 'mini/exclamation-triangle'
     | 'mini/chevron-right'
-    | 'mini/plus';
+    | 'mini/plus'
+    | 'mini/trash';
 
   /** <symbol> id's from {@linkcode iconsSvg} */
   export type IconName =

@@ -13,6 +13,30 @@ export const createClearConfigStore = () => {
   };
   const { subscribe, update, set } = writable(clearConfig);
 
+  const save = async (
+    newData = {
+      _init: false,
+      personas: [{ id: 0, name: 'Persona 1' }],
+    }
+  ) => {
+    try {
+      const baseDir = await appLocalDataDir();
+      await createDir(`${baseDir}config`, {
+        // dir: baseDir,
+        recursive: true,
+      });
+
+      const fullPath = `${baseDir}config/clear.json`;
+      await writeFile({ contents: JSON.stringify(newData), path: fullPath });
+    } catch (e) {
+      console.log('error saving clear config', e);
+      // TODO: should this be a bigger error?
+      alert('Error: CLEAR_CONFIG_SAVE');
+    }
+
+    set(newData);
+  };
+
   return {
     addPersona: async ({ name = 'Persona' }) => {
       const newPersona = {
@@ -20,14 +44,14 @@ export const createClearConfigStore = () => {
         name,
       };
       clearConfig.personas.push(newPersona);
-      set(clearConfig);
+      await save(clearConfig);
       return newPersona;
     },
     changeActivePersona: async ({ id = 0 }) => {
       clearConfig.personas.forEach((p) => {
         p.active = p.id === id;
       });
-      set(clearConfig);
+      await save(clearConfig);
     },
     updatePersona: async (id, newPersona) => {
       const index = clearConfig.personas.findIndex((p) => p.id === id);
@@ -35,7 +59,7 @@ export const createClearConfigStore = () => {
         throw new Error('Persona not found');
       }
       clearConfig.personas[index] = newPersona;
-      set(clearConfig);
+      await save(clearConfig);
     },
     init: async () => {
       if (initDone) {
@@ -93,31 +117,10 @@ export const createClearConfigStore = () => {
       clearConfig = {
         _init: false,
       };
-      set(clearConfig);
+      await save(clearConfig);
     },
     subscribe,
-    save: async (
-      newData = {
-        _init: false,
-      }
-    ) => {
-      try {
-        const baseDir = await appLocalDataDir();
-        await createDir(`${baseDir}config`, {
-          // dir: baseDir,
-          recursive: true,
-        });
-
-        const fullPath = `${baseDir}config/clear.json`;
-        await writeFile({ contents: JSON.stringify(newData), path: fullPath });
-      } catch (e) {
-        console.log('error saving clear config', e);
-        // TODO: should this be a bigger error?
-        alert('Error: CLEAR_CONFIG_SAVE');
-      }
-
-      set(newData);
-    },
+    save,
     update,
   };
 };
