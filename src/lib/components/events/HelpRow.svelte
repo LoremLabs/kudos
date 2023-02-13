@@ -12,8 +12,6 @@
 
   export let ev = {};
   export let allowDetails = true;
-  export let rowType = ''; // { user }
-
   export let opened = false;
 
   onMount(() => {});
