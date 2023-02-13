@@ -117,7 +117,7 @@
   };
 </script>
 
-<div class="mt-4 overflow-hidden bg-white">
+<div class="mt-4 overflow-hidden">
   <div class="px-4 py-5 sm:p-6">
     <div>
       <div class="mt-1 text-sm text-gray-500">

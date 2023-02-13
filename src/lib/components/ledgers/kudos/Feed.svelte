@@ -15,6 +15,7 @@
 
   let element;
   let processing = 0;
+  let itemsHeight = 0;
   let loadingMore = false;
   const doLoadMore = async (isTop) => {
     if (loadingMore) {
@@ -27,7 +28,7 @@
       processing++;
     }, 500);
     const newEvents = await loadMore(isTop);
-    console.log({ newEvents });
+    // console.log({ newEvents });
     processing--;
     processing--;
     loadingMore = false;
@@ -79,6 +80,14 @@
       return;
     }
     node.scroll({ top: node.scrollHeight + 50, behavior: 'smooth' });
+  };
+
+  const scrollToTop = async (node, force) => {
+    if (userScrolled && !force) {
+      // don't scroll if the user scrolled
+      return;
+    }
+    node.scroll({ top: 0, behavior: 'smooth' });
   };
 
   const isEventFirst = (feed, i) => {
@@ -147,7 +156,13 @@
 
   afterUpdate(() => {
     if (feed.length) {
-      scrollToBottom(element);
+      if (feedHeight < itemsHeight) {
+        scrollToBottom(element);
+      } else {
+        scrollToTop(element);
+      }
+    } else {
+      scrollToTop(element);
     }
   });
 
@@ -176,100 +191,104 @@
   bind:this={element}
   on:scroll={handleScroll}
 >
-  <ul class="max-h-screen rounded-lg">
-    <li class="my-2 flex w-full flex-row items-center justify-center">
-      <Visibility
-        threshold={10}
-        steps={100}
-        inView={() => {
-          if (processing <= 0) {
-            doLoadMore(true);
-          }
-        }}
-      >
-        <div class="h-2 w-full opacity-0" />
-        {#if processing > 1}
-          <button
-            on:click={() => {
-              if (processing <= 0) {
-                doLoadMore(true);
-              }
-            }}
-            type="button"
-            class="inline-flex items-center rounded-full border border-transparent bg-blue-700 px-2.5 py-1.5 pl-4 pr-4 text-xs font-medium text-white shadow-sm ease-in-out focus:outline-none"
-          >
-            <span
-              aria-label={'processing'}
-              class="ml-2 mr-3 animate-spin ease-in-out"
+  <div class="max-h-screen min-h-screen">
+    <ul class="rounded-lg" bind:clientHeight={itemsHeight}>
+      <li class="my-2 flex w-full flex-row items-center justify-center">
+        <Visibility
+          threshold={10}
+          steps={100}
+          inView={() => {
+            if (processing <= 0) {
+              doLoadMore(true);
+            }
+          }}
+        >
+          <div class="h-2 w-full opacity-0" />
+          {#if processing > 1}
+            <button
+              on:click={() => {
+                if (processing <= 0) {
+                  doLoadMore(true);
+                }
+              }}
+              type="button"
+              class="inline-flex items-center rounded-full border border-transparent bg-blue-700 px-2.5 py-1.5 pl-4 pr-4 text-xs font-medium text-white shadow-sm ease-in-out focus:outline-none"
             >
-              <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-            </span>
-          </button>
-        {/if}
-      </Visibility>
-    </li>
-    {#if feed.length === 0}
-      <li class="m-auto m-8 flex overflow-hidden rounded-full bg-slate-50 p-12">
-        <Icon
-          name="exclaimation-circle"
-          class="ml-4 h-10 w-10 text-slate-500"
-        />
-        <h3 class="p-2">No events found</h3>
-      </li>
-    {/if}
-
-    {#if Object.keys(debugThis).length > 0}
-      <li>
-        <div class="text-xs">
-          <pre><JsPretty obj={debugThis} /></pre>
-        </div>
-      </li>
-    {/if}
-    {#each feed as ev, i}
-      {@const isFirst = isEventFirst(feed, i)}
-      {@const isLast = isEventLast(feed, i)}
-      {@const isNewDate = isEventNewDate(feed, i)}
-      {#if ev.ts}
-        <li class="py pr-4">
-          <!-- for each new date, put a header -->
-          {#if isNewDate}
-            <div class="relative flex justify-start">
               <span
-                class="mt-8 mb-4 ml-2 px-2 text-sm font-medium text-gray-900"
-                >{fmt.format(new Date(ev.ts))}</span
+                aria-label={'processing'}
+                class="ml-2 mr-3 animate-spin ease-in-out"
               >
-            </div>
+                <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+              </span>
+            </button>
           {/if}
-          <EventRow {ev} allowDetails={true} {isLast} {isFirst} />
+        </Visibility>
+      </li>
+      {#if feed.length === 0}
+        <li
+          class="m-auto m-8 flex overflow-hidden rounded-full bg-slate-50 p-12"
+        >
+          <Icon
+            name="exclaimation-circle"
+            class="ml-4 h-10 w-10 text-slate-500"
+          />
+          <h3 class="p-2">No events found</h3>
         </li>
       {/if}
-    {/each}
-    <li class="my-2 flex w-full flex-row items-center justify-center">
-      <Visibility
-        threshold={10}
-        steps={100}
-        inView={() => {
-          doLoadMore(false);
-        }}
-      >
-        <div class="h-8 w-full opacity-0" />
-        {#if processing > 1}
-          <button
-            on:click={() => {
-              doLoadMore(false);
-            }}
-            type="button"
-            class="inline-flex items-center rounded-full border border-transparent bg-blue-700 px-2.5 py-1.5 pl-4 pr-4 text-xs font-medium text-white shadow-sm ease-in-out focus:outline-none"
-          >
-            <span
-              aria-label={'processing'}
-              class="ml-2 mr-3 animate-spin ease-in-out"
-            >
-              <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
-            </span>
-          </button>
+
+      {#if Object.keys(debugThis).length > 0}
+        <li>
+          <div class="text-xs">
+            <pre><JsPretty obj={debugThis} /></pre>
+          </div>
+        </li>
+      {/if}
+      {#each feed as ev, i}
+        {@const isFirst = isEventFirst(feed, i)}
+        {@const isLast = isEventLast(feed, i)}
+        {@const isNewDate = isEventNewDate(feed, i)}
+        {#if ev.ts}
+          <li class="py pr-4">
+            <!-- for each new date, put a header -->
+            {#if isNewDate}
+              <div class="relative flex justify-start">
+                <span
+                  class="mt-8 mb-4 ml-2 px-2 text-sm font-medium text-gray-900"
+                  >{fmt.format(new Date(ev.ts))}</span
+                >
+              </div>
+            {/if}
+            <EventRow {ev} allowDetails={true} {isLast} {isFirst} />
+          </li>
         {/if}
-      </Visibility>
-    </li>
-  </ul>
+      {/each}
+      <li class="my-2 flex w-full flex-row items-center justify-center">
+        <Visibility
+          threshold={10}
+          steps={100}
+          inView={() => {
+            doLoadMore(false);
+          }}
+        >
+          <div class="h-8 w-full opacity-0" />
+          {#if processing > 1}
+            <button
+              on:click={() => {
+                doLoadMore(false);
+              }}
+              type="button"
+              class="inline-flex items-center rounded-full border border-transparent bg-blue-700 px-2.5 py-1.5 pl-4 pr-4 text-xs font-medium text-white shadow-sm ease-in-out focus:outline-none"
+            >
+              <span
+                aria-label={'processing'}
+                class="ml-2 mr-3 animate-spin ease-in-out"
+              >
+                <Icon name="misc/spinner" class="h-5 w-5 text-gray-50" />
+              </span>
+            </button>
+          {/if}
+        </Visibility>
+      </li>
+    </ul>
+  </div>
 </div>

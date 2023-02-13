@@ -39,6 +39,9 @@ export const createClearConfigStore = () => {
 
   return {
     addPersona: async ({ name = 'Persona' }) => {
+      if (!initDone) {
+        throw new Error('init-not-done');
+      }
       const newPersona = {
         id: clearConfig?.personas.length || 0,
         name,
@@ -48,12 +51,22 @@ export const createClearConfigStore = () => {
       return newPersona;
     },
     changeActivePersona: async ({ id = 0 }) => {
+      if (!initDone) {
+        throw new Error('init-not-done');
+      }
+      // if (id === clearConfig.id) {
+      //   return;
+      // }
       clearConfig.personas.forEach((p) => {
         p.active = p.id === id;
       });
       await save(clearConfig);
     },
     updatePersona: async (id, newPersona) => {
+      if (!initDone) {
+        throw new Error('init-not-done');
+      }
+
       const index = clearConfig.personas.findIndex((p) => p.id === id);
       if (index === -1) {
         throw new Error('Persona not found');

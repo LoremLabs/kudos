@@ -17,6 +17,7 @@
 </script>
 
 <div
+  class="w-full"
   style="display: inline-block"
   use:popperRef
   on:mouseenter={() => (showTooltip = true)}

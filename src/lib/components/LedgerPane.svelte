@@ -43,7 +43,7 @@
         style={`width: ${mainWidth}px;`}
       >
         <div
-          class="flex h-16 w-full flex-row items-center rounded-lg p-2"
+          class="flex h-16 w-full flex-row items-center p-2"
           class:shadow-md={commanderActive}
           class:bg-white={commanderActive}
           class:bg-gray-100={!commanderActive}

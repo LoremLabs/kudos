@@ -31,6 +31,7 @@
   export let debug = false;
   let ready = false;
   let showPersonaMenu = false;
+  let activePersonaId = -1;
 
   const onSwitchPersona = async () => {
     isSwitchingPersonas = true;
@@ -87,8 +88,29 @@
     }
 
     const config = await getConfig(true); // using cached config
-    const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    const clearConfig = await clearConfigStore.init();
+
+    // init our stores
+    await clearConfigStore.init();
+    await noop();
+    await walletStore.init({
+      id: $activePersonaStore?.id || 0,
+      passPhrase: config.passPhrase,
+    });
+    await noop();
+
+    activePersonaStore.subscribe(async (persona) => {
+      // if (ws.id != clearConfig.id) {
+      //   console.log('-------------------w------', ws.id, clearConfig.id);
+      //     await walletStore.changeActivePersona({ id: clearConfig.id });
+      //   }
+      if (persona?.id != activePersonaId) {
+        console.log('-------------------c------', persona?.id, activePersonaId);
+        // await walletStore.changeActivePersona({ id: persona?.id });
+        // await clearConfigStore.changeActivePersona({ id: persona?.id });
+        activePersonaId = persona?.id;
+      }
+    });
+
     ready = true;
   });
 </script>
@@ -158,14 +180,14 @@
                         <div
                           class="ml-1 mr-2 h-6 w-6 rounded-full pt-1.5 pl-1"
                           style={`background-color:${colorizer(
-                            `persona-${$activePersonaStore.id || 0}`
+                            `persona-${$activePersonaStore?.id || 0}`
                           )}`}
                         />
                         <div class="m-auto text-xs text-gray-900">
-                          {#if $activePersonaStore.name}
-                            {$activePersonaStore.name}
+                          {#if $activePersonaStore?.name}
+                            {$activePersonaStore?.name}
                           {:else}
-                            Persona {$clearConfigStore.id || 1}
+                            Persona {$clearConfigStore?.id || 1}
                           {/if}
                         </div>
                       </div>

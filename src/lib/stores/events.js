@@ -11,32 +11,45 @@ export const createEventStore = () => {
     scope: '',
     startTs: new Date().toISOString(),
     count: COUNT,
+    id: -1,
   };
   const { subscribe, update, set } = writable(data);
   let initDone = false;
   let eventsAddress = '';
 
-  return {
-    init: async ({ scope, startTs, count, address }) => {
-      if (initDone) return data;
-      eventsAddress = address || '0x0';
-
-      data.events = await readEvents({
-        address,
-        scope,
-        startTs,
-        count,
-        direction: 'earlier',
-      });
-      console.log('init', JSON.stringify(data.events));
-      data.scope = scope;
-      data.startTs = startTs;
-      data.count = count;
-
-      set(data);
-      initDone = true;
+  const init = async (
+    { scope, startTs, count, address, id },
+    forceInit = false
+  ) => {
+    if (!forceInit && initDone) {
       return data;
+    }
+    eventsAddress = address || '0x0';
+
+    data.events = await readEvents({
+      address,
+      scope,
+      startTs,
+      count,
+      direction: 'earlier',
+    });
+    console.log('init', JSON.stringify(data.events));
+    data.scope = scope;
+    data.startTs = startTs;
+    data.count = count;
+    data.id = id;
+
+    set(data);
+    initDone = true;
+    return data;
+  };
+
+  return {
+    reInit: async (params) => {
+      console.log('reInit', params);
+      await init(params, true);
     },
+    init,
     loadMore: async ({ isTop, count }) => {
       console.log('loadMore', data, isTop, count);
 

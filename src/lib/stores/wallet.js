@@ -16,6 +16,9 @@ export const createWalletStore = () => {
 
   return {
     changeActivePersona: async ({ id = 0 }) => {
+      if (id === data.id) {
+        return;
+      }
       const { mnemonic, passPhrase } = data;
       const keys = await deriveKeys({
         mnemonic,

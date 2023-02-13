@@ -11,24 +11,24 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 
 const cache = {};
 
-export const initDb = async ({ id = 0, address = '0x0' }) => {
-  console.log('initDb', { id, address });
+export const initDb = async ({ address = '0x0' }) => {
+  console.log('initDb', { address });
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     recursive: true,
   });
 
-  const dbFullPath = `${baseDir}state/events-${address}-${id}.db`;
+  const dbFullPath = `${baseDir}state/events-${address}.db`;
   //console.log('dbFullPath', dbFullPath);
-  // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/events-0x0-0.db
+  // "/Users/mattmankins/Library/Application Support/com.tauri.dev/state/events-0x0.db
   const db = await SQLite.open(dbFullPath);
 
   // only init once per session (or time period?)
   // @ts-ignore
-  if (cache[`db-${address}-${id}`]) {
+  if (cache[`db-${address}`]) {
     return db;
   }
-  cache[`db-${address}-${id}`] = Date.now();
+  cache[`db-${address}`] = Date.now();
 
   // get the current file's schema version
   await db.execute(`
@@ -61,8 +61,8 @@ export const initDb = async ({ id = 0, address = '0x0' }) => {
 };
 
 // @ts-ignore
-export const addEvents = async ({ id = 0, address = '0x0', events = [] }) => {
-  const db = await initDb({ address, id });
+export const addEvents = async ({ address = '0x0', events = [] }) => {
+  const db = await initDb({ address });
   if (!db) {
     throw new Error('db is not defined');
   }
@@ -84,15 +84,14 @@ export const addEvents = async ({ id = 0, address = '0x0', events = [] }) => {
 
 export const readEvents = async ({
   address = '0x0',
-  id = 0,
   startTs,
   count = 1,
   ledgerAddress = '0x0',
   direction = 'ASC',
 }) => {
-  console.log('readEvents', { id, address });
+  console.log('readEvents', { address });
 
-  const db = await initDb({ id, address });
+  const db = await initDb({ address });
   if (!db) {
     throw new Error('db is not defined');
   }

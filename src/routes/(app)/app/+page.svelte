@@ -28,6 +28,7 @@
       {
         id: 'Kudos',
         icon: 'mini/queue-list',
+        display: 'Kudos',
         class: 'h-5 w-5',
       },
 
@@ -36,7 +37,12 @@
       //   icon: 'brand/xrpl',
       //   class: 'h-6 w-6',
       // },
-      { id: 'Settings', icon: 'solid/cog-6-tooth', class: 'w-6 h-6' },
+      {
+        id: 'Settings',
+        icon: 'solid/cog-6-tooth',
+        class: 'w-6 h-6',
+        display: 'Settings',
+      },
     ];
 
   onMount(async () => {
@@ -65,37 +71,44 @@
     <main class="flex flex-row bg-slate-100">
       <TabList
         label="Account navigation"
-        class="mt-2 flex flex-1 flex-col items-start gap-2 overflow-x-auto border-r border-gray-200 bg-slate-900 p-2 md:overflow-x-visible"
+        class="mt-2 flex flex-1 flex-col items-start gap-2 overflow-x-auto border-gray-200 bg-slate-900 p-2 md:overflow-x-visible"
         orientation="vertical"
       >
         {#each TABS as tab, i}
           <Tab
             id={tab.id}
-            class={`tooltip justified-center group flex flex-row items-end ${
+            class={`tooltip justified-center group flex w-36 flex-row items-end ${
               i === 0 ? 'mt-20' : ''
             }`}
             let:selected
           >
-            <Tooltip
-              text={`${tab.id}`}
-              placement="right"
-              class="z-50 z-50 border border-slate-300 p-1.5 px-4 shadow"
-            >
-              <button
-                id={`tab-nav-${i}`}
-                class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 p-2 text-xs font-medium group-hover:bg-white group-hover:text-black"
-                class:bg-slate-400={selected}
-                class:text-slate-700={selected}
-                class:text-slate-500={!selected}
-                title={tab.id}
+            <div class="w-full">
+              <Tooltip
+                text={`${tab.id}`}
+                placement="right"
+                class="z-50 z-50 border border-slate-300 p-1.5 px-4 shadow"
               >
-                {#if tab.twe}
-                  <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
-                {:else if tab.icon}
-                  <Icon name={tab.icon} class={`${tab.class || ''}`} />
-                {/if}
-              </button>
-            </Tooltip>
+                <button
+                  id={`tab-nav-${i}`}
+                  class="border-0.5 flex w-full items-center gap-3 rounded-full border-slate-100 p-2 text-xs font-medium group-hover:bg-white group-hover:text-black"
+                  class:bg-slate-400={selected}
+                  class:text-slate-700={selected}
+                  class:text-slate-500={!selected}
+                  title={tab.id}
+                >
+                  {#if tab.twe}
+                    <i class={`twe twe-${tab.twe} ${tab.class || ''}`} />
+                  {:else if tab.icon}
+                    <Icon name={tab.icon} class={`${tab.class || ''}`} />
+                  {/if}
+                  {#if tab.display}
+                    <span class="" class:font-bold={selected}
+                      >{tab.display}</span
+                    >
+                  {/if}
+                </button>
+              </Tooltip>
+            </div>
           </Tab>
         {/each}
         <Tooltip
@@ -116,7 +129,7 @@
           </button>
         </Tooltip>
       </TabList>
-      <TabPanel class="min-h-screen w-full" id="Kudos">
+      <TabPanel class="min-h-screen w-full bg-slate-900" id="Kudos">
         <KudosLedgerPane {sidebarWidth} {sidebarHeight} />
       </TabPanel>
       {#if false}

@@ -12,6 +12,7 @@
   import { walletStore } from '$lib/stores/wallet';
   import { eventsStore } from '$lib/stores/events';
   import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { activePersonaStore } from '$lib/stores/persona';
 
   import KudosStartImport from '$lib/components/KudosStartImport.svelte';
 
@@ -28,12 +29,13 @@
 
   const DEBUG_WALLET_STORE = false;
 
+  let activePersonaId = 0;
   let feedHeight = 0;
   let actionHeight = 0;
   let utilsHeight = 0;
-  let ledgerParts = [];
   let ready = false;
   let utilsOpen = false;
+  let currentPersonaId = 0;
 
   onMount(async () => {
     if (!browser) {
@@ -41,17 +43,29 @@
     }
 
     const config = await getConfig(true); // using cached config
-    const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    const clearConfig = await clearConfigStore.init();
     await eventsStore.init({
       scope: 'kudos',
       count: 10,
       startTs: new Date().toISOString(),
-      address: ws.keys?.kudos?.address,
+      address: $walletStore.keys?.kudos?.address,
+      id: activePersonaId, // 0 on init
     });
-    // eventsStore.subscribe((thing) => {
-    //   console.log({thing});
-    // });
+
+    activePersonaStore.subscribe(async (persona) => {
+      if (persona?.id != activePersonaId) {
+        console.log('change persona events', persona?.id, activePersonaId);
+        await eventsStore.reInit({
+          scope: 'kudos',
+          count: 10,
+          startTs: new Date().toISOString(),
+          address: $walletStore.keys?.kudos?.address,
+          id: persona.id,
+          events: [],
+        });
+
+        activePersonaId = persona?.id;
+      }
+    });
 
     // detect if we have no events, and if so set utilsOpen to true
     if ($eventsStore.events.length === 0) {
@@ -193,35 +207,33 @@
   <LedgerPane {sidebarWidth} on:command={onCommand} on:action={onAction}>
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
-        <div
-          id="inner-action"
-          class="mt-2 bg-slate-50"
-          bind:clientHeight={actionHeight}
-        >
+        <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
           <Actions
             walletStore={$walletStore}
             on:action={onAction}
             bind:utilsOpen
           />
         </div>
-        {#if DEBUG_WALLET_STORE}
-          <pre class="pre-wrap my-12 text-xs">{JSON.stringify(
-              $walletStore,
-              null,
-              2
-            )}</pre>
-        {/if}
-        {#if utilsOpen}
-          <li
-            class="m-auto m-4 flex overflow-hidden rounded-2xl bg-white px-12 pb-12 pt-4 shadow"
-            in:fly={{ y: -20, duration: 400 }}
-            out:fly={{ y: -20, duration: 200 }}
-            bind:clientHeight={utilsHeight}
-          >
-            <KudosStartImport />
-          </li>
-        {/if}
-        <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
+        <div class="mr-3 bg-white">
+          {#if DEBUG_WALLET_STORE}
+            <pre class="pre-wrap my-12 text-xs">{JSON.stringify(
+                $walletStore,
+                null,
+                2
+              )}</pre>
+          {/if}
+          {#if utilsOpen}
+            <div
+              class="m-auto m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8  pt-4 shadow"
+              in:fly={{ y: -20, duration: 400 }}
+              out:fly={{ y: -20, duration: 200 }}
+              bind:clientHeight={utilsHeight}
+            >
+              <KudosStartImport />
+            </div>
+          {/if}
+          <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
+        </div>
       </div>
     </div>
   </LedgerPane>
