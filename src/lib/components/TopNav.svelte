@@ -158,7 +158,7 @@
                         <div
                           class="ml-1 mr-2 h-6 w-6 rounded-full pt-1.5 pl-1"
                           style={`background-color:${colorizer(
-                            `p-${$activePersonaStore.id || 1}`
+                            `persona-${$activePersonaStore.id || 0}`
                           )}`}
                         />
                         <div class="m-auto text-xs text-gray-900">
