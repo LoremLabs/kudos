@@ -61,6 +61,15 @@ export const eventsStore = asyncDerived(
       $cursor.startTs !== current.startTs ||
       $cursor.direction !== current.direction
     ) {
+      // see if we're in a new scope or activePersona.id or address. If so, we need to zero the events.
+      if (
+        $activePersona.id !== current.personaId ||
+        $scope !== current.scope ||
+        $address !== current.address
+      ) {
+        current.events = [];
+      }
+
       current.lastUpdate = $lastUpdate;
       current.personaId = $activePersona.id;
       current.scope = $scope;
