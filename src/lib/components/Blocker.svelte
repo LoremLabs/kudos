@@ -36,7 +36,7 @@
     <div
       class="backdrop fixed inset-0 h-full w-full cursor-pointer bg-gray-300/50"
     />
-    <div class="flex h-full w-full overflow-hidden p-2">
+    <div class="flex h-full w-full overflow-hidden">
       <div
         class="relative mx-auto mt-12 mb-auto flex h-full max-h-[100vh] flex-auto flex-col overflow-y-auto overscroll-y-contain rounded-xl sm:my-auto"
       >
@@ -55,7 +55,7 @@
                   class="h-16 w-16 animate-spin text-slate-600"
                 />
               </div>
-              Switching Personas...
+              <span class="text-slate-900">Switching Personas...</span>
             </div>
           </div>
         </div>
