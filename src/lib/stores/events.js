@@ -1,9 +1,8 @@
-import { addEvents, readEvents } from '$lib/events/db';
-
 // import { clearConfigStore } from '$lib/stores/clearConfig';
 import { activePersonaStore } from '$lib/stores/persona';
 import { addressStore } from '$lib/stores/address';
 import { asyncDerived } from '@square/svelte-store';
+import { readEvents } from '$lib/events/db';
 import { scopeStore } from '$lib/stores/scope';
 import { walletStore } from '$lib/stores/wallet';
 import { writable } from 'svelte/store';
@@ -15,7 +14,7 @@ export const lastUpdateStore = writable(new Date().toISOString());
 
 export const cursorStore = writable({
   startTs: new Date().toISOString(),
-  direction: 'earlier',
+  direction: 'head',
 });
 
 const starting = {
@@ -50,8 +49,7 @@ export const eventsStore = asyncDerived(
   ]) => {
     // wait until we're ready
     if ($activePersona?.id === -1) {
-      console.log('wait');
-      return [];
+      return { ...starting };
     }
 
     // see if we need to reload events
@@ -71,19 +69,60 @@ export const eventsStore = asyncDerived(
       current.direction = $cursor.direction;
       console.log(
         'reading events!',
-        JSON.stringify({ a: typeof $address }),
         $scope,
         $cursor.startTs,
         $cursor.direction
       );
-      current.events = await readEvents({
+      const readParams = {
         address: $address,
         count: $count,
         direction: $cursor.direction,
         startTs: $cursor.startTs,
+      };
+
+      const newEvents = await readEvents(readParams);
+      if (newEvents && newEvents.length) {
+        console.log('new events-----', newEvents);
+        // should be no more than count events, add to head or tail, then trim
+        if ($cursor.direction === 'head') {
+          console.log('adding to head', newEvents.length, $count);
+          current.events = [...newEvents, ...current.events];
+          current.events = current.events.slice(0, $count);
+        } else {
+          console.log('adding to tail', newEvents.length, $count);
+          current.events = [...current.events, ...newEvents];
+          // make sure events is always $count size, take from the end
+          if (current.events.length > $count) {
+            current.events = current.events.slice($count * -1);
+          }
+        }
+      } else {
+        // no new events
+        console.log('no new events');
+        current.events = [...current.events];
+      }
+
+      // make sure events are unique (TODO: bug in the above code)
+      const eventIds = new Set(current.events.map((e) => e.id));
+      // current.events should only contain unique eventIds, only one element in the events array per eventId
+      current.events = current.events.filter((e) => {
+        if (eventIds.has(e.id)) {
+          eventIds.delete(e.id);
+          return true;
+        }
+        return false;
       });
-      console.log('events <=>', current.events);
-      return current.events;
+
+      // set the cursor
+      if (current.events.length) {
+        if ($cursor.direction === 'head') {
+          current.startTs = current.events[0].ts;
+        } else {
+          current.startTs = current.events[current.events.length - 1].ts;
+        }
+      }
+      console.log('events <=>', readParams, current);
+      return current;
     }
   }
 );

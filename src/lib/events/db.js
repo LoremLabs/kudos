@@ -84,9 +84,9 @@ export const addEvents = async ({ address = '0x0', events = [] }) => {
 
 export const readEvents = async ({
   address = '0x0',
-  startTs,
+  startTs = '',
   count = 1,
-  direction = 'ASC',
+  direction = 'head',
 }) => {
   console.log('readEvents', { address, count, startTs, direction });
 
@@ -97,17 +97,13 @@ export const readEvents = async ({
 
   // console.log(
   //   `SELECT * FROM events WHERE ts ${
-  //     direction.toLowerCase() === 'earlier' ? '<' : '>'
-  //   } ${startTs} ORDER BY ts ${
-  //     direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
-  //   } LIMIT ${count}}`
+  //     direction.toLowerCase() === 'head' ? '<' : '>'
+  //   } ${startTs} ORDER BY ts ASC LIMIT ${count}`
   // );
   const result = await db.select(
     `SELECT * FROM events WHERE ts ${
-      direction.toLowerCase() === 'earlier' ? '>' : '<'
-    } ? ORDER BY ts ${
-      direction.toLowerCase() === 'earlier' ? 'ASC' : 'DESC'
-    } LIMIT ?`,
+      direction.toLowerCase() === 'head' ? '<' : '>'
+    } ? ORDER BY ts ASC LIMIT ?`,
     [startTs, count]
   );
   // console.log({ result }, 'result');

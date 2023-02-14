@@ -53,6 +53,23 @@ export const renderMessage = (msg) => {
   //msg = msg.replace(/<a href/g, '<a target="_blank" href');
 
   // convert :emoji: to <i class="twe twe-emoji"></i>
+
+  // standard :) to :slightly_smiling_face:
+  msg = msg.replace(/:\)/g, ':smile:');
+  msg = msg.replace(/:\(/g, ':frowning:');
+  msg = msg.replace(/:D\b/g, ':smiley:');
+  msg = msg.replace(/:P\b/g, ':face-with-tongue:');
+  msg = msg.replace(/:\|/g, ':neutral-face:');
+  msg = msg.replace(/:O\b/g, ':face-with-open-mouth:');
+  msg = msg.replace(/:o\b/g, ':face-with-open-mouth:');
+  msg = msg.replace(/:S\b/g, ':confused:');
+  msg = msg.replace(/:s\b/g, ':confused:');
+  msg = msg.replace(/:X\b/g, ':zipper-mouth-face:');
+  msg = msg.replace(/:x\b/g, ':zipper-mouth-face:');
+  msg = msg.replace(/;\)/g, ':winking-face:');
+  msg = msg.replace(/;\(/g, ':crying-face:');
+  msg = msg.replace(/:\/\//g, ':face-with-rolling-eyes:');
+
   // see if we have the :format: for the emoji
   let emojiMatches = msg.match(/:([a-z0-9_+-]+):/g);
 
@@ -60,7 +77,7 @@ export const renderMessage = (msg) => {
     emojiMatches.forEach((emoji) => {
       // remove the colons
       emoji = emoji.replace(/:/g, '');
-      console.log('emoji', emoji);
+      // console.log('emoji', emoji);
       // see if the matching emoji exists in any classes
       if (emojiMap[emoji]) {
         const mappedEmoji = emojiMap[emoji];

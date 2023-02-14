@@ -17,7 +17,7 @@
   let processing = 0;
   let itemsHeight = 0;
   let loadingMore = false;
-  const doLoadMore = async (isTop) => {
+  const doLoadMore = async (direction) => {
     if (loadingMore) {
       return;
     }
@@ -27,8 +27,8 @@
     setTimeout(() => {
       processing++;
     }, 500);
-    const newEvents = await loadMore(isTop);
-    // console.log({ newEvents });
+    await loadMore(direction);
+
     processing--;
     processing--;
     loadingMore = false;
@@ -199,7 +199,7 @@
           steps={100}
           inView={() => {
             if (processing <= 0) {
-              doLoadMore(true);
+              doLoadMore('head');
             }
           }}
         >
@@ -208,7 +208,7 @@
             <button
               on:click={() => {
                 if (processing <= 0) {
-                  doLoadMore(true);
+                  doLoadMore('head');
                 }
               }}
               type="button"
@@ -267,14 +267,14 @@
           threshold={10}
           steps={100}
           inView={() => {
-            doLoadMore(false);
+            doLoadMore('tail');
           }}
         >
           <div class="h-8 w-full opacity-0" />
           {#if processing > 1}
             <button
               on:click={() => {
-                doLoadMore(false);
+                doLoadMore('tail');
               }}
               type="button"
               class="inline-flex items-center rounded-full border border-transparent bg-blue-700 px-2.5 py-1.5 pl-4 pr-4 text-xs font-medium text-white shadow-sm ease-in-out focus:outline-none"

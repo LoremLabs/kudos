@@ -10,10 +10,12 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
+  import { addEvents } from '$lib/events/db';
   import {
     eventsStore,
     cursorStore,
     lastUpdateStore,
+
     // scopeStore,
     // countStore,
   } from '$lib/stores/events';
@@ -26,6 +28,7 @@
 
   import Actions from './Actions.svelte';
   import Feed from './Feed.svelte';
+  import { noop } from 'svelte/internal';
   // import JsPretty from '$lib/components/JSPretty.svelte';
 
   const dispatch = createEventDispatcher();
@@ -47,12 +50,7 @@
     if (!browser) {
       return;
     }
-    console.log('h');
-    //    const config = await getConfig(true); // using cached config
-    // await walletStore;
-    // await eventsStore;
-    // await lastUpdateStore;
-    console.log('h2');
+
     lastUpdateStore.set(new Date().toISOString()); // force update
     setInterval(() => {
       // poll
@@ -62,23 +60,16 @@
     loadMore(false);
     loadMore(true);
     // detect if we have no events, and if so set utilsOpen to true
-    if ($eventsStore && $eventsStore.length === 0) {
+    console.log('pppppppppppevents', $eventsStore, $eventsStore?.events.length);
+    if (
+      $eventsStore &&
+      $eventsStore.personaId === currentPersonaId &&
+      $eventsStore.events.length === 0
+    ) {
       utilsOpen = true;
-    } else {
-      console.log('pppppppppppevents', $eventsStore, $eventsStore?.length);
     }
 
-    // eventsStore.subscribe(async (events) => {
-    //   console.log('events', events);
-    //   if (events && events.length === 0) {
-    //     utilsOpen = true;
-    //   } else {
-    //     console.log('pppppppppppevents', events, events?.length);
-    //   }
-    // });
-
     // subscribe to persona switching
-    let currentPersonaId = 0;
     activePersonaStore.subscribe(async (personaId) => {
       console.log('personaId', personaId);
       if (personaId && personaId.count && personaId.id !== currentPersonaId) {
@@ -141,6 +132,25 @@
 
       //       [event.id, event.type, event.channel, JSON.stringify(event), event.ts]
 
+      const eventTs = new Date().toISOString();
+      const evt = {
+        ts: eventTs,
+        id: shortId(),
+        type: 'chat',
+        channel: 'kudos',
+        body: {
+          from: $walletStore?.keys?.kudos?.address,
+          message: command,
+        },
+      };
+
+      await addEvents({
+        events: [evt],
+        address: $walletStore?.keys?.kudos?.address,
+      });
+      // cursorStore.set({...$cursorStore, startTs:eventTs}); // force update
+      loadMore('tail');
+
       // await ephemeralEventsStore.addEvent({
       //   ts: new Date().toISOString(),
       //   id: shortId(),
@@ -168,33 +178,39 @@
     }
   };
 
-  const loadMore = async (isTop) => {
-    if (!$eventsStore) {
+  const loadMore = async (direction) => {
+    if (!$eventsStore || $eventsStore.personaId === -1) {
+      console.log('no lm');
       return;
     }
-    if (isTop) {
-      // if isTop, get the first event, and load more before that
-      const firstEvent = $eventsStore[0];
+
+    if (direction === 'head') {
+      // if we're scrolling up, we want events that are before the first one
+      const firstEvent = $eventsStore.events[0];
       if (firstEvent) {
-        return cursorStore.set({ direction: 'earlier', startTs: firstEvent });
+        cursorStore.set({ direction: 'head', startTs: firstEvent?.ts });
       } else {
-        return cursorStore.set({
-          direction: 'earlier',
+        // if there is no first event, then we want ones earlier than now
+        cursorStore.set({
+          direction: 'head',
           startTs: new Date().toISOString(),
         });
       }
     } else {
-      // if not isTop, get the last event, and load more after that
-      const lastEvent = $eventsStore[$eventsStore.length - 1];
+      // if we're scrolling down, we want events after the last one
+      const lastEvent = $eventsStore.events[$eventsStore.events.length - 1];
       if (lastEvent) {
-        return cursorStore.set({ direction: 'later', startTs: lastEvent });
+        cursorStore.set({ direction: 'tail', startTs: lastEvent?.ts });
       } else {
-        return cursorStore.set({
-          direction: 'later',
+        // if there is no last event, then we want to load previous events
+        cursorStore.set({
+          direction: 'head',
           startTs: new Date().toISOString(),
         });
       }
     }
+    await noop();
+    lastUpdateStore.set(new Date().toISOString()); // force update
   };
 
   // on window resize, recalculate the height of actions (due to svelte bug, to get the tooltips and command to work)
@@ -265,7 +281,7 @@
               <KudosStartImport />
             </div>
           {/if}
-          <Feed {feedHeight} feed={$eventsStore || []} {loadMore} />
+          <Feed {feedHeight} feed={$eventsStore.events || []} {loadMore} />
         </div>
       </div>
     </div>

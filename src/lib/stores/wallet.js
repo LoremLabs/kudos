@@ -35,7 +35,7 @@ export const walletStore = asyncDerived(
       const config = await getConfig(true); // using cache
       const salt = await getSalt(true); // using cache
 
-      data.passPhrase = config.passPhrase;
+      data.passPhrase = config.passPhrase; // NB: not currently used
       data.salt = salt;
 
       let id = $activePersona.id;

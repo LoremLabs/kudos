@@ -62,8 +62,8 @@
   const onCreatePersona = async () => {
     let personaData = await createPersona(); // get user data from modal
     const { id } = await clearConfigStore.addPersona(personaData);
-    await walletStore.changeActivePersona({ id });
-    await noop();
+    // await walletStore.changeActivePersona({ id });
+    // await noop();
     await clearConfigStore.changeActivePersona({ id });
     await noop();
   };
