@@ -10,8 +10,14 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
-  import { eventsStore } from '$lib/stores/events';
-  import { clearConfigStore } from '$lib/stores/clearConfig';
+  import {
+    eventsStore,
+    cursorStore,
+    lastUpdateStore,
+    // scopeStore,
+    // countStore,
+  } from '$lib/stores/events';
+  // import { clearConfigStore } from '$lib/stores/clearConfig';
   import { activePersonaStore } from '$lib/stores/persona';
 
   import KudosStartImport from '$lib/components/KudosStartImport.svelte';
@@ -41,36 +47,48 @@
     if (!browser) {
       return;
     }
+    console.log('h');
+    //    const config = await getConfig(true); // using cached config
+    // await walletStore;
+    // await eventsStore;
+    // await lastUpdateStore;
+    console.log('h2');
+    lastUpdateStore.set(new Date().toISOString()); // force update
+    setInterval(() => {
+      // poll
+      lastUpdateStore.set(new Date().toISOString()); // force update
+    }, 10000);
+    await eventsStore.load();
+    loadMore(false);
+    loadMore(true);
+    // detect if we have no events, and if so set utilsOpen to true
+    if ($eventsStore && $eventsStore.length === 0) {
+      utilsOpen = true;
+    } else {
+      console.log('pppppppppppevents', $eventsStore, $eventsStore?.length);
+    }
 
-    const config = await getConfig(true); // using cached config
-    await eventsStore.init({
-      scope: 'kudos',
-      count: 10,
-      startTs: new Date().toISOString(),
-      address: $walletStore.keys?.kudos?.address,
-      id: activePersonaId, // 0 on init
-    });
+    // eventsStore.subscribe(async (events) => {
+    //   console.log('events', events);
+    //   if (events && events.length === 0) {
+    //     utilsOpen = true;
+    //   } else {
+    //     console.log('pppppppppppevents', events, events?.length);
+    //   }
+    // });
 
-    activePersonaStore.subscribe(async (persona) => {
-      if (persona?.id != activePersonaId) {
-        console.log('change persona events', persona?.id, activePersonaId);
-        await eventsStore.reInit({
-          scope: 'kudos',
-          count: 10,
-          startTs: new Date().toISOString(),
-          address: $walletStore.keys?.kudos?.address,
-          id: persona.id,
-          events: [],
-        });
+    // subscribe to persona switching
+    let currentPersonaId = 0;
+    activePersonaStore.subscribe(async (personaId) => {
+      console.log('personaId', personaId);
+      if (personaId && personaId.count && personaId.id !== currentPersonaId) {
+        currentPersonaId = personaId.id;
 
-        activePersonaId = persona?.id;
+        await eventsStore.load();
+        loadMore(false);
+        loadMore(true);
       }
     });
-
-    // detect if we have no events, and if so set utilsOpen to true
-    if ($eventsStore.events.length === 0) {
-      utilsOpen = true;
-    }
 
     ready = true;
   });
@@ -114,30 +132,25 @@
       `,
         },
       };
-      eventsStore.addEphemeralEvent(helpEvent);
+      //      eventsStore.addEphemeralEvent(helpEvent);
       return;
     }
 
     if (command) {
       console.log('should do chat', command);
 
-      if (!eventsStore.ready()) {
-        console.error('eventsStore not ready');
-        return;
-      }
-
       //       [event.id, event.type, event.channel, JSON.stringify(event), event.ts]
 
-      await eventsStore.addEvent({
-        ts: new Date().toISOString(),
-        id: shortId(),
-        type: 'chat',
-        channel: 'kudos',
-        body: {
-          from: $walletStore.keys.kudos?.address,
-          message: command,
-        },
-      });
+      // await ephemeralEventsStore.addEvent({
+      //   ts: new Date().toISOString(),
+      //   id: shortId(),
+      //   type: 'chat',
+      //   channel: 'kudos',
+      //   body: {
+      //     from: $walletStore?.keys?.kudos?.address, // TODO
+      //     message: command,
+      //   },
+      // });
 
       // ledgerParts.push({
       //   _ts: new Date().toISOString(),
@@ -156,8 +169,32 @@
   };
 
   const loadMore = async (isTop) => {
-    // request the store to load more events, from isTop = top, or bottom
-    return await eventsStore.loadMore({ isTop, count: 10 });
+    if (!$eventsStore) {
+      return;
+    }
+    if (isTop) {
+      // if isTop, get the first event, and load more before that
+      const firstEvent = $eventsStore[0];
+      if (firstEvent) {
+        return cursorStore.set({ direction: 'earlier', startTs: firstEvent });
+      } else {
+        return cursorStore.set({
+          direction: 'earlier',
+          startTs: new Date().toISOString(),
+        });
+      }
+    } else {
+      // if not isTop, get the last event, and load more after that
+      const lastEvent = $eventsStore[$eventsStore.length - 1];
+      if (lastEvent) {
+        return cursorStore.set({ direction: 'later', startTs: lastEvent });
+      } else {
+        return cursorStore.set({
+          direction: 'later',
+          startTs: new Date().toISOString(),
+        });
+      }
+    }
   };
 
   // on window resize, recalculate the height of actions (due to svelte bug, to get the tooltips and command to work)
@@ -208,11 +245,7 @@
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
         <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
-          <Actions
-            walletStore={$walletStore}
-            on:action={onAction}
-            bind:utilsOpen
-          />
+          <Actions on:action={onAction} bind:utilsOpen />
         </div>
         <div class="mr-3 bg-white">
           {#if DEBUG_WALLET_STORE}
@@ -232,7 +265,7 @@
               <KudosStartImport />
             </div>
           {/if}
-          <Feed {feedHeight} feed={$eventsStore?.events || []} {loadMore} />
+          <Feed {feedHeight} feed={$eventsStore || []} {loadMore} />
         </div>
       </div>
     </div>

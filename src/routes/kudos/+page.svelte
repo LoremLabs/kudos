@@ -24,9 +24,9 @@
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   onMount(async () => {
-    const config = await getConfig();
-    const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    const clearConfig = await clearConfigStore.init();
+    // const config = await getConfig();
+    // const ws = await walletStore.init({ passPhrase: config.passPhrase });
+    // const clearConfig = await clearConfigStore.init();
     // clearConfig.ts = Date.now();
     // await clearConfigStore.save(clearConfig);
     // console.log({ ws, config, clearConfig });

@@ -37,6 +37,61 @@ export const createClearConfigStore = () => {
     set(newData);
   };
 
+  const init = async () => {
+    if (initDone) {
+      console.log('using cached init config');
+      return clearConfig;
+    }
+    try {
+      const baseDir = await appLocalDataDir();
+      await createDir(`${baseDir}config`, {
+        // dir: baseDir,
+        recursive: true,
+      });
+
+      const fullPath = `${baseDir}config/clear.json`;
+
+      // read clear config file
+      try {
+        const fileFound = await exists(fullPath);
+        if (fileFound) {
+          // console.log('config exists');
+
+          const configJsonData = await readTextFile(fullPath);
+          clearConfig = JSON.parse(configJsonData);
+        } else {
+          throw new Error('File not found');
+        }
+      } catch (err) {
+        if (err && err.message === 'File not found') {
+          console.log('No clear config yet. Creating new one', err);
+
+          try {
+            await writeFile({ contents: JSON.stringify({}), path: fullPath });
+          } catch (ee) {
+            console.log('error writing clear config file', ee);
+          }
+        } else {
+          throw err;
+        }
+      }
+    } catch (e) {
+      console.log('error getting clear config', e);
+    }
+
+    clearConfig._init = true; // allow derived stores to know when init is done
+    clearConfig.personas = clearConfig.personas || [
+      { id: 0, name: 'Persona 1' },
+    ];
+    initDone = true;
+    console.log({ clearConfig });
+    set(clearConfig);
+    return clearConfig;
+  };
+
+  // TODO: race condition
+  init();
+
   return {
     addPersona: async ({ name = 'Persona' }) => {
       if (!initDone) {
@@ -74,57 +129,7 @@ export const createClearConfigStore = () => {
       clearConfig.personas[index] = newPersona;
       await save(clearConfig);
     },
-    init: async () => {
-      if (initDone) {
-        console.log('using cached init config');
-        return clearConfig;
-      }
-      try {
-        const baseDir = await appLocalDataDir();
-        await createDir(`${baseDir}config`, {
-          // dir: baseDir,
-          recursive: true,
-        });
-
-        const fullPath = `${baseDir}config/clear.json`;
-
-        // read clear config file
-        try {
-          const fileFound = await exists(fullPath);
-          if (fileFound) {
-            // console.log('config exists');
-
-            const configJsonData = await readTextFile(fullPath);
-            clearConfig = JSON.parse(configJsonData);
-          } else {
-            throw new Error('File not found');
-          }
-        } catch (err) {
-          if (err && err.message === 'File not found') {
-            console.log('No clear config yet. Creating new one', err);
-
-            try {
-              await writeFile({ contents: JSON.stringify({}), path: fullPath });
-            } catch (ee) {
-              console.log('error writing clear config file', ee);
-            }
-          } else {
-            throw err;
-          }
-        }
-      } catch (e) {
-        console.log('error getting clear config', e);
-      }
-
-      clearConfig._init = true; // allow derived stores to know when init is done
-      clearConfig.personas = clearConfig.personas || [
-        { id: 0, name: 'Persona 1' },
-      ];
-      initDone = true;
-      console.log({ clearConfig });
-      set(clearConfig);
-      return clearConfig;
-    },
+    init,
     reset: async () => {
       initDone = false;
       clearConfig = {

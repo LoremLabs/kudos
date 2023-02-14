@@ -1,11 +1,18 @@
 // derived store from clearConfigStore
 
+import { derived, writable } from 'svelte/store';
+
 import { clearConfigStore } from '$lib/stores/clearConfig.js';
-import { derived } from 'svelte/store';
+
+export const isSwitchingPersonasStore = writable(false);
 
 export const activePersonaStore = derived(clearConfigStore, ($clearConfig) => {
+  console.log('d');
   if (!$clearConfig._init) {
-    return null;
+    return {
+      id: -1,
+      count: 0,
+    };
   }
   if (!$clearConfig.personas) {
     return {
@@ -20,5 +27,5 @@ export const activePersonaStore = derived(clearConfigStore, ($clearConfig) => {
     active = $clearConfig.personas[0];
   }
 
-  return { ...active, count: $clearConfig?.personas.length || 0 };
+  return { ...active, count: $clearConfig?.personas.length || 0 }; // id and name
 });

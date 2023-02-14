@@ -12,7 +12,7 @@ import { appLocalDataDir } from '@tauri-apps/api/path';
 const cache = {};
 
 export const initDb = async ({ address = '0x0' }) => {
-  console.log('initDb', { address });
+  console.log('initDb1', address);
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     recursive: true,
@@ -86,10 +86,9 @@ export const readEvents = async ({
   address = '0x0',
   startTs,
   count = 1,
-  ledgerAddress = '0x0',
   direction = 'ASC',
 }) => {
-  console.log('readEvents', { address });
+  console.log('readEvents', { address, count, startTs, direction });
 
   const db = await initDb({ address });
   if (!db) {
@@ -105,9 +104,9 @@ export const readEvents = async ({
   // );
   const result = await db.select(
     `SELECT * FROM events WHERE ts ${
-      direction.toLowerCase() === 'earlier' ? '<' : '>'
+      direction.toLowerCase() === 'earlier' ? '>' : '<'
     } ? ORDER BY ts ${
-      direction.toLowerCase() === 'earlier' ? 'DESC' : 'ASC'
+      direction.toLowerCase() === 'earlier' ? 'ASC' : 'DESC'
     } LIMIT ?`,
     [startTs, count]
   );

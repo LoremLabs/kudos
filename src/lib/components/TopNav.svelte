@@ -5,7 +5,18 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
-  import { activePersonaStore } from '$lib/stores/persona';
+  import {
+    eventsStore,
+    // cursorStore,
+    lastUpdateStore,
+    // scopeStore,
+    // countStore,
+  } from '$lib/stores/events';
+
+  import {
+    activePersonaStore,
+    isSwitchingPersonasStore,
+  } from '$lib/stores/persona';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import { colorizer } from '$lib/utils/colorizer';
@@ -18,7 +29,6 @@
   import { noop } from '$lib/utils/noop';
 
   let createPersonaModal = false;
-  let isSwitchingPersonas = false;
 
   let createPersonaPromise: Promise<void>;
   const createPersona = async () => {
@@ -34,8 +44,6 @@
   let activePersonaId = -1;
 
   const onSwitchPersona = async () => {
-    isSwitchingPersonas = true;
-    await noop();
     // TODO: make an interface
     // get the total persona count
     const count = $activePersonaStore?.count || 1;
@@ -45,23 +53,19 @@
     const nextIndex = (index + 1) % count;
     // get the next persona id
     await noop();
-    await walletStore.changeActivePersona({ id: nextIndex });
-    await noop();
+    // await walletStore.changeActivePersona({ id: nextIndex });
+    // await noop();
     await clearConfigStore.changeActivePersona({ id: nextIndex });
-    await noop();
-    isSwitchingPersonas = false;
+    lastUpdateStore.set(new Date().toISOString()); // force update
   };
 
   const onCreatePersona = async () => {
-    isSwitchingPersonas = true;
-    await noop();
     let personaData = await createPersona(); // get user data from modal
     const { id } = await clearConfigStore.addPersona(personaData);
     await walletStore.changeActivePersona({ id });
     await noop();
     await clearConfigStore.changeActivePersona({ id });
     await noop();
-    isSwitchingPersonas = false;
   };
 
   function handleOutsideClick(ev: MouseEvent) {
@@ -87,29 +91,29 @@
       return;
     }
 
-    const config = await getConfig(true); // using cached config
+    //    const config = await getConfig(true); // using cached config
 
     // init our stores
-    await clearConfigStore.init();
-    await noop();
-    await walletStore.init({
-      id: $activePersonaStore?.id || 0,
-      passPhrase: config.passPhrase,
-    });
-    await noop();
+    // await clearConfigStore.init();
+    // await noop();
+    // await walletStore.init({
+    //   id: $activePersonaStore?.id || 0,
+    //   passPhrase: config.passPhrase,
+    // });
+    // await noop();
 
-    activePersonaStore.subscribe(async (persona) => {
-      // if (ws.id != clearConfig.id) {
-      //   console.log('-------------------w------', ws.id, clearConfig.id);
-      //     await walletStore.changeActivePersona({ id: clearConfig.id });
-      //   }
-      if (persona?.id != activePersonaId) {
-        console.log('-------------------c------', persona?.id, activePersonaId);
-        // await walletStore.changeActivePersona({ id: persona?.id });
-        // await clearConfigStore.changeActivePersona({ id: persona?.id });
-        activePersonaId = persona?.id;
-      }
-    });
+    // activePersonaStore.subscribe(async (persona) => {
+    //   // if (ws.id != clearConfig.id) {
+    //   //   console.log('-------------------w------', ws.id, clearConfig.id);
+    //   //     await walletStore.changeActivePersona({ id: clearConfig.id });
+    //   //   }
+    //   if (persona?.id != activePersonaId) {
+    //     console.log('-------------------c------', persona?.id, activePersonaId);
+    //     // await walletStore.changeActivePersona({ id: persona?.id });
+    //     // await clearConfigStore.changeActivePersona({ id: persona?.id });
+    //     activePersonaId = persona?.id;
+    //   }
+    // });
 
     ready = true;
   });
@@ -269,7 +273,7 @@
     </div>
   </div>
 </nav>
-<Blocker active={isSwitchingPersonas} />
+<Blocker active={$isSwitchingPersonasStore} />
 <ModalCreatePersona
   cancelActive={true}
   bind:open={createPersonaModal}

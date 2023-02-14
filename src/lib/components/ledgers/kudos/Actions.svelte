@@ -3,7 +3,9 @@
   import Panel from '$lib/components/Panel.svelte';
   import KeyIcon from '$lib/components/KeyIcon.svelte';
   import KudosStartImport from '$lib/components/KudosStartImport.svelte';
+  import { walletStore } from '$lib/stores/wallet';
 
+  import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
@@ -11,14 +13,20 @@
   let panelOpen: HTMLElement | null = null;
   let panelImportOpen: HTMLElement | null = null;
 
-  export let walletStore = null;
   export let utilsOpen = false;
+
+  let ready = false;
+  onMount(async () => {
+    await walletStore.load();
+    console.log('wss-----', $walletStore.keys?.kudos?.address, $walletStore);
+    ready = true;
+  });
 </script>
 
-<div
-  class="mr-3 rounded-t-2xl border-2 border-b-0 border-l-0 border-r-0 border-slate-50 bg-slate-50"
->
-  {#if walletStore}
+{#if ready}
+  <div
+    class="mr-3 rounded-t-2xl border-2 border-b-0 border-l-0 border-r-0 border-slate-50 bg-slate-50"
+  >
     <div
       class="items-justify-center flex h-16 items-center justify-end border-b border-gray-200 shadow-sm"
     >
@@ -38,7 +46,7 @@
               <div class="flex items-center">
                 <KeyIcon
                   type="kudos"
-                  address={walletStore.keys.kudos?.address}
+                  address={$walletStore.keys?.kudos?.address}
                 />
               </div>
             </li>
@@ -105,5 +113,5 @@
         </button>
       </div>
     </Panel>
-  {/if}
-</div>
+  </div>
+{/if}

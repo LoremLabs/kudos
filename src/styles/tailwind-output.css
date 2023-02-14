@@ -773,6 +773,9 @@ select {
 .top-1 {
   top: 0.25rem;
 }
+.top-24 {
+  top: 6rem;
+}
 .top-1\/2 {
   top: 50%;
 }

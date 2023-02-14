@@ -33,8 +33,8 @@
       return;
     }
 
-    await noop();
-    await walletStore.reset({});
+    // await noop();
+    // await walletStore.reset({});
     await noop();
     await clearConfigStore.reset();
     await noop();
@@ -50,8 +50,8 @@
       return;
     }
 
-    await noop();
-    await walletStore.reset({});
+    // await noop();
+    // await walletStore.reset({});
     // await noop();
     // await clearConfigStore.reset();
     // await noop();

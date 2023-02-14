@@ -1,6 +1,24 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
 let configCache = null;
+let saltCache = null;
+
+export const getSalt = async (useCache) => {
+  if (useCache && saltCache) {
+    return saltCache;
+  }
+
+  let salt = '';
+  try {
+    salt = (await invoke('get_salt')) || ''; // used to encrypt local seed data only
+    if (salt) {
+      saltCache = salt;
+    }
+  } catch (e) {
+    console.log('error getting salt', e);
+  }
+  return salt;
+};
 
 export const getConfig = async (useCache) => {
   if (useCache && configCache) {

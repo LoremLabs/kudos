@@ -4,9 +4,9 @@
 
   import Tooltip from '$lib/components/Tooltip.svelte';
 
-  import { getConfig } from '$lib/utils/config';
-  import { walletStore } from '$lib/stores/wallet';
-  import { clearConfigStore } from '$lib/stores/clearConfig';
+  // import { getConfig } from '$lib/utils/config';
+  // import { walletStore } from '$lib/stores/wallet';
+  // import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import Settings from '$lib/components/Settings.svelte';
   import KudosLedgerPane from '$lib/components/ledgers/kudos/KudosLedgerPane.svelte';
@@ -56,9 +56,9 @@
     //     }
     //   }
 
-    const config = await getConfig();
-    const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    const clearConfig = await clearConfigStore.init();
+    // const config = await getConfig();
+    // const ws = await walletStore.init({ passPhrase: config.passPhrase });
+    // const clearConfig = await clearConfigStore.init();
     // console.log({ ws, config, clearConfig });
   });
 </script>
