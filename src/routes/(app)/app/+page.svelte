@@ -124,10 +124,27 @@
           >
             <Icon
               name="solid/plus-sm"
-              class="h-7 w-7 flex-shrink-0 text-gray-400"
+              class="h-7 w-7 flex-shrink-0 text-slate-500"
             />
+            <span class="text-slate-500">New Split List</span>
           </button>
         </Tooltip>
+
+        <div class="w-full text-slate-300">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+              <div class="w-full border-t border-slate-500" />
+            </div>
+            <div class="relative flex justify-start">
+              <span class="bg-slate-900 pr-3 text-xs font-medium text-slate-300"
+                >Split Lists</span
+              >
+            </div>
+          </div>
+          <ul class="ml-4 mt-4 divide-y divide-slate-200 text-xs">
+            <li class="list- truncate">Split List 1</li>
+          </ul>
+        </div>
       </TabList>
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Kudos">
         <KudosLedgerPane {sidebarWidth} {sidebarHeight} />

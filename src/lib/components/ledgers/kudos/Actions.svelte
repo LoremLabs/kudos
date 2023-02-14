@@ -25,10 +25,10 @@
 
 {#if ready}
   <div
-    class="mr-3 rounded-t-2xl border-2 border-b-0 border-l-0 border-r-0 border-slate-50 bg-slate-50"
+    class="mr-3 rounded-t-2xl border-2 border-b-0 border-l-0 border-r-0 border-slate-50 bg-slate-50 dark:border-slate-400 dark:bg-slate-400"
   >
     <div
-      class="items-justify-center flex h-16 items-center justify-end border-b border-gray-200 shadow-sm"
+      class="items-justify-center flex h-16 items-center justify-end border-b border-gray-200 shadow-sm dark:border-slate-600"
     >
       <div
         class="mx-2 flex w-full flex-row items-center justify-start space-x-2 text-slate-900"

@@ -263,7 +263,7 @@
         <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
           <Actions on:action={onAction} bind:utilsOpen />
         </div>
-        <div class="mr-3 bg-white">
+        <div class="mr-3 bg-white dark:bg-slate-500">
           {#if DEBUG_WALLET_STORE}
             <pre class="pre-wrap my-12 text-xs">{JSON.stringify(
                 $walletStore,

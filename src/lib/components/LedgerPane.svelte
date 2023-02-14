@@ -46,7 +46,9 @@
           class="flex h-16 w-full flex-row items-center p-2"
           class:shadow-md={commanderActive}
           class:bg-white={commanderActive}
+          class:dark:bg-slate-700={commanderActive}
           class:bg-gray-100={!commanderActive}
+          class:dark:bg-slate-600={!commanderActive}
         >
           {#if false}
             <div>
