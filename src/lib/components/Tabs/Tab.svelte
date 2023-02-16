@@ -8,6 +8,7 @@
   const { registerTab, selectTab, selectedTab } = getContext<TabsContext>(TABS);
 
   export let id: string;
+  export let skip: boolean = false;
   export { klass as class };
   let klass = '';
 
@@ -42,6 +43,7 @@
   id={toTabId(tab.id)}
   tabindex={selected ? 0 : -1}
   class={klass || null}
+  class:hidden={skip}
   on:click={() => selectTab(tab)}
 >
   <slot {selected} {id} />

@@ -210,7 +210,7 @@
         on:click={() => {
           settle = !settle;
         }}
-        class="inline-flex items-center justify-center rounded-md border border-transparent bg-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 sm:w-auto"
+        class="inline-flex items-center justify-center rounded-full border border-transparent bg-cyan-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 sm:w-auto"
       >
         Settle →
       </button>
@@ -239,7 +239,7 @@
           >
             <button
               type="button"
-              class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+              class="inline-flex items-center rounded-full border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
               >Start Publicize</button
             >
           </div>
@@ -266,7 +266,7 @@
           >
             <button
               type="button"
-              class="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+              class="inline-flex items-center rounded-full border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
               >Start Transfer</button
             >
           </div>
@@ -293,14 +293,12 @@
   </div>
 
   <div class="my-8 flex flex-col">
-    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="-my-2 -mx-4 overflow-auto sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 px-1 align-middle">
         <div
-          class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
+          class="overflow-hiddenz shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
         >
-          <table
-            class="min-w-full table-auto divide-y divide-gray-300 overflow-scroll"
-          >
+          <table class="min-w-full table-auto divide-y divide-gray-300">
             <thead class="bg-gray-50">
               <tr>
                 <th

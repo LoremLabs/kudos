@@ -2,6 +2,7 @@
   import { createPopperActions } from 'svelte-popperjs';
   export let text = '';
   export let placement = 'right';
+  export let delay = 100;
   let klass = '';
   export { klass as class };
 
@@ -14,14 +15,29 @@
   };
 
   let showTooltip = false;
+  let delayTimeout = null;
 </script>
 
 <div
   class="w-full"
   style="display: inline-block"
   use:popperRef
-  on:mouseenter={() => (showTooltip = true)}
-  on:mouseleave={() => (showTooltip = false)}
+  on:mouseenter={() => {
+    // if we have a delay, we need to wait for it to show the tooltip
+    if (delay) {
+      delayTimeout = setTimeout(() => {
+        showTooltip = true;
+      }, delay);
+    } else {
+      showTooltip = true;
+    }
+  }}
+  on:mouseleave={() => {
+    showTooltip = false;
+    if (delayTimeout) {
+      clearTimeout(delayTimeout);
+    }
+  }}
 >
   <slot />
 </div>

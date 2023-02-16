@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { shortId } from '$lib/utils/short-id';
+
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
 
@@ -6,9 +8,12 @@
 
   // import { getConfig } from '$lib/utils/config';
   // import { walletStore } from '$lib/stores/wallet';
-  // import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { distLists } from '$lib/stores/distLists';
 
   import Settings from '$lib/components/Settings.svelte';
+  import IdentLedgerPane from '$lib/components/ident/IdentLedgerPane.svelte';
+  import DistributionsPane from '$lib/components/distlists/DistributionsPane.svelte';
   import KudosLedgerPane from '$lib/components/ledgers/kudos/KudosLedgerPane.svelte';
   import XRPLLedgerPane from '$lib/components/ledgers/xrpl/XRPLLedgerPane.svelte';
 
@@ -19,6 +24,9 @@
 
   let sidebarWidth = 0;
   let sidebarHeight = 0;
+
+  let distributionsListOpen = true;
+  let activeDistList = '';
 
   const TABS: { id: string; icon?: IconName; twe?: string; class?: string }[] =
     [
@@ -32,6 +40,13 @@
         class: 'h-5 w-5',
       },
 
+      {
+        id: 'Ident',
+        icon: 'solid/identification',
+        display: 'Ident',
+        class: 'h-5 w-5',
+      },
+
       // {
       //   id: 'XRPL',
       //   icon: 'brand/xrpl',
@@ -40,26 +55,28 @@
       {
         id: 'Settings',
         icon: 'solid/cog-6-tooth',
-        class: 'w-6 h-6',
+        class: 'w-5 h-5',
         display: 'Settings',
       },
+      {
+        id: 'Distributions',
+        icon: 'solid/table-cells',
+        class: 'h-5 w-5',
+        display: 'DistLists',
+        skip: true,
+      },
     ];
+
+  let clearConfig = {};
 
   onMount(async () => {
     if (!browser) {
       return;
     }
-    //   if (location.hash.startsWith('#community-')) {
-    //     const selected = location.hash.split('-')[1];
-    //     if (TABS.find((tab) => tab.id === selected)) {
-    //       activeSection = selected;
-    //     }
-    //   }
-
-    // const config = await getConfig();
-    // const ws = await walletStore.init({ passPhrase: config.passPhrase });
-    // const clearConfig = await clearConfigStore.init();
-    // console.log({ ws, config, clearConfig });
+    clearConfig = await clearConfigStore.init();
+    clearConfigStore.subscribe((config) => {
+      clearConfig = config;
+    });
   });
 </script>
 
@@ -73,6 +90,11 @@
         label="Account navigation"
         class="mt-2 flex flex-1 flex-col items-start gap-2 overflow-x-auto border-gray-200 bg-slate-900 p-2 md:overflow-x-visible"
         orientation="vertical"
+        onTabChange={(index) => {
+          if (index !== 3) {
+            activeDistList = {};
+          }
+        }}
       >
         {#each TABS as tab, i}
           <Tab
@@ -80,11 +102,13 @@
             class={`tooltip justified-center group flex w-36 flex-row items-end ${
               i === 0 ? 'mt-20' : ''
             }`}
+            skip={tab.skip}
             let:selected
           >
             <div class="w-full">
               <Tooltip
                 text={`${tab.id}`}
+                delay={800}
                 placement="right"
                 class="z-50 z-50 border border-slate-300 p-1.5 px-4 shadow"
               >
@@ -114,6 +138,7 @@
         <Tooltip
           text={`Add Keys`}
           placement="right"
+          delay={800}
           class="z-50 border border-slate-300 p-1.5 px-4 opacity-0 shadow"
         >
           <button
@@ -136,18 +161,105 @@
               <div class="w-full border-t border-slate-500" />
             </div>
             <div class="relative flex justify-start">
-              <span class="bg-slate-900 pr-3 text-xs font-medium text-slate-300"
-                >Split Lists</span
+              <button
+                class="flex flex-row items-center bg-slate-900 pr-3 text-xs font-medium text-slate-500 hover:bg-slate-800"
+                on:click={() => {
+                  distributionsListOpen = !distributionsListOpen;
+                }}
+              >
+                <Icon
+                  name="mini/play"
+                  class={`mx-1 h-2 w-2 text-slate-500 ${
+                    distributionsListOpen ? 'rotate-90' : ''
+                  }`}
+                />
+                Distributions</button
               >
             </div>
           </div>
-          <ul class="ml-4 mt-4 divide-y divide-slate-200 text-xs">
-            <li class="list- truncate">Split List 1</li>
-          </ul>
+          {#if distributionsListOpen}
+            <ul
+              class="mx-2 mt-4 w-32 overflow-y-scroll text-right text-xs text-slate-400"
+              style={`max-height: 400px;`}
+            >
+              <li class="list-none truncate">
+                <button
+                  class="hover:underline"
+                  on:click={async () => {
+                    // should add a new item to the list
+                    // user can click on item to edit the name
+                    const newDistList = {
+                      name: 'New List',
+                      id: shortId(),
+                      items: [],
+                    };
+                    if (!clearConfig.distLists) {
+                      clearConfig.distLists = [];
+                    }
+                    // see if there is a list with the same name
+                    let existingList = clearConfig.distLists.find(
+                      (list) => list.name === newDistList.name
+                    );
+                    if (existingList) {
+                      // if so, add a number to the end of the name until it is unique
+                      let i = 1;
+                      while (existingList) {
+                        newDistList.name = `New List ${i}`;
+                        existingList = clearConfig.distLists.find(
+                          (list) => list.name === newDistList.name
+                        );
+                        i++;
+                      }
+                    }
+                    clearConfig.distLists.push(newDistList);
+                    await clearConfigStore.save(clearConfig);
+                    activeSection = 'Distributions';
+                    activeDistList = newDistList;
+                  }}
+                >
+                  <div class="mt-2 flex flex-row items-center gap-1">
+                    <Icon name="mini/plus" class="h-3 w-3" />
+                    <span>Create List</span>
+                  </div>
+                </button>
+              </li>
+
+              {#each $distLists as list}
+                <li class="mt-2 list-none truncate">
+                  <button
+                    class="hover:underline"
+                    on:click={() => {
+                      // should open the list
+                      // user can click on item to edit the name
+                      activeSection = 'Distributions';
+                      activeDistList = list;
+                    }}
+                  >
+                    <Tooltip
+                      text={`${list.name}`}
+                      placement="top"
+                      delay={800}
+                      class="z-50 z-50 border border-slate-300 p-1.5 px-4 shadow"
+                    >
+                      <span
+                        class:font-bold={activeDistList &&
+                          activeDistList.id === list.id}
+                        class:text-slate-300={activeDistList &&
+                          activeDistList.id === list.id}>{list.name}</span
+                      >
+                    </Tooltip>
+                  </button>
+                </li>
+              {/each}
+            </ul>
+          {/if}
         </div>
       </TabList>
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Kudos">
         <KudosLedgerPane {sidebarWidth} {sidebarHeight} />
+      </TabPanel>
+      <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">
+        <IdentLedgerPane {sidebarWidth} {sidebarHeight} />
       </TabPanel>
       {#if false}
         <TabPanel class="min-h-screen w-full" id="XRPL">
@@ -156,6 +268,13 @@
       {/if}
       <TabPanel class="min-h-screen w-full" id="Settings">
         <Settings />
+      </TabPanel>
+      <TabPanel class="min-h-screen w-full bg-slate-900" id="Distributions">
+        <DistributionsPane
+          {sidebarWidth}
+          {sidebarHeight}
+          distList={activeDistList}
+        />
       </TabPanel>
     </main>
   </Tabs>

@@ -1,15 +1,27 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, onMount } from 'svelte';
   import { TABS } from './Tabs.svelte';
   import type { Orientation, TabsContext } from './utils';
 
   const { focusPanel, selectTab, selectedTab, tabs } =
     getContext<TabsContext>(TABS);
 
+  export let onTabChange = (_index) => {};
   export let label: string;
   export let orientation: Orientation = 'horizontal';
   export { klass as class };
   let klass = '';
+
+  onMount(() => {
+    selectedTab.subscribe((tab) => {
+      // console.log('tab', tab);
+      const idx = tabs.indexOf(tab);
+      if (idx !== lastTabIndex) {
+        onTabChange(idx);
+      }
+      lastTabIndex = idx;
+    });
+  });
 
   function onKeydown(ev: KeyboardEvent) {
     const dir = getKeyAction(ev.key);
@@ -35,7 +47,7 @@
       return { ArrowUp: -1, ArrowDown: 1, ArrowRight: 0 }[key] ?? null;
     }
   }
-
+  let lastTabIndex = -1;
   function switchTab(idx: number) {
     if (idx < 0) {
       idx = tabs.length - 1;
@@ -43,6 +55,10 @@
       idx = 0;
     }
     selectTab(tabs[idx]);
+    if (idx !== lastTabIndex) {
+      onTabChange(idx);
+    }
+    lastTabIndex = idx;
   }
 </script>
 

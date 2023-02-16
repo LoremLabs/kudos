@@ -776,6 +776,12 @@ select {
 .top-8 {
   top: 2rem;
 }
+.-left-3 {
+  left: -0.75rem;
+}
+.-left-4 {
+  left: -1rem;
+}
 .z-10 {
   z-index: 10;
 }
@@ -942,6 +948,18 @@ select {
 .mt-auto {
   margin-top: auto;
 }
+.-mr-3 {
+  margin-right: -0.75rem;
+}
+.-ml-3 {
+  margin-left: -0.75rem;
+}
+.-mr-4 {
+  margin-right: -1rem;
+}
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
 .block {
   display: block;
 }
@@ -1041,6 +1059,12 @@ select {
 .min-h-screen {
   min-height: 100vh;
 }
+.min-h-\[400px\] {
+  min-height: 400px;
+}
+.min-h-\[100\%\] {
+  min-height: 100%;
+}
 .w-0 {
   width: 0px;
 }
@@ -1100,6 +1124,12 @@ select {
 }
 .w-2\.5 {
   width: 0.625rem;
+}
+.w-32 {
+  width: 8rem;
+}
+.w-24 {
+  width: 6rem;
 }
 .min-w-0 {
   min-width: 0px;
@@ -1166,6 +1196,12 @@ select {
 }
 .rotate-45 {
   --tw-rotate: 45deg;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.rotate-90 {
+  --tw-rotate: 90deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y))
     rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
     scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -1270,6 +1306,9 @@ select {
 .list-disc {
   list-style-type: disc;
 }
+.list-none {
+  list-style-type: none;
+}
 .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
@@ -1323,6 +1362,9 @@ select {
 }
 .gap-6 {
   gap: 1.5rem;
+}
+.gap-1 {
+  gap: 0.25rem;
 }
 .gap-x-8 {
   -moz-column-gap: 2rem;
@@ -1385,6 +1427,12 @@ select {
 }
 .overflow-y-auto {
   overflow-y: auto;
+}
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+.overflow-y-visible {
+  overflow-y: visible;
 }
 .overflow-y-scroll {
   overflow-y: scroll;
@@ -1714,6 +1762,9 @@ select {
 .p-px {
   padding: 1px;
 }
+.p-0 {
+  padding: 0px;
+}
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -1785,6 +1836,10 @@ select {
 .py-6 {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
+}
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 .pb-16 {
   padding-bottom: 4rem;
@@ -2026,6 +2081,14 @@ select {
 .text-yellow-700 {
   --tw-text-opacity: 1;
   color: rgb(161 98 7 / var(--tw-text-opacity));
+}
+.text-slate-400 {
+  --tw-text-opacity: 1;
+  color: rgb(148 163 184 / var(--tw-text-opacity));
+}
+.text-slate-50 {
+  --tw-text-opacity: 1;
+  color: rgb(248 250 252 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -3122,6 +3185,22 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(148 163 184 / var(--tw-bg-opacity));
 }
+.hover\:bg-slate-600:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(71 85 105 / var(--tw-bg-opacity));
+}
+.hover\:bg-slate-100:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
+.hover\:bg-slate-800:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(30 41 59 / var(--tw-bg-opacity));
+}
+.hover\:bg-white:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
 .hover\:text-black:hover {
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity));
@@ -3145,6 +3224,9 @@ select {
 .hover\:text-red-500:hover {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+.hover\:underline:hover {
+  text-decoration-line: underline;
 }
 .focus\:scale-110:focus {
   --tw-scale-x: 1.1;

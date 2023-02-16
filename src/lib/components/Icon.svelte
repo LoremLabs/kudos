@@ -79,12 +79,14 @@
     | 'solid/external-link'
     | 'solid/fire'
     | 'solid/heart'
+    | 'solid/identification'
     | 'solid/information-circle'
     | 'solid/lock'
     | 'solid/mail'
     | 'solid/minus-sm'
     | 'solid/plus-sm'
     | 'solid/selector'
+    | 'solid/table-cells'
     | 'solid/user-group'
     | 'solid/x-circle'
     | 'solid/x';
@@ -115,6 +117,7 @@
   export type MiniIcons =
     | 'mini/exclamation-triangle'
     | 'mini/chevron-right'
+    | 'mini/play'
     | 'mini/plus'
     | 'mini/trash';
 

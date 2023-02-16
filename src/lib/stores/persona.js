@@ -7,7 +7,6 @@ import { clearConfigStore } from '$lib/stores/clearConfig.js';
 export const isSwitchingPersonasStore = writable(false);
 
 export const activePersonaStore = derived(clearConfigStore, ($clearConfig) => {
-  console.log('d');
   if (!$clearConfig._init) {
     return {
       id: -1,
