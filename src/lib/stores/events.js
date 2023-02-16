@@ -84,9 +84,11 @@ export const eventsStore = asyncDerived(
       );
       const readParams = {
         address: $address,
+        channel: $scope,
         count: $count,
         direction: $cursor.direction,
         startTs: $cursor.startTs,
+        includeEphemeral: true,
       };
 
       const newEvents = await readEvents(readParams);

@@ -10,6 +10,7 @@
   export let steps = 100;
   export let threshold = 100;
   export let inView = () => {};
+  export let outView = () => {};
 
   let thresholdMet = false;
   let element;
@@ -31,6 +32,7 @@
       inView(percent);
     } else if (percent < threshold) {
       thresholdMet = false;
+      outView(percent);
     }
   }
 

@@ -10,7 +10,7 @@
 
   import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
-  import { addEvents } from '$lib/events/db';
+  import { addEvents, addEphemeralEvent } from '$lib/events/db';
   import {
     eventsStore,
     cursorStore,
@@ -108,7 +108,7 @@
         id: shortId(),
         type: 'help',
         channel: 'kudos',
-        ephemeral: true,
+        address: $walletStore?.keys?.kudos?.address, // to address
         body: {
           from: '0x0',
           message: `\`\`\`Javascript
@@ -123,7 +123,8 @@
       `,
         },
       };
-      //      eventsStore.addEphemeralEvent(helpEvent);
+      addEphemeralEvent(helpEvent);
+      loadMore('tail');
       return;
     }
 
@@ -136,6 +137,7 @@
       const evt = {
         ts: eventTs,
         id: shortId(),
+        address: $walletStore?.keys?.kudos?.address, // to address
         type: 'chat',
         channel: 'kudos',
         body: {

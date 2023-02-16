@@ -41,7 +41,7 @@
         <div>
           <div class="align-start flex flex-col items-start justify-start p-2">
             <p class="w-full text-xs text-black">
-              {@html renderMessage(ev.event?.body?.message || ev.type || '')}
+              {@html renderMessage(ev.body?.message || ev.type || '')}
             </p>
           </div>
         </div>

@@ -10,6 +10,23 @@ import SQLite from 'tauri-plugin-sqlite-api';
 import { appLocalDataDir } from '@tauri-apps/api/path';
 
 const cache = {};
+const ephemeral = {};
+
+export const addEphemeralEvent = (event) => {
+  if (!event.channel) {
+    throw new Error('event.channel is required');
+  }
+  if (!event.address) {
+    throw new Error('event.address is required');
+  }
+  const eventScope = `${event.address}-${event.channel}`;
+
+  // use a Set
+  if (!ephemeral[eventScope]) {
+    ephemeral[eventScope] = new Set();
+  }
+  ephemeral[eventScope].add(event);
+};
 
 export const initDb = async ({ address = '0x0' }) => {
   console.log('initDb1', address);
@@ -87,24 +104,27 @@ export const readEvents = async ({
   startTs = '',
   count = 1,
   direction = 'head',
+  channel = '',
+  includeEphemeral = false,
 }) => {
-  console.log('readEvents', { address, count, startTs, direction });
+  console.log('readEvents', {
+    address,
+    count,
+    startTs,
+    direction,
+    includeEphemeral,
+  });
 
   const db = await initDb({ address });
   if (!db) {
     throw new Error('db is not defined');
   }
 
-  // console.log(
-  //   `SELECT * FROM events WHERE ts ${
-  //     direction.toLowerCase() === 'head' ? '<' : '>'
-  //   } ${startTs} ORDER BY ts ASC LIMIT ${count}`
-  // );
   const result = await db.select(
-    `SELECT * FROM events WHERE ts ${
+    `SELECT * FROM events WHERE channel = ? AND ts ${
       direction.toLowerCase() === 'head' ? '<' : '>'
     } ? ORDER BY ts ASC LIMIT ?`,
-    [startTs, count]
+    [channel, startTs, count]
   );
   // console.log({ result }, 'result');
   // iterate through result, JSON.parse context
@@ -119,6 +139,40 @@ export const readEvents = async ({
 
   // db.destroy();
   const isClosed = await db.close();
+
+  // see if we have any ephemeral events
+  if (includeEphemeral) {
+    const eventScope = `${address}-${channel}`;
+    const ephemeralSet = ephemeral[eventScope];
+    if (ephemeralSet) {
+      const ephemeralEvents = [...ephemeralSet];
+      // console.log({ ephemeralEvents }, 'ephemeralEvents');
+      // only include ephemeral events that are in our time range
+      const filteredEphemeralEvents = ephemeralEvents.filter((event) => {
+        if (direction.toLowerCase() === 'head') {
+          return event.ts < startTs;
+        } else {
+          return event.ts > startTs;
+        }
+      });
+      // console.log({ filteredEphemeralEvents }, 'filteredEphemeralEvents');
+      // sort results by ts
+      filteredEphemeralEvents.sort((a, b) => {
+        if (a.ts < b.ts) {
+          return -1;
+        } else if (a.ts > b.ts) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      // limit to last count ephemeral events
+      filteredEphemeralEvents.splice(0, filteredEphemeralEvents.length - count);
+      console.log({ filteredEphemeralEvents }, 'filteredEphemeralEvents');
+      // add ephemeral events to result
+      result.push(...filteredEphemeralEvents);
+    }
+  }
 
   return result;
 };

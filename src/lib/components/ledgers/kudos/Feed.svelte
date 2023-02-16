@@ -17,6 +17,9 @@
   let processing = 0;
   let itemsHeight = 0;
   let loadingMore = false;
+  let headInView = false;
+  let tailInView = false;
+
   const doLoadMore = async (direction) => {
     if (loadingMore) {
       return;
@@ -197,7 +200,14 @@
         <Visibility
           threshold={10}
           steps={100}
+          outView={() => {
+            headInView = false;
+          }}
           inView={() => {
+            if (headInView) {
+              return; // already in view
+            }
+            headInView = true;
             if (processing <= 0) {
               doLoadMore('head');
             }
@@ -266,7 +276,14 @@
         <Visibility
           threshold={10}
           steps={100}
+          outView={() => {
+            tailInView = false;
+          }}
           inView={() => {
+            if (tailInView) {
+              return; // already in view
+            }
+            tailInView = true;
             doLoadMore('tail');
           }}
         >
