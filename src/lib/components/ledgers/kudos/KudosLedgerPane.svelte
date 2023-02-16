@@ -273,7 +273,7 @@
           {/if}
           {#if utilsOpen}
             <div
-              class="m-auto m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8  pt-4 shadow"
+              class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
               in:fly={{ y: -20, duration: 400 }}
               out:fly={{ y: -20, duration: 200 }}
               bind:clientHeight={utilsHeight}
