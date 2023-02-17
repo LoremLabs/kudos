@@ -10,6 +10,7 @@
   import { goto } from '$app/navigation';
   import { dev } from '$app/environment';
   import TopNav from '$lib/components/TopNav.svelte';
+  import Toasts from '$lib/components/Toasts.svelte';
 
   //  import { walletStore } from '$lib/stores/wallet';
 
@@ -69,3 +70,4 @@
 >
   <slot />
 </main>
+<Toasts />

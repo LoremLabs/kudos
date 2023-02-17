@@ -9,7 +9,10 @@
 
   //import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { toasts, addToast } from '$lib/stores/toasts';
   //  import { activePersonaStore } from '$lib/stores/persona';
+
+  import { readKudosDb } from '$lib/kudos/db';
 
   import { fly } from 'svelte/transition';
 
@@ -62,6 +65,29 @@
       case 'utils:add':
         utilsOpen = !utilsOpen;
         break;
+      case 'kudos:import:file': {
+        // import the kudos from the file
+        const filePath = params.importFile;
+        if (!filePath) {
+          return; // TODO: add toast / error
+        }
+        try {
+          const kudos = await readKudosDb({ dbFile: filePath });
+          throw new Error('thing zzz');
+          if (!kudos) {
+            return; // TODO: add toast / error
+          }
+
+          console.log({ kudos }, 'now');
+        } catch (e) {
+          console.log(e);
+          addToast({
+            type: 'error',
+            msg: e.message,
+          });
+        }
+        break;
+      }
       case 'distlist:delete': {
         // delete this distlist
         const thisDistList = params.distList || {};

@@ -23,7 +23,6 @@
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { createEventDispatcher } from 'svelte';
-  import { readKudosDb } from '$lib/kudos/db';
 
   const dispatch = createEventDispatcher();
 
@@ -44,11 +43,9 @@
       // defaultPath: defaultDir,
     });
     if (filePath) {
-      const kudos = await readKudosDb({ dbFile: filePath });
-      console.log({ kudos });
       dispatch('action', {
-        action: 'kudos:load',
-        params: { kudos },
+        action: 'kudos:import:file',
+        params: { importFile: filePath },
       });
     }
   };
