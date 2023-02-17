@@ -68,12 +68,12 @@
 
 <div
   data-tauri-drag-region
-  class="fixed top-0 left-0 flex h-10 w-full cursor-default select-none justify-center overflow-hidden overscroll-none bg-slate-100 pt-2 italic"
+  class="absolute top-0 left-0 flex h-10 w-full cursor-default select-none justify-center overflow-hidden overscroll-none bg-slate-100 pt-2 italic"
 >
   {title}
 </div>
 <main
-  class="mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100"
+  class="z-10 mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100"
 >
   <slot />
 </main>

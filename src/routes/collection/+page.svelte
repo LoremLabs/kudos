@@ -16,7 +16,9 @@
   let openKudos = {};
   let visuals = false;
   let settle = false;
-
+  let itemsHeight = 0;
+  let viewportHeight = 0;
+  let actionHeight = 0;
   let highlightLinkIndexes = [];
 
   const formatter = new Intl.NumberFormat('en-US', {
@@ -128,9 +130,10 @@
   }
 </script>
 
+<svelte:window bind:innerHeight={viewportHeight} />
 <div class="measure" bind:offsetWidth={width} bind:offsetHeight={height} />
 <div class="px-4 sm:px-6 lg:px-8">
-  <div class="sm:flex sm:items-center">
+  <div class="sm:flex sm:items-center" bind:clientHeight={actionHeight}>
     <div class="sm:flex-auto">
       <h1 class="text-xl font-semibold text-gray-900">Kudos</h1>
       <p class="mt-2 text-sm text-gray-700">
@@ -292,133 +295,145 @@
     {/if}
   </div>
 
-  <div class="my-8 flex flex-col">
-    <div class="-my-2 -mx-4 overflow-auto sm:-mx-6 lg:-mx-8">
+  <div class="my-8 flex flex-row">
+    <div class="-my-2 -mx-4 sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 px-1 align-middle">
-        <div
-          class="overflow-hiddenz shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
-        >
-          <table class="min-w-full table-auto divide-y divide-gray-300">
-            <thead class="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                  >Date</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Cohort</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Identifier</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Weight</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Description</th
-                >
-                <th
-                  scope="col"
-                  class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
-                  >Id</th
-                >
-                <th
-                  scope="col"
-                  class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6"
-                >
-                  <span class="sr-only">More</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-              {#each kudos as kudo, i}
-                <tr
-                  class:bg-cyan-50={openKudos[`k-${i}`]}
-                  class:bg-cyan-100={highlightedNodes.includes(kudo.id)}
-                  class:font-strong={highlightedNodes.includes(kudo.id)}
-                  class="cursor-pointer"
-                  on:click={() => {
-                    openKudos[`k-${i}`] = !openKudos[`k-${i}`];
-                  }}
-                >
-                  <td
-                    class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
-                    ><Ago at={kudo.createTime} /></td
+        <div class="shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <div
+            class="overflow-scroll"
+            style={`height: 100%; max-height: 1vh !important; min-height: ${
+              viewportHeight - 260
+            }px;`}
+          >
+            <table
+              class="min-w-full table-auto divide-y divide-gray-300"
+              bind:clientHeight={itemsHeight}
+            >
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >Date</th
                   >
-                  <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                    >{kudo.cohort}</td
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >Cohort</th
                   >
-                  <td
-                    class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
-                    ><div
-                      class="overflow-hidden text-ellipsis"
-                      class:overflow-visible={openKudos[`k-${i}`]}
-                    >
-                      {kudo.identifier}
-                    </div></td
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >Identifier</th
                   >
-                  <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
-                    >{kudo.weight.toFixed(4)}</td
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >Weight</th
                   >
-                  <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                    ><div
-                      class="overflow-hidden text-ellipsis"
-                      class:overflow-visible={openKudos[`k-${i}`]}
-                    >
-                      {kudo.description}
-                    </div></td
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >Description</th
                   >
-                  <td class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                    ><div
-                      class="overflow-hidden text-ellipsis"
-                      class:overflow-visible={openKudos[`k-${i}`]}
-                    >
-                      {kudo.id}
-                    </div></td
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >Id</th
                   >
-                  <td
-                    class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                  <th
+                    scope="col"
+                    class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6"
                   >
-                    <a
-                      href="#"
-                      class="text-cyan-600 hover:text-cyan-900"
-                      class:hidden={openKudos[`k-${i}`]}
-                      ><Icon name="eye" class="h-4 w-4" /></a
-                    >
-                  </td>
+                    <span class="sr-only">More</span>
+                  </th>
                 </tr>
-                {#if openKudos[`k-${i}`]}
+              </thead>
+              <tbody class="divide-y divide-gray-200 bg-white">
+                {#each kudos as kudo, i}
                   <tr
+                    class:bg-cyan-50={openKudos[`k-${i}`]}
+                    class:bg-cyan-100={highlightedNodes.includes(kudo.id)}
+                    class:font-strong={highlightedNodes.includes(kudo.id)}
                     class="cursor-pointer"
                     on:click={() => {
                       openKudos[`k-${i}`] = !openKudos[`k-${i}`];
                     }}
                   >
-                    <td colspan="7">
-                      {#if kudo.context}
-                        <pre class="bg-slate-50 p-4 text-xs"><JSPretty
-                            obj={kudo}
-                          /><hr /><JSPretty
-                            obj={JSON.parse(kudo.context)}
-                          /></pre>
-                      {:else}
-                        -
-                      {/if}
+                    <td
+                      class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
+                      ><Ago at={kudo.createTime} /></td
+                    >
+                    <td
+                      class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                      >{kudo.cohort}</td
+                    >
+                    <td
+                      class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                      ><div
+                        class="zoverflow-hidden text-ellipsis"
+                        class:zoverflow-visible={openKudos[`k-${i}`]}
+                      >
+                        {kudo.identifier}
+                      </div></td
+                    >
+                    <td
+                      class="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
+                      >{kudo.weight.toFixed(4)}</td
+                    >
+                    <td
+                      class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                      ><div
+                        class="zoverflow-hidden text-ellipsis"
+                        class:zoverflow-visible={openKudos[`k-${i}`]}
+                      >
+                        {kudo.description}
+                      </div></td
+                    >
+                    <td
+                      class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                      ><div
+                        class="zoverflow-hidden text-ellipsis"
+                        class:zoverflow-visible={openKudos[`k-${i}`]}
+                      >
+                        {kudo.id}
+                      </div></td
+                    >
+                    <td
+                      class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                    >
+                      <a
+                        href="#"
+                        class="text-cyan-600 hover:text-cyan-900"
+                        class:hidden={openKudos[`k-${i}`]}
+                        ><Icon name="eye" class="h-4 w-4" /></a
+                      >
                     </td>
                   </tr>
-                {/if}
-              {/each}
-            </tbody>
-          </table>
+                  {#if openKudos[`k-${i}`]}
+                    <tr
+                      class="cursor-pointer"
+                      on:click={() => {
+                        openKudos[`k-${i}`] = !openKudos[`k-${i}`];
+                      }}
+                    >
+                      <td colspan="7">
+                        {#if kudo.context}
+                          <pre class="bg-slate-50 p-4 text-xs"><JSPretty
+                              obj={kudo}
+                            /><hr /><JSPretty
+                              obj={JSON.parse(kudo.context)}
+                            /></pre>
+                        {:else}
+                          -
+                        {/if}
+                      </td>
+                    </tr>
+                  {/if}
+                {/each}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -7,13 +7,14 @@
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
 
-  import { walletStore } from '$lib/stores/wallet';
+  //import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
-  import { activePersonaStore } from '$lib/stores/persona';
+  //  import { activePersonaStore } from '$lib/stores/persona';
 
   import { fly } from 'svelte/transition';
 
   import Actions from './Actions.svelte';
+  import KudosStartImport from './StartImport.svelte';
   // import JsPretty from '$lib/components/JSPretty.svelte';
 
   const dispatch = createEventDispatcher();
@@ -45,6 +46,11 @@
       clearConfig = config;
     });
 
+    // if we don't have any items in the distlist, open utils
+    if (distList && distList.items.length === 0) {
+      utilsOpen = true;
+    }
+
     ready = true;
   });
 
@@ -53,6 +59,9 @@
     const params = e.detail?.params || {};
 
     switch (action) {
+      case 'utils:add':
+        utilsOpen = !utilsOpen;
+        break;
       case 'distlist:delete': {
         // delete this distlist
         const thisDistList = params.distList || {};
@@ -162,14 +171,14 @@
                 out:fly={{ y: -20, duration: 200 }}
                 bind:clientHeight={utilsHeight}
               >
-                huh
+                <KudosStartImport />
               </div>
             {/if}
             <div
               class="h-full"
               style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
             >
-              Ident here todo
+              todo, iterate through items
             </div>
           </div>
         </div>
