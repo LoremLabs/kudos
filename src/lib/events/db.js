@@ -106,6 +106,8 @@ export const readEvents = async ({
   direction = 'head',
   channel = '',
   includeEphemeral = false,
+  currentEndTs = '',
+  currentStartTs = '',
 }) => {
   console.log('readEvents', {
     address,
@@ -150,9 +152,9 @@ export const readEvents = async ({
       // only include ephemeral events that are in our time range
       const filteredEphemeralEvents = ephemeralEvents.filter((event) => {
         if (direction.toLowerCase() === 'head') {
-          return event.ts < startTs;
+          return event.ts < currentStartTs;
         } else {
-          return event.ts > startTs;
+          return event.ts > currentEndTs;
         }
       });
       // console.log({ filteredEphemeralEvents }, 'filteredEphemeralEvents');
@@ -174,5 +176,20 @@ export const readEvents = async ({
     }
   }
 
-  return result;
+  // filter out existing results from currentStartTs to currentEndTs, depending on direction
+  const filteredResult = result.filter((event) => {
+    if (direction.toLowerCase() === 'head') {
+      if (!currentStartTs) {
+        return true;
+      }
+      return event.ts < currentStartTs;
+    } else {
+      if (!currentEndTs) {
+        return true;
+      }
+      return event.ts > currentEndTs;
+    }
+  });
+
+  return filteredResult;
 };

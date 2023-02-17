@@ -35,6 +35,7 @@
 
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
+  export let active = false;
 
   const DEBUG_WALLET_STORE = false;
 
@@ -185,7 +186,10 @@
       console.log('no lm');
       return;
     }
-
+    if (!active) {
+      console.log('not active');
+      return;
+    }
     if (direction === 'head') {
       // if we're scrolling up, we want events that are before the first one
       const firstEvent = $eventsStore.events[0];

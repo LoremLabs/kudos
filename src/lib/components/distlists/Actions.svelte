@@ -1,8 +1,8 @@
 <script lang="ts">
   import Icon from '$lib/components/Icon.svelte';
   import Panel from '$lib/components/Panel.svelte';
-  import KeyIcon from '$lib/components/KeyIcon.svelte';
   import KudosStartImport from '$lib/components/KudosStartImport.svelte';
+  import ModalConfirmDeleteDistList from '$lib/components/distlists/ModalConfirmDeleteDistList.svelte';
 
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
@@ -17,6 +17,15 @@
   export let status = {};
 
   let editDistListName = false;
+  let showConfirmDeleteDistList = false;
+
+  let confirmDeleteDistListPromise: Promise<void>;
+  const confirmDeleteDistList = async () => {
+    showConfirmDeleteDistList = true;
+    let userData = await confirmDeleteDistListPromise;
+    showConfirmDeleteDistList = false;
+    return userData;
+  };
 
   let ready = false;
   let originalDistList = {};
@@ -46,7 +55,7 @@
               </div>
             </li>
             <li>
-              <div class="flex w-full items-center hover:bg-white">
+              <div class="group flex w-full items-center hover:bg-white">
                 <button
                   class="hover:underline"
                   on:click={() => {
@@ -75,6 +84,7 @@
                           });
 
                           editDistListName = false;
+                          e.preventDefault();
                         }
                       }}
                       on:blur={() => {
@@ -91,6 +101,24 @@
                       }}
                     />
                   {/if}
+                </button>
+                <button
+                  class="ml-2"
+                  on:click={async () => {
+                    const confirmedDelete = await confirmDeleteDistList();
+                    if (!confirmedDelete) {
+                      return;
+                    }
+                    dispatch('action', {
+                      action: 'distlist:delete',
+                      params: { distList },
+                    });
+                  }}
+                >
+                  <Icon
+                    name="x"
+                    class="h-3 w-3 opacity-0 group-hover:text-slate-500 group-hover:opacity-100"
+                  />
                 </button>
               </div>
             </li>
@@ -159,3 +187,18 @@
     </Panel>
   </div>
 {/if}
+<ModalConfirmDeleteDistList
+  bind:open={showConfirmDeleteDistList}
+  bind:done={confirmDeleteDistListPromise}
+  handleCancel={() => {}}
+  cancelActive={true}
+>
+  <div slot="header">
+    <h3
+      class="text-lg font-black leading-6 text-gray-900"
+      id="del-modal-headline"
+    >
+      &nbsp;
+    </h3>
+  </div>
+</ModalConfirmDeleteDistList>

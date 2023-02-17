@@ -89,6 +89,8 @@ export const eventsStore = asyncDerived(
         direction: $cursor.direction,
         startTs: $cursor.startTs,
         includeEphemeral: true,
+        currentStartTs: current.events[0]?.ts,
+        currentEndTs: current.events[current.events.length - 1]?.ts,
       };
 
       const newEvents = await readEvents(readParams);
@@ -110,7 +112,7 @@ export const eventsStore = asyncDerived(
       } else {
         // no new events
         console.log('no new events');
-        current.events = [...current.events];
+        // current.events = [...current.events];
       }
 
       // make sure events are unique (TODO: bug in the above code)

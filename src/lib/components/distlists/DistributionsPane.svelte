@@ -53,7 +53,36 @@
     const params = e.detail?.params || {};
 
     switch (action) {
-      case 'distlist:edit':
+      case 'distlist:delete': {
+        // delete this distlist
+        const thisDistList = params.distList || {};
+        clearConfig.distLists = clearConfig.distLists || [];
+        const distListIndex = clearConfig.distLists.findIndex(
+          (dl) => dl.id === thisDistList.id
+        );
+        if (distListIndex === -1) {
+          // clearConfig.distLists.push(distList);
+          // throw new Error('distlist not found');
+          return; // TODO: add toast / error
+        } else {
+          clearConfig.distLists.splice(distListIndex, 1);
+        }
+
+        // save the distlist to clearConfig
+        await clearConfigStore.save(clearConfig);
+
+        // move the current distlist to the next one
+        const nextDistList =
+          clearConfig.distLists[distListIndex % clearConfig.distLists.length];
+        if (nextDistList) {
+          distList = nextDistList;
+        } else {
+          distList = {};
+        }
+
+        break;
+      }
+      case 'distlist:edit': {
         // save the distlist to clearConfig
         const thisDistList = params.distList || {};
         clearConfig.distLists = clearConfig.distLists || [];
@@ -88,6 +117,7 @@
 
         await clearConfigStore.save(clearConfig);
         break;
+      }
       default:
         console.log('unknown action', action);
     }
@@ -101,43 +131,51 @@
 </script>
 
 {#if ready}
-  <LedgerPane
-    {sidebarWidth}
-    on:command={onCommand}
-    on:action={onAction}
-    showCommander={false}
-  >
-    <div slot="main" class="overflow-none w-full">
-      <div class="flex w-full flex-col">
-        <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
-          <Actions
-            on:action={onAction}
-            bind:utilsOpen
-            {distList}
-            bind:status={actionStatus}
-          />
-        </div>
-        <div class="mr-3 bg-slate-50 dark:bg-slate-500">
-          {#if utilsOpen}
+  {#if !distList.id}
+    <div class="flex h-full flex-col items-center justify-center bg-slate-50">
+      <div class="text-2xl text-gray-500 dark:text-gray-400">
+        No distribution list selected
+      </div>
+    </div>
+  {:else}
+    <LedgerPane
+      {sidebarWidth}
+      on:command={onCommand}
+      on:action={onAction}
+      showCommander={false}
+    >
+      <div slot="main" class="overflow-none w-full">
+        <div class="flex w-full flex-col">
+          <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
+            <Actions
+              on:action={onAction}
+              bind:utilsOpen
+              {distList}
+              bind:status={actionStatus}
+            />
+          </div>
+          <div class="mr-3 bg-slate-50 dark:bg-slate-500">
+            {#if utilsOpen}
+              <div
+                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
+                in:fly={{ y: -20, duration: 400 }}
+                out:fly={{ y: -20, duration: 200 }}
+                bind:clientHeight={utilsHeight}
+              >
+                huh
+              </div>
+            {/if}
             <div
-              class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
-              in:fly={{ y: -20, duration: 400 }}
-              out:fly={{ y: -20, duration: 200 }}
-              bind:clientHeight={utilsHeight}
+              class="h-full"
+              style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
             >
-              huh
+              Ident here todo
             </div>
-          {/if}
-          <div
-            class="h-full"
-            style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
-          >
-            Ident here todo
           </div>
         </div>
       </div>
-    </div>
-  </LedgerPane>
+    </LedgerPane>
+  {/if}
 {:else}
   <Waiting />
 {/if}

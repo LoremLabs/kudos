@@ -256,7 +256,11 @@
         </div>
       </TabList>
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Kudos">
-        <KudosLedgerPane {sidebarWidth} {sidebarHeight} />
+        <KudosLedgerPane
+          {sidebarWidth}
+          {sidebarHeight}
+          active={activeSection === 'Kudos' ? true : false}
+        />
       </TabPanel>
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">
         <IdentLedgerPane {sidebarWidth} {sidebarHeight} />
@@ -273,7 +277,7 @@
         <DistributionsPane
           {sidebarWidth}
           {sidebarHeight}
-          distList={activeDistList}
+          bind:distList={activeDistList}
         />
       </TabPanel>
     </main>
