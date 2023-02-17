@@ -2,6 +2,8 @@
   import { shortId } from '$lib/utils/short-id';
 
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
+
   import { browser } from '$app/environment';
 
   import Tooltip from '$lib/components/Tooltip.svelte';
@@ -10,6 +12,7 @@
   // import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { distLists } from '$lib/stores/distLists';
+  import { prefs } from '$lib/stores/prefs';
 
   import Settings from '$lib/components/Settings.svelte';
   import IdentLedgerPane from '$lib/components/ident/IdentLedgerPane.svelte';
@@ -27,6 +30,7 @@
 
   let distributionsListOpen = true;
   let activeDistList = '';
+  let ready = false;
 
   const TABS: { id: string; icon?: IconName; twe?: string; class?: string }[] =
     [
@@ -73,11 +77,30 @@
     if (!browser) {
       return;
     }
+    // initialize state from prefs
+    const prefsState = get(prefs) || {};
+    activeSection = prefsState.activeSection;
+    distributionsListOpen = prefsState.distributionsListOpen;
+    activeDistList = prefsState.activeDistList;
+
     clearConfig = await clearConfigStore.init();
     clearConfigStore.subscribe((config) => {
       clearConfig = config;
     });
+    ready = true;
   });
+
+  // when prefs change, persist
+  $: {
+    console.log('prefs changed', $prefs);
+    if (ready) {
+      prefs.set({
+        activeSection,
+        distributionsListOpen,
+        activeDistList,
+      });
+    }
+  }
 </script>
 
 <div

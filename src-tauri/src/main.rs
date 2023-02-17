@@ -140,7 +140,7 @@ fn main() {
         // return salt.unwrap().to_string();
         match binding.get("salt") {
             Some(salt) => {
-                info!("Salt found {}", salt);
+                // info!("Salt found {}", salt);
                 return salt.to_string();
             }
             None => {
