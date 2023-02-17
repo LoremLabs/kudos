@@ -22,6 +22,10 @@
   import { basename } from '$lib/utils/path';
   import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { createEventDispatcher } from 'svelte';
+  import { readKudosDb } from '$lib/kudos/db';
+
+  const dispatch = createEventDispatcher();
 
   onMount(async () => {
     // const config = await getConfig();
@@ -39,51 +43,12 @@
 
       // defaultPath: defaultDir,
     });
-    console.log({ filePath });
     if (filePath) {
-      // open new window
-      // openShell(`setler://import/${filePath}`);
-      const underPath = filePath.replace(/\//g, '_').replace(/\W/g, '_');
-
-      const newWindowLabel = `kudos-collection-${underPath}`; // TODO
-      const title = `Setler : Kudos Collection : ${basename(filePath)}`;
-      const webview = new WebviewWindow(
-        newWindowLabel,
-
-        {
-          url: `/collection?title=${encodeURIComponent(
-            title
-          )}&windowId=${encodeURIComponent(
-            newWindowLabel
-          )}&file=${encodeURIComponent(filePath)}`,
-          // title: 'Setler',
-          width: 1024,
-          height: 600,
-          resizable: true,
-          decorations: true,
-          hiddenTitle: true,
-          titleBarStyle: 'overlay',
-
-          // frameless: false,
-          // transparent: false,
-          // maximizable: true,
-          // fullscreen: false,
-          // skip_taskbar: false,
-          // always_on_top: false,
-          // visible: true,
-          // decorations: true,
-          // debug: true,
-          // webviewAttributes: {
-          //   nodeintegration: true,
-          //   contextIsolation: false,
-          //   enableRemoteModule: true,
-          //   preload: 'preload.js',
-          // },
-        }
-      );
-      // windowMap[newWindowLabel] = webview
-      webview.once('tauri://error', function (e) {
-        console.log('Error creating new webview', e);
+      const kudos = await readKudosDb({ dbFile: filePath });
+      console.log({ kudos });
+      dispatch('action', {
+        action: 'kudos:load',
+        params: { kudos },
       });
     }
   };

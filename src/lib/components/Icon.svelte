@@ -81,6 +81,7 @@
     | 'solid/heart'
     | 'solid/identification'
     | 'solid/information-circle'
+    | 'solid/list-bullet'
     | 'solid/lock'
     | 'solid/mail'
     | 'solid/minus-sm'

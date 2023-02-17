@@ -171,7 +171,30 @@
                 out:fly={{ y: -20, duration: 200 }}
                 bind:clientHeight={utilsHeight}
               >
-                <KudosStartImport />
+                <KudosStartImport on:action={onAction} />
+              </div>
+            {/if}
+            {#if actionStatus.showHistory}
+              <div
+                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
+                in:fly={{ y: -20, duration: 400 }}
+                out:fly={{ y: -20, duration: 200 }}
+                bind:clientHeight={utilsHeight}
+              >
+                <div class="flex w-full flex-col">
+                  <div class="flex flex-row items-center justify-between">
+                    <div class="text-xl font-bold">List Events</div>
+                  </div>
+                  <div class="flex w-full flex-col">
+                    {#each actionStatus.history as item}
+                      <div class="flex flex-row items-center justify-between">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                          {JSON.stringify(item)}
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
               </div>
             {/if}
             <div

@@ -125,9 +125,34 @@
           </ol>
         </div>
       </div>
-      <div class="mx-2 text-gray-500">
+      <div class="mx-2 flex flex-row text-gray-500">
         <button
-          id="panel-open-1"
+          class="mx-2 rounded-full p-2 hover:bg-slate-300 focus:outline-none"
+          class:bg-slate-200={status.showHistory}
+          class:font-bold={status.showHistory}
+          on:click={() => {
+            status = {
+              ...status,
+              showHistory: !status.showHistory,
+              history: [
+                {
+                  id: 1,
+                  name: 'Test',
+                  created_at: '2021-01-01',
+                  updated_at: '2021-01-01',
+                  deleted_at: '2021-01-01',
+                  created_by: 'Test',
+                  updated_by: 'Test',
+                  deleted_by: 'Test',
+                },
+              ],
+            };
+            dispatch('action', { action: 'distlist:showHistory' });
+          }}
+        >
+          <Icon name="solid/list-bullet" class="h-6 w-6" />
+        </button>
+        <button
           class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
           class:bg-slate-200={utilsOpen}
           class:rotate-45={utilsOpen}
