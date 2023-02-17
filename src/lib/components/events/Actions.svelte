@@ -37,7 +37,7 @@
           <ol class="ml-2 flex items-center space-x-2">
             <li>
               <div>
-                <span class="text-sm font-bold text-slate-700">Kudos</span>
+                <span class="text-sm font-bold text-slate-700">Events</span>
                 <span class="ml-2 text-sm text-slate-700">&raquo;</span>
               </div>
             </li>

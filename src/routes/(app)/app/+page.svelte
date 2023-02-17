@@ -17,7 +17,7 @@
   import Settings from '$lib/components/Settings.svelte';
   import IdentLedgerPane from '$lib/components/ident/IdentLedgerPane.svelte';
   import DistributionsPane from '$lib/components/distlists/DistributionsPane.svelte';
-  import KudosLedgerPane from '$lib/components/ledgers/kudos/KudosLedgerPane.svelte';
+  import EventsPane from '$lib/components/events/EventsPane.svelte';
   import XRPLLedgerPane from '$lib/components/ledgers/xrpl/XRPLLedgerPane.svelte';
 
   import type { IconName } from '$lib/components/Icon.svelte';
@@ -38,9 +38,9 @@
       // { id: 'Email', twe: 'e-mail', class:"twe-2x-tight" },
       // { id: 'Kudos', twe: 'folded-hands', class: 'twe-2x-tight' },
       {
-        id: 'Kudos',
+        id: 'Events',
         icon: 'mini/queue-list',
-        display: 'Kudos',
+        display: 'Events',
         class: 'h-5 w-5',
       },
 
@@ -278,11 +278,11 @@
           {/if}
         </div>
       </TabList>
-      <TabPanel class="min-h-screen w-full bg-slate-900" id="Kudos">
-        <KudosLedgerPane
+      <TabPanel class="min-h-screen w-full bg-slate-900" id="Events">
+        <EventsPane
           {sidebarWidth}
           {sidebarHeight}
-          active={activeSection === 'Kudos' ? true : false}
+          active={activeSection === 'Events' ? true : false}
         />
       </TabPanel>
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">

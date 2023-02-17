@@ -5,13 +5,9 @@
   import Tooltip from '$lib/components/Tooltip.svelte';
   import Settings from '$lib/components/Settings.svelte';
 
-  import { getConfig } from '$lib/utils/config';
-  import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
 
   import Settings from '$lib/components/Settings.svelte';
-  import KudosLedgerPane from '$lib/components/ledgers/kudos/KudosLedgerPane.svelte';
-  import XRPLLedgerPane from '$lib/components/ledgers/xrpl/XRPLLedgerPane.svelte';
 
   import type { IconName } from '$lib/components/Icon.svelte';
   import Icon from '$lib/components/Icon.svelte';
