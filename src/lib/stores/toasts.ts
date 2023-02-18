@@ -12,7 +12,7 @@ export const toasts = writable<Toast[]>([]);
 export function addToast(toast: Toast) {
   toast.id = shortId();
   toasts.update((state) => [toast, ...state]);
-  setTimeout(removeToast, 3000);
+  setTimeout(removeToast, 30000);
 }
 
 function removeToast() {

@@ -9,7 +9,7 @@
 
 <div
   aria-live="assertive"
-  class="pointer-events-none fixed inset-0 z-[100] flex items-end px-4 py-6 sm:items-start sm:p-6"
+  class="pointer-events-none fixed inset-0 z-[100] flex items-end px-4 py-6 sm:p-6"
 >
   <div class="flex w-full flex-col items-end space-y-4">
     {#each $toasts as toast (toast.id)}
@@ -19,7 +19,7 @@
           delay: 0,
           duration: 300,
           x: 0,
-          y: -50,
+          y: 50,
           opacity: 0.1,
           easing: backOut,
         }}

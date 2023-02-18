@@ -17,7 +17,7 @@
 
 {#if show}
   <div
-    class="pointer-events-auto min-w-[400px] overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+    class="pointer-events-auto min-w-[600px] overflow-hidden rounded-2xl border-2 border-slate-200 bg-white ring-1 ring-black ring-opacity-5"
   >
     <div class="p-4">
       <div class="flex items-start">
@@ -59,7 +59,7 @@
             {#if $$slots.default}
               <slot />
             {:else}
-              <p class="w-full">{msg || ''}</p>
+              <p class="w-full font-mono">{msg || ''}</p>
             {/if}
           </div>
         </div>
