@@ -4,15 +4,20 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { browser } from '$app/environment';
 
+  import { writable } from 'svelte/store';
+
+  import Ago from '$lib/components/Ago.svelte';
+  import Icon from '$lib/components/Icon.svelte';
+  import JSPretty from '$lib/components/JSPretty.svelte';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
 
   //import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
-  import { toasts, addToast } from '$lib/stores/toasts';
+  import { addToast } from '$lib/stores/toasts';
   //  import { activePersonaStore } from '$lib/stores/persona';
 
-  import { addFileToDistList } from '$lib/distList/db';
+  import { addFileToDistList, getDistList } from '$lib/distList/db';
 
   import { fly } from 'svelte/transition';
 
@@ -29,6 +34,9 @@
   let ready = false;
   let feedHeight = 0;
   let commanderHeight = 0; // disabled for here
+
+  let distItems = writable({});
+  let openKudos = {};
 
   $: feedHeight =
     sidebarHeight -
@@ -49,8 +57,12 @@
       clearConfig = config;
     });
 
+    const distListItems = await getDistList({ distList });
+    console.log({ distListItems });
+    distItems.set(distListItems);
+
     // if we don't have any items in the distlist, open utils
-    if (distList && distList.items.length === 0) {
+    if (distList && $distItems && Object.keys($distItems).length === 0) {
       utilsOpen = true;
     }
 
@@ -82,12 +94,12 @@
           if (status.inserted > 0) {
             addToast({
               type: 'success',
-              msg: `${status.inserted || 0} new Kudos imported`,
+              msg: `${status.inserted || 0} imported`,
             });
           } else {
             addToast({
               type: 'warn',
-              msg: `No new Kudos imported`,
+              msg: `0 imported`,
             });
           }
         } catch (e) {
@@ -171,6 +183,7 @@
   let actionHeight = 0;
   let utilsHeight = 0;
   let utilsOpen = false;
+  let cohortClosed = {};
   const onCommand = () => {
     dispatch('command');
   };
@@ -238,7 +251,145 @@
               class="h-full"
               style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
             >
-              todo, iterate through items
+              <!-- iterate through each cohort of $distItems -->
+              {#if $distItems && Object.keys($distItems).length}
+                {#each Object.keys($distItems) as cohort}
+                  <div class="divider-y-2 flex w-full flex-col">
+                    <div class="flex flex-row items-center justify-between">
+                      <div class="text23xl mx-4 font-mono font-bold">
+                        <button
+                          on:click={() => {
+                            cohortClosed[cohort] = !cohortClosed[cohort];
+                          }}
+                        >
+                          <div
+                            class="flex flex-row items-center justify-center"
+                          >
+                            <Icon
+                              name="mini/play"
+                              class={`mx-1 h-2 w-2 text-slate-500 dark:text-slate-300 ${
+                                cohortClosed[cohort] ? '' : 'rotate-90'
+                              }`}
+                            />
+                            <span>{cohort}</span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                    {#if !cohortClosed[cohort]}
+                      <div class="flex w-full flex-col">
+                        <table
+                          class="table-auto divide-y divide-gray-300"
+                          class:animate-entering={!cohortClosed[cohort]}
+                          class:animate-leaving={cohortClosed[cohort]}
+                        >
+                          <thead class="bg-gray-50">
+                            <tr>
+                              <th
+                                scope="col"
+                                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                                >Date</th
+                              >
+                              <th
+                                scope="col"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                >Identifier</th
+                              >
+                              <th
+                                scope="col"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                >Weight</th
+                              >
+                              <th
+                                scope="col"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                >Description</th
+                              >
+                              <th
+                                scope="col"
+                                class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-6"
+                              >
+                                <span class="sr-only">More</span>
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-gray-200 bg-white">
+                            {#each $distItems[cohort] as kudo, i}
+                              <tr
+                                class="cursor-pointer"
+                                on:click={() => {
+                                  openKudos[`k-${kudo.id}`] =
+                                    !openKudos[`k-${kudo.id}`];
+                                }}
+                              >
+                                <td
+                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
+                                  ><Ago at={kudo.createTime} /></td
+                                >
+                                <td
+                                  class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                                  ><div title={kudo.id}>
+                                    {kudo.identifier}
+                                  </div></td
+                                >
+                                <td
+                                  class="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
+                                  >{kudo.weight.toFixed(4)}</td
+                                >
+                                <td
+                                  class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
+                                  ><div>
+                                    {kudo.description}
+                                  </div></td
+                                >
+                                <td
+                                  class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                                >
+                                  <button
+                                    class="text-cyan-600 hover:text-cyan-900"
+                                    class:hidden={openKudos[`k-${kudo.id}`]}
+                                    ><Icon name="eye" class="h-4 w-4" /></button
+                                  >
+                                </td>
+                              </tr>
+                              {#if openKudos[`k-${kudo.id}`]}
+                                <tr
+                                  class="cursor-pointer"
+                                  on:click={() => {
+                                    openKudos[`k-${kudo.id}`] =
+                                      !openKudos[`k-${kudo.id}`];
+                                  }}
+                                >
+                                  <td colspan="4" class="w-full">
+                                    {#if kudo.context}
+                                      <pre
+                                        class="bg-slate-50 p-4 text-xs"><JSPretty
+                                          obj={kudo}
+                                        /><hr /><JSPretty
+                                          obj={JSON.parse(kudo.context)}
+                                        /></pre>
+                                    {:else}
+                                      -
+                                    {/if}
+                                  </td>
+                                </tr>
+                              {/if}
+                            {/each}
+                          </tbody>
+                        </table>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
+              {:else}
+                <div
+                  class="flex h-full flex-col items-center justify-center bg-slate-50"
+                >
+                  <div class="text-2xl text-gray-500 dark:text-gray-400">
+                    No files in distribution list
+                  </div>
+                </div>
+              {/if}
             </div>
           </div>
         </div>
