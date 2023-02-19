@@ -12,7 +12,7 @@
   import { toasts, addToast } from '$lib/stores/toasts';
   //  import { activePersonaStore } from '$lib/stores/persona';
 
-  import { readKudosDb } from '$lib/kudos/db';
+  import { addFileToDistList } from '$lib/distList/db';
 
   import { fly } from 'svelte/transition';
 
@@ -71,19 +71,30 @@
         if (!filePath) {
           return; // TODO: add toast / error
         }
+        let status = {};
         try {
-          const kudos = await readKudosDb({ dbFile: filePath });
-          throw new Error('thing zzz');
-          if (!kudos) {
-            return; // TODO: add toast / error
-          }
+          // add this to our dist list
+          status = await addFileToDistList({
+            distList,
+            filePath,
+          });
 
-          console.log({ kudos }, 'now');
+          if (status.inserted > 0) {
+            addToast({
+              type: 'success',
+              msg: `${status.inserted || 0} new Kudos imported`,
+            });
+          } else {
+            addToast({
+              type: 'warn',
+              msg: `No new Kudos imported`,
+            });
+          }
         } catch (e) {
           console.log(e);
           addToast({
             type: 'error',
-            msg: e.message,
+            msg: e.message || e,
           });
         }
         break;

@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 type Toast = {
   msg: string;
   id?: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warn' | 'neutral';
 };
 
 export const toasts = writable<Toast[]>([]);
