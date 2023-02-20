@@ -265,7 +265,7 @@
                   <div class="flex w-full flex-col">
                     {#each actionStatus.history as item}
                       <div class="flex flex-row items-center justify-between">
-                        <div class="text-sm text-slate-500 dark:text-slate-400">
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
                           {JSON.stringify(item)}
                         </div>
                       </div>
@@ -322,22 +322,22 @@
                             <tr>
                               <th
                                 scope="col"
-                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-slate-900"
                                 >Identifier</th
                               >
                               <th
                                 scope="col"
-                                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
+                                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-slate-900 sm:pl-6"
                                 >Date</th
                               >
                               <th
                                 scope="col"
-                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-slate-900"
                                 >Weight</th
                               >
                               <th
                                 scope="col"
-                                class="truncate whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                                class="truncate whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-slate-900"
                                 >Description</th
                               >
                               <th
@@ -358,27 +358,27 @@
                                 }}
                               >
                                 <td
-                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-sm font-medium text-slate-900"
+                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-slate-900"
                                   ><div title={kudo.id}>
                                     {kudo.identifier}
                                   </div></td
                                 >
                                 <td
-                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-500 sm:pl-6"
+                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
                                   ><Ago at={kudo.createTime} /></td
                                 >
                                 <td
-                                  class="whitespace-nowrap px-2 py-2 text-sm text-slate-900"
+                                  class="whitespace-nowrap px-2 py-2 text-xs text-slate-900"
                                   >{kudo.weight.toFixed(4)}</td
                                 >
                                 <td
-                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2  text-sm text-slate-500"
+                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
                                   ><div title={kudo.description}>
                                     {kudo.description}
                                   </div></td
                                 >
                                 <td
-                                  class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
+                                  class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-xs font-medium sm:pr-6"
                                 >
                                   <button
                                     class="text-cyan-600 hover:text-cyan-900"
