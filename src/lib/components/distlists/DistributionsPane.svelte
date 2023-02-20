@@ -40,12 +40,28 @@
 
   $: feedHeight =
     sidebarHeight -
-    actionHeight -
-    (utilsOpen ? utilsHeight : 0) -
+    // actionHeight -
+    (utilsOpen || actionStatus.showHistory ? utilsHeight : 0) -
     commanderHeight;
 
   let clearConfig = {};
   let actionStatus = {};
+
+  // if distList.id changes, we need to update the distItems
+  $: distList?.id && updateDistListItems();
+
+  const updateDistListItems = async () => {
+    const distListItems = await getDistList({ distList });
+    console.log({ distListItems });
+    distItems.set(distListItems);
+
+    utilsOpen = false;
+    actionStatus.showHistory = false;
+    // if we don't have any items in the distlist, open utils
+    if (distList && $distItems && Object.keys($distItems).length === 0) {
+      utilsOpen = true;
+    }
+  };
 
   onMount(async () => {
     if (!browser) {
@@ -57,14 +73,14 @@
       clearConfig = config;
     });
 
-    const distListItems = await getDistList({ distList });
-    console.log({ distListItems });
-    distItems.set(distListItems);
+    // const distListItems = await getDistList({ distList });
+    // console.log({ distListItems });
+    // distItems.set(distListItems);
 
-    // if we don't have any items in the distlist, open utils
-    if (distList && $distItems && Object.keys($distItems).length === 0) {
-      utilsOpen = true;
-    }
+    // // if we don't have any items in the distlist, open utils
+    // if (distList && $distItems && Object.keys($distItems).length === 0) {
+    //   utilsOpen = true;
+    // }
 
     ready = true;
   });
@@ -76,6 +92,9 @@
     switch (action) {
       case 'utils:add':
         utilsOpen = !utilsOpen;
+        // if (!utilsOpen && !actionStatus.showHistory) {
+        //   utilsHeight = 0;
+        // }
         break;
       case 'kudos:import:file': {
         // import the kudos from the file
@@ -182,6 +201,14 @@
   };
   let actionHeight = 0;
   let utilsHeight = 0;
+  let utilsHeightA = 0;
+  let utilsHeightB = 0;
+
+  // utilsHeight should always == utilsHeightA + utilsHeightB
+  $: utilsHeight =
+    (utilsOpen ? utilsHeightA : 0) +
+    (actionStatus.showHistory ? utilsHeightB : 0);
+
   let utilsOpen = false;
   let cohortClosed = {};
   const onCommand = () => {
@@ -219,7 +246,7 @@
                 class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
                 in:fly={{ y: -20, duration: 400 }}
                 out:fly={{ y: -20, duration: 200 }}
-                bind:clientHeight={utilsHeight}
+                bind:clientHeight={utilsHeightA}
               >
                 <KudosStartImport on:action={onAction} />
               </div>
@@ -229,7 +256,7 @@
                 class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
                 in:fly={{ y: -20, duration: 400 }}
                 out:fly={{ y: -20, duration: 200 }}
-                bind:clientHeight={utilsHeight}
+                bind:clientHeight={utilsHeightB}
               >
                 <div class="flex w-full flex-col">
                   <div class="flex flex-row items-center justify-between">
@@ -248,7 +275,7 @@
               </div>
             {/if}
             <div
-              class="h-full"
+              class="h-full overflow-scroll"
               style={`height: 100%; max-height: ${sidebarHeight}px !important; min-height: ${sidebarHeight}px`}
             >
               {#if $distItems && Object.keys($distItems).length}
@@ -279,12 +306,12 @@
                       <div
                         class="flex flex-col overflow-scroll"
                         class:pb-24={utilsHeight < 1}
-                        class:pb-36={utilsHeight > 1}
+                        class:pb-96={utilsHeight > 1}
                         style={`height: 100%; max-height: ${
-                          feedHeight - utilsHeight
+                          feedHeight - utilsHeight - 80
                         }px !important; min-height: ${
-                          feedHeight - utilsHeight
-                        }px`}
+                          feedHeight - utilsHeight - 80
+                        }px !important`}
                       >
                         <table
                           class="table-auto divide-y divide-slate-300"

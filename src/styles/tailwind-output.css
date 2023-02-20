@@ -2001,6 +2001,15 @@ select {
 .pb-36 {
   padding-bottom: 9rem;
 }
+.pb-6 {
+  padding-bottom: 1.5rem;
+}
+.pb-12 {
+  padding-bottom: 3rem;
+}
+.pb-96 {
+  padding-bottom: 24rem;
+}
 .text-left {
   text-align: left;
 }
