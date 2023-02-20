@@ -6,9 +6,14 @@
   import Form from '$lib/components/Form.svelte';
   import SettingsWell from '$lib/components/SettingsWell.svelte';
 
+  import { clearConfigStore } from '$lib/stores/clearConfig';
   import { walletStore } from '$lib/stores/wallet.js';
 
   import { Tab, TabList, TabPanel, Tabs } from '$lib/components/Tabs';
+
+  import { createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
+
   let activeSection = 'General';
 
   const TABS: { id: string; icon?: IconName; twe?: string; class?: string }[] =
@@ -32,8 +37,6 @@
       },
     ];
 
-  import { createEventDispatcher } from 'svelte';
-
   const dispatch = createEventDispatcher();
 
   let forms = {
@@ -45,7 +48,7 @@
           type: 'disclose-copy',
           displayName: 'Your Mnemonic Phrase',
           disabled: true,
-          value: $walletStore.mnemonic,
+          value: $walletStore?.mnemonic || '',
         },
       ],
     },
@@ -65,6 +68,32 @@
       customMnemonic: '',
     },
   };
+  let clearConfig = {};
+
+  const DEFAULT_NETWORKS = {
+    // mainnet with no prefix
+    bitcoin: false,
+    ethereum: false,
+    xrp: true,
+
+    'test:xrp': true,
+    'dev:xrp': true,
+  };
+
+  const toggleActiveNetwork = async (networkId) => {
+    if (!clearConfig.networks) {
+      clearConfig.networks = DEFAULT_NETWORKS;
+    }
+    clearConfig.networks[networkId] = !clearConfig.networks[networkId];
+    await clearConfigStore.save(clearConfig);
+  };
+
+  onMount(async () => {
+    clearConfig = await clearConfigStore.init();
+    clearConfigStore.subscribe((config) => {
+      clearConfig = config;
+    });
+  });
 </script>
 
 <Pane bind:active={activeSection}>
@@ -115,7 +144,94 @@
       </SettingsWell>
     </TabPanel>
     <TabPanel class="min-h-screen w-full" id="Crypto">
-      <div>settings c here</div>
+      <SettingsWell>
+        <div slot="header">
+          <h2 class="text-sm font-medium uppercase leading-6 text-slate-900">
+            Crypto
+          </h2>
+        </div>
+        <div slot="main">
+          <!-- foreach xrp, bitcoin, ethereum -->
+
+          {#each ['xrp', 'ethereum', 'bitcoin'] as networkName}
+            {#if $clearConfigStore && $clearConfigStore.networks}
+              <button
+                on:click={async () => {
+                  toggleActiveNetwork(networkName);
+                }}
+              >
+                <span
+                  class="mx-2 inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium"
+                  class:bg-green-100={$clearConfigStore.networks[networkName]}
+                  class:text-green-800={$clearConfigStore.networks[networkName]}
+                  class:bg-slate-100={!$clearConfigStore.networks[networkName]}
+                  class:text-slate-800={!$clearConfigStore.networks[
+                    networkName
+                  ]}
+                >
+                  <svg
+                    class="-ml-0.5 mr-1.5 h-2 w-2"
+                    class:text-green-400={$clearConfigStore.networks[
+                      networkName
+                    ]}
+                    class:text-slate-400={!$clearConfigStore.networks[
+                      networkName
+                    ]}
+                    fill="currentColor"
+                    viewBox="0 0 8 8"
+                  >
+                    <circle cx="4" cy="4" r="3" />
+                  </svg>
+                  <span class="text-xs uppercase">{networkName}</span>
+                </span>
+              </button>
+            {/if}
+          {/each}
+        </div>
+      </SettingsWell>
+      <SettingsWell>
+        <div slot="header">
+          <h2 class="text-sm font-medium uppercase leading-6 text-slate-900">
+            Crypto: Test and Developer Networks
+          </h2>
+        </div>
+        <div slot="main">
+          {#each ['test:xrp', 'dev:xrp'] as networkName}
+            {#if $clearConfigStore && $clearConfigStore.networks}
+              <button
+                on:click={async () => {
+                  toggleActiveNetwork(networkName);
+                }}
+              >
+                <span
+                  class="mx-2 inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium"
+                  class:bg-pink-100={$clearConfigStore.networks[networkName]}
+                  class:text-gping-800={$clearConfigStore.networks[networkName]}
+                  class:bg-slate-100={!$clearConfigStore.networks[networkName]}
+                  class:text-slate-800={!$clearConfigStore.networks[
+                    networkName
+                  ]}
+                >
+                  <svg
+                    class="-ml-0.5 mr-1.5 h-2 w-2"
+                    class:text-pink-400={$clearConfigStore.networks[
+                      networkName
+                    ]}
+                    class:text-slate-400={!$clearConfigStore.networks[
+                      networkName
+                    ]}
+                    fill="currentColor"
+                    viewBox="0 0 8 8"
+                  >
+                    <circle cx="4" cy="4" r="3" />
+                  </svg>
+                  <span class="text-xs uppercase">{networkName}</span>
+                </span>
+              </button>
+            {/if}
+          {/each}
+        </div>
+      </SettingsWell>
     </TabPanel>
     <TabPanel class="min-h-screen w-full" id="Identity">
       <div>ident</div>
