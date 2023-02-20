@@ -77,6 +77,8 @@
     | 'solid/chevron-down'
     | 'solid/cog-6-tooth'
     | 'solid/external-link'
+    | 'solid/eye'
+    | 'solid/eye-slash'
     | 'solid/fire'
     | 'solid/heart'
     | 'solid/identification'
@@ -121,7 +123,8 @@
     | 'mini/ellipsis-vertical'
     | 'mini/play'
     | 'mini/plus'
-    | 'mini/trash';
+    | 'mini/trash'
+    | 'mini/x-circle';
 
   /** <symbol> id's from {@linkcode iconsSvg} */
   export type IconName =
