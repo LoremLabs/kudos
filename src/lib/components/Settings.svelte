@@ -4,6 +4,7 @@
   import Pane from '$lib/components/Pane.svelte';
   import Tooltip from '$lib/components/Tooltip.svelte';
   import Form from '$lib/components/Form.svelte';
+  import SettingsWell from '$lib/components/SettingsWell.svelte';
 
   import { walletStore } from '$lib/stores/wallet.js';
 
@@ -69,56 +70,49 @@
 <Pane bind:active={activeSection}>
   <div slot="main" class="min-h-full w-full">
     <TabPanel class="min-h-screen w-full" id="General">
-      <div class="p-8">
-        <div class="overflow-hidden rounded-lg border border-slate-200">
-          <div class="px-4 py-5 sm:px-6">
-            <h2 class="text-sm font-medium uppercase leading-6 text-slate-900">
-              General
-            </h2>
-          </div>
-          <div class="bg-white px-4 py-5 sm:p-6">
-            <Form form={forms.General} bind:formData={formData.General}>
-              <div slot="disclose-copy">
-                <div class="m-auto mt-2 max-w-xl text-sm text-gray-500">
-                  <div class="rounded-md bg-red-50 p-4">
-                    <div class="flex">
-                      <div class="flex-shrink-0">
-                        <Icon
-                          name="mini/x-circle"
-                          class="h-5 w-5 text-red-400"
-                        />
-                      </div>
-                      <div class="ml-3">
-                        <h3 class="text-sm font-medium text-red-800">
-                          If you lose your mnemonic recovery phrase, you will
-                          lose access to your wallet which contains your
-                          identity and may result in financial loss.
-                        </h3>
-                        <div class="mt-2 text-sm text-red-700">
-                          <ul role="list" class="list-disc space-y-1 pl-5">
-                            <li>It's recommended to use paper.</li>
-                            <li>Order matters.</li>
-                            <li>
-                              If you use a phase phrase you should remember it
-                              too.
-                            </li>
-                            <li>
-                              Don't share this with anyone, including "support".
-                            </li>
-                            <li>
-                              Make sure no one is looking when you reveal.
-                            </li>
-                          </ul>
-                        </div>
+      <SettingsWell>
+        <div slot="header">
+          <h2 class="text-sm font-medium uppercase leading-6 text-slate-900">
+            General
+          </h2>
+        </div>
+        <div slot="main">
+          <Form form={forms.General} bind:formData={formData.General}>
+            <div slot="disclose-copy">
+              <div class="m-auto mt-2 max-w-xl text-sm text-gray-500">
+                <div class="rounded-md bg-red-50 p-4">
+                  <div class="flex">
+                    <div class="flex-shrink-0">
+                      <Icon name="mini/x-circle" class="h-5 w-5 text-red-400" />
+                    </div>
+                    <div class="ml-3">
+                      <h3 class="text-sm font-medium text-red-800">
+                        If you lose your mnemonic recovery phrase, you will lose
+                        access to your wallet which contains your identity and
+                        may result in financial loss.
+                      </h3>
+                      <div class="mt-2 text-sm text-red-700">
+                        <ul role="list" class="list-disc space-y-1 pl-5">
+                          <li>It's recommended to use paper.</li>
+                          <li>Order matters.</li>
+                          <li>
+                            If you use a phase phrase you should remember it
+                            too.
+                          </li>
+                          <li>
+                            Don't share this with anyone, including "support".
+                          </li>
+                          <li>Make sure no one is looking when you reveal.</li>
+                        </ul>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </Form>
-          </div>
+            </div>
+          </Form>
         </div>
-      </div>
+      </SettingsWell>
     </TabPanel>
     <TabPanel class="min-h-screen w-full" id="Crypto">
       <div>settings c here</div>
