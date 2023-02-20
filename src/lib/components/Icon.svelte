@@ -118,6 +118,7 @@
   export type MiniIcons =
     | 'mini/exclamation-triangle'
     | 'mini/chevron-right'
+    | 'mini/ellipsis-vertical'
     | 'mini/play'
     | 'mini/plus'
     | 'mini/trash';
