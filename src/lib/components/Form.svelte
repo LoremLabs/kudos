@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
+  import { addToast } from '$lib/stores/toasts';
+
   import Icon from '$lib/components/Icon.svelte';
 
   export let formData = {};
@@ -113,12 +115,70 @@
             }}
             class="my-1 rounded-sm border border-gray-300 font-mono text-xs shadow-sm focus:border-gray-500 focus:outline-none focus:ring-gray-500 disabled:bg-gray-50"
           />
+        {:else if field.type === 'disclose-copy'}
+          <input
+            type={field.type === 'string' ? 'text' : field.type || 'text'}
+            name={field.name}
+            disabled={field.disabled}
+            value={formData[field.name] ||
+              field.defaultValue ||
+              field.value ||
+              ''}
+            id={`f-${field.name}`}
+            autocomplete={field.autocomplete}
+            placeholder={field.placeholder}
+            autocorrect={field.autocorrect || 'off'}
+            autocapitalize={field.autocapitalize || 'off'}
+            spellcheck={field.spellcheck || 'false'}
+            on:input={(e) => {
+              formData[field.name] = e.currentTarget.value;
+              field.defaultValue = null;
+              dispatch('changed', {
+                name: field.name,
+                value: e.target.value,
+              });
+            }}
+            class="my-1 w-full rounded-sm border border-gray-300 py-2 px-3 font-mono text-xs shadow-sm focus:border-gray-500 focus:outline-none focus:ring-gray-500 disabled:bg-gray-50"
+            class:text-slate-50={field.disabled}
+          />
+          <button
+            type="button"
+            class="rounded-full p-2 hover:bg-gray-100 focus:outline-none"
+            on:click={() => {
+              field.disabled = !field.disabled;
+            }}
+          >
+            <Icon
+              name={!field.disabled ? 'solid/eye' : 'solid/eye-slash'}
+              class="h-4 w-4 text-gray-500"
+            />
+          </button>
+          <button
+            type="button"
+            on:click={() => {
+              navigator.clipboard.writeText(field.value);
+              addToast({
+                type: 'info',
+                msg: `Copied to clipboard`,
+                duration: 3000,
+              });
+            }}
+            class="rounded-full p-2 hover:bg-gray-100 focus:outline-none"
+          >
+            <Icon name="clipboard-copy" class="h-4 w-4 text-gray-500" />
+          </button>
+          <div class="mt-1 text-xs text-gray-500">
+            <slot name="disclose-copy" />
+          </div>
         {:else}
           <input
             type={field.type === 'string' ? 'text' : field.type || 'text'}
             name={field.name}
             disabled={field.disabled}
-            value={formData[field.name] || field.defaultValue || ''}
+            value={formData[field.name] ||
+              field.defaultValue ||
+              field.value ||
+              ''}
             id={`f-${field.name}`}
             autocomplete={field.autocomplete}
             placeholder={field.placeholder}
