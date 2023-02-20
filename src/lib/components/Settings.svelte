@@ -52,6 +52,18 @@
         },
       ],
     },
+    Identity: {
+      id: 'ident-resolver',
+      inputs: [
+        {
+          name: 'identResolver',
+          type: 'url',
+          advanced: true, // TODO: hide behind advanced toggle
+          displayName: 'Identity Resolver GraphQL Endpoint',
+          value: $clearConfigStore?.identity?.identResolver || '', // TODO: Make a new Form, StorableForm pass store to Form and let it handle storage
+        },
+      ],
+    },
   };
 
   export let sidebarWidth = 0;
@@ -79,13 +91,37 @@
     'test:xrp': true,
     'dev:xrp': true,
   };
-
+  const DEFAULT_IDENTITY = {
+    identResolver: 'https://ident.resolver/graphql',
+  };
   const toggleActiveNetwork = async (networkId) => {
     if (!clearConfig.networks) {
       clearConfig.networks = DEFAULT_NETWORKS;
     }
     clearConfig.networks[networkId] = !clearConfig.networks[networkId];
     await clearConfigStore.save(clearConfig);
+  };
+
+  let timeoutId;
+  const debounce = (fn, ms) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      console.log('doing');
+      fn();
+    }, ms);
+  };
+
+  const updateIdentity = async (input) => {
+    // debounce
+    debounce(() => {
+      if (!clearConfig.identity) {
+        clearConfig.identity = DEFAULT_IDENTITY;
+      }
+      //      console.log('input', input, input.name, input.value);
+      clearConfig.identity[input.name] = input.value;
+
+      clearConfigStore.save(clearConfig);
+    }, 500);
   };
 
   onMount(async () => {
@@ -234,7 +270,22 @@
       </SettingsWell>
     </TabPanel>
     <TabPanel class="min-h-screen w-full" id="Identity">
-      <div>ident</div>
+      <SettingsWell>
+        <div slot="header">
+          <h2 class="text-sm font-medium uppercase leading-6 text-slate-900">
+            Identity Resolution
+          </h2>
+        </div>
+        <div slot="main">
+          <Form
+            form={forms.Identity}
+            bind:formData={formData.Identity}
+            on:changed={async (event) => {
+              await updateIdentity(event.detail);
+            }}
+          />
+        </div>
+      </SettingsWell>
     </TabPanel>
   </div>
   <div slot="actions">
