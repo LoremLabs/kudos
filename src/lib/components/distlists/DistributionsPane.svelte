@@ -192,7 +192,7 @@
 {#if ready}
   {#if !distList.id}
     <div class="flex h-full flex-col items-center justify-center bg-slate-50">
-      <div class="text-2xl text-gray-500 dark:text-gray-400">
+      <div class="text-2xl text-slate-500 dark:text-slate-400">
         No distribution list selected
       </div>
     </div>
@@ -238,7 +238,7 @@
                   <div class="flex w-full flex-col">
                     {#each actionStatus.history as item}
                       <div class="flex flex-row items-center justify-between">
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <div class="text-sm text-slate-500 dark:text-slate-400">
                           {JSON.stringify(item)}
                         </div>
                       </div>
@@ -249,12 +249,11 @@
             {/if}
             <div
               class="h-full"
-              style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
+              style={`height: 100%; max-height: ${sidebarHeight}px !important; min-height: ${sidebarHeight}px`}
             >
-              <!-- iterate through each cohort of $distItems -->
               {#if $distItems && Object.keys($distItems).length}
                 {#each Object.keys($distItems) as cohort}
-                  <div class="divider-y-2 flex w-full flex-col">
+                  <div class="divider-y-2 flex w-full flex-col bg-slate-100">
                     <div class="flex flex-row items-center justify-between">
                       <div class="text23xl mx-4 font-mono font-bold">
                         <button
@@ -277,32 +276,41 @@
                       </div>
                     </div>
                     {#if !cohortClosed[cohort]}
-                      <div class="flex w-full flex-col">
+                      <div
+                        class="flex flex-col overflow-scroll"
+                        class:pb-24={utilsHeight < 1}
+                        class:pb-36={utilsHeight > 1}
+                        style={`height: 100%; max-height: ${
+                          feedHeight - utilsHeight
+                        }px !important; min-height: ${
+                          feedHeight - utilsHeight
+                        }px`}
+                      >
                         <table
-                          class="table-auto divide-y divide-gray-300"
+                          class="table-auto divide-y divide-slate-300"
                           class:animate-entering={!cohortClosed[cohort]}
                           class:animate-leaving={cohortClosed[cohort]}
                         >
-                          <thead class="bg-gray-50">
+                          <thead class="bg-slate-50">
                             <tr>
                               <th
                                 scope="col"
-                                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-                                >Date</th
-                              >
-                              <th
-                                scope="col"
-                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
                                 >Identifier</th
                               >
                               <th
                                 scope="col"
-                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-6"
+                                >Date</th
+                              >
+                              <th
+                                scope="col"
+                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
                                 >Weight</th
                               >
                               <th
                                 scope="col"
-                                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-gray-900"
+                                class="truncate whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
                                 >Description</th
                               >
                               <th
@@ -313,7 +321,7 @@
                               </th>
                             </tr>
                           </thead>
-                          <tbody class="divide-y divide-gray-200 bg-white">
+                          <tbody class="divide-y divide-slate-200 bg-white">
                             {#each $distItems[cohort] as kudo, i}
                               <tr
                                 class="cursor-pointer"
@@ -323,22 +331,22 @@
                                 }}
                               >
                                 <td
-                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-gray-500 sm:pl-6"
-                                  ><Ago at={kudo.createTime} /></td
-                                >
-                                <td
-                                  class="whitespace-nowrap px-2 py-2 text-sm font-medium text-gray-900"
+                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-sm font-medium text-slate-900"
                                   ><div title={kudo.id}>
                                     {kudo.identifier}
                                   </div></td
                                 >
                                 <td
-                                  class="whitespace-nowrap px-2 py-2 text-sm text-gray-900"
+                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-500 sm:pl-6"
+                                  ><Ago at={kudo.createTime} /></td
+                                >
+                                <td
+                                  class="whitespace-nowrap px-2 py-2 text-sm text-slate-900"
                                   >{kudo.weight.toFixed(4)}</td
                                 >
                                 <td
-                                  class="whitespace-nowrap px-2 py-2 text-sm text-gray-500"
-                                  ><div>
+                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2  text-sm text-slate-500"
+                                  ><div title={kudo.description}>
                                     {kudo.description}
                                   </div></td
                                 >
@@ -348,7 +356,10 @@
                                   <button
                                     class="text-cyan-600 hover:text-cyan-900"
                                     class:hidden={openKudos[`k-${kudo.id}`]}
-                                    ><Icon name="eye" class="h-4 w-4" /></button
+                                    ><Icon
+                                      name="mini/ellipsis-vertical"
+                                      class="h-4 w-4"
+                                    /></button
                                   >
                                 </td>
                               </tr>
@@ -360,7 +371,10 @@
                                       !openKudos[`k-${kudo.id}`];
                                   }}
                                 >
-                                  <td colspan="4" class="w-full">
+                                  <td
+                                    colspan="4"
+                                    class="w-full max-w-[100px] overflow-scroll"
+                                  >
                                     {#if kudo.context}
                                       <pre
                                         class="bg-slate-50 p-4 text-xs"><JSPretty
@@ -385,7 +399,7 @@
                 <div
                   class="flex h-full flex-col items-center justify-center bg-slate-50"
                 >
-                  <div class="text-2xl text-gray-500 dark:text-gray-400">
+                  <div class="text-2xl text-slate-500 dark:text-slate-400">
                     No files in distribution list
                   </div>
                 </div>

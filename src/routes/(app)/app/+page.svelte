@@ -103,10 +103,14 @@
   }
 </script>
 
-<div
-  class="-mt-2 min-h-screen overflow-visible"
-  bind:clientHeight={sidebarHeight}
->
+<svelte:window
+  bind:innerHeight={sidebarHeight}
+  on:resize={() => {
+    console.log('resizzed');
+  }}
+/>
+
+<div class="-mt-2 min-h-screen overflow-visible">
   <Tabs bind:active={activeSection} class="">
     <main class="flex flex-row bg-slate-100">
       <TabList

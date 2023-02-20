@@ -721,6 +721,9 @@ select {
 .relative {
   position: relative;
 }
+.sticky {
+  position: sticky;
+}
 .inset-0 {
   top: 0px;
   right: 0px;
@@ -778,6 +781,24 @@ select {
 }
 .top-8 {
   top: 2rem;
+}
+.bottom-6 {
+  bottom: 1.5rem;
+}
+.-bottom-24 {
+  bottom: -6rem;
+}
+.-bottom-12 {
+  bottom: -3rem;
+}
+.-bottom-10 {
+  bottom: -2.5rem;
+}
+.-bottom-14 {
+  bottom: -3.5rem;
+}
+.-bottom-16 {
+  bottom: -4rem;
 }
 .z-10 {
   z-index: 10;
@@ -1040,6 +1061,9 @@ select {
 .h-screen {
   height: 100vh;
 }
+.h-96 {
+  height: 24rem;
+}
 .max-h-\[100vh\] {
   max-height: 100vh;
 }
@@ -1118,6 +1142,9 @@ select {
 .w-full {
   width: 100%;
 }
+.w-96 {
+  width: 24rem;
+}
 .min-w-0 {
   min-width: 0px;
 }
@@ -1141,6 +1168,36 @@ select {
 }
 .max-w-full {
   max-width: 100%;
+}
+.max-w-\[75\%\] {
+  max-width: 75%;
+}
+.max-w-\[75vw\] {
+  max-width: 75vw;
+}
+.max-w-\[500px\] {
+  max-width: 500px;
+}
+.max-w-\[200px\] {
+  max-width: 200px;
+}
+.max-w-\[100\%\] {
+  max-width: 100%;
+}
+.max-w-\[100px\] {
+  max-width: 100px;
+}
+.max-w-\[10px\] {
+  max-width: 10px;
+}
+.max-w-\[400px\] {
+  max-width: 400px;
+}
+.max-w-\[300px\] {
+  max-width: 300px;
+}
+.max-w-\[12px\] {
+  max-width: 12px;
 }
 .flex-1 {
   flex: 1 1 0%;
@@ -1415,6 +1472,14 @@ select {
 .divide-gray-300 > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-divide-opacity));
+}
+.divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-divide-opacity));
+}
+.divide-slate-300 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(203 213 225 / var(--tw-divide-opacity));
 }
 .overflow-auto {
   overflow: auto;
@@ -1842,6 +1907,10 @@ select {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
 }
+.py-24 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
 .pb-16 {
   padding-bottom: 4rem;
 }
@@ -1922,6 +1991,15 @@ select {
 }
 .pt-6 {
   padding-top: 1.5rem;
+}
+.pb-24 {
+  padding-bottom: 6rem;
+}
+.pb-48 {
+  padding-bottom: 12rem;
+}
+.pb-36 {
+  padding-bottom: 9rem;
 }
 .text-left {
   text-align: left;
@@ -3483,6 +3561,11 @@ select {
   .dark\:text-slate-300 {
     --tw-text-opacity: 1;
     color: rgb(203 213 225 / var(--tw-text-opacity));
+  }
+
+  .dark\:text-slate-400 {
+    --tw-text-opacity: 1;
+    color: rgb(148 163 184 / var(--tw-text-opacity));
   }
 }
 @media (min-width: 640px) {

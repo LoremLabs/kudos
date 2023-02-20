@@ -39,7 +39,7 @@
     </div>
     {#if showCommander}
       <div
-        class={`absolute -bottom-6 right-0 mx-1 h-32 w-full p-2`}
+        class={`absolute -bottom-14 right-0 mx-1 h-32 w-full p-2`}
         style={`width: ${mainWidth}px;`}
       >
         <div

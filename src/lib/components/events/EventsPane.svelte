@@ -259,7 +259,7 @@
   // ];
 
   $: feedHeight =
-    sidebarHeight - actionHeight - (utilsOpen ? utilsHeight : 0) - 100;
+    sidebarHeight - actionHeight - (utilsOpen ? utilsHeight : 0) - 112;
 </script>
 
 {#if ready}
