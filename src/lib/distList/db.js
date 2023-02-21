@@ -1,8 +1,9 @@
+import { shortId, uuidV1 } from '$lib/utils/short-id';
+
 import SQLite from 'tauri-plugin-sqlite-api';
 import { appLocalDataDir } from '@tauri-apps/api/path';
 import { createDir } from '@tauri-apps/api/fs';
 import { readKudosDb } from '$lib/kudos/db';
-import { shortId } from '$lib/utils/short-id';
 
 const cache = {};
 
@@ -156,9 +157,59 @@ export const addFileToDistList = async ({ filePath, distList }) => {
   return { inserted };
 };
 
-export const changeDistListItems = async ({ distList, items }) => {
-  console.log({ items }, items.length, distList.id, 'z3');
+export const getLog = async ({ distList }) => {
+  if (!distList || !distList.id) {
+    throw new Error('dist list missing');
+  }
+  const db = await initDb({ distList });
+  if (!db) {
+    throw new Error('Unable to init db');
+  }
 
+  const log = await db.select(`SELECT * FROM dist_list_log ORDER BY ts ASC`);
+  await db.close();
+  return { log };
+};
+
+export const insertDistListItem = async ({ distList, item, cohort }) => {
+  console.log('WHAT', { distList, item, cohort });
+  const db = await initDb({ distList });
+  if (!db) {
+    throw new Error('Unable to init db');
+  }
+
+  const traceId = shortId(); // shortId is a base58 encoded uuid
+
+  item.id = item.id || uuidV1();
+
+  const res = await db.execute(
+    `INSERT OR IGNORE INTO kudos (id, user, cohort, identifier, weight, createTime, description, traceId, context) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      item.id,
+      item.user || 0,
+      cohort,
+      item.identifier,
+      item.weight || 1,
+      item.createTime || new Date().toISOString(),
+      item.description,
+      item.traceId || traceId,
+      item.context || '{}',
+    ]
+  );
+  console.log('RES', { res, item });
+  if (res) {
+    await db.execute(
+      `INSERT INTO dist_list_log (id, distListId, traceId, action, description) VALUES (?, ?, ?, ?, ?)`,
+      [shortId(), distList.id, traceId, 'create', `Created kudos`]
+    );
+  }
+  // close db
+  await db.close();
+  console.log('-----------done', traceId, item);
+  return { traceId };
+};
+
+export const changeDistListItems = async ({ distList, items }) => {
   if (!items || !items.length) {
     console.log('no items to update?');
     return;
@@ -170,7 +221,6 @@ export const changeDistListItems = async ({ distList, items }) => {
   }
   let updated = 0;
   for (const kudos of items) {
-    console.log('updating', { kudos });
     try {
       await db.execute(
         `UPDATE kudos SET identifier = ?, weight = ?, description = ? WHERE id = ? LIMIT 1`,
@@ -181,7 +231,6 @@ export const changeDistListItems = async ({ distList, items }) => {
       console.log(e);
     }
   }
-  console.log('updated', updated, items.length);
   // update transaction log
   const traceId = shortId();
   if (updated) {

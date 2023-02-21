@@ -3,8 +3,10 @@
 
   import { createEventDispatcher, onMount } from 'svelte';
   import { browser } from '$app/environment';
-
   import { writable } from 'svelte/store';
+
+  import { clearConfigStore } from '$lib/stores/clearConfig';
+  import { addToast } from '$lib/stores/toasts';
 
   import Ago from '$lib/components/Ago.svelte';
   import Icon from '$lib/components/Icon.svelte';
@@ -12,16 +14,15 @@
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
   import EditableInput from '$lib/components/EditableInput.svelte';
+  import Pill from '$lib/components/Pill.svelte';
 
-  //import { walletStore } from '$lib/stores/wallet';
-  import { clearConfigStore } from '$lib/stores/clearConfig';
-  import { addToast } from '$lib/stores/toasts';
-  //  import { activePersonaStore } from '$lib/stores/persona';
+  import { shortId } from '$lib/utils/short-id';
 
   import {
     addFileToDistList,
     changeDistListItems,
     getDistList,
+    insertDistListItem,
     zeroDistListItems,
   } from '$lib/distList/db';
 
@@ -217,6 +218,7 @@
 
   let editMode = false;
   let editingKudo;
+  let insertBefore;
 
   let utilsOpen = false;
   let cohortClosed = {};
@@ -303,23 +305,97 @@
             {/if}
             {#if actionStatus.showHistory}
               <div
-                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
+                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-2 pb-8 pt-4 shadow"
                 in:fly={{ y: -20, duration: 400 }}
                 out:fly={{ y: -20, duration: 200 }}
                 bind:clientHeight={utilsHeightB}
               >
-                <div class="flex w-full flex-col">
+                <div
+                  class="flex w-full flex-col"
+                  style={`height: 100%; max-height: 500px !important; min-height: 500px`}
+                >
                   <div class="flex flex-row items-center justify-between">
-                    <div class="text-xl font-bold">List Events</div>
+                    <div class="text-xl font-bold">List History</div>
                   </div>
-                  <div class="flex w-full flex-col">
-                    {#each actionStatus.history as item}
-                      <div class="flex flex-row items-center justify-between">
-                        <div class="text-xs text-slate-500 dark:text-slate-400">
-                          {JSON.stringify(item)}
-                        </div>
-                      </div>
-                    {/each}
+                  <div class="flex w-full flex-col overflow-scroll">
+                    <table class="divide-y divide-gray-300">
+                      <thead>
+                        <tr>
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-gray-900 sm:pl-0"
+                            >Action</th
+                          >
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-gray-900"
+                            >Description</th
+                          >
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-gray-900"
+                            >DistListId</th
+                          >
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-gray-900"
+                            >Id</th
+                          >
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-gray-900"
+                            >TraceId</th
+                          >
+                          <th
+                            scope="col"
+                            class="whitespace-nowrap px-2 py-3.5 text-left text-xs font-semibold text-gray-900"
+                            >Ts</th
+                          >
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-200 bg-slate-50">
+                        {#each actionStatus.history as item}
+                          <tr>
+                            <td
+                              class="whitespace-nowrap py-2 pl-6 pr-3 text-xs text-gray-500 sm:pl-0"
+                            >
+                              <Pill type={item.action}>{item.action}</Pill>
+                            </td>
+                            <td
+                              class="truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-gray-900"
+                              >{item.description}</td
+                            >
+                            <td
+                              class="whitespace-nowrap px-2 py-2 text-xs text-gray-900"
+                              >{item.distListId}</td
+                            >
+                            <td
+                              class="whitespace-nowrap px-2 py-2 text-xs text-gray-500"
+                              >{item.id}</td
+                            >
+                            <td
+                              class="whitespace-nowrap px-2 py-2 text-xs text-gray-500"
+                              >{item.traceId}</td
+                            >
+                            <td
+                              class="whitespace-nowrap px-2 py-2 text-xs text-gray-500"
+                              >{item.ts}</td
+                            >
+                          </tr>
+                        {/each}
+                        {#if actionStatus.history.length === 0}
+                          <tr
+                            ><td colspan="6"
+                              ><h3
+                                class="mt-2 text-sm font-medium text-gray-900"
+                              >
+                                No History Yet
+                              </h3></td
+                            ></tr
+                          >
+                        {/if}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -399,6 +475,33 @@
                             </tr>
                           </thead>
                           <tbody class="divide-y divide-slate-200 bg-white">
+                            {#if false}
+                              <tr>
+                                <td
+                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-slate-900"
+                                  ><div title="New Kudo">new</div>
+                                </td>
+                                <td
+                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
+                                  ><Ago at={kudo.createTime} /></td
+                                >
+                                <td
+                                  class="whitespace-nowrap px-2 py-2 text-xs text-slate-900"
+                                >
+                                  weight
+                                </td>
+                                <td
+                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
+                                  ><div
+                                    title={kudo.description ||
+                                      'New Kudo Description'}
+                                  >
+                                    desc
+                                  </div>
+                                </td>
+                                <td />
+                              </tr>
+                            {/if}
                             {#each $distItems[cohort] as kudo, i}
                               {#if kudo && kudo.weight > 0}
                                 <tr
@@ -720,8 +823,8 @@
                                             e.preventDefault();
                                           }
                                         }}
-                                        ><div slot="show">
-                                          {kudo.description}
+                                        ><div slot="show" class="">
+                                          {kudo.description || '-'}
                                         </div>
                                       </EditableInput>
                                     </div></td
@@ -751,7 +854,7 @@
                                       /></button
                                     >
                                     <div
-                                      class="absolute right-2 top-4 z-40 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                      class="absolute right-2 -top-16 z-40 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                                       role="menu"
                                       aria-orientation="vertical"
                                       aria-labelledby="user-menu-button"
@@ -780,6 +883,55 @@
                                           />
                                         </div>
                                         <div class="">Source Details</div>
+                                      </button>
+                                      <button
+                                        class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                                        id="user-menu-item-0"
+                                        on:click|stopPropagation={async () => {
+                                          const traceId = shortId();
+                                          const newKudo = {
+                                            cohort,
+                                            traceId,
+                                            weight: 1,
+                                            description: '',
+                                            identifier:
+                                              'email:matt@loremlabs.com',
+                                            context: JSON.stringify({
+                                              traceId,
+                                              source: 'manual',
+                                            }),
+                                          };
+                                          // add to the top of the list for this cohort
+                                          try {
+                                            await insertDistListItem({
+                                              distList,
+                                              cohort,
+                                              item: newKudo,
+                                            });
+                                            updateDistListItems();
+
+                                            addToast({
+                                              msg: 'Created.',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+                                          closeMenu();
+                                        }}
+                                      >
+                                        <div class="w-6">
+                                          <Icon
+                                            name="mini/plus"
+                                            class="mr-2 h-4 w-4"
+                                          />
+                                        </div>
+                                        <div class="">Insert</div>
                                       </button>
 
                                       <button
@@ -872,7 +1024,9 @@
                 <div
                   class="flex h-full flex-col items-center justify-center bg-slate-50"
                 >
-                  <div class="text-2xl text-slate-500 dark:text-slate-400">
+                  <div
+                    class="m-auto flex h-48 items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                  >
                     No files in distribution list
                   </div>
                 </div>

@@ -38,6 +38,7 @@
   />
 {:else}
   <button
+    class=""
     on:click|stopPropagation={(e) => {
       if (editMode) {
         dispatch('stopOtherEdit');

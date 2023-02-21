@@ -55,7 +55,7 @@
                   class="h-16 w-16 animate-spin text-slate-600"
                 />
               </div>
-              <span class="text-slate-900">Switching Personas...</span>
+              <span class="text-slate-900">Processing...</span>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@
 
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { walletStore } from '$lib/stores/wallet.js';
+  import { addToast } from '$lib/stores/toasts';
 
   import { Tab, TabList, TabPanel, Tabs } from '$lib/components/Tabs';
 
@@ -100,6 +101,12 @@
     }
     clearConfig.networks[networkId] = !clearConfig.networks[networkId];
     await clearConfigStore.save(clearConfig);
+
+    addToast({
+      msg: 'Saved.',
+      type: 'success',
+      duration: 2000,
+    });
   };
 
   let timeoutId;
@@ -121,6 +128,11 @@
       clearConfig.identity[input.name] = input.value;
 
       clearConfigStore.save(clearConfig);
+      addToast({
+        msg: 'Saved.',
+        type: 'success',
+        duration: 2000,
+      });
     }, 1500);
   };
 

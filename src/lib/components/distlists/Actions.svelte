@@ -7,6 +7,8 @@
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
 
+  import { getLog } from '$lib/distList/db';
+
   const dispatch = createEventDispatcher();
 
   let panelOpen: HTMLElement | null = null;
@@ -130,24 +132,17 @@
           class="mx-2 rounded-full p-2 hover:bg-slate-300 focus:outline-none"
           class:bg-slate-200={status.showHistory}
           class:font-bold={status.showHistory}
-          on:click={() => {
+          on:click={async () => {
+            const { log } = await getLog({ distList });
             status = {
               ...status,
               showHistory: !status.showHistory,
-              history: [
-                {
-                  id: 1,
-                  name: 'Test',
-                  created_at: '2021-01-01',
-                  updated_at: '2021-01-01',
-                  deleted_at: '2021-01-01',
-                  created_by: 'Test',
-                  updated_by: 'Test',
-                  deleted_by: 'Test',
-                },
-              ],
+              history: log,
             };
-            dispatch('action', { action: 'distlist:showHistory' });
+            dispatch('action', {
+              action: 'distlist:showHistory',
+              params: { history: log },
+            });
           }}
         >
           <Icon name="solid/list-bullet" class="h-6 w-6" />
