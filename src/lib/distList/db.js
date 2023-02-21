@@ -156,6 +156,85 @@ export const addFileToDistList = async ({ filePath, distList }) => {
   return { inserted };
 };
 
+export const changeDistListItems = async ({ distList, items }) => {
+  console.log({ items }, items.length, distList.id, 'z3');
+
+  if (!items || !items.length) {
+    console.log('no items to update?');
+    return;
+  }
+
+  const db = await initDb({ distList });
+  if (!db) {
+    throw new Error('Unable to init db');
+  }
+  let updated = 0;
+  for (const kudos of items) {
+    console.log('updating', { kudos });
+    try {
+      await db.execute(
+        `UPDATE kudos SET identifier = ?, weight = ?, description = ? WHERE id = ? LIMIT 1`,
+        [kudos.identifier, kudos.weight, kudos.description, kudos.id]
+      );
+      updated++;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  console.log('updated', updated, items.length);
+  // update transaction log
+  const traceId = shortId();
+  if (updated) {
+    await db.execute(
+      `INSERT INTO dist_list_log (id, distListId, traceId, action, description) VALUES (?, ?, ?, ?, ?)`, // TODO: add pesona?
+      [shortId(), distList.id, traceId, 'edit-item', `Updated ${updated} kudos`]
+    );
+  }
+  // close db
+  await db.close();
+
+  return { updated, traceId };
+};
+
+export const zeroDistListItems = async (distList, kudosIds) => {
+  const db = await initDb({ distList });
+  if (!db) {
+    throw new Error('Unable to init db');
+  }
+  if (!distList || !distList.id) {
+    throw new Error('id missing');
+  }
+
+  // foreach kudos, update weight to 0
+  let updated = 0;
+  for (const kudosId of kudosIds) {
+    // not actually a delete, but setting the weight to 0 to disregard
+    await db.select(`UPDATE kudos SET weight = 0 WHERE id = ? LIMIT 1`, [
+      kudosId,
+    ]);
+    updated++;
+  }
+
+  const traceId = shortId();
+  // update transaction log
+  if (updated) {
+    await db.execute(
+      `INSERT INTO dist_list_log (id, distListId, traceId, action, description) VALUES (?, ?, ?, ?, ?)`,
+      [
+        shortId(),
+        distList.id,
+        traceId,
+        'edit-weight',
+        `Zeroed ${updated} kudos`,
+      ]
+    );
+  }
+  // close db
+  await db.close();
+
+  return { updated, traceId };
+};
+
 export const getDistList = async ({ distList }) => {
   const db = await initDb({ distList });
   if (!db) {

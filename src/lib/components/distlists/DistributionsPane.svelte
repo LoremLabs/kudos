@@ -11,13 +11,19 @@
   import JSPretty from '$lib/components/JSPretty.svelte';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
+  import EditableInput from '$lib/components/EditableInput.svelte';
 
   //import { walletStore } from '$lib/stores/wallet';
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { addToast } from '$lib/stores/toasts';
   //  import { activePersonaStore } from '$lib/stores/persona';
 
-  import { addFileToDistList, getDistList } from '$lib/distList/db';
+  import {
+    addFileToDistList,
+    changeDistListItems,
+    getDistList,
+    zeroDistListItems,
+  } from '$lib/distList/db';
 
   import { fly } from 'svelte/transition';
 
@@ -209,12 +215,56 @@
     (utilsOpen ? utilsHeightA : 0) +
     (actionStatus.showHistory ? utilsHeightB : 0);
 
+  let editMode = false;
+  let editingKudo;
+
   let utilsOpen = false;
   let cohortClosed = {};
   const onCommand = () => {
     dispatch('command');
   };
+
+  function handleOutsideClick(ev: MouseEvent) {
+    if (
+      !openKudos.menuOpened ||
+      ev.target === openKudos.menuOpener ||
+      !ev.target
+    ) {
+      return;
+    }
+    if (openKudos.menuOpener.contains(ev.target as Node)) {
+      return;
+    }
+    // if (
+    //   ev.target instanceof HTMLElement &&
+    //   ev.target.classList.contains('backdrop')
+    // ) {
+    //   return;
+    // }
+
+    closeMenu();
+    ev.preventDefault();
+  }
+
+  function closeMenu() {
+    if (openKudos.menuOpened) {
+      openKudos[`m-${openKudos.menuOpened}`] = false;
+      openKudos.menuOpened = null;
+      openKudos.menuOpener = null;
+    }
+  }
+
+  function handleKeypress(ev: KeyboardEvent) {
+    if (ev.key === 'Escape') {
+      closeMenu();
+      ev.preventDefault;
+    }
+  }
+
+  let lastClick = 0;
 </script>
+
+<svelte:body on:click={handleOutsideClick} on:keydown={handleKeypress} />
 
 {#if ready}
   {#if !distList.id}
@@ -350,70 +400,466 @@
                           </thead>
                           <tbody class="divide-y divide-slate-200 bg-white">
                             {#each $distItems[cohort] as kudo, i}
-                              <tr
-                                class="cursor-pointer"
-                                on:click={() => {
-                                  openKudos[`k-${kudo.id}`] =
-                                    !openKudos[`k-${kudo.id}`];
-                                }}
-                              >
-                                <td
-                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-slate-900"
-                                  ><div title={kudo.id}>
-                                    {kudo.identifier}
-                                  </div></td
-                                >
-                                <td
-                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
-                                  ><Ago at={kudo.createTime} /></td
-                                >
-                                <td
-                                  class="whitespace-nowrap px-2 py-2 text-xs text-slate-900"
-                                  >{kudo.weight.toFixed(4)}</td
-                                >
-                                <td
-                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
-                                  ><div title={kudo.description}>
-                                    {kudo.description}
-                                  </div></td
-                                >
-                                <td
-                                  class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-xs font-medium sm:pr-6"
-                                >
-                                  <button
-                                    class="text-cyan-600 hover:text-cyan-900"
-                                    class:hidden={openKudos[`k-${kudo.id}`]}
-                                    ><Icon
-                                      name="mini/ellipsis-vertical"
-                                      class="h-4 w-4"
-                                    /></button
-                                  >
-                                </td>
-                              </tr>
-                              {#if openKudos[`k-${kudo.id}`]}
+                              {#if kudo && kudo.weight > 0}
                                 <tr
-                                  class="cursor-pointer"
+                                  class:cursor-pointer={editMode}
                                   on:click={() => {
-                                    openKudos[`k-${kudo.id}`] =
-                                      !openKudos[`k-${kudo.id}`];
+                                    if (editingKudo) {
+                                      editMode = false;
+                                      openKudos[`e-${editingKudo}`] = false;
+                                    }
                                   }}
                                 >
                                   <td
-                                    colspan="4"
-                                    class="w-full max-w-[100px] overflow-scroll"
+                                    class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-slate-900"
+                                    ><div title={kudo.id}>
+                                      <EditableInput
+                                        bind:isEditing={openKudos[
+                                          `e-${kudo.id}`
+                                        ]}
+                                        bind:value={kudo.identifier}
+                                        on:stopOtherEdit={async (e) => {
+                                          // const action = e.detail?.action || '';
+                                          // const params = e.detail?.params || {};
+                                          try {
+                                            await changeDistListItems({
+                                              distList,
+                                              items: [kudo],
+                                            });
+
+                                            addToast({
+                                              msg: 'Saved.',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+
+                                          editMode = false;
+                                          openKudos[`e-${editingKudo}`] = false;
+                                          editingKudo = null;
+                                          editMode = false;
+                                        }}
+                                        on:startEdit={(e) => {
+                                          const action = e.detail?.action || '';
+                                          const params = e.detail?.params || {};
+
+                                          console.log('turning on em');
+                                          editMode = true;
+                                          editingKudo = kudo.id;
+                                          openKudos[`e-${kudo.id}`] = true;
+
+                                          closeMenu();
+                                        }}
+                                        onBlur={async ({
+                                          formerValue,
+                                          value,
+                                        }) => {
+                                          if (!value || value.length === 0) {
+                                            kudo.identifier = formerValue;
+                                            return;
+                                          }
+                                          try {
+                                            await changeDistListItems({
+                                              distList,
+                                              items: [kudo],
+                                            });
+                                            addToast({
+                                              msg: 'Saved!',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+                                          openKudos[`e-${kudo.id}`] = false;
+                                          editingKudo = null;
+                                          editMode = false;
+                                        }}
+                                        onKeydown={async (e) => {
+                                          if (
+                                            e.key === 'Escape' ||
+                                            e.key === 'Enter'
+                                          ) {
+                                            try {
+                                              await updateDistListItems({
+                                                distList,
+                                                items: [kudo],
+                                              });
+                                              addToast({
+                                                msg: 'Saved!',
+                                                type: 'success',
+                                                duration: 2000,
+                                              });
+                                            } catch (e) {
+                                              addToast({
+                                                msg: e.message || e,
+                                                type: 'error',
+                                                duration: 5000,
+                                              });
+                                            }
+
+                                            openKudos[`e-${kudo.id}`] = false;
+                                            editingKudo = null;
+                                            editMode = false;
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                        ><div slot="show">
+                                          {kudo.identifier}
+                                        </div>
+                                      </EditableInput>
+                                    </div></td
                                   >
-                                    {#if kudo.context}
-                                      <pre
-                                        class="bg-slate-50 p-4 text-xs"><JSPretty
-                                          obj={kudo}
-                                        /><hr /><JSPretty
-                                          obj={JSON.parse(kudo.context)}
-                                        /></pre>
-                                    {:else}
-                                      -
-                                    {/if}
+                                  <td
+                                    class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
+                                    ><Ago at={kudo.createTime} /></td
+                                  >
+                                  <td
+                                    class="whitespace-nowrap px-2 py-2 text-xs text-slate-900"
+                                  >
+                                    <EditableInput
+                                      bind:isEditing={openKudos[`e-${kudo.id}`]}
+                                      value={kudo.weight}
+                                      inputSize={5}
+                                      on:stopOtherEdit={async (e) => {
+                                        const action = e.detail?.action || '';
+                                        const params = e.detail?.params || {};
+                                        editMode = false;
+                                        openKudos[`e-${editingKudo}`] = false;
+                                        editingKudo = null;
+                                        editMode = false;
+
+                                        try {
+                                          await changeDistListItems({
+                                            distList,
+                                            items: [kudo],
+                                          });
+
+                                          addToast({
+                                            msg: 'Saved.',
+                                            type: 'success',
+                                            duration: 2000,
+                                          });
+                                        } catch (e) {
+                                          addToast({
+                                            msg: e.message || e,
+                                            type: 'error',
+                                            duration: 5000,
+                                          });
+                                        }
+                                      }}
+                                      on:startEdit={(e) => {
+                                        const action = e.detail?.action || '';
+                                        const params = e.detail?.params || {};
+
+                                        console.log('turning on em');
+                                        editMode = true;
+                                        editingKudo = kudo.id;
+                                        openKudos[`e-${kudo.id}`] = true;
+
+                                        closeMenu();
+                                      }}
+                                      onBlur={async ({
+                                        formerValue,
+                                        value,
+                                      }) => {
+                                        // TODO: save to db
+                                        // make sure we're a number and not a string
+
+                                        try {
+                                          console.log(
+                                            'formerValue',
+                                            formerValue,
+                                            kudo.weight,
+                                            value
+                                          );
+                                          const valueFloat = parseFloat(
+                                            value || 0
+                                          );
+                                          if (
+                                            value === '' ||
+                                            valueFloat <= 0 ||
+                                            isNaN(valueFloat)
+                                          ) {
+                                            kudo.weight = formerValue;
+                                            addToast({
+                                              type: 'info',
+                                              msg: 'Weight must be greater than 0',
+                                              duration: 5000,
+                                            });
+                                          } else {
+                                            kudo.weight = valueFloat;
+                                            //                                            await updateKudo(kudo);
+                                          }
+                                        } catch (e) {
+                                          console.log('error', e);
+                                          kudo.weight = formerValue;
+                                          addToast({
+                                            type: 'error',
+                                            msg: e.message || e,
+                                            duration: 5000,
+                                          });
+                                        }
+                                        try {
+                                          await changeDistListItems({
+                                            distList,
+                                            items: [kudo],
+                                          });
+
+                                          addToast({
+                                            msg: 'Saved.',
+                                            type: 'success',
+                                            duration: 2000,
+                                          });
+                                        } catch (e) {
+                                          addToast({
+                                            msg: e.message || e,
+                                            type: 'error',
+                                            duration: 5000,
+                                          });
+                                        }
+
+                                        openKudos[`e-${kudo.id}`] = false;
+                                        editingKudo = null;
+                                        editMode = false;
+                                      }}
+                                      ><div slot="show">
+                                        {kudo.weight.toFixed(4)}
+                                      </div>
+                                    </EditableInput>
+                                  </td>
+                                  <td
+                                    class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
+                                    ><div title={kudo.description}>
+                                      <EditableInput
+                                        bind:isEditing={openKudos[
+                                          `e-${kudo.id}`
+                                        ]}
+                                        bind:value={kudo.description}
+                                        on:stopOtherEdit={async (e) => {
+                                          const action = e.detail?.action || '';
+                                          const params = e.detail?.params || {};
+                                          editMode = false;
+
+                                          try {
+                                            await changeDistListItems({
+                                              distList,
+                                              items: [kudo],
+                                            });
+
+                                            addToast({
+                                              msg: 'Saved.',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+
+                                          openKudos[`e-${editingKudo}`] = false;
+                                          editingKudo = null;
+                                          editMode = false;
+                                        }}
+                                        on:startEdit={(e) => {
+                                          const action = e.detail?.action || '';
+                                          const params = e.detail?.params || {};
+
+                                          console.log('turning on em');
+                                          editMode = true;
+                                          editingKudo = kudo.id;
+                                          openKudos[`e-${kudo.id}`] = true;
+
+                                          closeMenu();
+                                        }}
+                                        onBlur={async () => {
+                                          try {
+                                            await changeDistListItems({
+                                              distList,
+                                              items: [kudo],
+                                            });
+
+                                            addToast({
+                                              msg: 'Saved.',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+
+                                          openKudos[`e-${kudo.id}`] = false;
+                                          editingKudo = null;
+                                          editMode = false;
+                                        }}
+                                        onKeydown={(e) => {
+                                          if (
+                                            e.key === 'Escape' ||
+                                            e.key === 'Enter'
+                                          ) {
+                                            openKudos[`e-${kudo.id}`] = false;
+                                            editingKudo = null;
+                                            editMode = false;
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                        ><div slot="show">
+                                          {kudo.description}
+                                        </div>
+                                      </EditableInput>
+                                    </div></td
+                                  >
+                                  <td
+                                    class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-xs font-medium sm:pr-6"
+                                  >
+                                    <button
+                                      class="text-cyan-600 hover:text-cyan-900"
+                                      on:click|stopPropagation={(ev) => {
+                                        if (editMode) {
+                                          editMode = false;
+                                          openKudos[`e-${editingKudo}`] = false;
+                                          editingKudo = null;
+                                        }
+                                        if (openKudos.menuOpened) {
+                                          closeMenu();
+                                        } else {
+                                          openKudos[`m-${kudo.id}`] = true;
+                                          openKudos.menuOpened = kudo.id;
+                                          openKudos.menuOpener = ev.target;
+                                        }
+                                      }}
+                                      ><Icon
+                                        name="mini/ellipsis-vertical"
+                                        class="h-4 w-4"
+                                      /></button
+                                    >
+                                    <div
+                                      class="absolute right-2 top-4 z-40 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                      role="menu"
+                                      aria-orientation="vertical"
+                                      aria-labelledby="user-menu-button"
+                                      tabindex="-1"
+                                      class:hidden={!openKudos[`m-${kudo.id}`]}
+                                      class:animate-entering={openKudos[
+                                        `m-${kudo.id}`
+                                      ]}
+                                      class:animate-leaving={!openKudos[
+                                        `m-${kudo.id}`
+                                      ]}
+                                    >
+                                      <button
+                                        class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                                        id="user-menu-item-0"
+                                        on:click|stopPropagation={() => {
+                                          openKudos[`k-${kudo.id}`] =
+                                            !openKudos[`k-${kudo.id}`];
+                                          closeMenu();
+                                        }}
+                                      >
+                                        <div class="w-6">
+                                          <Icon
+                                            name="document"
+                                            class="mr-2 h-4 w-4"
+                                          />
+                                        </div>
+                                        <div class="">Source Details</div>
+                                      </button>
+
+                                      <button
+                                        class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                                        id="user-menu-item-0"
+                                        on:click|stopPropagation={() => {
+                                          openKudos[`e-${kudo.id}`] = true; // turn on edit Mode
+                                          editingKudo = kudo.id;
+                                          editMode = true;
+                                          closeMenu();
+                                        }}
+                                      >
+                                        <div class="w-6">
+                                          <Icon
+                                            name="pencil"
+                                            class="mr-2 h-4 w-4"
+                                          />
+                                        </div>
+                                        <div class="">Edit</div>
+                                      </button>
+                                      <button
+                                        class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                                        id="user-menu-item-0"
+                                        on:click|stopPropagation={async () => {
+                                          closeMenu();
+                                          try {
+                                            await zeroDistListItems(distList, [
+                                              kudo.id,
+                                            ]);
+                                            addToast({
+                                              msg: 'Deleted.',
+                                              type: 'success',
+                                              duration: 2000,
+                                            });
+                                          } catch (e) {
+                                            addToast({
+                                              msg: e.message || e,
+                                              type: 'error',
+                                              duration: 5000,
+                                            });
+                                          }
+                                          updateDistListItems();
+                                        }}
+                                      >
+                                        <div class="w-6">
+                                          <Icon
+                                            name="trash"
+                                            class="mr-2 h-4 w-4"
+                                          />
+                                        </div>
+                                        <div class="">Delete</div>
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
+                                {#if openKudos[`k-${kudo.id}`]}
+                                  <tr
+                                    class="cursor-pointer"
+                                    on:click={() => {
+                                      openKudos[`k-${kudo.id}`] =
+                                        !openKudos[`k-${kudo.id}`];
+                                    }}
+                                  >
+                                    <td
+                                      colspan="5"
+                                      class="w-full max-w-[100px] overflow-scroll"
+                                    >
+                                      {#if kudo.context}
+                                        <pre
+                                          class="whitespace-pre-wrap bg-slate-50 p-4 text-xs"><JSPretty
+                                            obj={kudo}
+                                          /><hr /><JSPretty
+                                            obj={JSON.parse(kudo.context)}
+                                          /></pre>
+                                      {:else}
+                                        -
+                                      {/if}
+                                    </td>
+                                  </tr>
+                                {/if}
                               {/if}
                             {/each}
                           </tbody>
