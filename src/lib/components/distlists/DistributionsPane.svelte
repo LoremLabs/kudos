@@ -16,6 +16,8 @@
   import EditableInput from '$lib/components/EditableInput.svelte';
   import Pill from '$lib/components/Pill.svelte';
 
+  import ModalNewCohort from '$lib/components/ModalNewCohort.svelte';
+
   import { shortId } from '$lib/utils/short-id';
 
   import {
@@ -53,6 +55,7 @@
 
   let clearConfig = {};
   let actionStatus = {};
+  let openNewSegment = false;
 
   // if distList.id changes, we need to update the distItems
   $: distList?.id && updateDistListItems();
@@ -224,6 +227,16 @@
   let cohortClosed = {};
   const onCommand = () => {
     dispatch('command');
+  };
+
+  let newCohortModal = false;
+
+  let newCohortPromise: Promise<void>;
+  const newCohort = async () => {
+    newCohortModal = true;
+    let userData = await newCohortPromise;
+    newCohortModal = false;
+    return userData;
   };
 
   function handleOutsideClick(ev: MouseEvent) {
@@ -1025,12 +1038,95 @@
                   class="flex h-full flex-col items-center justify-center bg-slate-50"
                 >
                   <div
-                    class="m-auto flex h-48 items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                    class="m-auto mb-12 flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
                   >
                     No files in distribution list
                   </div>
                 </div>
               {/if}
+              <div class="text-center">
+                <svg
+                  class="mx-auto h-12 w-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    vector-effect="non-scaling-stroke"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                  />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">
+                  Add a segment
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">
+                  These allow you to segment your list by cohort or other
+                  divisions.
+                </p>
+                <div class="mt-6">
+                  <button
+                    type="button"
+                    class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
+                    on:click={async () => {
+                      const segment = await newCohort();
+                      const cohort = segment.cohort;
+                      if (!cohort) {
+                        return;
+                      }
+                      const traceId = shortId();
+
+                      const newKudo = {
+                        cohort,
+                        traceId,
+                        weight: 1,
+                        description: '',
+                        identifier: 'email:matt@loremlabs.com',
+                        context: JSON.stringify({
+                          traceId,
+                          source: 'manual',
+                        }),
+                      };
+                      // add to the top of the list for this cohort
+                      try {
+                        await insertDistListItem({
+                          distList,
+                          cohort,
+                          item: newKudo,
+                        });
+                        updateDistListItems();
+
+                        addToast({
+                          msg: 'Created.',
+                          type: 'success',
+                          duration: 2000,
+                        });
+                      } catch (e) {
+                        addToast({
+                          msg: e.message || e,
+                          type: 'error',
+                          duration: 5000,
+                        });
+                      }
+                    }}
+                  >
+                    <svg
+                      class="-ml-1 mr-2 h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+                      />
+                    </svg>
+                    New Segment
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1040,3 +1136,18 @@
 {:else}
   <Waiting />
 {/if}
+<ModalNewCohort
+  bind:open={newCohortModal}
+  bind:done={newCohortPromise}
+  distItems={Object.keys($distItems)}
+  handleCancel={() => {}}
+>
+  <div slot="header">
+    <h3
+      class="text-lg font-black leading-6 text-gray-900"
+      id="modal-new-cohort"
+    >
+      &nbsp;
+    </h3>
+  </div>
+</ModalNewCohort>
