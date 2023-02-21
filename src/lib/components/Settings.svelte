@@ -121,7 +121,7 @@
       clearConfig.identity[input.name] = input.value;
 
       clearConfigStore.save(clearConfig);
-    }, 500);
+    }, 1500);
   };
 
   onMount(async () => {
@@ -311,7 +311,7 @@
             <div class="group flex w-full items-center justify-end">
               <TabList
                 label="Settings navigation"
-                class="mt-2 flex flex-1 flex-row items-start justify-end gap-2 overflow-x-auto bg-slate-50 p-2 md:overflow-x-visible"
+                class="mt-2 mr-4 flex flex-1 flex-row items-start justify-end gap-2 overflow-x-auto bg-slate-50 p-2 md:overflow-x-visible"
                 orientation="horizontal"
               >
                 {#each TABS as tab, i}
