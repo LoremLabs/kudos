@@ -80,6 +80,9 @@
     General: {
       customMnemonic: '',
     },
+    Identity: {
+      identResolver: '',
+    },
   };
   let clearConfig = {};
 
@@ -138,8 +141,10 @@
 
   onMount(async () => {
     clearConfig = await clearConfigStore.init();
+    formData.Identity = { ...clearConfig.identity };
     clearConfigStore.subscribe((config) => {
       clearConfig = config;
+      formData.Identity = { ...clearConfig.identity };
     });
   });
 </script>
