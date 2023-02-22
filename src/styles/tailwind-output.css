@@ -924,6 +924,14 @@ select {
   margin-left: 0.75rem;
   margin-right: 0.75rem;
 }
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.mx-8 {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
 .-ml-4 {
   margin-left: -1rem;
 }
@@ -1055,6 +1063,12 @@ select {
 }
 .mb-12 {
   margin-bottom: 3rem;
+}
+.mr-8 {
+  margin-right: 2rem;
+}
+.ml-8 {
+  margin-left: 2rem;
 }
 .block {
   display: block;
@@ -1916,6 +1930,14 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(22 78 99 / var(--tw-bg-opacity));
 }
+.bg-slate-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(71 85 105 / var(--tw-bg-opacity));
+}
+.bg-red-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 202 202 / var(--tw-bg-opacity));
+}
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
 }
@@ -2151,6 +2173,9 @@ select {
 }
 .pl-6 {
   padding-left: 1.5rem;
+}
+.pl-0 {
+  padding-left: 0px;
 }
 .text-left {
   text-align: left;
@@ -3550,6 +3575,10 @@ select {
 .hover\:text-red-500:hover {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+.hover\:text-slate-700:hover {
+  --tw-text-opacity: 1;
+  color: rgb(51 65 85 / var(--tw-text-opacity));
 }
 .hover\:underline:hover {
   text-decoration-line: underline;

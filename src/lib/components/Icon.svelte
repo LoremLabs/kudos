@@ -48,6 +48,7 @@
     | 'phone'
     | 'photograph'
     | 'play'
+    | 'plus'
     | 'presentation-chart-line'
     | 'qrcode'
     | 'question-mark-circle'

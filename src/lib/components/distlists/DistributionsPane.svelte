@@ -3,7 +3,7 @@
 
   import { createEventDispatcher, onMount } from 'svelte';
   import { browser } from '$app/environment';
-  import { writable } from 'svelte/store';
+  import { writable, derived } from 'svelte/store';
 
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { addToast } from '$lib/stores/toasts';
@@ -57,12 +57,38 @@
   let actionStatus = {};
   let openNewSegment = false;
 
+  const cohortWeights = derived(distItems, ($cohorts) => {
+    // return a map cohortId => totalWeight of all items in that cohort
+    const weights = {};
+    Object.keys($cohorts).forEach((cohort) => {
+      // for each $cohorts[cohort], add up the weights
+      const kudos = $cohorts[cohort];
+      kudos.forEach((kudo) => {
+        if (!weights[cohort]) {
+          weights[cohort] = 0;
+        }
+        if (kudo.weight) {
+          weights[cohort] += kudo.weight;
+        }
+      });
+    });
+    return weights;
+  });
+
   // if distList.id changes, we need to update the distItems
   $: distList?.id && updateDistListItems();
 
   const updateDistListItems = async () => {
     const distListItems = await getDistList({ distList });
-    console.log({ distListItems });
+    // console.log({ distListItems });
+
+    // calculate the totalWeight so we know when the list is effectively empty
+    let totalWeight = 0;
+    Object.keys(distListItems).forEach((key) => {
+      totalWeight += distListItems[key].weight || 0;
+    });
+    distItems._totalWeight = totalWeight;
+
     distItems.set(distListItems);
 
     utilsOpen = false;
@@ -305,7 +331,7 @@
               bind:status={actionStatus}
             />
           </div>
-          <div class="mr-3 bg-slate-50 dark:bg-slate-500">
+          <div class="mr-3 bg-slate-50 px-3 dark:bg-slate-500">
             {#if utilsOpen}
               <div
                 class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
@@ -318,7 +344,7 @@
             {/if}
             {#if actionStatus.showHistory}
               <div
-                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-2 pb-8 pt-4 shadow"
+                class="my-4 flex overflow-hidden rounded-2xl bg-slate-200 px-2 pb-8 pt-4 shadow"
                 in:fly={{ y: -20, duration: 400 }}
                 out:fly={{ y: -20, duration: 200 }}
                 bind:clientHeight={utilsHeightB}
@@ -327,16 +353,27 @@
                   class="flex w-full flex-col"
                   style={`height: 100%; max-height: 500px !important; min-height: 500px`}
                 >
-                  <div class="flex flex-row items-center justify-between">
+                  <div class="mx-2 flex flex-row items-center justify-between">
                     <div class="text-xl font-bold">List History</div>
+                    <button
+                      class="rounded-full bg-slate-100 p-2"
+                      on:click={() => {
+                        actionStatus.showHistory = false;
+                      }}
+                    >
+                      <Icon
+                        name="x"
+                        class="h-4 w-4 text-slate-800 hover:text-black"
+                      />
+                    </button>
                   </div>
-                  <div class="flex w-full flex-col overflow-scroll">
-                    <table class="divide-y divide-gray-300">
+                  <div class="mx-2 flex w-full flex-col overflow-scroll">
+                    <table class="mr-4 divide-y divide-gray-300">
                       <thead>
                         <tr>
                           <th
                             scope="col"
-                            class="whitespace-nowrap py-3.5 pl-6 pr-3 text-left text-xs font-semibold text-gray-900 sm:pl-0"
+                            class="whitespace-nowrap py-3.5 pr-3 pl-0 text-left text-xs font-semibold text-gray-900"
                             >Action</th
                           >
                           <th
@@ -441,17 +478,19 @@
                         </button>
                       </div>
                     </div>
-                    {#if !cohortClosed[cohort]}
-                      <div
-                        class="flex flex-col overflow-scroll"
-                        class:pb-24={utilsHeight < 1}
-                        class:pb-96={utilsHeight > 1}
-                        style={`height: 100%; max-height: ${
-                          feedHeight - utilsHeight - 80
-                        }px !important; min-height: ${
-                          feedHeight - utilsHeight - 80
-                        }px !important`}
-                      >
+                  </div>
+                  {#if !cohortClosed[cohort]}
+                    <div
+                      class="flex flex-col overflow-scroll"
+                      class:pb-24={utilsHeight < 1}
+                      class:pb-96={utilsHeight > 1}
+                      style={`height: 100%; max-height: ${
+                        feedHeight - utilsHeight - 80
+                      }px !important; min-height: ${
+                        feedHeight - utilsHeight - 80
+                      }px !important`}
+                    >
+                      {#if $cohortWeights[cohort]}
                         <table
                           class="table-auto divide-y divide-slate-300"
                           class:animate-entering={!cohortClosed[cohort]}
@@ -908,7 +947,7 @@
                                             weight: 1,
                                             description: '',
                                             identifier:
-                                              'email:matt@loremlabs.com',
+                                              'url:https://www.loremlabs.com',
                                             context: JSON.stringify({
                                               traceId,
                                               source: 'manual',
@@ -1029,103 +1068,159 @@
                             {/each}
                           </tbody>
                         </table>
-                      </div>
-                    {/if}
-                  </div>
+                      {:else}
+                        <div
+                          class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                        >
+                          <div class="text-center">
+                            <div
+                              class="flex h-full flex-col items-center justify-center bg-slate-50"
+                            >
+                              <div
+                                class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                              >
+                                No items
+                              </div>
+                            </div>
+
+                            <div class="mt-6">
+                              <button
+                                type="button"
+                                class="inline-flex items-center rounded-full border border-transparent bg-cyan-500 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
+                                on:click={async () => {
+                                  const traceId = shortId();
+
+                                  const newKudo = {
+                                    cohort,
+                                    traceId,
+                                    weight: 1,
+                                    description: '',
+                                    identifier: 'url:https://www.loremlabs.com',
+                                    context: JSON.stringify({
+                                      traceId,
+                                      source: 'manual',
+                                    }),
+                                  };
+                                  // add to the top of the list for this cohort
+                                  try {
+                                    await insertDistListItem({
+                                      distList,
+                                      cohort,
+                                      item: newKudo,
+                                    });
+                                    updateDistListItems();
+
+                                    addToast({
+                                      msg: 'Created.',
+                                      type: 'success',
+                                      duration: 2000,
+                                    });
+                                  } catch (e) {
+                                    addToast({
+                                      msg: e.message || e,
+                                      type: 'error',
+                                      duration: 5000,
+                                    });
+                                  }
+                                }}
+                              >
+                                <Icon name="plus" class="-ml-1 mr-2 h-5 w-5" />
+                                New Item
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      {/if}
+                    </div>
+                  {/if}
                 {/each}
-              {:else}
+              {:else if false}
                 <div
                   class="flex h-full flex-col items-center justify-center bg-slate-50"
                 >
                   <div
-                    class="m-auto mb-12 flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                    class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
                   >
                     No files in distribution list
                   </div>
                 </div>
               {/if}
-              <div class="text-center">
-                <svg
-                  class="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    vector-effect="non-scaling-stroke"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-                  />
-                </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">
-                  Add a segment
-                </h3>
-                <p class="mt-1 text-sm text-gray-500">
-                  These allow you to segment your list by cohort or other
-                  divisions.
-                </p>
-                <div class="mt-6">
-                  <button
-                    type="button"
-                    class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
-                    on:click={async () => {
-                      const segment = await newCohort();
-                      const cohort = segment.cohort;
-                      if (!cohort) {
-                        return;
-                      }
-                      const traceId = shortId();
-
-                      const newKudo = {
-                        cohort,
-                        traceId,
-                        weight: 1,
-                        description: '',
-                        identifier: 'email:matt@loremlabs.com',
-                        context: JSON.stringify({
-                          traceId,
-                          source: 'manual',
-                        }),
-                      };
-                      // add to the top of the list for this cohort
-                      try {
-                        await insertDistListItem({
-                          distList,
-                          cohort,
-                          item: newKudo,
-                        });
-                        updateDistListItems();
-
-                        addToast({
-                          msg: 'Created.',
-                          type: 'success',
-                          duration: 2000,
-                        });
-                      } catch (e) {
-                        addToast({
-                          msg: e.message || e,
-                          type: 'error',
-                          duration: 5000,
-                        });
-                      }
-                    }}
+              <div
+                class="flex h-full flex-col items-center justify-center"
+                style={`height: 100%; max-height: ${
+                  feedHeight - utilsHeight - 80
+                }px !important; min-height: ${
+                  feedHeight - utilsHeight - 80
+                }px !important`}
+              >
+                {#if !utilsOpen}
+                  <div
+                    class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
                   >
-                    <svg
-                      class="-ml-1 mr-2 h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-                      />
-                    </svg>
-                    New Segment
-                  </button>
-                </div>
+                    <div class="text-center">
+                      <div
+                        class="flex h-full flex-col items-center justify-center bg-slate-50"
+                      >
+                        <div
+                          class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                        >
+                          &nbsp;<!-- could explain? -->
+                        </div>
+                      </div>
+
+                      <div class="mt-6">
+                        <button
+                          type="button"
+                          class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
+                          on:click={async () => {
+                            const segment = await newCohort();
+                            const cohort = segment.cohort;
+                            if (!cohort) {
+                              return;
+                            }
+                            const traceId = shortId();
+
+                            const newKudo = {
+                              cohort,
+                              traceId,
+                              weight: 1,
+                              description: '',
+                              identifier: 'url:https://www.loremlabs.com',
+                              context: JSON.stringify({
+                                traceId,
+                                source: 'manual',
+                              }),
+                            };
+                            // add to the top of the list for this cohort
+                            try {
+                              await insertDistListItem({
+                                distList,
+                                cohort,
+                                item: newKudo,
+                              });
+                              updateDistListItems();
+
+                              addToast({
+                                msg: 'Created.',
+                                type: 'success',
+                                duration: 2000,
+                              });
+                            } catch (e) {
+                              addToast({
+                                msg: e.message || e,
+                                type: 'error',
+                                duration: 5000,
+                              });
+                            }
+                          }}
+                        >
+                          <Icon name="plus" class="-ml-1 mr-2 h-5 w-5" />
+                          New Segment
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
               </div>
             </div>
           </div>

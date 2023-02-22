@@ -61,7 +61,6 @@
     loadMore(false);
     loadMore(true);
     // detect if we have no events, and if so set utilsOpen to true
-    console.log('pppppppppppevents', $eventsStore, $eventsStore?.events.length);
     if (
       $eventsStore &&
       $eventsStore.personaId === currentPersonaId &&

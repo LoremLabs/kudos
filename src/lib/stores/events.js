@@ -111,7 +111,7 @@ export const eventsStore = asyncDerived(
         }
       } else {
         // no new events
-        console.log('no new events');
+        // console.log('no new events');
         // current.events = [...current.events];
       }
 
