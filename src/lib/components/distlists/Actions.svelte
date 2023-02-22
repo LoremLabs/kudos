@@ -17,7 +17,11 @@
   export let utilsOpen = false;
   export let distList = {};
   export let status = {};
+  export let distItems = {};
+  export let activeCohort = '';
+  export let cohortWeights = {};
 
+  let cohortSelectOpen = false;
   let editDistListName = false;
   let showConfirmDeleteDistList = false;
 
@@ -122,7 +126,71 @@
                     class="h-3 w-3 opacity-0 group-hover:text-slate-500 group-hover:opacity-100"
                   />
                 </button>
+                {#if Object.keys(distItems).length && Object.keys(cohortWeights).length && cohortWeights[activeCohort]}
+                  <span class="ml-2 text-sm text-slate-700">&raquo;</span>
+                {/if}
               </div>
+            </li>
+            <li>
+              {#if distItems && Object.keys(distItems).length}
+                <div class="relative inline-block text-left">
+                  <div>
+                    <button
+                      type="button"
+                      class="group inline-flex w-full justify-center px-4 py-2 text-sm font-medium text-gray-700 focus:outline-none"
+                      aria-expanded="true"
+                      aria-haspopup="true"
+                      on:click={() => {
+                        cohortSelectOpen = !cohortSelectOpen;
+                      }}
+                    >
+                      {activeCohort}
+                      <Icon
+                        name="chevron-down"
+                        class="mx-2 mt-1 h-3 w-3 opacity-0 group-hover:opacity-100"
+                      />
+                    </button>
+                  </div>
+
+                  <div
+                    class="absolute right-0 z-40 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    class:hidden={!cohortSelectOpen}
+                    class:animate-entering={cohortSelectOpen}
+                    class:animate-leaving={!cohortSelectOpen}
+                  >
+                    <div class="py-1" role="none">
+                      {#each Object.keys(distItems) as cohort}
+                        <button
+                          class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                          on:click={() => {
+                            dispatch('action', {
+                              action: 'distlist:selectCohort',
+                              params: { cohort },
+                            });
+                            cohortSelectOpen = false;
+                          }}>{cohort}</button
+                        >
+                      {/each}
+                      <hr />
+                      <button
+                        class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+                        on:click={() => {
+                          dispatch('action', {
+                            action: 'distlist:newCohort',
+                            params: {},
+                          });
+                          cohortSelectOpen = false;
+                        }}
+                      >
+                        <Icon name="plus" class="mr-2 h-3 w-3" />
+                        New Cohort</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              {:else}
+                <!--- ? -->
+              {/if}
             </li>
           </ol>
         </div>

@@ -47,6 +47,9 @@
   let distItems = writable({});
   let openKudos = {};
 
+  let activeCohort = '';
+  let activeCohorts = {};
+
   $: feedHeight =
     sidebarHeight -
     // actionHeight -
@@ -55,7 +58,6 @@
 
   let clearConfig = {};
   let actionStatus = {};
-  let openNewSegment = false;
 
   const cohortWeights = derived(distItems, ($cohorts) => {
     // return a map cohortId => totalWeight of all items in that cohort
@@ -84,12 +86,31 @@
 
     // calculate the totalWeight so we know when the list is effectively empty
     let totalWeight = 0;
-    Object.keys(distListItems).forEach((key) => {
-      totalWeight += distListItems[key].weight || 0;
+    let firstCohort = '';
+    let cohorts = Object.keys(distListItems);
+    // sorted cohorts
+    cohorts = cohorts.sort((a, b) => {
+      if (a > b) {
+        return -1;
+      }
+      if (a < b) {
+        return 1;
+      }
+      return 0;
     });
-    distItems._totalWeight = totalWeight;
 
+    cohorts.forEach((cohort) => {
+      totalWeight += distListItems[cohort].weight || 0;
+    });
     distItems.set(distListItems);
+    // set the active cohort to be the current one, or the first one
+    const cohort = distList?.id;
+    if (!activeCohorts[cohort]) {
+      activeCohort = cohorts[0];
+      activeCohorts[cohort] = activeCohort;
+    } else {
+      activeCohort = activeCohorts[cohort];
+    }
 
     utilsOpen = false;
     actionStatus.showHistory = false;
@@ -97,6 +118,11 @@
     if (distList && $distItems && Object.keys($distItems).length === 0) {
       utilsOpen = true;
     }
+  };
+
+  const selectCohort = (cohort: string) => {
+    activeCohort = cohort;
+    activeCohorts[distList.id] = cohort;
   };
 
   onMount(async () => {
@@ -109,17 +135,53 @@
       clearConfig = config;
     });
 
-    // const distListItems = await getDistList({ distList });
-    // console.log({ distListItems });
-    // distItems.set(distListItems);
-
-    // // if we don't have any items in the distlist, open utils
-    // if (distList && $distItems && Object.keys($distItems).length === 0) {
-    //   utilsOpen = true;
-    // }
+    //    activeCohort = clearConfig.activeCohort || '';
 
     ready = true;
   });
+
+  const createNewCohort = async () => {
+    const segment = await newCohort();
+    const cohort = segment.cohort;
+    if (!cohort) {
+      return;
+    }
+    const traceId = shortId();
+
+    const newKudo = {
+      cohort,
+      traceId,
+      weight: 1,
+      description: '',
+      identifier: 'url:https://www.loremlabs.com',
+      context: JSON.stringify({
+        traceId,
+        source: 'manual',
+      }),
+    };
+    // add to the top of the list for this cohort
+    try {
+      await insertDistListItem({
+        distList,
+        cohort,
+        item: newKudo,
+      });
+      updateDistListItems();
+
+      addToast({
+        msg: 'Created.',
+        type: 'success',
+        duration: 2000,
+      });
+    } catch (e) {
+      addToast({
+        msg: e.message || e,
+        type: 'error',
+        duration: 5000,
+      });
+    }
+    selectCohort(cohort);
+  };
 
   const onAction = async (e: CustomEvent) => {
     const action = e.detail?.action || '';
@@ -132,6 +194,16 @@
         //   utilsHeight = 0;
         // }
         break;
+      case 'distlist:newCohort': {
+        createNewCohort();
+        break;
+      }
+      case 'distlist:selectCohort': {
+        // select a cohort
+        const cohort = params.cohort || '';
+        selectCohort(cohort);
+        break;
+      }
       case 'kudos:import:file': {
         // import the kudos from the file
         const filePath = params.importFile;
@@ -250,7 +322,6 @@
   let insertBefore;
 
   let utilsOpen = false;
-  let cohortClosed = {};
   const onCommand = () => {
     dispatch('command');
   };
@@ -328,6 +399,9 @@
               on:action={onAction}
               bind:utilsOpen
               {distList}
+              {activeCohort}
+              distItems={$distItems}
+              cohortWeights={$cohortWeights}
               bind:status={actionStatus}
             />
           </div>
@@ -456,30 +530,7 @@
             >
               {#if $distItems && Object.keys($distItems).length}
                 {#each Object.keys($distItems) as cohort}
-                  <div class="divider-y-2 flex w-full flex-col bg-slate-100">
-                    <div class="flex flex-row items-center justify-between">
-                      <div class="text23xl mx-4 font-mono font-bold">
-                        <button
-                          on:click={() => {
-                            cohortClosed[cohort] = !cohortClosed[cohort];
-                          }}
-                        >
-                          <div
-                            class="flex flex-row items-center justify-center"
-                          >
-                            <Icon
-                              name="mini/play"
-                              class={`mx-1 h-2 w-2 text-slate-500 dark:text-slate-300 ${
-                                cohortClosed[cohort] ? '' : 'rotate-90'
-                              }`}
-                            />
-                            <span>{cohort}</span>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {#if !cohortClosed[cohort]}
+                  {#if cohort === activeCohort}
                     <div
                       class="flex flex-col overflow-scroll"
                       class:pb-24={utilsHeight < 1}
@@ -492,11 +543,9 @@
                     >
                       {#if $cohortWeights[cohort]}
                         <table
-                          class="table-auto divide-y divide-slate-300"
-                          class:animate-entering={!cohortClosed[cohort]}
-                          class:animate-leaving={cohortClosed[cohort]}
+                          class="mt-3 table-auto divide-y divide-slate-300 dark:divide-slate-600"
                         >
-                          <thead class="bg-slate-50">
+                          <thead class="bg-slate-50 dark:bg-slate-400">
                             <tr>
                               <th
                                 scope="col"
@@ -526,7 +575,9 @@
                               </th>
                             </tr>
                           </thead>
-                          <tbody class="divide-y divide-slate-200 bg-white">
+                          <tbody
+                            class="divide-y divide-slate-200 bg-white dark:divide-slate-600 dark:bg-slate-500"
+                          >
                             {#if false}
                               <tr>
                                 <td
@@ -676,7 +727,7 @@
                                     </div></td
                                   >
                                   <td
-                                    class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
+                                    class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 dark:text-slate-900 sm:pl-6"
                                     ><Ago at={kudo.createTime} /></td
                                   >
                                   <td
@@ -794,7 +845,7 @@
                                     </EditableInput>
                                   </td>
                                   <td
-                                    class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
+                                    class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500 dark:text-slate-900"
                                     ><div title={kudo.description}>
                                       <EditableInput
                                         bind:isEditing={openKudos[
@@ -885,7 +936,7 @@
                                     class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-xs font-medium sm:pr-6"
                                   >
                                     <button
-                                      class="text-cyan-600 hover:text-cyan-900"
+                                      class="text-cyan-600 hover:text-cyan-900 dark:text-cyan-900"
                                       on:click|stopPropagation={(ev) => {
                                         if (editMode) {
                                           editMode = false;
@@ -1053,7 +1104,7 @@
                                     >
                                       {#if kudo.context}
                                         <pre
-                                          class="whitespace-pre-wrap bg-slate-50 p-4 text-xs"><JSPretty
+                                          class="whitespace-pre-wrap bg-slate-50 p-4 text-xs dark:bg-slate-300"><JSPretty
                                             obj={kudo}
                                           /><hr /><JSPretty
                                             obj={JSON.parse(kudo.context)}
@@ -1074,10 +1125,10 @@
                         >
                           <div class="text-center">
                             <div
-                              class="flex h-full flex-col items-center justify-center bg-slate-50"
+                              class="flex h-full flex-col items-center justify-center"
                             >
                               <div
-                                class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                                class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-700"
                               >
                                 No items
                               </div>
@@ -1158,61 +1209,13 @@
                     class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
                   >
                     <div class="text-center">
-                      <div
-                        class="flex h-full flex-col items-center justify-center bg-slate-50"
-                      >
-                        <div
-                          class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
-                        >
-                          &nbsp;<!-- could explain? -->
-                        </div>
-                      </div>
-
                       <div class="mt-6">
                         <button
                           type="button"
-                          class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
-                          on:click={async () => {
-                            const segment = await newCohort();
-                            const cohort = segment.cohort;
-                            if (!cohort) {
-                              return;
-                            }
-                            const traceId = shortId();
-
-                            const newKudo = {
-                              cohort,
-                              traceId,
-                              weight: 1,
-                              description: '',
-                              identifier: 'url:https://www.loremlabs.com',
-                              context: JSON.stringify({
-                                traceId,
-                                source: 'manual',
-                              }),
-                            };
-                            // add to the top of the list for this cohort
-                            try {
-                              await insertDistListItem({
-                                distList,
-                                cohort,
-                                item: newKudo,
-                              });
-                              updateDistListItems();
-
-                              addToast({
-                                msg: 'Created.',
-                                type: 'success',
-                                duration: 2000,
-                              });
-                            } catch (e) {
-                              addToast({
-                                msg: e.message || e,
-                                type: 'error',
-                                duration: 5000,
-                              });
-                            }
+                          on:click={() => {
+                            createNewCohort();
                           }}
+                          class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
                         >
                           <Icon name="plus" class="-ml-1 mr-2 h-5 w-5" />
                           New Segment
