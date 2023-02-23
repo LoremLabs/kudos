@@ -1185,46 +1185,37 @@
                     </div>
                   {/if}
                 {/each}
-              {:else if false}
+              {:else}
                 <div
-                  class="flex h-full flex-col items-center justify-center bg-slate-50"
+                  class="flex h-full flex-col items-center justify-center"
+                  style={`height: 100%; max-height: ${
+                    feedHeight - utilsHeight - 80
+                  }px !important; min-height: ${
+                    feedHeight - utilsHeight - 80
+                  }px !important`}
                 >
-                  <div
-                    class="zmb-12 m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
-                  >
-                    No files in distribution list
-                  </div>
-                </div>
-              {/if}
-              <div
-                class="flex h-full flex-col items-center justify-center"
-                style={`height: 100%; max-height: ${
-                  feedHeight - utilsHeight - 80
-                }px !important; min-height: ${
-                  feedHeight - utilsHeight - 80
-                }px !important`}
-              >
-                {#if !utilsOpen}
-                  <div
-                    class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
-                  >
-                    <div class="text-center">
-                      <div class="mt-6">
-                        <button
-                          type="button"
-                          on:click={() => {
-                            createNewCohort();
-                          }}
-                          class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
-                        >
-                          <Icon name="plus" class="-ml-1 mr-2 h-5 w-5" />
-                          New Segment
-                        </button>
+                  {#if !utilsOpen}
+                    <div
+                      class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                    >
+                      <div class="text-center">
+                        <div class="mt-6">
+                          <button
+                            type="button"
+                            on:click={() => {
+                              createNewCohort();
+                            }}
+                            class="inline-flex items-center rounded-full border border-transparent bg-cyan-900 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none"
+                          >
+                            <Icon name="plus" class="-ml-1 mr-2 h-5 w-5" />
+                            New Segment
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                {/if}
-              </div>
+                  {/if}
+                </div>
+              {/if}
             </div>
           </div>
         </div>
