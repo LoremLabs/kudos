@@ -60,7 +60,7 @@ export const walletStore = asyncDerived(
       }
       isSwitchingPersonasStore.set(false);
     }
-    console.log('returning', data);
+    // console.log('returning', data);
     return { ...data };
   }
 );

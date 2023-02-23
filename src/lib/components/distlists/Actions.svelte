@@ -214,6 +214,30 @@
       </div>
       <div class="mx-2 flex flex-row text-gray-500">
         <button
+          class="flex flex-row items-center justify-center rounded-full bg-cyan-800 p-2 px-4 text-cyan-50 hover:bg-cyan-700 hover:text-cyan-100 focus:outline-none"
+        >
+          Distribute
+          <Icon name="arrow-sm-right" class="h-4 w-4" />
+        </button>
+        <button
+          class="ml-4 rounded-full p-2 hover:bg-slate-300 focus:outline-none"
+          class:bg-slate-200={status.showGraph}
+          class:font-bold={status.showGraph}
+          on:click={() => {
+            status.showGraph = !status.showGraph;
+
+            // if showHistory is active, turn it off
+            if (status.showHistory) {
+              status.showHistory = false;
+            }
+
+            dispatch('action', {
+              action: 'distlist:showGraph',
+              params: { status },
+            });
+          }}><Icon name="presentation-chart-line" class="h-6 w-6" /></button
+        >
+        <button
           class="mx-2 rounded-full p-2 hover:bg-slate-300 focus:outline-none"
           class:bg-slate-200={status.showHistory}
           class:font-bold={status.showHistory}
@@ -224,9 +248,18 @@
               showHistory: !status.showHistory,
               history: log,
             };
+
+            if (status.showGraph) {
+              status.showGraph = false;
+              dispatch('action', {
+                action: 'distlist:showGraph',
+                params: { status },
+              });
+            }
+
             dispatch('action', {
               action: 'distlist:showHistory',
-              params: { history: log },
+              params: {},
             });
           }}
         >

@@ -1070,6 +1070,24 @@ select {
 .ml-8 {
   margin-left: 2rem;
 }
+.-mb-12 {
+  margin-bottom: -3rem;
+}
+.-mb-6 {
+  margin-bottom: -1.5rem;
+}
+.-mr-8 {
+  margin-right: -2rem;
+}
+.-mr-3 {
+  margin-right: -0.75rem;
+}
+.-mb-16 {
+  margin-bottom: -4rem;
+}
+.-mb-14 {
+  margin-bottom: -3.5rem;
+}
 .block {
   display: block;
 }
@@ -1987,6 +2005,9 @@ select {
 .p-8 {
   padding: 2rem;
 }
+.p-6 {
+  padding: 1.5rem;
+}
 .px-0 {
   padding-left: 0px;
   padding-right: 0px;
@@ -2179,6 +2200,9 @@ select {
 }
 .pl-0 {
   padding-left: 0px;
+}
+.pt-8 {
+  padding-top: 2rem;
 }
 .text-left {
   text-align: left;
@@ -2421,6 +2445,18 @@ select {
 .text-gray-100 {
   --tw-text-opacity: 1;
   color: rgb(243 244 246 / var(--tw-text-opacity));
+}
+.text-red-100 {
+  --tw-text-opacity: 1;
+  color: rgb(254 226 226 / var(--tw-text-opacity));
+}
+.text-cyan-900 {
+  --tw-text-opacity: 1;
+  color: rgb(22 78 99 / var(--tw-text-opacity));
+}
+.text-cyan-50 {
+  --tw-text-opacity: 1;
+  color: rgb(236 254 255 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -3555,6 +3591,10 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(100 116 139 / var(--tw-bg-opacity));
 }
+.hover\:bg-slate-700:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(51 65 85 / var(--tw-bg-opacity));
+}
 .hover\:text-black:hover {
   --tw-text-opacity: 1;
   color: rgb(0 0 0 / var(--tw-text-opacity));
@@ -3586,6 +3626,18 @@ select {
 .hover\:text-slate-700:hover {
   --tw-text-opacity: 1;
   color: rgb(51 65 85 / var(--tw-text-opacity));
+}
+.hover\:text-white:hover {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+.hover\:text-cyan-800:hover {
+  --tw-text-opacity: 1;
+  color: rgb(21 94 117 / var(--tw-text-opacity));
+}
+.hover\:text-cyan-100:hover {
+  --tw-text-opacity: 1;
+  color: rgb(207 250 254 / var(--tw-text-opacity));
 }
 .hover\:underline:hover {
   text-decoration-line: underline;

@@ -17,6 +17,7 @@
   import Pill from '$lib/components/Pill.svelte';
 
   import ModalNewCohort from '$lib/components/ModalNewCohort.svelte';
+  import Sankey from '$lib/components/Sankey.svelte';
 
   import { shortId } from '$lib/utils/short-id';
 
@@ -39,10 +40,14 @@
   export let sidebarWidth = 0;
   export let sidebarHeight = 0;
   export let distList = {};
+  export let fundingAmount = 1000; // cents
 
   let ready = false;
   let feedHeight = 0;
   let commanderHeight = 0; // disabled for here
+
+  let showGraph = false;
+  let highlightLinkIndexes = [];
 
   let distItems = writable({});
   let openKudos = {};
@@ -58,6 +63,79 @@
 
   let clearConfig = {};
   let actionStatus = {};
+
+  let width = 50;
+  let height = 50;
+  let nodePadding = 7;
+  let nodeAlign = 'left';
+  let highlightedNodes = [];
+
+  const graph = derived(distItems, ($cohorts) => {
+    const formatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+
+      // These options are needed to round to whole numbers if that's what you want.
+      //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+      //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+    });
+
+    let data = {
+      nodes: [{ name: `${formatter.format(fundingAmount / 100)}` }],
+      links: [],
+    };
+
+    let kudos = [];
+    Object.keys($cohorts).forEach((cohort) => {
+      kudos = [...kudos, ...$cohorts[cohort]];
+    });
+    // console.log({ kudos });
+
+    // add all the possible nodes first
+    let weights = {};
+    let totalWeight = 0;
+    kudos.forEach((kudo) => {
+      // console.log({ kudo });
+      // add nodes
+      if (!data.nodes.find((node) => node.name === kudo.identifier)) {
+        data.nodes.push({ name: kudo.identifier });
+      }
+      if (!data.nodes.find((node) => node.name === kudo.traceId)) {
+        data.nodes.push({ name: kudo.traceId });
+      }
+
+      weights[kudo.identifier] = (weights[kudo.identifier] || 0) + kudo.weight;
+      totalWeight += kudo.weight;
+    });
+
+    // TODO: use traceId instead of identifier?
+
+    kudos.forEach((kudo) => {
+      // source -> id -> identifier
+      const source = 0;
+      const target = data.nodes.findIndex((node) => node.name === kudo.traceId);
+      const share = kudo.weight / totalWeight;
+      data.links.push({ source, target, value: share * fundingAmount });
+
+      const target2 = data.nodes.findIndex(
+        (node) => node.name === kudo.identifier
+      );
+      const share2 = weights[kudo.identifier] / totalWeight;
+      data.links.push({
+        source: target,
+        target: target2,
+        value: share2 * fundingAmount,
+      });
+    });
+
+    data = {
+      ...data,
+      // nodes: [...graph.nodes],
+      // links: [...graph.links],
+    };
+    console.log({ data });
+    return data;
+  });
 
   const cohortWeights = derived(distItems, ($cohorts) => {
     // return a map cohortId => totalWeight of all items in that cohort
@@ -198,6 +276,9 @@
         //   utilsHeight = 0;
         // }
         break;
+      case 'distlist:showHistory': {
+        break;
+      }
       case 'distlist:newCohort': {
         createNewCohort();
         break;
@@ -272,6 +353,10 @@
           distList = {};
         }
 
+        break;
+      }
+      case 'distlist:showGraph': {
+        showGraph = !showGraph;
         break;
       }
       case 'distlist:edit': {
@@ -399,7 +484,7 @@
       on:action={onAction}
       showCommander={false}
     >
-      <div slot="main" class="overflow-none w-full">
+      <div slot="main" class="overflow-none w-full" bind:clientWidth={width}>
         <div class="flex w-full flex-col">
           <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
             <Actions
@@ -413,6 +498,32 @@
             />
           </div>
           <div class="mr-3 bg-slate-50 px-3 dark:bg-slate-500">
+            {#if showGraph}
+              {#if $graph}
+                <div class="mt-8 scale-[1]">
+                  <Sankey
+                    graph={$graph}
+                    {width}
+                    height={width}
+                    {nodePadding}
+                    {nodeAlign}
+                    bind:highlightLinkIndexes
+                    extent={[
+                      [1, 1],
+                      [width - 1, sidebarHeight * 0.95 - 6],
+                    ]}
+                  />
+                </div>
+              {:else}
+                <div
+                  class="flex h-full flex-col items-center justify-center bg-slate-50"
+                >
+                  <div class="text-2xl text-slate-500 dark:text-slate-400">
+                    No graph data
+                  </div>
+                </div>
+              {/if}
+            {/if}
             {#if utilsOpen}
               <div
                 class="my-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
