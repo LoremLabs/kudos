@@ -115,7 +115,7 @@
           width={node.x1 - node.x0}
           height={node.y1 - node.y0}
           fill={color(node.depth)}
-          opacity={0.75}
+          opacity={0.8}
           stroke="white"
           stroke-width={2}
           on:mouseover={(e) => {
@@ -136,7 +136,7 @@
           x={30}
           y={(node.y1 - node.y0) / 2}
           dy={5}
-          style="font: 10px sans-serif"
+          style="font: 9px sans-serif"
           _verticalAnchor="middle"
         >
           {#if activeId === i}

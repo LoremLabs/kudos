@@ -124,6 +124,7 @@
     | 'mini/ellipsis-vertical'
     | 'mini/play'
     | 'mini/plus'
+    | 'mini/scale'
     | 'mini/trash'
     | 'mini/x-circle';
 

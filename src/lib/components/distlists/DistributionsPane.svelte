@@ -71,16 +71,16 @@
   let nodeAlign = 'left';
   let highlightedNodes = [];
 
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+
+    // These options are needed to round to whole numbers if that's what you want.
+    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+    //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
+  });
+
   const graph = derived(distItems, ($cohorts) => {
-    const formatter = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-
-      // These options are needed to round to whole numbers if that's what you want.
-      //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-      //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-    });
-
     let data = {
       nodes: [{ name: `${formatter.format(fundingAmount / 100)}` }],
       links: [],
@@ -93,12 +93,23 @@
     });
     // console.log({ kudos });
 
+    // filter kudos with 0 weight
+    kudos = kudos.filter((kudo) => kudo.weight > 0);
+
     // add all the possible nodes first
     let weights = {};
     let totalWeight = 0;
+    let totalDistribution = 0;
+
+    // STEP 1: calculate weights
     kudos.forEach((kudo) => {
-      // console.log({ kudo });
-      // add nodes
+      weights[kudo.identifier] = (weights[kudo.identifier] || 0) + kudo.weight;
+      weights[kudo.traceId] = (weights[kudo.traceId] || 0) + kudo.weight;
+      totalWeight += kudo.weight;
+    });
+
+    // STEP 2: calculate trace nodes and links
+    kudos.forEach((kudo) => {
       if (!data.nodes.find((node) => node.name === kudo.identifier)) {
         data.nodes.push({ name: kudo.identifier });
       }
@@ -106,35 +117,45 @@
         data.nodes.push({ name: kudo.traceId });
       }
 
-      weights[kudo.identifier] = (weights[kudo.identifier] || 0) + kudo.weight;
-      totalWeight += kudo.weight;
-    });
-
-    // TODO: use traceId instead of identifier?
-
-    kudos.forEach((kudo) => {
-      // source -> id -> identifier
+      // source -> traceId -> identifier
       const source = 0;
       const target = data.nodes.findIndex((node) => node.name === kudo.traceId);
-      const share = kudo.weight / totalWeight;
-      data.links.push({ source, target, value: share * fundingAmount });
+      const share = weights[kudo.traceId] / totalWeight;
+      const share2 = kudo.weight / weights[kudo.traceId];
 
+      // only push the link if it doesn't already exist
+      if (
+        !data.links.find(
+          (link) => link.source === source && link.target === target
+        )
+      ) {
+        const value = share * fundingAmount;
+        totalDistribution += value;
+        data.links.push({ source, target, value });
+      }
       const target2 = data.nodes.findIndex(
         (node) => node.name === kudo.identifier
       );
-      const share2 = weights[kudo.identifier] / totalWeight;
-      data.links.push({
-        source: target,
-        target: target2,
-        value: share2 * fundingAmount,
-      });
+      if (
+        !data.links.find(
+          (link) => link.source === target && link.target === target2
+        )
+      ) {
+        const value = (kudo.weight / totalWeight) * fundingAmount;
+        //        totalDistribution += value;
+        data.links.push({
+          source: target,
+          target: target2,
+          value,
+        });
+      }
     });
-
     data = {
       ...data,
       // nodes: [...graph.nodes],
       // links: [...graph.links],
       totalWeight,
+      totalDistribution,
     };
     console.log({ data });
     return data;
@@ -193,8 +214,13 @@
       activeCohort = activeCohorts[cohort];
     }
 
+    // reset dist state TODO:refactor
     utilsOpen = false;
     actionStatus.showHistory = false;
+    actionStatus.showGraph = false;
+    showGraph = false;
+    settle = false;
+
     // if we don't have any items in the distlist, open utils
     if (distList && $distItems && Object.keys($distItems).length === 0) {
       utilsOpen = true;
@@ -573,8 +599,13 @@
                 <div class="mt-8 scale-[1]">
                   {#if $graph.totalWeight > 0}
                     <div class="flex items-center justify-between">
-                      <div class="text-sm text-gray-500">
-                        Total weight: {$graph.totalWeight}
+                      <div class="flex flex-row text-xs text-gray-500">
+                        <Icon name="mini/scale" class="mr-2 h-5 w-5" />
+                        {$graph.totalWeight}
+                      </div>
+                      <div class="flex flex-row text-xs text-gray-500">
+                        <Icon name="currency-dollar" class="mr-2 h-5 w-5" />
+                        {formatter.format($graph.totalDistribution / 100)}
                       </div>
                     </div>
                     <Sankey
