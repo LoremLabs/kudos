@@ -26,6 +26,12 @@
       if (!formerValue) {
         formerValue = value;
       }
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        // blur will trigger onBlur
+        ev.target.blur();
+        return;
+      }
       onKeydown(ev);
     }}
     on:blur={(ev) => {
