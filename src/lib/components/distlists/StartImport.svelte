@@ -26,6 +26,8 @@
 
   const dispatch = createEventDispatcher();
 
+  export let showClose = false;
+
   onMount(async () => {
     // const config = await getConfig();
     // const ws = await walletStore.init({ passPhrase: config.passPhrase });
@@ -79,10 +81,25 @@
   };
 </script>
 
-<div class="mt-4 overflow-hidden">
-  <div class="px-4 py-5 sm:p-6">
+<div class="mt-3">
+  {#if showClose}
+    <div class="start-end -mb-12 -mr-3 flex flex-row">
+      <div class="flex-grow" />
+      <div class="flex-none">
+        <button
+          class="cursor-pointer rounded-full bg-slate-100 p-2 text-sm font-medium text-slate-800 underline hover:text-slate-700"
+          on:click={() => {
+            dispatch('action', { action: 'kudos:import:close' });
+          }}
+        >
+          <Icon name="x" class="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  {/if}
+  <div class="p-6">
     <div>
-      <h2 class="text-lg font-medium text-gray-900">
+      <h2 class="text-xl font-bold text-gray-900">
         Add to your Distribution List
       </h2>
 

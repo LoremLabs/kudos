@@ -1,7 +1,5 @@
 <script lang="ts">
   import Icon from '$lib/components/Icon.svelte';
-  import Panel from '$lib/components/Panel.svelte';
-  import KudosStartImport from '$lib/components/KudosStartImport.svelte';
   import ModalConfirmDeleteDistList from '$lib/components/distlists/ModalConfirmDeleteDistList.svelte';
 
   import { onMount } from 'svelte';
@@ -12,7 +10,6 @@
   const dispatch = createEventDispatcher();
 
   let panelOpen: HTMLElement | null = null;
-  let panelImportOpen: HTMLElement | null = null;
 
   export let utilsOpen = false;
   export let distList = {};
@@ -272,27 +269,6 @@
         </div>
       {/if}
     </div>
-
-    <Panel heading="Kudos Import" bind:opener={panelImportOpen}>
-      <KudosStartImport />
-
-      <div slot="footer">
-        <button
-          on:click={async () => {
-            // save config
-            console.log('saving config');
-            panelImportOpen = null;
-          }}
-          type="submit"
-          class="cursor-pointer rounded-full border border-gray-300 bg-gray-700 py-2
-    px-4 text-sm font-medium text-white
-    shadow-sm transition delay-150 ease-in-out hover:bg-blue-700
-    focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-        >
-          Close
-        </button>
-      </div>
-    </Panel>
   </div>
 {/if}
 <ModalConfirmDeleteDistList

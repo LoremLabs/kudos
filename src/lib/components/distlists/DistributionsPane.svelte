@@ -188,6 +188,10 @@
     const params = e.detail?.params || {};
 
     switch (action) {
+      case 'kudos:import:close': {
+        utilsOpen = false;
+        break;
+      }
       case 'utils:add':
         utilsOpen = !utilsOpen;
         // if (!utilsOpen && !actionStatus.showHistory) {
@@ -411,12 +415,12 @@
           <div class="mr-3 bg-slate-50 px-3 dark:bg-slate-500">
             {#if utilsOpen}
               <div
-                class="m-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
+                class="my-4 flex overflow-hidden rounded-2xl bg-slate-200 px-8 pb-8 pt-4 shadow"
                 in:fly={{ y: -20, duration: 400 }}
                 out:fly={{ y: -20, duration: 200 }}
                 bind:clientHeight={utilsHeightA}
               >
-                <KudosStartImport on:action={onAction} />
+                <KudosStartImport on:action={onAction} showClose={true} />
               </div>
             {/if}
             {#if actionStatus.showHistory}
@@ -1124,7 +1128,7 @@
                         </table>
                       {:else}
                         <div
-                          class="m-auto flex items-center justify-center text-2xl text-slate-500 dark:text-slate-400"
+                          class="m-auto flex items-center justify-center pt-8 text-2xl text-slate-500 dark:text-slate-400"
                         >
                           <div class="text-center">
                             <div
