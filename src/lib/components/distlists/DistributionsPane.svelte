@@ -218,10 +218,13 @@
             filePath,
           });
 
+          updateDistListItems();
+
           if (status.inserted > 0) {
             addToast({
               type: 'success',
               msg: `${status.inserted || 0} imported`,
+              duration: 4000,
             });
           } else {
             addToast({

@@ -36,11 +36,31 @@
   let ready = false;
   let originalDistList = {};
 
+  function handleOutsideClick(ev: MouseEvent) {
+    // if the click comes from the opener tree we do nothing, otherwise we close the menu
+    if (!cohortSelectOpen) {
+      return;
+    }
+    if (ev.target.closest('.opener')) {
+      return;
+    }
+    cohortSelectOpen = false;
+    ev.preventDefault();
+  }
+  function handleKeypress(ev: KeyboardEvent) {
+    if (cohortSelectOpen && ev.key === 'Escape') {
+      cohortSelectOpen = false;
+      ev.preventDefault;
+    }
+  }
+
   onMount(async () => {
     originalDistList = { ...distList };
     ready = true;
   });
 </script>
+
+<svelte:body on:click={handleOutsideClick} on:keydown={handleKeypress} />
 
 {#if ready}
   <div
@@ -133,7 +153,7 @@
             </li>
             <li>
               {#if distItems && Object.keys(distItems).length}
-                <div class="relative inline-block text-left">
+                <div class="opener relative inline-block text-left">
                   <div>
                     <button
                       type="button"
