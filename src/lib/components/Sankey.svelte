@@ -136,7 +136,7 @@
           x={30}
           y={(node.y1 - node.y0) / 2}
           dy={5}
-          style="font: 9px sans-serif"
+          style="font: 10px sans-serif"
           _verticalAnchor="middle"
         >
           {#if activeId === i}

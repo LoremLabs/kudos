@@ -15,6 +15,7 @@
   import Waiting from '$lib/components/Waiting.svelte';
   import EditableInput from '$lib/components/EditableInput.svelte';
   import Pill from '$lib/components/Pill.svelte';
+  import Tooltip from '$lib/components/Tooltip.svelte';
 
   import ModalNewCohort from '$lib/components/ModalNewCohort.svelte';
   import Sankey from '$lib/components/Sankey.svelte';
@@ -56,6 +57,8 @@
   let activeCohort = '';
   let activeCohorts = {};
 
+  let editAmount = false;
+
   $: feedHeight =
     sidebarHeight -
     // actionHeight -
@@ -66,10 +69,8 @@
   let actionStatus = {};
 
   let width = 50;
-  let height = 50;
   let nodePadding = 7;
   let nodeAlign = 'left';
-  let highlightedNodes = [];
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -80,86 +81,98 @@
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
   });
 
-  const graph = derived(distItems, ($cohorts) => {
-    let data = {
-      nodes: [{ name: `${formatter.format(fundingAmount / 100)}` }],
-      links: [],
-      totalWeight: 0,
-    };
+  const fundingAmountStore = writable(fundingAmount);
 
-    let kudos = [];
-    Object.keys($cohorts).forEach((cohort) => {
-      kudos = [...kudos, ...$cohorts[cohort]];
-    });
-    // console.log({ kudos });
+  // ([$walletStore, $scopeStore], set) => {
 
-    // filter kudos with 0 weight
-    kudos = kudos.filter((kudo) => kudo.weight > 0);
+  const graph = derived(
+    [distItems, fundingAmountStore],
+    ([$cohorts, $fundingAmount], set) => {
+      let data = {
+        nodes: [{ name: `${formatter.format($fundingAmount / 100)}` }],
+        links: [],
+        totalWeight: 0,
+        totalDistribution: 0,
+      };
 
-    // add all the possible nodes first
-    let weights = {};
-    let totalWeight = 0;
-    let totalDistribution = 0;
+      let kudos = [];
+      Object.keys($cohorts).forEach((cohort) => {
+        kudos = [...kudos, ...$cohorts[cohort]];
+      });
+      // console.log({ kudos });
 
-    // STEP 1: calculate weights
-    kudos.forEach((kudo) => {
-      weights[kudo.identifier] = (weights[kudo.identifier] || 0) + kudo.weight;
-      weights[kudo.traceId] = (weights[kudo.traceId] || 0) + kudo.weight;
-      totalWeight += kudo.weight;
-    });
+      // filter kudos with 0 weight
+      kudos = kudos.filter((kudo) => kudo.weight > 0);
 
-    // STEP 2: calculate trace nodes and links
-    kudos.forEach((kudo) => {
-      if (!data.nodes.find((node) => node.name === kudo.identifier)) {
-        data.nodes.push({ name: kudo.identifier });
-      }
-      if (!data.nodes.find((node) => node.name === kudo.traceId)) {
-        data.nodes.push({ name: kudo.traceId });
-      }
+      // add all the possible nodes first
+      let weights = {};
+      let totalWeight = 0;
+      let totalDistribution = 0;
 
-      // source -> traceId -> identifier
-      const source = 0;
-      const target = data.nodes.findIndex((node) => node.name === kudo.traceId);
-      const share = weights[kudo.traceId] / totalWeight;
-      const share2 = kudo.weight / weights[kudo.traceId];
+      // STEP 1: calculate weights
+      kudos.forEach((kudo) => {
+        weights[kudo.identifier] =
+          (weights[kudo.identifier] || 0) + kudo.weight;
+        weights[kudo.traceId] = (weights[kudo.traceId] || 0) + kudo.weight;
+        totalWeight += kudo.weight;
+      });
 
-      // only push the link if it doesn't already exist
-      if (
-        !data.links.find(
-          (link) => link.source === source && link.target === target
-        )
-      ) {
-        const value = share * fundingAmount;
-        totalDistribution += value;
-        data.links.push({ source, target, value });
-      }
-      const target2 = data.nodes.findIndex(
-        (node) => node.name === kudo.identifier
-      );
-      if (
-        !data.links.find(
-          (link) => link.source === target && link.target === target2
-        )
-      ) {
-        const value = (kudo.weight / totalWeight) * fundingAmount;
-        //        totalDistribution += value;
-        data.links.push({
-          source: target,
-          target: target2,
-          value,
-        });
-      }
-    });
-    data = {
-      ...data,
-      // nodes: [...graph.nodes],
-      // links: [...graph.links],
-      totalWeight,
-      totalDistribution,
-    };
-    console.log({ data });
-    return data;
-  });
+      // STEP 2: calculate trace nodes and links
+      kudos.forEach((kudo) => {
+        if (!data.nodes.find((node) => node.name === kudo.identifier)) {
+          data.nodes.push({ name: kudo.identifier });
+        }
+        if (!data.nodes.find((node) => node.name === kudo.traceId)) {
+          data.nodes.push({ name: kudo.traceId });
+        }
+
+        // source -> traceId -> identifier
+        const source = 0;
+        const target = data.nodes.findIndex(
+          (node) => node.name === kudo.traceId
+        );
+        const share = weights[kudo.traceId] / totalWeight;
+        const share2 = kudo.weight / weights[kudo.traceId];
+
+        // only push the link if it doesn't already exist
+        if (
+          !data.links.find(
+            (link) => link.source === source && link.target === target
+          )
+        ) {
+          const value = share * $fundingAmount;
+          totalDistribution += value;
+          data.links.push({ source, target, value });
+        }
+        const target2 = data.nodes.findIndex(
+          (node) => node.name === kudo.identifier
+        );
+        if (
+          !data.links.find(
+            (link) => link.source === target && link.target === target2
+          )
+        ) {
+          const value = (kudo.weight / totalWeight) * $fundingAmount;
+          //        totalDistribution += value;
+          data.links.push({
+            source: target,
+            target: target2,
+            value,
+          });
+        }
+      });
+      data = {
+        ...data,
+        // nodes: [...graph.nodes],
+        // links: [...graph.links],
+        totalWeight,
+        totalDistribution,
+      };
+      console.log({ data });
+      set(data);
+      return data;
+    }
+  );
 
   const cohortWeights = derived(distItems, ($cohorts) => {
     // return a map cohortId => totalWeight of all items in that cohort
@@ -596,16 +609,89 @@
               </div>
             {:else if showGraph}
               {#if $graph}
-                <div class="mt-8 scale-[1]">
+                <div class="mt-4 scale-[1]">
+                  <h2 class="my-4 text-xl font-bold text-gray-900">
+                    Distribution Graph
+                  </h2>
                   {#if $graph.totalWeight > 0}
                     <div class="flex items-center justify-between">
                       <div class="flex flex-row text-xs text-gray-500">
-                        <Icon name="mini/scale" class="mr-2 h-5 w-5" />
-                        {$graph.totalWeight}
+                        <Tooltip
+                          text={`Share is determined by individual weight / total weight of the list.`}
+                          placement="right"
+                          class="z-50 z-50 border border-slate-300 p-1.5 px-2 shadow"
+                        >
+                          <div class="flex flex-row text-xs text-gray-500">
+                            <Icon name="mini/scale" class="mr-2 h-5 w-5" />
+                            {$graph.totalWeight.toFixed(4)}
+                          </div>
+                        </Tooltip>
                       </div>
                       <div class="flex flex-row text-xs text-gray-500">
-                        <Icon name="currency-dollar" class="mr-2 h-5 w-5" />
-                        {formatter.format($graph.totalDistribution / 100)}
+                        <div
+                          class="group flex w-full items-center hover:bg-white"
+                        >
+                          {#if !editAmount}
+                            <Tooltip
+                              text={`Total distribution is determined by the price you set.`}
+                              placement="right"
+                              class="z-50 z-50 border border-slate-300 p-1.5 px-2 shadow"
+                            >
+                              <button
+                                class="hover:underline"
+                                on:click={() => {
+                                  editAmount = true; // 777
+                                }}
+                              >
+                                <div
+                                  class="flex flex-row text-xs text-gray-500"
+                                >
+                                  <Icon
+                                    name="currency-dollar"
+                                    class="mr-2 h-5 w-5"
+                                  />
+                                  {formatter.format(
+                                    $graph.totalDistribution / 100
+                                  )}
+                                </div>
+                              </button>
+                            </Tooltip>
+                          {:else}
+                            <input
+                              type="currency"
+                              spellcheck="false"
+                              class="text-md w-full border-0 bg-transparent p-1 text-slate-700 focus:border-transparent focus:outline-none focus:ring-0 focus:ring-transparent"
+                              bind:value={fundingAmount}
+                              on:keydown={(e) => {
+                                // remove non-numeric characters
+                                if (isNaN(fundingAmount)) {
+                                  fundingAmount = 100;
+                                }
+                                fundingAmount = parseInt(
+                                  `${fundingAmount}`.replace(/[^0-9.]/g, ''),
+                                  10
+                                );
+                                if (e.key === 'Enter') {
+                                  if (fundingAmount <= 0) {
+                                    fundingAmount = 100;
+                                  }
+                                  fundingAmountStore.set(fundingAmount);
+
+                                  editAmount = false;
+                                  e.preventDefault();
+                                }
+                              }}
+                              on:blur={() => {
+                                if (fundingAmount <= 0) {
+                                  fundingAmount = 100;
+                                }
+                                fundingAmountStore.set(fundingAmount);
+
+                                editAmount = false;
+                              }}
+                            />
+                          {/if}
+                        </div>
                       </div>
                     </div>
                     <Sankey
@@ -617,7 +703,7 @@
                       bind:highlightLinkIndexes
                       extent={[
                         [1, 1],
-                        [width - 1, sidebarHeight * 0.95 - 6],
+                        [width - 1, sidebarHeight * 0.9 - 6],
                       ]}
                     />
                   {:else}
@@ -813,33 +899,6 @@
                           <tbody
                             class="divide-y divide-slate-200 bg-white dark:divide-slate-600 dark:bg-slate-500"
                           >
-                            {#if false}
-                              <tr>
-                                <td
-                                  class="max-w-[400px] truncate whitespace-nowrap px-2 py-2 text-xs font-medium text-slate-900"
-                                  ><div title="New Kudo">new</div>
-                                </td>
-                                <td
-                                  class="whitespace-nowrap py-2 pl-4 pr-3 text-xs text-slate-500 sm:pl-6"
-                                  ><Ago at={kudo.createTime} /></td
-                                >
-                                <td
-                                  class="whitespace-nowrap px-2 py-2 text-xs text-slate-900"
-                                >
-                                  weight
-                                </td>
-                                <td
-                                  class="max-w-[200px] truncate whitespace-nowrap px-2 py-2 text-xs text-slate-500"
-                                  ><div
-                                    title={kudo.description ||
-                                      'New Kudo Description'}
-                                  >
-                                    desc
-                                  </div>
-                                </td>
-                                <td />
-                              </tr>
-                            {/if}
                             {#each $distItems[cohort] as kudo, i}
                               {#if kudo && kudo.weight > 0}
                                 <tr

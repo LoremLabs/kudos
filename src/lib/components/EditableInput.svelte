@@ -11,7 +11,7 @@
   // export let onInput = () => {};
   export let onBlur = () => {};
   export let thing = {}; // id
-  export let inputSize;
+  export let inputSize = null;
 
   let lastClick = 0;
   let formerValue;
