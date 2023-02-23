@@ -47,6 +47,7 @@
   let commanderHeight = 0; // disabled for here
 
   let showGraph = false;
+  let settle = false;
   let highlightLinkIndexes = [];
 
   let distItems = writable({});
@@ -276,6 +277,14 @@
         //   utilsHeight = 0;
         // }
         break;
+      case 'distlist:distribute': {
+        settle = !settle;
+        if (settle && showGraph) {
+          showGraph = false;
+          actionStatus.showGraph = false;
+        }
+        break;
+      }
       case 'distlist:showHistory': {
         break;
       }
@@ -357,6 +366,9 @@
       }
       case 'distlist:showGraph': {
         showGraph = !showGraph;
+        if (showGraph && settle) {
+          settle = false;
+        }
         break;
       }
       case 'distlist:edit': {
@@ -498,7 +510,63 @@
             />
           </div>
           <div class="mr-3 bg-slate-50 px-3 dark:bg-slate-500">
-            {#if showGraph}
+            {#if settle}
+              <div class="my-8 bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <h3
+                    class="text-lg font-medium leading-6 text-gray-900"
+                    id="settles-label"
+                  >
+                    Send a Public Thanks
+                  </h3>
+                  <div class="mt-2 sm:flex sm:items-start sm:justify-between">
+                    <div class="max-w-xl text-sm text-gray-500">
+                      <p id="settles-description">
+                        Kudos can be published to a global leader board. This
+                        will give attention to the people who are contributing
+                        the most to your community.
+                      </p>
+                    </div>
+                    <div
+                      class="mt-5 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center"
+                    >
+                      <button
+                        type="button"
+                        class="inline-flex items-center rounded-full border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+                        >Start Publicize</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="my-8 bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                      <h3 class="text-lg font-medium leading-6 text-gray-900">
+                        Transfer Money to Your List
+                      </h3>
+                      <div class="mt-2 max-w-xl text-sm text-gray-500">
+                        <p>
+                          This will allow you to send money to your contributors
+                          in proportion with their weight in this list. You set
+                          a price and we split it between your contributors.
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="mt-5 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center"
+                    >
+                      <button
+                        type="button"
+                        class="inline-flex items-center rounded-full border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
+                        >Start Transfer</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {:else if showGraph}
               {#if $graph}
                 <div class="mt-8 scale-[1]">
                   <Sankey
@@ -1237,7 +1305,7 @@
                             {/each}
                           </tbody>
                         </table>
-                      {:else}
+                      {:else if !settle}
                         <div
                           class="m-auto flex items-center justify-center pt-8 text-2xl text-slate-500 dark:text-slate-400"
                         >

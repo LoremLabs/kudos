@@ -215,6 +215,12 @@
       <div class="mx-2 flex flex-row text-gray-500">
         <button
           class="flex flex-row items-center justify-center rounded-full bg-cyan-800 p-2 px-4 text-cyan-50 hover:bg-cyan-700 hover:text-cyan-100 focus:outline-none"
+          on:click={() => {
+            dispatch('action', {
+              action: 'distlist:distribute',
+              params: {},
+            });
+          }}
         >
           Distribute
           <Icon name="arrow-sm-right" class="h-4 w-4" />
