@@ -84,6 +84,7 @@
     let data = {
       nodes: [{ name: `${formatter.format(fundingAmount / 100)}` }],
       links: [],
+      totalWeight: 0,
     };
 
     let kudos = [];
@@ -133,6 +134,7 @@
       ...data,
       // nodes: [...graph.nodes],
       // links: [...graph.links],
+      totalWeight,
     };
     console.log({ data });
     return data;
@@ -569,18 +571,34 @@
             {:else if showGraph}
               {#if $graph}
                 <div class="mt-8 scale-[1]">
-                  <Sankey
-                    graph={$graph}
-                    {width}
-                    height={width}
-                    {nodePadding}
-                    {nodeAlign}
-                    bind:highlightLinkIndexes
-                    extent={[
-                      [1, 1],
-                      [width - 1, sidebarHeight * 0.95 - 6],
-                    ]}
-                  />
+                  {#if $graph.totalWeight > 0}
+                    <div class="flex items-center justify-between">
+                      <div class="text-sm text-gray-500">
+                        Total weight: {$graph.totalWeight}
+                      </div>
+                    </div>
+                    <Sankey
+                      graph={$graph}
+                      {width}
+                      height={width}
+                      {nodePadding}
+                      {nodeAlign}
+                      bind:highlightLinkIndexes
+                      extent={[
+                        [1, 1],
+                        [width - 1, sidebarHeight * 0.95 - 6],
+                      ]}
+                    />
+                  {:else}
+                    <div
+                      class="flex h-full flex-col items-center justify-center bg-slate-50"
+                      style="height: 400px"
+                    >
+                      <div class="text-2xl text-slate-500 dark:text-slate-400">
+                        No graph data
+                      </div>
+                    </div>
+                  {/if}
                 </div>
               {:else}
                 <div
