@@ -104,6 +104,7 @@ importers:
       autoprefixer: ^10.4.13
       casual: ^1.6.2
       daf-core: 5.6.4
+      dotenv: ^16.0.3
       eslint: ^8.34.0
       eslint-config-prettier: ^8.6.0
       eslint-plugin-svelte3: ^4.0.0
@@ -139,6 +140,7 @@ importers:
       autoprefixer: 10.4.13_postcss@8.4.21
       casual: 1.6.2
       daf-core: 5.6.4
+      dotenv: 16.0.3
       eslint: 8.34.0
       eslint-config-prettier: 8.6.0_eslint@8.34.0
       eslint-plugin-svelte3: 4.0.0_dbthnr4b2bdkhyiebwn7su3hnq
@@ -2694,7 +2696,6 @@ packages:
   /dotenv/16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /dotenv/8.6.0:
     resolution: {integrity: sha512-IrPdXQsk2BbzvCBGBOTmmSH5SodmqZNt4ERAZDmW4CT+tL8VtvinqywuANaFu4bOMWki16nqf0e4oC0QIaDr/g==}
