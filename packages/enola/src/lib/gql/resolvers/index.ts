@@ -13,6 +13,43 @@ try {
 	process.exit(1);
 }
 
+export const payVia = async (_, params, req) => {
+	console.log({ params });
+
+	let identifier = params.identifier.toLowerCase().trim();
+
+	// make sure it's not too big of input
+	if (identifier.length > 2000) {
+		throw new Error('Identifier too long');
+	}
+
+	const data = await redis.hget(`u:${identifier}`, 'payVia');
+	if (data) {
+		//		const data = JSON.parse(payload);
+		return [
+			{
+				type: data[0],
+				value: data[1]
+			}
+		];
+	} else {
+		return [];
+	}
+
+	// const value = await redis.get('test');
+
+	// await redis.set('test', casual.name);
+	//return ['this is a test',params.identifier];
+	// return [{
+	// 	type: 'XRP',
+	// 	value: 'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
+	// }]
+	// 	return [{
+	// 		type: 'XRP',
+	// 		value: 'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
+	// 	}];
+};
+
 export const sayHello = async () => {
 	const value = await redis.get('test');
 
@@ -32,6 +69,6 @@ export const resolveDid = () => {
 };
 
 export default {
-	sayHello,
-	resolveDid
+	payVia
+	//	resolveDid
 };

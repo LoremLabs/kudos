@@ -11,13 +11,16 @@ const graphiql =
 		? false
 		: {
 				title: 'Enola',
-				defaultQuery: `query Hello {
-sayHello
-}`
+				defaultQuery: `query LookupPayVia {
+					payVia(identifier:"did:kudos:email:mankins@gmail.com") {
+					  type
+					  value
+					}
+				  }`
 		  };
 
 const yogaApp = createYoga<RequestEvent>({
-	logging: false,
+	logging: false, // 'debug', //  logging: 'debug' or false
 	schema: createSchema({
 		typeDefs,
 		resolvers
