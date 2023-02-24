@@ -110,6 +110,10 @@ export const addFileToDistList = async ({ filePath, distList }) => {
     const result = await db.select(`SELECT id FROM kudos WHERE id = ?`, [
       kudo.id,
     ]);
+    // we automatically add the did prefix if it's not there
+    if (kudo.identifier && !kudo.identifier.startsWith('did:')) {
+      kudo.identifier = `did:kudos:${kudo.identifier}`;
+    }
     if (!result || result.length === 0) {
       const res = await db.execute(
         `INSERT OR IGNORE INTO kudos (id, user, cohort, identifier, weight, createTime, description, traceId, context) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
