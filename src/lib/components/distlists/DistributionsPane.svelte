@@ -695,18 +695,18 @@
                       </div>
                     </div>
                     <div class="">
-                    <Sankey
-                      graph={$graph}
-                      {width}
-                      height={width}
-                      {nodePadding}
-                      {nodeAlign}
-                      bind:highlightLinkIndexes
-                      extent={[
-                        [1, 1],
-                        [width - 1, sidebarHeight * 0.9 - 6],
-                      ]}
-                    />
+                      <Sankey
+                        graph={$graph}
+                        {width}
+                        height={width}
+                        {nodePadding}
+                        {nodeAlign}
+                        bind:highlightLinkIndexes
+                        extent={[
+                          [1, 1],
+                          [width - 1, sidebarHeight * 0.9 - 6],
+                        ]}
+                      />
                     </div>
                   {:else}
                     <div
