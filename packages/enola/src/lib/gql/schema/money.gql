@@ -31,6 +31,5 @@ dollars = micros / 1,000,000
 Note, however, that the only way to ensure exact precision is to use a
 proper data type in your programming language (such as decimal or
 bigdecimal).
-
 """
 scalar Money

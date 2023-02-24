@@ -25,7 +25,7 @@ const typeDefs = [
 
 // A map of functions which return data for the schema.
 const resolvers = {
-    ...scalarResolvers,
+	...scalarResolvers,
 	Query: {
 		...Resolvers
 	}

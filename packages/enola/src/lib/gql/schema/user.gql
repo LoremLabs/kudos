@@ -1,18 +1,26 @@
-"""Account data"""
+"""
+Account data
+"""
 type Account {
-  """E-mail"""
-  email: EmailAddress!
+	"""
+	E-mail
+	"""
+	email: EmailAddress!
 
-  """First name"""
-  firstName: String
+	"""
+	First name
+	"""
+	firstName: String
 
-  """Last name"""
-  lastName: String
+	"""
+	Last name
+	"""
+	lastName: String
 
-  """
-  Time zone information for this user, including offset from UTC, name, and abbreviation
-  """
-  timeZone: TimeZone!
+	"""
+	Time zone information for this user, including offset from UTC, name, and abbreviation
+	"""
+	timeZone: TimeZone!
 
-  thing: BigInt
+	thing: BigInt
 }

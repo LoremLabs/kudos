@@ -9,8 +9,8 @@ type Person {
 
 type Query {
 	sayHello: Person
-  getPerson: Person
-  account: Account
+	getPerson: Person
+	account: Account
 }
 
 scalar DIDDocument
