@@ -609,7 +609,7 @@
               </div>
             {:else if showGraph}
               {#if $graph}
-                <div class="mt-4 scale-[1]">
+                <div class="mt-4 scale-[1] dark:bg-slate-200">
                   <h2 class="my-4 text-xl font-bold text-gray-900">
                     Distribution Graph
                   </h2>
@@ -694,6 +694,7 @@
                         </div>
                       </div>
                     </div>
+                    <div class="">
                     <Sankey
                       graph={$graph}
                       {width}
@@ -706,6 +707,7 @@
                         [width - 1, sidebarHeight * 0.9 - 6],
                       ]}
                     />
+                    </div>
                   {:else}
                     <div
                       class="flex h-full flex-col items-center justify-center bg-slate-50"
