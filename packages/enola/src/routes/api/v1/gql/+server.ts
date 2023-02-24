@@ -6,14 +6,15 @@ import { dev } from '$app/environment';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import { useGraphQlJit } from '@envelop/graphql-jit';
 
-const graphiql = !dev
-	? false
-	: {
-			title: 'Enola',
-			defaultQuery: `query Hello {
+const graphiql =
+	!dev && false // TODO: temp disabled
+		? false
+		: {
+				title: 'Enola',
+				defaultQuery: `query Hello {
 sayHello
 }`
-	  };
+		  };
 
 const yogaApp = createYoga<RequestEvent>({
 	logging: false,
