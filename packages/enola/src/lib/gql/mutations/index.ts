@@ -1,3 +1,4 @@
+import { BloomFilter } from 'bloomfilter';
 import { Redis } from '@upstash/redis';
 import casual from 'casual';
 import log from '$lib/logging';
@@ -45,6 +46,26 @@ export const setPayVia = async (_, params) => {
 
 	// let's set it TODO: check if it exists
 	await redis.hset(`u:${identifier}`, { payVia: [params.type, params.value] });
+
+	// fetch current bloom filter from redis
+	let bloomFilterData = await redis.get('bloom:payVia');
+	let bloom;
+	if (!bloomFilterData) {
+		bloom = new BloomFilter(
+			32 * 256 * 4, // number of bits to allocate (32 * 256 * 4 = 32768)
+			16 // 16 hash functions
+		);
+	} else {
+		bloom = new BloomFilter(JSON.parse(bloomFilterData), 16);
+	}
+
+	// add the identifier to the bloom filter
+	bloom.add(identifier);
+
+	bloomFilterData = JSON.stringify(JSON.stringify([].slice.call(bloom.buckets))); // the redis library automatically jsons, so we do it twice
+	// log.debug('bloomFilterData', bloomFilterData);
+	// save the bloom filter back to redis (TODO: should lock this transaction)
+	await redis.set('bloom:payVia', bloomFilterData);
 
 	return {
 		type: params.type,

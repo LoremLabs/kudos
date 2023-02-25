@@ -98,11 +98,13 @@ importers:
       '@graphql-yoga/render-graphiql': ^3.7.0
       '@sveltejs/adapter-auto': ^1.0.3
       '@sveltejs/kit': ^1.8.3
+      '@types/bloomfilter': ^0.0.0
       '@types/node': ^18.14.1
       '@typescript-eslint/eslint-plugin': ^5.53.0
       '@typescript-eslint/parser': ^5.53.0
       '@upstash/redis': ^1.20.0
       autoprefixer: ^10.4.13
+      bloomfilter: ^0.0.18
       casual: ^1.6.2
       daf-core: 5.6.4
       dotenv: ^16.0.3
@@ -136,10 +138,12 @@ importers:
     devDependencies:
       '@sveltejs/adapter-auto': 1.0.3_@sveltejs+kit@1.8.3
       '@sveltejs/kit': 1.8.3_svelte@3.55.1+vite@4.1.4
+      '@types/bloomfilter': 0.0.0
       '@typescript-eslint/eslint-plugin': 5.53.0_ny4s7qc6yg74faf3d6xty2ofzy
       '@typescript-eslint/parser': 5.53.0_7kw3g6rralp5ps6mg3uyzz6azm
       '@upstash/redis': 1.20.0
       autoprefixer: 10.4.13_postcss@8.4.21
+      bloomfilter: 0.0.18
       casual: 1.6.2
       daf-core: 5.6.4
       dotenv: 16.0.3
@@ -1713,6 +1717,10 @@ packages:
       - supports-color
     dev: true
 
+  /@types/bloomfilter/0.0.0:
+    resolution: {integrity: sha512-bZhGgidbIsN1sgI3tLwyxTpSa9Dkd9V5MrDU/O92OiqqEN+CNOxbyzPYAFOoBFw4VAh2EdzqT4XucKZEkrI0JQ==}
+    dev: true
+
   /@types/cookie/0.5.1:
     resolution: {integrity: sha512-COUnqfB2+ckwXXSFInsFdOAWQzCCx+a5hq2ruyj+Vjund94RJQd4LG2u9hnvJrTgunKAaax7ancBYlDrNYxA0g==}
     dev: true
@@ -2180,6 +2188,10 @@ packages:
 
   /blakejs/1.2.1:
     resolution: {integrity: sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==}
+    dev: true
+
+  /bloomfilter/0.0.18:
+    resolution: {integrity: sha512-CbnyHE78gY1tpXS/Ap+B0RJxKdRWCDzjBnX97UJSG8rdLv1PK8GiTWc/CCQyWu6PWVD4lUceeFrqC6Mf3nMgOA==}
     dev: true
 
   /bn.js/4.12.0:
