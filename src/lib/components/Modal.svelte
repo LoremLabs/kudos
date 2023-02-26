@@ -7,7 +7,7 @@
 
   export let open = false;
   export let ariaLabelledBy: string;
-  let klass = `max-w-lg bg-white rounded-sm pl-4 pt-5 pb-4 pr-8 shadow-xl sm:p-6`;
+  let klass = `max-w-lg bg-white dark:bg-slate-400 rounded-sm pl-4 pt-5 pb-4 pr-8 shadow-xl sm:p-6`;
   export { klass as class };
 
   const dispatch = createEventDispatcher();
@@ -82,7 +82,7 @@
         <slot name="close">
           <button
             type="button"
-            class="absolute right-0 top-0 mt-4 mr-4 rounded-sm bg-red-100 text-red-400 hover:text-red-500 focus:outline-none focus:ring-0 focus:ring-gray-300 focus:ring-offset-0"
+            class="absolute right-0 top-0 mt-4 mr-4 rounded-full bg-red-100 p-1 text-red-400 hover:text-red-500 focus:outline-none focus:ring-0 focus:ring-transparent focus:ring-offset-0"
             on:click={hide}
             aria-label="Close"
             title="Close"

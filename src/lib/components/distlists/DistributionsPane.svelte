@@ -18,6 +18,7 @@
   import Tooltip from '$lib/components/Tooltip.svelte';
 
   import ModalNewCohort from '$lib/components/ModalNewCohort.svelte';
+  import ModalStartFameDistribution from '$lib/components/ModalStartFameDistribution.svelte';
   import Sankey from '$lib/components/Sankey.svelte';
 
   import { shortId } from '$lib/utils/short-id';
@@ -268,6 +269,10 @@
     ready = true;
   });
 
+  const fameDistribution = async () => {
+    const distributionStatus = await startFameDistribution();
+  };
+
   const createNewCohort = async () => {
     const segment = await newCohort();
     const cohort = segment.cohort;
@@ -489,6 +494,16 @@
     return userData;
   };
 
+  let fameDistributionModal = false;
+
+  let fameDistributionPromise: Promise<void>;
+  const startFameDistribution = async () => {
+    fameDistributionModal = true;
+    let status = await fameDistributionPromise;
+    fameDistributionModal = false;
+    return status;
+  };
+
   function handleOutsideClick(ev: MouseEvent) {
     if (
       !openKudos.menuOpened ||
@@ -560,7 +575,7 @@
           </div>
           <div class="mr-3 bg-slate-50 px-3 dark:bg-slate-500">
             {#if settle}
-              <div class="my-8 bg-white shadow sm:rounded-lg">
+              <div class="my-8 bg-white shadow dark:bg-slate-300 sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                   <h3
                     class="text-lg font-medium leading-6 text-gray-900"
@@ -582,13 +597,16 @@
                       <button
                         type="button"
                         class="inline-flex items-center rounded-full border border-transparent bg-gray-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 sm:text-sm"
-                        >Start Publicize</button
+                        on:click={async () => {
+                          // modal
+                          await fameDistribution();
+                        }}>Start Publicize</button
                       >
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="my-8 bg-white shadow sm:rounded-lg">
+              <div class="my-8 bg-white shadow dark:bg-slate-300 sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                   <div class="sm:flex sm:items-start sm:justify-between">
                     <div>
@@ -648,7 +666,7 @@
                               <button
                                 class="hover:underline"
                                 on:click={() => {
-                                  editAmount = true; // 777
+                                  editAmount = true;
                                 }}
                               >
                                 <div
@@ -1572,3 +1590,18 @@
     </h3>
   </div>
 </ModalNewCohort>
+
+<ModalStartFameDistribution
+  bind:open={fameDistributionModal}
+  bind:done={fameDistributionPromise}
+  handleCancel={() => {}}
+>
+  <div slot="header">
+    <h3
+      class="text-lg font-black leading-6 text-gray-900"
+      id="modal-new-cohort"
+    >
+      &nbsp;
+    </h3>
+  </div>
+</ModalStartFameDistribution>

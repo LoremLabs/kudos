@@ -1344,6 +1344,9 @@ select {
 .grid-cols-6 {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .flex-row {
   flex-direction: row;
 }
@@ -1792,6 +1795,19 @@ select {
 .bg-red-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(252 165 165 / var(--tw-bg-opacity));
+}
+.bg-indigo-600 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(79 70 229 / var(--tw-bg-opacity));
+}
+.bg-slate-300\/90 {
+  background-color: rgb(203 213 225 / 0.9);
+}
+.bg-gray-300\/70 {
+  background-color: rgb(209 213 219 / 0.7);
+}
+.bg-gray-300\/80 {
+  background-color: rgb(209 213 219 / 0.8);
 }
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
@@ -2291,6 +2307,10 @@ select {
 .text-red-300 {
   --tw-text-opacity: 1;
   color: rgb(252 165 165 / var(--tw-text-opacity));
+}
+.text-indigo-600 {
+  --tw-text-opacity: 1;
+  color: rgb(79 70 229 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -3770,6 +3790,10 @@ select {
 
   .sm\:flex {
     display: flex;
+  }
+
+  .sm\:grid {
+    display: grid;
   }
 
   .sm\:h-10 {
