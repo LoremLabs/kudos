@@ -169,7 +169,7 @@
                 }}
               >
                 <div
-                  class="border-0.5 zpr-3 rounded-full border-gray-900 bg-slate-300"
+                  class="border-0.5 mr-1 rounded-full border-gray-900 bg-slate-300"
                 >
                   <div
                     class="flex items-center justify-center justify-items-center rounded-full text-sm text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
@@ -203,7 +203,7 @@
               </button>
 
               <div
-                class="absolute right-0 z-40 mt-2 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                class="absolute right-0 z-40 mt-2 mr-3 w-48 origin-top-right rounded-md bg-slate-300 py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
