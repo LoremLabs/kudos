@@ -28,4 +28,18 @@ const payVia = async (_, params, req) => {
 	});
 };
 
-export { payVia as GET };
+const cors = async () => {
+	return new Response('', {
+		status: 200,
+		headers: {
+			'Access-Control-Allow-Origin': '*',
+			'Access-Control-Allow-Methods': 'GET, OPTIONS',
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+			'Access-Control-Max-Age': '600',
+
+			'Cache-Control': 'max-age=60'
+		}
+	});
+};
+
+export { payVia as GET, cors as OPTIONS };
