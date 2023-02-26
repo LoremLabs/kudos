@@ -22,6 +22,7 @@ const payVia = async (_, params, req) => {
 	return new Response(bloomFilterData, {
 		status: 200,
 		headers: {
+			'access-control-allow-origin': '*',
 			'content-type': 'application/json',
 			etag: etag,
 
