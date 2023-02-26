@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis';
+import { createHmac } from 'node:crypto';
 import log from '$lib/logging';
 
 let redis = {};
@@ -15,15 +16,17 @@ try {
 const payVia = async (_, params, req) => {
 	let bloomFilterData = await redis.get('bloom:payVia');
 
-	// return a response object
+	const etag = createHmac('sha256', 'etag').update(bloomFilterData).digest('base64');
 
+	// return a response object
 	return new Response(bloomFilterData, {
 		status: 200,
 		headers: {
-			'Content-Type': 'application/json',
+			'content-type': 'application/json',
+			etag: etag,
 
 			// set a 30 second cache
-			'Cache-Control': 'max-age=30'
+			'cache-control': 'max-age=30; public'
 		}
 	});
 };
