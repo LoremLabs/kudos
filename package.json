@@ -40,6 +40,7 @@
     "base58": "^2.0.1",
     "better-sqlite3": "^8.1.0",
     "bip39": "^3.0.4",
+    "bloomfilter": "^0.0.18",
     "buffer": "^6.0.3",
     "concurrently": "^7.6.0",
     "cross-env": "^7.0.3",

@@ -60,8 +60,9 @@
           name: 'identResolver',
           type: 'url',
           advanced: true, // TODO: hide behind advanced toggle
-          displayName: 'Identity Resolver GraphQL Endpoint',
+          displayName: 'Identity Resolver Endpoint',
           value: $clearConfigStore?.identity?.identResolver || '', // TODO: Make a new Form, StorableForm pass store to Form and let it handle storage
+          placeholder: 'https://graph.ident.agency',
         },
       ],
     },

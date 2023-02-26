@@ -6,10 +6,17 @@ import { writable } from 'svelte/store';
 
 let initDone = false;
 
+export const defaultClearConfig = {
+  _init: false,
+  personas: [{ id: 0, name: 'Persona 1' }],
+  identity: {
+    identResolver: 'https://graph.ident.agency',
+  },
+};
+
 export const createClearConfigStore = () => {
   let clearConfig = {
-    _init: false,
-    personas: [{ id: 0, name: 'Persona 1' }],
+    ...defaultClearConfig,
   };
   const { subscribe, update, set } = writable(clearConfig);
 
@@ -84,7 +91,7 @@ export const createClearConfigStore = () => {
       { id: 0, name: 'Persona 1' },
     ];
     initDone = true;
-    console.log({ clearConfig });
+    // console.log({ clearConfig });
     set(clearConfig);
     return clearConfig;
   };

@@ -119,9 +119,11 @@
     | 'mini/queue-list';
 
   export type MiniIcons =
-    | 'mini/exclamation-triangle'
+    | 'mini/banknotes'
     | 'mini/chevron-right'
     | 'mini/ellipsis-vertical'
+    | 'mini/exclamation-triangle'
+    | 'mini/no-symbol'
     | 'mini/play'
     | 'mini/plus'
     | 'mini/scale'

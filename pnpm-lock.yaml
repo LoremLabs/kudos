@@ -18,6 +18,7 @@ specifiers:
   base58: ^2.0.1
   better-sqlite3: ^8.1.0
   bip39: ^3.0.4
+  bloomfilter: ^0.0.18
   buffer: ^6.0.3
   concurrently: ^7.6.0
   cross-env: ^7.0.3
@@ -92,6 +93,7 @@ devDependencies:
   base58: 2.0.1
   better-sqlite3: 8.1.0
   bip39: 3.0.4
+  bloomfilter: 0.0.18
   buffer: 6.0.3
   concurrently: 7.6.0
   cross-env: 7.0.3
@@ -2006,6 +2008,13 @@ packages:
       buffer: 5.7.1
       inherits: 2.0.4
       readable-stream: 3.6.0
+
+  /bloomfilter/0.0.18:
+    resolution:
+      {
+        integrity: sha512-CbnyHE78gY1tpXS/Ap+B0RJxKdRWCDzjBnX97UJSG8rdLv1PK8GiTWc/CCQyWu6PWVD4lUceeFrqC6Mf3nMgOA==,
+      }
+    dev: true
 
   /bn.js/4.12.0:
     resolution:

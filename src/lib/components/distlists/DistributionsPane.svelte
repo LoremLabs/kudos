@@ -21,6 +21,7 @@
   import Sankey from '$lib/components/Sankey.svelte';
 
   import { shortId } from '$lib/utils/short-id';
+  import { decorateDistList } from '$lib/distList/payVia.js';
 
   import {
     addFileToDistList,
@@ -217,7 +218,6 @@
     cohorts.forEach((cohort) => {
       totalWeight += distListItems[cohort].weight || 0;
     });
-    distItems.set(distListItems);
     // set the active cohort to be the current one, or the first one
     const cohort = distList?.id;
     if (!activeCohorts[cohort]) {
@@ -226,6 +226,14 @@
     } else {
       activeCohort = activeCohorts[cohort];
     }
+
+    // decorate the distList with payVia indication
+    try {
+      await decorateDistList({ distItems: distListItems[activeCohort] });
+    } catch (e) {
+      console.log(e);
+    }
+    distItems.set(distListItems);
 
     // reset dist state TODO:refactor
     utilsOpen = false;
@@ -273,7 +281,7 @@
       traceId,
       weight: 1,
       description: '',
-      identifier: 'url:https://www.loremlabs.com',
+      identifier: 'did:url:https://www.loremlabs.com',
       context: JSON.stringify({
         traceId,
         source: 'manual',
@@ -633,7 +641,7 @@
                         >
                           {#if !editAmount}
                             <Tooltip
-                              text={`Total distribution is determined by the price you set.`}
+                              text={`Total distribution amount finalized at a later step. Click to model distribution scenarios.`}
                               placement="right"
                               class="z-50 z-50 border border-slate-300 p-1.5 px-2 shadow"
                             >
@@ -1017,7 +1025,34 @@
                                           }
                                         }}
                                         ><div slot="show">
-                                          {kudo.identifier}
+                                          <div class="flex flex-row">
+                                            {kudo.identifier}
+                                            {#if kudo.indication === true}
+                                              <Tooltip
+                                                text={`Payment method found`}
+                                                placement="top"
+                                                class="z-50 z-50 border border-slate-300 p-1.5 px-2 shadow"
+                                              >
+                                                <Icon
+                                                  name="mini/banknotes"
+                                                  class="ml-1 h-4 w-4 text-green-400"
+                                                />
+                                              </Tooltip>
+                                            {:else if kudo.indication === false}
+                                              <Tooltip
+                                                text={`Payment method not found`}
+                                                placement="top"
+                                                class="z-50 border border-slate-300 p-1.5 px-2 shadow"
+                                              >
+                                                <Icon
+                                                  name="mini/no-symbol"
+                                                  class="ml-1 h-4 w-4 text-red-300"
+                                                />
+                                              </Tooltip>
+                                            {:else}
+                                              &nbsp;
+                                            {/if}
+                                          </div>
                                         </div>
                                       </EditableInput>
                                     </div></td
@@ -1294,7 +1329,7 @@
                                             weight: 1,
                                             description: '',
                                             identifier:
-                                              'url:https://www.loremlabs.com',
+                                              'did:url:https://www.loremlabs.com',
                                             context: JSON.stringify({
                                               traceId,
                                               source: 'manual',
@@ -1442,7 +1477,8 @@
                                     traceId,
                                     weight: 1,
                                     description: '',
-                                    identifier: 'url:https://www.loremlabs.com',
+                                    identifier:
+                                      'did:url:https://www.loremlabs.com',
                                     context: JSON.stringify({
                                       traceId,
                                       source: 'manual',
