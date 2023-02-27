@@ -20,7 +20,7 @@ const graphiql =
 		  };
 
 const yogaApp = createYoga<RequestEvent>({
-	logging: false, // 'debug', //  logging: 'debug' or false
+	logging: 'debug', // false, // 'debug', //  logging: 'debug' or false
 	schema: createSchema({
 		typeDefs,
 		resolvers
@@ -35,4 +35,4 @@ const yogaApp = createYoga<RequestEvent>({
 	fetchAPI: globalThis
 });
 
-export { yogaApp as GET, yogaApp as POST };
+export { yogaApp as GET, yogaApp as POST, yogaApp as OPTIONS };

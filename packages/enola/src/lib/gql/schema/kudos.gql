@@ -1,1 +1,7 @@
-scalar Kudos
+"""
+Kudos (for Fame) Submission
+"""
+type KudosForFameSubmission {
+	status: String
+	statusCode: Int!
+}

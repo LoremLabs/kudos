@@ -1,3 +1,5 @@
+import { Wallet, utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
+
 import { BloomFilter } from 'bloomfilter';
 import { Redis } from '@upstash/redis';
 import casual from 'casual';
@@ -13,6 +15,63 @@ try {
 	log.error('Redis connect error', e);
 	process.exit(1);
 }
+
+export const submitKudosForFame = async (_, params) => {
+	//	log.debug('---------------------', params);
+
+	// check the payload for requirements
+	if (!params.signature || !params.address) {
+		log.warn('missing signature or address', params);
+		return {
+			status: 'missing signature or address',
+			statusCode: 400
+		};
+	}
+
+	// check the payload for a valid signature / address
+	const signerAddress = await utils.verifyMessage(params.payload, params.signature);
+	const valid = signerAddress === params.address;
+	if (!valid) {
+		return {
+			status: 'invalid signatures',
+			statusCode: 400
+		};
+	}
+
+	// if we're here, then the signature is valid, so let's parse the payload: base64 to utf8string to json.parse -> object
+	const dataRaw = Buffer.from(params.payload, 'base64');
+	const data = utils.toUtf8String(dataRaw);
+	// log.debug('data', data);
+
+	// now foreach kudos item, decode, check the signature
+	//log.debug('kudos', data.kudos);
+	try {
+		// loop through data.kudos array
+		const d = JSON.parse(data);
+		d.kudos.forEach(async (k, i) => {
+			log.debug(`${i} kudos1a`, { k, i });
+			const signerAddress = await utils.verifyMessage(k.message, k.signature);
+			log.debug('signerAddress', signerAddress);
+			if (signerAddress !== params.address) {
+				throw new Error('invalid signature');
+			}
+			// convert the message into data
+			const kudosData = JSON.parse(Buffer.from(k.message, 'base64').toString('utf8'));
+			log.debug('kudosData', kudosData);
+		});
+	} catch (e) {
+		log.error('invalid signature', e);
+		return {
+			status: 'invalid signature',
+			statusCode: 400
+		};
+	}
+
+	return {
+		status: 'success',
+		statusCode: 200
+	};
+};
 
 export const setPayVia = async (_, params) => {
 	log.debug('---------------------', params);
@@ -74,5 +133,6 @@ export const setPayVia = async (_, params) => {
 };
 
 export default {
-	setPayVia
+	setPayVia,
+	submitKudosForFame
 };

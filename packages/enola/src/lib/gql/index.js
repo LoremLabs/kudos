@@ -1,12 +1,12 @@
 import { resolvers as scalarResolvers, typeDefs as scalarTypeDefs } from 'graphql-scalars';
 
+// import Base from './schema/base.gql';
+// import CryptographySchema from './schema/cryptography.gql';
+import KudosSchema from './schema/kudos.gql';
 import MutationSchema from './schema/mutation.gql';
 import Mutations from './mutations';
 // import SortSchema from './schema/sort.gql';
 import PaymentMethodSchema from './schema/payment-method.gql';
-// import Base from './schema/base.gql';
-// import CryptographySchema from './schema/cryptography.gql';
-// import KudosSchema from './schema/kudos.gql';
 // import MoneySchema from './schema/money.gql';
 import QuerySchema from './schema/query.gql';
 import Resolvers from './resolvers';
@@ -21,7 +21,7 @@ const typeDefs = [
 	...scalarTypeDefs,
 	// UserSchema,
 	// MoneySchema,
-	// KudosSchema,
+	KudosSchema,
 	PaymentMethodSchema,
 	QuerySchema,
 	MutationSchema
