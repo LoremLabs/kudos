@@ -4,6 +4,9 @@
   import Modal from '$lib/components/Modal.svelte';
   import Icon from '$lib/components/Icon.svelte';
   import Form from '$lib/components/Form.svelte';
+  import KeyIcon from '$lib/components/KeyIcon.svelte';
+  import { addToast } from '$lib/stores/toasts';
+
   import { noop } from '$lib/utils/noop';
   import {
     buttonClass,
@@ -11,9 +14,10 @@
     buttonColorClass,
   } from '$lib/tokens';
   import { currentCohort } from '$lib/utils/date';
-  import { signKudos } from '$lib/distList/signature';
+  import { signKudos, packageKudos } from '$lib/distList/signature';
 
   import { walletStore } from '$lib/stores/wallet';
+  import { clearConfigStore } from '$lib/stores/clearConfig';
 
   export let open = false;
   export let handleCancel = () => {};
@@ -122,20 +126,120 @@
     }
   };
 
+  const doPostKudos = async (payload) => {
+    console.log({ payload }, '!!!');
+    const clearConfig = await clearConfigStore?.init();
+    console.log({ clearConfig });
+    const identResolver = clearConfig?.identity?.identResolver;
+    if (!identResolver) {
+      addToast({
+        msg: 'Fame resolver not configured. Configure in Settings → Identity',
+        type: 'error',
+        duration: 3000,
+      });
+
+      open = false;
+      throw new Error('No ident resolver set');
+    }
+
+    const headers = {
+      accept: 'application/json',
+      'content-type': 'application/json',
+    };
+
+    const gqlQuery = {
+      query:
+        'mutation submitKudosForFame($payload: String!, $signature: String!, $address: String!, $subject: String) {\n  submitKudosForFame(\n    payload: $payload\n    signature: $signature\n    address: $address\n    subject: $subject\n  ) {\n    status\n    statusCode\n  }\n}',
+      variables: {
+        payload: payload.message,
+        signature: payload.signature,
+        address: payload.address,
+        subject: '',
+      },
+      operationName: 'submitKudosForFame',
+      extensions: {},
+    };
+
+    let results = {};
+    try {
+      results = await fetch(`${identResolver}/api/v1/gql`, {
+        headers,
+        method: 'POST',
+        body: JSON.stringify(gqlQuery),
+      })
+        .then((r) => {
+          return r.json();
+        })
+        .catch((e) => {
+          console.log('error submitting to gql', e);
+          throw e;
+        });
+    } catch (e) {
+      console.log('error submitting to gql', e);
+      // addToast({
+      //   msg: 'Error submitting Kudos for Fame. Check your network connection and try again.',
+      //   type: 'error',
+      //   duration: 3000,
+      // });
+    }
+    open = false;
+    //     {
+    //     "data": {
+    //         "submitKudosForFame": {
+    //             "status": "success",
+    //             "statusCode": 200
+    //         }
+    //     }
+    // }
+    if (results && results.data?.submitKudosForFame?.statusCode === 200) {
+      addToast({
+        msg: 'Kudos for Fame submitted successfully',
+        type: 'success',
+        duration: 3000,
+      });
+    } else {
+      addToast({
+        msg: `Error ${results.data?.submitKudosForFame?.status || ''}`,
+        type: 'error',
+        duration: 3000,
+      });
+      throw new Error('Error submitting Kudos for Fame');
+    }
+  };
+
+  const doPackageKudos = async (items) => {
+    const startTs = Date.now();
+    const wallet = $walletStore?.keys?.kudos;
+    await noop();
+    const payload = await packageKudos(items, wallet);
+    console.log({ payload });
+    const endTs = Date.now();
+    // wait a bit to show the spinner if we haven't waited so far
+    const wait = Math.max(0, 750 - (endTs - startTs));
+    setTimeout(async () => {
+      step = step + 1;
+      await doPostKudos(payload);
+    }, wait);
+  };
+
   const doSignKudos = async () => {
     step = step + 1;
     const startTs = Date.now();
     await noop();
     const wallet = $walletStore?.keys?.kudos;
-    console.log({ kudos });
     // for each distListItem, sign with our private key
     const signed = await Promise.all(
       kudos.map(async (item) => {
-        const sig = await signKudos(item, wallet);
+        const { signature, message, signer, payload } = await signKudos(
+          item,
+          wallet
+        );
         await noop();
         return {
-          ...item,
-          sig,
+          signature,
+          message,
+          signer,
+          //          payload,
         };
       })
     );
@@ -143,8 +247,9 @@
     const endTs = Date.now();
     // wait a bit to show the spinner if we haven't waited so far
     const wait = Math.max(0, 750 - (endTs - startTs));
-    setTimeout(() => {
+    setTimeout(async () => {
       step = step + 1;
+      await doPackageKudos(signed);
     }, wait);
   };
 
@@ -182,6 +287,18 @@
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
               <h2 class="text-5xl font-bold tracking-tight text-white">
+                Confirm Account
+              </h2>
+              <p class="mt-4 text-lg leading-6 text-gray-300">
+                We'll sign these kudos with your keys, so verify that you're
+                using the desired account.
+              </p>
+            </div>
+          </div>
+        {:else if step === 2}
+          <div class="mx-auto lg:mx-0">
+            <div class="flex flex-row justify-between">
+              <h2 class="text-5xl font-bold tracking-tight text-white">
                 Signing Your Kudos...
               </h2>
               <Icon
@@ -190,11 +307,23 @@
               />
             </div>
           </div>
-        {:else if step === 2}
+        {:else if step === 3}
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
               <h2 class="text-5xl font-bold tracking-tight text-white">
-                what now
+                Creating Kudos Package...
+              </h2>
+              <Icon
+                name="globe-alt"
+                class="h-12 w-12 animate-spin text-cyan-100"
+              />
+            </div>
+          </div>
+        {:else if step === 4}
+          <div class="mx-auto lg:mx-0">
+            <div class="flex flex-row justify-between">
+              <h2 class="text-5xl font-bold tracking-tight text-white">
+                Publishing Kudos...
               </h2>
               <Icon
                 name="globe-alt"
@@ -222,13 +351,54 @@
             <button
               on:click={() => {
                 if (agree) {
-                  doSignKudos();
+                  step = step + 1;
                 } else {
                   shake = true;
                   setTimeout(() => {
                     shake = false;
                   }, 500);
                 }
+              }}
+              type="button"
+              class={`cursor-pointer rounded-full border border-cyan-600 bg-gray-300 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
+              class:animate-shake={shake}
+            >
+              <div class="flex flex-row">
+                Next
+                {#if processing}
+                  <span
+                    aria-label={'processing'}
+                    class="ml-2 mr-3 animate-spin"
+                  >
+                    <Icon name="misc/spinner" class="h-5 w-5 text-slate-500" />
+                  </span>
+                {:else}
+                  <Icon name="chevron-right" class="h-5 w-5 text-cyan-600" />
+                {/if}
+              </div>
+            </button>
+          </div>
+        {:else if step === 1}
+          <div
+            class="mt-8 flex flex-row items-center justify-between rounded-xl bg-cyan-600 p-3"
+          >
+            <div
+              class="mx-4 flex max-w-2xl flex-row items-center justify-center text-cyan-900"
+            >
+              <KeyIcon
+                type="kudos"
+                diameter={48}
+                address={$walletStore.keys?.kudos?.address}
+              />
+              <div class="ml-4">
+                <div class="text-lg font-bold text-white">
+                  {$walletStore.keys?.kudos?.address}
+                </div>
+              </div>
+            </div>
+            <button
+              on:click={() => {
+                doSignKudos();
               }}
               type="button"
               class={`cursor-pointer rounded-full border border-cyan-600 bg-gray-300 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
@@ -286,17 +456,17 @@
     {/if}
   </div>
   <div class="flex flex-row justify-center">
-    {#each [0, 1, 2] as modalStep}
-      <!-- circle svg -->
+    {#each [0, 1, 2, 3, 4] as modalStep}
       <div
         class:text-gray-300={step < modalStep}
         class:text-cyan-100={step >= modalStep}
       >
         <button
           on:click={() => {
-            if (modalStep < step) {
-              step = modalStep;
-            }
+            // not needed
+            // if (modalStep < step) {
+            //   step = modalStep;
+            // }
           }}
         >
           <svg

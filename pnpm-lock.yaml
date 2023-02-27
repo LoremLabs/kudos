@@ -35,6 +35,7 @@ specifiers:
   ethers: ^5.7.2
   focusable-selectors: ^0.7.0
   hash.js: ^1.1.7
+  json-stringify-deterministic: ^1.0.8
   knex: ^2.4.2
   micro-ed25519-hdkey: ^0.1.2
   nanoid: ^4.0.1
@@ -110,6 +111,7 @@ devDependencies:
   ethers: 5.7.2
   focusable-selectors: 0.7.0
   hash.js: 1.1.7
+  json-stringify-deterministic: 1.0.8
   micro-ed25519-hdkey: 0.1.2
   nanoid: 4.0.1
   node-stdlib-browser: 1.2.0
@@ -3909,6 +3911,14 @@ packages:
       {
         integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==,
       }
+    dev: true
+
+  /json-stringify-deterministic/1.0.8:
+    resolution:
+      {
+        integrity: sha512-rkJID3qeigo3VCrEcxX1333fTBBxW89YrdYcZexMnL/WdB8u0zctyG63e/DpahRJyrWCDhh7IQhiR7u2XEDQ4Q==,
+      }
+    engines: { node: ">= 4" }
     dev: true
 
   /jsonfile/6.1.0:
