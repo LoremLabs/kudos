@@ -954,6 +954,7 @@
                                               distList,
                                               items: [kudo],
                                             });
+                                            updateDistListItems();
 
                                             addToast({
                                               msg: 'Saved.',
@@ -997,6 +998,7 @@
                                               distList,
                                               items: [kudo],
                                             });
+                                            updateDistListItems();
                                             addToast({
                                               msg: 'Saved!',
                                               type: 'success',
@@ -1099,6 +1101,7 @@
                                             distList,
                                             items: [kudo],
                                           });
+                                          updateDistListItems();
 
                                           addToast({
                                             msg: 'Saved.',
@@ -1170,6 +1173,7 @@
                                             distList,
                                             items: [kudo],
                                           });
+                                          updateDistListItems();
 
                                           addToast({
                                             msg: 'Saved.',
@@ -1211,6 +1215,7 @@
                                               distList,
                                               items: [kudo],
                                             });
+                                            updateDistListItems();
 
                                             addToast({
                                               msg: 'Saved.',
@@ -1246,6 +1251,7 @@
                                               distList,
                                               items: [kudo],
                                             });
+                                            updateDistListItems();
 
                                             addToast({
                                               msg: 'Saved.',
@@ -1590,10 +1596,10 @@
     </h3>
   </div>
 </ModalNewCohort>
-
 <ModalStartFameDistribution
   bind:open={fameDistributionModal}
   bind:done={fameDistributionPromise}
+  cohorts={$distItems}
   handleCancel={() => {}}
 >
   <div slot="header">

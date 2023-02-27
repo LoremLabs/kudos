@@ -847,6 +847,10 @@ select {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
 }
+.mx-4 {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
 .mx-6 {
   margin-left: 1.5rem;
   margin-right: 1.5rem;
@@ -914,6 +918,9 @@ select {
 .mb-4 {
   margin-bottom: 1rem;
 }
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
 .mb-auto {
   margin-bottom: auto;
 }
@@ -958,6 +965,9 @@ select {
 }
 .mr-6 {
   margin-right: 1.5rem;
+}
+.mt-0 {
+  margin-top: 0px;
 }
 .mt-1 {
   margin-top: 0.25rem;
@@ -1315,6 +1325,14 @@ select {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+@keyframes spin-horizontal {
+  to {
+    transform: rotateY(360deg);
+  }
+}
+.animate-spin-horizontal {
+  animation: spin-horizontal 1s linear infinite;
+}
 .cursor-default {
   cursor: default;
 }
@@ -1343,9 +1361,6 @@ select {
 }
 .grid-cols-6 {
   grid-template-columns: repeat(6, minmax(0, 1fr));
-}
-.grid-cols-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .flex-row {
   flex-direction: row;
@@ -1565,6 +1580,10 @@ select {
 .border-t-2 {
   border-top-width: 2px;
 }
+.border-cyan-600 {
+  --tw-border-opacity: 1;
+  border-color: rgb(8 145 178 / var(--tw-border-opacity));
+}
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity));
@@ -1676,6 +1695,10 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
+.bg-gray-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(209 213 219 / var(--tw-bg-opacity));
+}
 .bg-gray-300\/50 {
   background-color: rgb(209 213 219 / 0.5);
 }
@@ -1784,31 +1807,6 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
 }
-.bg-green-800 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(22 101 52 / var(--tw-bg-opacity));
-}
-.bg-green-900 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(20 83 45 / var(--tw-bg-opacity));
-}
-.bg-red-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(252 165 165 / var(--tw-bg-opacity));
-}
-.bg-indigo-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(79 70 229 / var(--tw-bg-opacity));
-}
-.bg-slate-300\/90 {
-  background-color: rgb(203 213 225 / 0.9);
-}
-.bg-gray-300\/70 {
-  background-color: rgb(209 213 219 / 0.7);
-}
-.bg-gray-300\/80 {
-  background-color: rgb(209 213 219 / 0.8);
-}
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
 }
@@ -1842,6 +1840,9 @@ select {
 }
 .p-2 {
   padding: 0.5rem;
+}
+.p-3 {
+  padding: 0.75rem;
 }
 .p-4 {
   padding: 1rem;
@@ -2058,6 +2059,10 @@ select {
   font-size: 2.25rem;
   line-height: 2.5rem;
 }
+.text-5xl {
+  font-size: 3rem;
+  line-height: 1;
+}
 .text-\[10px\] {
   font-size: 10px;
 }
@@ -2136,6 +2141,10 @@ select {
   --tw-text-opacity: 1;
   color: rgb(29 78 216 / var(--tw-text-opacity));
 }
+.text-cyan-100 {
+  --tw-text-opacity: 1;
+  color: rgb(207 250 254 / var(--tw-text-opacity));
+}
 .text-cyan-50 {
   --tw-text-opacity: 1;
   color: rgb(236 254 255 / var(--tw-text-opacity));
@@ -2144,9 +2153,17 @@ select {
   --tw-text-opacity: 1;
   color: rgb(8 145 178 / var(--tw-text-opacity));
 }
+.text-cyan-700 {
+  --tw-text-opacity: 1;
+  color: rgb(14 116 144 / var(--tw-text-opacity));
+}
 .text-cyan-800 {
   --tw-text-opacity: 1;
   color: rgb(21 94 117 / var(--tw-text-opacity));
+}
+.text-cyan-900 {
+  --tw-text-opacity: 1;
+  color: rgb(22 78 99 / var(--tw-text-opacity));
 }
 .text-gray-300 {
   --tw-text-opacity: 1;
@@ -2199,6 +2216,10 @@ select {
 .text-primary-500 {
   --tw-text-opacity: 1;
   color: rgb(217 70 239 / var(--tw-text-opacity));
+}
+.text-red-300 {
+  --tw-text-opacity: 1;
+  color: rgb(252 165 165 / var(--tw-text-opacity));
 }
 .text-red-400 {
   --tw-text-opacity: 1;
@@ -2263,54 +2284,6 @@ select {
 .text-yellow-700 {
   --tw-text-opacity: 1;
   color: rgb(161 98 7 / var(--tw-text-opacity));
-}
-.text-slate-200 {
-  --tw-text-opacity: 1;
-  color: rgb(226 232 240 / var(--tw-text-opacity));
-}
-.text-red-200 {
-  --tw-text-opacity: 1;
-  color: rgb(254 202 202 / var(--tw-text-opacity));
-}
-.text-red-100 {
-  --tw-text-opacity: 1;
-  color: rgb(254 226 226 / var(--tw-text-opacity));
-}
-.text-violet-200 {
-  --tw-text-opacity: 1;
-  color: rgb(221 214 254 / var(--tw-text-opacity));
-}
-.text-pink-200 {
-  --tw-text-opacity: 1;
-  color: rgb(251 207 232 / var(--tw-text-opacity));
-}
-.text-emerald-500 {
-  --tw-text-opacity: 1;
-  color: rgb(16 185 129 / var(--tw-text-opacity));
-}
-.text-green-200 {
-  --tw-text-opacity: 1;
-  color: rgb(187 247 208 / var(--tw-text-opacity));
-}
-.text-green-300 {
-  --tw-text-opacity: 1;
-  color: rgb(134 239 172 / var(--tw-text-opacity));
-}
-.text-green-900 {
-  --tw-text-opacity: 1;
-  color: rgb(20 83 45 / var(--tw-text-opacity));
-}
-.text-green-600 {
-  --tw-text-opacity: 1;
-  color: rgb(22 163 74 / var(--tw-text-opacity));
-}
-.text-red-300 {
-  --tw-text-opacity: 1;
-  color: rgb(252 165 165 / var(--tw-text-opacity));
-}
-.text-indigo-600 {
-  --tw-text-opacity: 1;
-  color: rgb(79 70 229 / var(--tw-text-opacity));
 }
 .underline {
   text-decoration-line: underline;
@@ -3398,6 +3371,10 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity));
 }
+.hover\:bg-gray-600:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(75 85 99 / var(--tw-bg-opacity));
+}
 .hover\:bg-gray-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity));
@@ -3559,10 +3536,6 @@ select {
 .focus\:ring-cyan-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(6 182 212 / var(--tw-ring-opacity));
-}
-.focus\:ring-gray-300:focus {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(209 213 219 / var(--tw-ring-opacity));
 }
 .focus\:ring-gray-500:focus {
   --tw-ring-opacity: 1;
@@ -3792,10 +3765,6 @@ select {
     display: flex;
   }
 
-  .sm\:grid {
-    display: grid;
-  }
-
   .sm\:h-10 {
     height: 2.5rem;
   }
@@ -3890,6 +3859,11 @@ select {
     text-align: left;
   }
 
+  .sm\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
@@ -3967,6 +3941,79 @@ select {
     font-size: 0.875rem;
     letter-spacing: 0.093776456em;
   }
+
+  .font-inter .sm\:text-5xl,
+  .sm\:text-5xl .font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: -0.022257389em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-tighter,
+  .font-inter .sm\:text-5xl.tracking-tighter,
+  .sm\:text-5xl .font-inter .tracking-tighter,
+  .sm\:text-5xl .font-inter.tracking-tighter,
+  .tracking-tighter .font-inter .sm\:text-5xl,
+  .tracking-tighter .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: -0.072257389em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-tight,
+  .font-inter .sm\:text-5xl.tracking-tight,
+  .sm\:text-5xl .font-inter .tracking-tight,
+  .sm\:text-5xl .font-inter.tracking-tight,
+  .tracking-tight .font-inter .sm\:text-5xl,
+  .tracking-tight .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: -0.047257389em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-normal,
+  .font-inter .sm\:text-5xl.tracking-normal,
+  .sm\:text-5xl .font-inter .tracking-normal,
+  .sm\:text-5xl .font-inter.tracking-normal,
+  .tracking-normal .font-inter .sm\:text-5xl,
+  .tracking-normal .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: -0.022257389em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-wide,
+  .font-inter .sm\:text-5xl.tracking-wide,
+  .sm\:text-5xl .font-inter .tracking-wide,
+  .sm\:text-5xl .font-inter.tracking-wide,
+  .tracking-wide .font-inter .sm\:text-5xl,
+  .tracking-wide .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: 0.002742611em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-wider,
+  .font-inter .sm\:text-5xl.tracking-wider,
+  .sm\:text-5xl .font-inter .tracking-wider,
+  .sm\:text-5xl .font-inter.tracking-wider,
+  .tracking-wider .font-inter .sm\:text-5xl,
+  .tracking-wider .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: 0.027742611em;
+  }
+
+  .font-inter .sm\:text-5xl .tracking-widest,
+  .font-inter .sm\:text-5xl.tracking-widest,
+  .sm\:text-5xl .font-inter .tracking-widest,
+  .sm\:text-5xl .font-inter.tracking-widest,
+  .tracking-widest .font-inter .sm\:text-5xl,
+  .tracking-widest .sm\:text-5xl.font-inter {
+    line-height: 1;
+    font-size: 3rem;
+    letter-spacing: 0.077742611em;
+  }
 }
 @media (min-width: 768px) {
   .md\:absolute {
@@ -4043,6 +4090,11 @@ select {
   .lg\:-mx-8 {
     margin-left: -2rem;
     margin-right: -2rem;
+  }
+
+  .lg\:mx-0 {
+    margin-left: 0px;
+    margin-right: 0px;
   }
 
   .lg\:px-0 {

@@ -25,6 +25,7 @@ module.exports = {
             leaving: "leaving 0.075s ease-in forwards",
             marquee: "marquee var(--marquee-duration) linear infinite",
             shake: "shake 0.75s infinite",
+            "spin-horizontal": "spin-horizontal 1s linear infinite",
             "spin-slow": "spin 4s linear infinite",
             "spin-slower": "spin 6s linear infinite",
             "spin-reverse": "spin-reverse 1s linear infinite",
@@ -79,6 +80,11 @@ module.exports = {
             "spin-reverse": {
               to: {
                 transform: "rotate(-360deg)",
+              },
+            },
+            "spin-horizontal": {
+              to: {
+                transform: "rotateY(360deg)",
               },
             },
           },
