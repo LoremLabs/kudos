@@ -18,7 +18,7 @@
   let ready = false;
   onMount(async () => {
     await walletStore.load();
-    console.log('wss-----', $walletStore.keys?.kudos?.address, $walletStore);
+    // console.log('wss-----', $walletStore.keys?.kudos?.address, $walletStore);
     ready = true;
   });
 </script>

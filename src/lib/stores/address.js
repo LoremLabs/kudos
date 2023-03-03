@@ -7,17 +7,17 @@ import { walletStore } from '$lib/stores/wallet.js';
 export const addressStore = derived(
   [walletStore, scopeStore],
   ([$walletStore, $scopeStore], set) => {
-    console.log('address');
+    // console.log('address');
     if (!$walletStore || !$walletStore.keys) {
-      console.log('no ws', $walletStore);
+      // console.log('no ws', $walletStore);
       return;
     }
     if (!$scopeStore) {
-      console.log('no scope');
+      // console.log('no scope');
       return;
     }
     const address = $walletStore.keys[$scopeStore]?.address;
-    console.log({ address });
+    // console.log({ address });
     set(address);
   }
 );

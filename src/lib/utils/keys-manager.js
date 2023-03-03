@@ -125,13 +125,13 @@ export async function saveSeed({
   try {
     const fileFound = await exists(fullPath);
     if (fileFound && backupExisting) {
-      console.log('Seed phrase exists, backing up');
+      // console.log('Seed phrase exists, backing up');
 
       const backupId = shortId();
 
       // copy to backup path ... date should give an idea even if id doesn't
       const backupPath = `${baseDir}state/setlr-backup-${id}-${backupId}.seed`;
-      console.log({ backupPath });
+      // console.log({ backupPath });
       await copyFile(fullPath, backupPath);
     }
   } catch (e) {
@@ -171,17 +171,17 @@ export async function createOrReadSeed({
   try {
     const fileFound = await exists(fullPath);
     if (fileFound) {
-      console.log('Seed phrase exists');
+      // console.log('Seed phrase exists');
 
       const data = await readTextFile(fullPath);
       s.mnemonic = decryptAES(data, salt);
-      console.log('Read Existing Mnemonic from storage');
+      // console.log('Read Existing Mnemonic from storage');
     } else {
       throw new Error('File not found');
     }
   } catch (err) {
     if (err && err.message === 'File not found') {
-      console.log('No Seed yet. Creating new one', err);
+      // console.log('No Seed yet. Creating new one', err);
 
       s.mnemonic = generateMnemonic();
 

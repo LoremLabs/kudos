@@ -22,16 +22,16 @@ let data = {
 export const walletStore = asyncDerived(
   activePersonaStore,
   async ($activePersona) => {
-    console.log('walletStore ap', $activePersona);
+    // console.log('walletStore ap', $activePersona);
     if (!$activePersona.count) {
-      console.log('not initialized yet');
+      // console.log('not initialized yet');
       return {}; // not initialized yet
     }
 
     // when the active persona changes, reset the wallet store
     if (data.id !== $activePersona.id) {
       isSwitchingPersonasStore.set(true);
-      console.log('regen keys');
+      // console.log('regen keys');
       const config = await getConfig(true); // using cache
       const salt = await getSalt(true); // using cache
 

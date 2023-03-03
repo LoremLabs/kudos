@@ -150,7 +150,7 @@
   });
 </script>
 
-<Pane bind:active={activeSection}>
+<Pane bind:activeSection>
   <div slot="main" class="min-h-full w-full">
     <TabPanel class="min-h-screen w-full" id="General">
       <SettingsWell>

@@ -76,12 +76,12 @@ export const eventsStore = asyncDerived(
       current.address = $address;
       current.startTs = $cursor.startTs;
       current.direction = $cursor.direction;
-      console.log(
-        'reading events!',
-        $scope,
-        $cursor.startTs,
-        $cursor.direction
-      );
+      // console.log(
+      //   'reading events!',
+      //   $scope,
+      //   $cursor.startTs,
+      //   $cursor.direction
+      // );
       const readParams = {
         address: $address,
         channel: $scope,
@@ -95,14 +95,14 @@ export const eventsStore = asyncDerived(
 
       const newEvents = await readEvents(readParams);
       if (newEvents && newEvents.length) {
-        console.log('new events-----', newEvents);
+        //      console.log('new events-----', newEvents);
         // should be no more than count events, add to head or tail, then trim
         if ($cursor.direction === 'head') {
-          console.log('adding to head', newEvents.length, $count);
+          // console.log('adding to head', newEvents.length, $count);
           current.events = [...newEvents, ...current.events];
           current.events = current.events.slice(0, $count);
         } else {
-          console.log('adding to tail', newEvents.length, $count);
+          // console.log('adding to tail', newEvents.length, $count);
           current.events = [...current.events, ...newEvents];
           // make sure events is always $count size, take from the end
           if (current.events.length > $count) {
@@ -134,7 +134,7 @@ export const eventsStore = asyncDerived(
           current.startTs = current.events[current.events.length - 1].ts;
         }
       }
-      console.log('events <=>', readParams, current);
+      // console.log('events <=>', readParams, current);
       return current;
     }
   }

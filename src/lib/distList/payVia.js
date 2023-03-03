@@ -12,7 +12,7 @@ let bloomEtag = '';
 export const updateBloomCache = async () => {
   //
   const clearConfig = await clearConfigStore?.init();
-  console.log({ clearConfig });
+  // console.log({ clearConfig });
   const identResolver = clearConfig?.identity?.identResolver;
   if (!identResolver) {
     addToast({
@@ -60,7 +60,7 @@ export const updateBloomCache = async () => {
 export const decorateDistList = async ({ distItems }) => {
   try {
     await updateBloomCache();
-    console.log({ distItems });
+    // console.log({ distItems });
     if (bloom && distItems) {
       distItems.forEach((item) => {
         if (item) {

@@ -334,11 +334,11 @@
         {/if}
         {#if step === 0}
           <div
-            class="mt-8 flex flex-row items-center justify-between rounded-xl bg-cyan-600 p-3"
+            class="mt-8 flex flex-row items-center justify-between rounded-xl bg-cyan-50 p-3"
           >
             <input
               type="checkbox"
-              class="h-7 w-7 rounded-full border-0 text-cyan-700 ring-0 focus:ring-0"
+              class="h-7 w-7 rounded-full border border-cyan-500 text-cyan-700 ring-0 focus:ring-0"
               value="true"
               bind:checked={agree}
             />
@@ -360,7 +360,7 @@
                 }
               }}
               type="button"
-              class={`cursor-pointer rounded-full border border-cyan-600 bg-gray-300 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
+              class={`cursor-pointer rounded-full border border-cyan-600 bg-cyan-200 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
               class:animate-shake={shake}
             >
               <div class="flex flex-row">
@@ -380,7 +380,7 @@
           </div>
         {:else if step === 1}
           <div
-            class="mt-8 flex flex-row items-center justify-between rounded-xl bg-cyan-600 p-3"
+            class="mt-8 flex flex-row items-center justify-between rounded-xl bg-cyan-50 p-3"
           >
             <div
               class="mx-4 flex max-w-2xl flex-row items-center justify-center text-cyan-900"
@@ -391,7 +391,7 @@
                 address={$walletStore.keys?.kudos?.address}
               />
               <div class="ml-4">
-                <div class="text-lg font-bold text-white">
+                <div class="text-lg font-bold text-black">
                   {$walletStore.keys?.kudos?.address}
                 </div>
               </div>
@@ -401,7 +401,7 @@
                 doSignKudos();
               }}
               type="button"
-              class={`cursor-pointer rounded-full border border-cyan-600 bg-gray-300 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
+              class={`cursor-pointer rounded-full border border-cyan-600 bg-cyan-200 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
               class:animate-shake={shake}
             >
               <div class="flex flex-row">
@@ -429,7 +429,7 @@
     <button
       on:click={handleConfirm}
       type="button"
-      class={`${buttonClass} border-0 bg-gray-500 hover:bg-gray-600`}
+      class={`${buttonClass} border-0 bg-cyan-200 hover:bg-gray-200`}
       class:animate-shake={shake}
     >
       <div class="flex flex-row">

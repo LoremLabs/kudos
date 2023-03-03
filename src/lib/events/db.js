@@ -29,7 +29,7 @@ export const addEphemeralEvent = (event) => {
 };
 
 export const initDb = async ({ address = '0x0' }) => {
-  console.log('initDb1', address);
+  // console.log('initDb1', address);
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     recursive: true,
@@ -88,7 +88,7 @@ export const addEvents = async ({ address = '0x0', events = [] }) => {
   await db.execute(`BEGIN TRANSACTION`);
 
   for (const event of events) {
-    console.log({ event }, 'inserting event');
+    // console.log({ event }, 'inserting event');
     await db.execute(
       `INSERT OR IGNORE INTO events (id, type, channel, event, ts) VALUES (?, ?, ?, ?, ?)`,
       [event.id, event.type, event.channel, JSON.stringify(event), event.ts]
@@ -109,13 +109,13 @@ export const readEvents = async ({
   currentEndTs = '',
   currentStartTs = '',
 }) => {
-  console.log('readEvents', {
-    address,
-    count,
-    startTs,
-    direction,
-    includeEphemeral,
-  });
+  // console.log('readEvents', {
+  //   address,
+  //   count,
+  //   startTs,
+  //   direction,
+  //   includeEphemeral,
+  // });
 
   const db = await initDb({ address });
   if (!db) {
@@ -170,7 +170,7 @@ export const readEvents = async ({
       });
       // limit to last count ephemeral events
       filteredEphemeralEvents.splice(0, filteredEphemeralEvents.length - count);
-      console.log({ filteredEphemeralEvents }, 'filteredEphemeralEvents');
+      // console.log({ filteredEphemeralEvents }, 'filteredEphemeralEvents');
       // add ephemeral events to result
       result.push(...filteredEphemeralEvents);
     }

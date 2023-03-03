@@ -14,8 +14,6 @@ export const ethWallet = async ({
   // }
   // Wordlist.register(wordlist, 'custom'); // not actually custom, but so we can change it later
 
-  console.log('eth');
-
   const hd = await utils.HDNode.fromMnemonic(
     mnemonic,
     passPhrase

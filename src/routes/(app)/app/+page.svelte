@@ -92,7 +92,7 @@
 
   // when prefs change, persist
   $: {
-    console.log('prefs changed', $prefs);
+    // console.log('prefs changed', $prefs);
     if (ready) {
       prefs.set({
         activeSection,

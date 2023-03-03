@@ -30,7 +30,7 @@ export const signKudos = async (kudos, wallet) => {
     id: kudos.id, // uuid
     createTime: kudos.createTime, // timestamp 2023-01-01T00:00:00.000Z
     traceId: kudos.traceId, // traceId
-    weight: kudos.weight, // numeric
+    weight: kudos.weight, // numeric TODO: validate between 0 and 1 or 100?
   };
 
   const signer = new Wallet(wallet.privateKey);
@@ -50,7 +50,7 @@ export const signKudos = async (kudos, wallet) => {
     payload,
     message,
   };
-  //   console.log(results);
+  console.log({ results });
 
   return results;
 };

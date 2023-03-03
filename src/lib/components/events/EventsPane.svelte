@@ -71,7 +71,7 @@
 
     // subscribe to persona switching
     activePersonaStore.subscribe(async (personaId) => {
-      console.log('personaId', personaId);
+      // console.log('personaId', personaId);
       if (personaId && personaId.count && personaId.id !== currentPersonaId) {
         currentPersonaId = personaId.id;
 
@@ -182,11 +182,11 @@
 
   const loadMore = async (direction) => {
     if (!$eventsStore || $eventsStore.personaId === -1) {
-      console.log('no lm');
+      // console.log('no lm');
       return;
     }
     if (!active) {
-      console.log('not active');
+      // console.log('not active');
       return;
     }
     if (direction === 'head') {

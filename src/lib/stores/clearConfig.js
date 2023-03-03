@@ -46,7 +46,7 @@ export const createClearConfigStore = () => {
 
   const init = async () => {
     if (initDone) {
-      console.log('using cached init config');
+      // console.log('using cached init config');
       return clearConfig;
     }
     try {

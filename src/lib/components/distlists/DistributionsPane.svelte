@@ -170,7 +170,7 @@
         totalWeight,
         totalDistribution,
       };
-      console.log({ data });
+      // console.log({ data });
       set(data);
       return data;
     }
@@ -1120,7 +1120,7 @@
                                         const action = e.detail?.action || '';
                                         const params = e.detail?.params || {};
 
-                                        console.log('turning on em');
+                                        // console.log('turning on em');
                                         editMode = true;
                                         editingKudo = kudo.id;
                                         openKudos[`e-${kudo.id}`] = true;
@@ -1135,12 +1135,12 @@
                                         // make sure we're a number and not a string
 
                                         try {
-                                          console.log(
-                                            'formerValue',
-                                            formerValue,
-                                            kudo.weight,
-                                            value
-                                          );
+                                          // console.log(
+                                          //   'formerValue',
+                                          //   formerValue,
+                                          //   kudo.weight,
+                                          //   value
+                                          // );
                                           const valueFloat = parseFloat(
                                             value || 0
                                           );
@@ -1238,7 +1238,7 @@
                                           const action = e.detail?.action || '';
                                           const params = e.detail?.params || {};
 
-                                          console.log('turning on em');
+                                          // console.log('turning on em');
                                           editMode = true;
                                           editingKudo = kudo.id;
                                           openKudos[`e-${kudo.id}`] = true;
