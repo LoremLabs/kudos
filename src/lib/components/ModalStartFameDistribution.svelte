@@ -211,6 +211,7 @@
   const doPackageKudos = async (items) => {
     // check that we have any items
     if (!items || items.length === 0) {
+      // console.log({ items, cohorts }, 'no items to submit');
       addToast({
         msg: 'No Kudos to submit',
         type: 'error',
@@ -233,11 +234,53 @@
     }, wait);
   };
 
+  const validateKudos = async () => {
+    step = step + 1;
+    const startTs = Date.now();
+    await noop();
+
+    // check that all of our items have a weight between 0 and 1, inclusive
+    const invalid = kudos.filter((item) => {
+      return item.weight < 0 || item.weight > 1;
+    });
+
+    if (invalid.length > 0) {
+      addToast({
+        msg: 'Kudos weights must be between 0 and 1',
+        type: 'error',
+        duration: 3000,
+      });
+      open = false;
+      throw new Error('Kudos weights must be between 0 and 1');
+    }
+
+    // TODO: other validations?
+
+    await noop();
+    const endTs = Date.now();
+    // wait a bit to show the spinner if we haven't waited so far
+    const wait = Math.max(0, 750 - (endTs - startTs));
+    setTimeout(async () => {
+      step = step + 1;
+      await doSignKudos();
+    }, wait);
+  };
+
   const doSignKudos = async () => {
     step = step + 1;
     const startTs = Date.now();
     await noop();
     const wallet = $walletStore?.keys?.kudos;
+    if (!wallet) {
+      addToast({
+        msg: 'No Kudos wallet found',
+        type: 'error',
+        duration: 3000,
+      });
+      open = false;
+      throw new Error('No Kudos wallet found');
+    }
+
     // for each distListItem, sign with our private key
     const signed = await Promise.all(
       kudos.map(async (item) => {
@@ -254,22 +297,23 @@
         };
       })
     );
-    console.log({ signed });
+    //    console.log({ signed });
     const endTs = Date.now();
     // wait a bit to show the spinner if we haven't waited so far
     const wait = Math.max(0, 750 - (endTs - startTs));
     setTimeout(async () => {
       step = step + 1;
+      await signed;
       await doPackageKudos(signed);
     }, wait);
   };
 
   $: !open && (agree = false);
   $: !open && (step = 0);
-  $: !open && (kudos = []);
-  $: !open && (cohorts = {});
+  // $: !open && (kudos = []);
+  // $: !open && (cohorts = {});
   $: open && updateKudos();
-  $: kudos && updateKudos();
+  $: cohorts && updateKudos();
 </script>
 
 <svelte:body on:keydown={handleKeydown} />
@@ -313,7 +357,7 @@
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
               <h2 class="text-5xl font-bold tracking-tight text-white">
-                Signing Your Kudos...
+                Validating Kudos...
               </h2>
               <Icon
                 name="globe-alt"
@@ -325,7 +369,7 @@
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
               <h2 class="text-5xl font-bold tracking-tight text-white">
-                Creating Kudos Package...
+                Signing Your Kudos...
               </h2>
               <Icon
                 name="globe-alt"
@@ -334,6 +378,18 @@
             </div>
           </div>
         {:else if step === 4}
+          <div class="mx-auto lg:mx-0">
+            <div class="flex flex-row justify-between">
+              <h2 class="text-5xl font-bold tracking-tight text-white">
+                Creating Kudos Package...
+              </h2>
+              <Icon
+                name="globe-alt"
+                class="h-12 w-12 animate-spin text-cyan-100"
+              />
+            </div>
+          </div>
+        {:else if step === 5}
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
               <h2 class="text-5xl font-bold tracking-tight text-white">
@@ -412,7 +468,11 @@
             </div>
             <button
               on:click={() => {
-                doSignKudos();
+                try {
+                  validateKudos();
+                } catch (e) {
+                  console.log(e);
+                }
               }}
               type="button"
               class={`cursor-pointer rounded-full border border-cyan-600 bg-cyan-200 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
@@ -470,7 +530,7 @@
     {/if}
   </div>
   <div class="flex flex-row justify-center">
-    {#each [0, 1, 2, 3, 4] as modalStep}
+    {#each [0, 1, 2, 3, 4, 5] as modalStep}
       <div
         class:text-gray-300={step < modalStep}
         class:text-cyan-100={step >= modalStep}
