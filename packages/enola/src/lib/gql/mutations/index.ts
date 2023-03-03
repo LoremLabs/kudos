@@ -27,11 +27,19 @@ export const submitKudosForFame = async (_, params) => {
 	}
 
 	// check the payload for a valid signature / address
-	const signerAddress = await utils.verifyMessage(params.payload, params.signature);
-	const valid = signerAddress === params.address;
-	if (!valid) {
+	try {
+		const signerAddress = await utils.verifyMessage(params.payload, params.signature);
+		const valid = signerAddress === params.address;
+		if (!valid) {
+			return {
+				status: 'invalid signatures',
+				statusCode: 400
+			};
+		}
+	} catch (e) {
+		log.error('invalid signature', e);
 		return {
-			status: 'invalid signatures',
+			status: 'invalid signature',
 			statusCode: 400
 		};
 	}
