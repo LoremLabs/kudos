@@ -1,9 +1,7 @@
-import { Wallet, utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
-
 import { BloomFilter } from 'bloomfilter';
 import { Redis } from '@upstash/redis';
-import casual from 'casual';
 import log from '$lib/logging';
+import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
 let redis = {};
 try {
@@ -42,29 +40,45 @@ export const submitKudosForFame = async (_, params) => {
 	const dataRaw = Buffer.from(params.payload, 'base64');
 	const data = utils.toUtf8String(dataRaw);
 	// log.debug('data', data);
-
+	log.debug('----------------------');
 	// now foreach kudos item, decode, check the signature
 	//log.debug('kudos', data.kudos);
 	try {
 		// loop through data.kudos array
 		const d = JSON.parse(data);
-		d.kudos.forEach(async (k, i) => {
-			log.debug(`${i} kudos1a`, { k, i });
-			const signerAddress = await utils.verifyMessage(k.message, k.signature);
-			log.debug('signerAddress', signerAddress);
-			if (signerAddress !== params.address) {
-				throw new Error('invalid signature');
-			}
-			// convert the message into data
-			const kudosData = JSON.parse(Buffer.from(k.message, 'base64').toString('utf8'));
-			log.debug('kudosData', kudosData);
-		});
+		log.debug('d', d);
+		await Promise.all(
+			d.kudos.map(async (k) => {
+				log.debug(`kudos1a`, { k });
+				const signerAddress = await utils.verifyMessage(k.message, k.signature);
+				log.debug('signerAddress', signerAddress);
+				if (signerAddress !== params.address) {
+					throw new Error('invalid signature');
+				}
+				// convert the message into data
+				const kudosData = JSON.parse(Buffer.from(k.message, 'base64').toString('utf8'));
+				log.debug('kudosData', kudosData);
+
+				// check to see if weight is between 0 and 1
+				if (kudosData.weight < 0 || kudosData.weight > 1) {
+					throw new Error('invalid weight');
+				}
+			})
+		);
 	} catch (e) {
-		log.error('invalid signature', e);
-		return {
-			status: 'invalid signature',
-			statusCode: 400
-		};
+		if (e.message === 'invalid signature') {
+			log.error('invalid signature', e);
+			return {
+				status: 'invalid signature',
+				statusCode: 400
+			};
+		} else {
+			log.error('invalid payload', e);
+			return {
+				status: 'invalid payload',
+				statusCode: 400
+			};
+		}
 	}
 
 	return {
@@ -93,7 +107,7 @@ export const setPayVia = async (_, params) => {
 		throw new Error('Invalid payment method type');
 	}
 
-	let identifier = params.identifier.toLowerCase().trim();
+	const identifier = params.identifier.toLowerCase().trim();
 
 	// make sure it's not too big of input
 	if (identifier.length > 2000) {
