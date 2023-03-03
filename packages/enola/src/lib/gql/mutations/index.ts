@@ -1,5 +1,6 @@
 import { BloomFilter } from 'bloomfilter';
 import { Redis } from '@upstash/redis';
+import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
@@ -26,9 +27,15 @@ export const submitKudosForFame = async (_, params) => {
 		};
 	}
 
+	let signerAddress = '';
+	type AddressState = {
+		[key: string]: string;
+	};
+	let addressStateChange: AddressState = {}; // used for hmset
+
 	// check the payload for a valid signature / address
 	try {
-		const signerAddress = await utils.verifyMessage(params.payload, params.signature);
+		signerAddress = await utils.verifyMessage(params.payload, params.signature);
 		const valid = signerAddress === params.address;
 		if (!valid) {
 			return {
@@ -44,7 +51,26 @@ export const submitKudosForFame = async (_, params) => {
 		};
 	}
 
+	// see if we have a subject. If not, we'll use the current cohort date
+	let subject = params.subject;
+	if (!subject) {
+		subject = currentCohort();
+	}
+	// slugify cohort
+	subject = subject.toLowerCase().replace(/[^a-z0-9]/g, '');
+	if (subject === '') {
+		return {
+			status: 'invalid subject',
+			statusCode: 400
+		};
+	}
+	log.debug({ subject });
+
 	// if we're here, then the signature is valid, so let's parse the payload: base64 to utf8string to json.parse -> object
+	// we need to validate the weight as well as
+	// create a payload for the hmset: a map of kudos.id to a json.stringified array of [kudos.identifier, kudos.weight]
+	// hmset: a.${subject}.kudos ${kudos.id} ${JSON.stringify([kudos.identifier, kudos.weight])}
+
 	const dataRaw = Buffer.from(params.payload, 'base64');
 	const data = utils.toUtf8String(dataRaw);
 	// log.debug('data', data);
@@ -71,6 +97,9 @@ export const submitKudosForFame = async (_, params) => {
 				if (kudosData.weight < 0 || kudosData.weight > 1) {
 					throw new Error('invalid weight');
 				}
+
+				// setup our addressStateChange object
+				addressStateChange[kudosData.id] = JSON.stringify([kudosData.identifier, kudosData.weight]);
 			})
 		);
 	} catch (e) {
@@ -87,6 +116,41 @@ export const submitKudosForFame = async (_, params) => {
 				statusCode: 400
 			};
 		}
+	}
+
+	// input has been validated, so let's add it to redis
+	try {
+		const promises = [];
+		promises.push(redis.sadd(`a:${subject}`, `${signerAddress}`)); // a=address
+
+		const size = 100;
+		// break transaction up into $size chunks, doing one hmset per chunk
+		const chunks = Object.keys(addressStateChange).reduce((resultArray, item, index) => {
+			const chunkIndex = Math.floor(index / size);
+			if (!resultArray[chunkIndex]) {
+				resultArray[chunkIndex] = []; // start a new chunk
+			}
+			resultArray[chunkIndex].push(item);
+			return resultArray;
+		}, []);
+
+		chunks.forEach((chunk) => {
+			const chunkData = {};
+			chunk.forEach((key) => {
+				chunkData[key] = addressStateChange[key];
+			});
+			promises.push(redis.hmset(`d:${subject}:${signerAddress}`, chunkData)); // d=data
+		});
+
+		// promises.push(redis.hmset(`d:${subject}:${signerAddress}`, addressStateChange)); // d=data
+
+		await Promise.all(promises);
+	} catch (e) {
+		log.error('redis error', e);
+		return {
+			status: 'error',
+			statusCode: 500
+		};
 	}
 
 	return {
