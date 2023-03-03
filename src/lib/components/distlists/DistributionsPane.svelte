@@ -221,6 +221,7 @@
     });
     // set the active cohort to be the current one, or the first one
     const cohort = distList?.id;
+    // console.log({cohort, cohorts, distListItems});
     if (!activeCohorts[cohort]) {
       activeCohort = cohorts[0];
       activeCohorts[cohort] = activeCohort;

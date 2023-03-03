@@ -106,6 +106,7 @@
   let kudos = [];
 
   const updateKudos = () => {
+    kudos = [];
     Object.keys(cohorts).forEach((cohort) => {
       kudos = [...kudos, ...cohorts[cohort]];
     });
@@ -129,7 +130,7 @@
   const doPostKudos = async (payload) => {
     console.log({ payload }, '!!!');
     const clearConfig = await clearConfigStore?.init();
-    console.log({ clearConfig });
+    // console.log({ clearConfig });
     const identResolver = clearConfig?.identity?.identResolver;
     if (!identResolver) {
       addToast({
@@ -208,6 +209,16 @@
   };
 
   const doPackageKudos = async (items) => {
+    // check that we have any items
+    if (!items || items.length === 0) {
+      addToast({
+        msg: 'No Kudos to submit',
+        type: 'error',
+        duration: 3000,
+      });
+      open = false;
+      throw new Error('No Kudos to submit');
+    }
     const startTs = Date.now();
     const wallet = $walletStore?.keys?.kudos;
     await noop();
@@ -253,9 +264,12 @@
     }, wait);
   };
 
-  $: kudos && updateKudos();
   $: !open && (agree = false);
   $: !open && (step = 0);
+  $: !open && (kudos = []);
+  $: !open && (cohorts = {});
+  $: open && updateKudos();
+  $: kudos && updateKudos();
 </script>
 
 <svelte:body on:keydown={handleKeydown} />
