@@ -169,6 +169,16 @@
         body: JSON.stringify(gqlQuery),
       })
         .then((r) => {
+          // check status code
+          if (r.status !== 200) {
+            const json = r.json(); // not guaranteed to be json :(
+            if (json) {
+              const errMsg = json.data?.submitKudosForFame?.status || '';
+              throw new Error(errMsg);
+            }
+            throw new Error('Error submitting Kudos for Fame');
+          }
+
           return r.json();
         })
         .catch((e) => {
@@ -200,7 +210,10 @@
       });
     } else {
       addToast({
-        msg: `Error ${results.data?.submitKudosForFame?.status || ''}`,
+        msg: `Error ${
+          results.data?.submitKudosForFame?.status ||
+          'submitting Kudos for Fame. Check your network connection and try again.'
+        }`,
         type: 'error',
         duration: 3000,
       });
@@ -235,7 +248,7 @@
   };
 
   const validateKudos = async () => {
-    step = step + 1;
+    //    step = step + 1;
     const startTs = Date.now();
     await noop();
 
