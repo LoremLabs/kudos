@@ -13,10 +13,10 @@ try {
 	process.exit(1);
 }
 
-export const payVia = async (_, params, req) => {
+export const payVia = async (_, params) => {
 	console.log({ params });
 
-	let identifier = params.identifier.toLowerCase().trim();
+	const identifier = params.identifier.toLowerCase().trim();
 
 	// make sure it's not too big of input
 	if (identifier.length > 2000) {

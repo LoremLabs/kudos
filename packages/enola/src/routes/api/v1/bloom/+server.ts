@@ -13,8 +13,8 @@ try {
 	process.exit(1);
 }
 
-const payVia = async (_, params, req) => {
-	let bloomFilterData = await redis.get('bloom:payVia');
+const payVia = async () => {
+	const bloomFilterData = await redis.get('bloom:payVia');
 
 	const etag = createHmac('sha256', 'etag').update(bloomFilterData).digest('base64');
 
