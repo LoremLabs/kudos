@@ -6,7 +6,7 @@ import { error } from '@sveltejs/kit';
 const identResolver = process.env.IDENT_RESOLVER || 'https://graph.ident.agency';
 
 /** @type {import('./$types').PageLoad} */
-export async function load({ params, url }) {
+export async function load({ params, url, setHeaders }) {
 	const subject = params.subject || currentCohort();
 
 	const DEFAULT_PAGE_SIZE = 50;
@@ -90,6 +90,10 @@ export async function load({ params, url }) {
 		};
 		return results;
 	}
+
+  setHeaders({
+    'cache-control': `max-age=60, s-max-age=${60}`
+  });
 
 	return {
 		leaderboard: results?.data?.leaderBoard?.leaderboard?.rows || [],
