@@ -57,7 +57,7 @@ export const submitKudosForFame = async (_, params) => {
 		subject = currentCohort();
 	}
 	// slugify cohort
-	subject = subject.toLowerCase().replace(/[^a-z0-9]/g, '');
+	subject = subject.toLowerCase().replace(/[^a-z0-9]/g, ''); // in particular should not contain the delimiter :
 	if (subject === '') {
 		return {
 			status: 'invalid subject',
@@ -80,18 +80,18 @@ export const submitKudosForFame = async (_, params) => {
 	try {
 		// loop through data.kudos array
 		const d = JSON.parse(data);
-		log.debug('d', d);
+		// log.debug('d', d);
 		await Promise.all(
 			d.kudos.map(async (k) => {
-				log.debug(`kudos1a`, { k });
+				// log.debug(`kudos1a`, { k });
 				const signerAddress = await utils.verifyMessage(k.message, k.signature);
-				log.debug('signerAddress', signerAddress);
+				// log.debug('signerAddress', signerAddress);
 				if (signerAddress !== params.address) {
 					throw new Error('invalid signature');
 				}
 				// convert the message into data
 				const kudosData = JSON.parse(Buffer.from(k.message, 'base64').toString('utf8'));
-				log.debug('kudosData', kudosData);
+				// log.debug('kudosData', kudosData);
 
 				// check to see if weight is between 0 and 1
 				if (kudosData.weight < 0 || kudosData.weight > 1) {
@@ -121,6 +121,7 @@ export const submitKudosForFame = async (_, params) => {
 	// input has been validated, so let's add it to redis
 	try {
 		const promises = [];
+		promises.push(redis.sadd(`subjects`, `${subject}`));
 		promises.push(redis.sadd(`a:${subject}`, `${signerAddress}`)); // a=address
 
 		const size = 100;
@@ -141,8 +142,6 @@ export const submitKudosForFame = async (_, params) => {
 			});
 			promises.push(redis.hmset(`d:${subject}:${signerAddress}`, chunkData)); // d=data
 		});
-
-		// promises.push(redis.hmset(`d:${subject}:${signerAddress}`, addressStateChange)); // d=data
 
 		await Promise.all(promises);
 	} catch (e) {

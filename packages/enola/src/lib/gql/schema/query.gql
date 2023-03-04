@@ -1,3 +1,13 @@
+# Request Status
+type Status {
+	# status code
+	code: Int!
+	# status message
+	message: String!
+}
+
 type Query {
 	payVia(identifier: String!): [PaymentMethod]
+	# Get the top N users from the leaderboard
+	leaderBoard(subject: String, start: Int, pageSize: Int): LeaderBoardResult
 }

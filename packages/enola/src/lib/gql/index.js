@@ -3,6 +3,7 @@ import { resolvers as scalarResolvers, typeDefs as scalarTypeDefs } from 'graphq
 // import Base from './schema/base.gql';
 // import CryptographySchema from './schema/cryptography.gql';
 import KudosSchema from './schema/kudos.gql';
+import LeaderBoardSchema from './schema/leaderboard.gql';
 import MutationSchema from './schema/mutation.gql';
 import Mutations from './mutations';
 // import SortSchema from './schema/sort.gql';
@@ -22,6 +23,7 @@ const typeDefs = [
 	// UserSchema,
 	// MoneySchema,
 	KudosSchema,
+	LeaderBoardSchema,
 	PaymentMethodSchema,
 	QuerySchema,
 	MutationSchema

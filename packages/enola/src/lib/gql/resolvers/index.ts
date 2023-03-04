@@ -1,5 +1,6 @@
 import { Redis } from '@upstash/redis';
-import casual from 'casual';
+// import casual from 'casual';
+import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
 
 let redis = {};
@@ -14,8 +15,6 @@ try {
 }
 
 export const payVia = async (_, params) => {
-	console.log({ params });
-
 	const identifier = params.identifier.toLowerCase().trim();
 
 	// make sure it's not too big of input
@@ -35,40 +34,94 @@ export const payVia = async (_, params) => {
 	} else {
 		return [];
 	}
-
-	// const value = await redis.get('test');
-
-	// await redis.set('test', casual.name);
-	//return ['this is a test',params.identifier];
-	// return [{
-	// 	type: 'XRP',
-	// 	value: 'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
-	// }]
-	// 	return [{
-	// 		type: 'XRP',
-	// 		value: 'r3kmLJN5D28dHuH8vZNUZpMC43pEHpaocV',
-	// 	}];
 };
 
-export const sayHello = async () => {
-	const value = await redis.get('test');
+export const leaderBoard = async (_, params) => {
+	let subject = (params.subject || '')
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9]/gi, '');
+	if (subject === '') {
+		// calculate the current cohort and use that
+		subject = currentCohort();
+	}
+	// make sure subject is not too long
+	if (subject.length > 200) {
+		return {
+			status: {
+				message: 'invalid payload',
+				code: 400
+			}
+		};
+	}
 
-	await redis.set('test', casual.name);
+	const DEFAULT_PAGE_SIZE = 100;
+	let start = params.start || 0;
+	let pageSize = params.pageSize || DEFAULT_PAGE_SIZE;
 
-	return {
-		name: value,
-		age: casual.integer(10, 100)
+	// see if start and pageSize are within bounds
+	if (start < 0) {
+		start = 0;
+	}
+	if (pageSize < 1) {
+		pageSize = DEFAULT_PAGE_SIZE;
+	}
+
+	let end = start + pageSize; // end -1 is all
+
+	// zrange l:202309 0 -1 rev limit 0 100 withscores
+	const data = await redis.zrange(`l:${subject}`, 0, -1, {
+		rev: true,
+		withScores: true,
+		offset: start,
+		count: pageSize
+	}); // highest to lowest; l: is for leaderboard
+	const result = [];
+	for (let i = 0; i < data.length; i += 2) {
+		// comes back as [identifier, score, identifier, score, ...]
+		result.push({
+			rank: start + i / 2 + 1,
+			identifier: data[i],
+			score: data[i + 1]
+		});
+	}
+
+	const answer = {
+		status: {
+			message: 'ok',
+			code: 200
+		},
+		leaderboard: {
+			rows: result,
+			subject: subject,
+			start: start,
+			pageSize: pageSize
+		}
 	};
+
+	return answer;
 };
 
-export const resolveDid = () => {
-	return {
-		name: casual.name,
-		age: casual.integer(10, 100)
-	};
-};
+// export const sayHello = async () => {
+// 	const value = await redis.get('test');
+
+// 	await redis.set('test', casual.name);
+
+// 	return {
+// 		name: value,
+// 		age: casual.integer(10, 100)
+// 	};
+// };
+
+// export const resolveDid = () => {
+// 	return {
+// 		name: casual.name,
+// 		age: casual.integer(10, 100)
+// 	};
+// };
 
 export default {
+	leaderBoard,
 	payVia
 	//	resolveDid
 };
