@@ -113,6 +113,7 @@ importers:
       eslint-config-prettier: ^8.6.0
       eslint-plugin-svelte3: ^4.0.0
       ethers: 5.7.2
+      fetch-to-curl: ^0.6.0
       flat: ^5.0.2
       graphql: ^16.6.0
       graphql-scalars: ^1.20.1
@@ -154,6 +155,7 @@ importers:
       eslint: 8.34.0
       eslint-config-prettier: 8.6.0_eslint@8.34.0
       eslint-plugin-svelte3: 4.0.0_dbthnr4b2bdkhyiebwn7su3hnq
+      fetch-to-curl: 0.6.0
       flat: 5.0.2
       graphql-scalars: 1.20.1_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
@@ -3755,6 +3757,10 @@ packages:
     resolution: {integrity: sha512-wBrocU2LCXXa+lWBt8RoIRD89Fi8OdABODa/kEnyeyjS5aZO5/GNvI5sEINADqP/h8M29UHTHUb53sUu5Ihqdw==}
     dependencies:
       reusify: 1.0.4
+
+  /fetch-to-curl/0.6.0:
+    resolution: {integrity: sha512-Gsn0baHnENueQrtvKGikEkaAJhfQYDbSFnyZvI/qnwiZtdIwiuK6iJ0BAKzS3bEzpWyUr6SV9uB4H3HUwl/yZA==}
+    dev: true
 
   /file-entry-cache/6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
