@@ -123,7 +123,7 @@ export const submitKudosForFame = async (_, params) => {
 		const promises = [];
 		promises.push(redis.sadd(`subjects`, `${subject}`));
 		promises.push(redis.sadd(`a:${subject}`, `${signerAddress}`)); // a=address
-
+		promises.push(redis.set(`kudos-added`, `${Date.now()}`)); // kudos-added is a timestamp of when the last kudos was added, used for cache busting
 		const size = 100;
 		// break transaction up into $size chunks, doing one hmset per chunk
 		const chunks = Object.keys(addressStateChange).reduce((resultArray, item, index) => {

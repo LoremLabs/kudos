@@ -14,6 +14,20 @@ try {
 }
 
 const calcLeaderboards = async () => {
+	// see if we need to calculate the leaderboards at all
+	const lastAdded = await redis.get('kudos-added');
+	if (!lastAdded) {
+		return new Response(JSON.stringify({ message: 'Nothing new.' }), {
+			status: 200,
+			headers: {
+				'access-control-allow-origin': '*',
+				'content-type': 'application/json'
+			}
+		});
+	}
+
+	// TODO: assuming we don't need cache-stampede / lock, etc, but could add here if needed
+
 	// get all from the set "subjects" in redis, loop through them, and calculate the leaderboards, putting back into redis
 	const subjects = await redis.smembers('subjects');
 
@@ -98,6 +112,8 @@ const calcLeaderboards = async () => {
 			});
 		}
 	}
+
+	await redis.del('kudos-added'); // reset, so we don't calculate again too soon
 
 	// return a response object
 	return new Response(JSON.stringify({ status: { message: 'ok', code: 200 } }), {

@@ -91,9 +91,9 @@ export async function load({ params, url, setHeaders }) {
 		return results;
 	}
 
-  setHeaders({
-    'cache-control': `max-age=60, s-max-age=${60}`
-  });
+	setHeaders({
+		'cache-control': `max-age=60, s-max-age=${60}`
+	});
 
 	return {
 		leaderboard: results?.data?.leaderBoard?.leaderboard?.rows || [],
