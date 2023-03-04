@@ -96,6 +96,7 @@ importers:
       '@envelop/core': ^3.0.6
       '@envelop/graphql-jit': ^5.0.6
       '@graphql-yoga/render-graphiql': ^3.7.0
+      '@loremlabs/quadratic-funding': ^0.0.5
       '@sveltejs/adapter-auto': ^1.0.3
       '@sveltejs/kit': ^1.8.3
       '@types/bloomfilter': ^0.0.0
@@ -133,6 +134,7 @@ importers:
       '@envelop/core': 3.0.6
       '@envelop/graphql-jit': 5.0.6_adj6itjezth6avcd67ktx7eo6a
       '@graphql-yoga/render-graphiql': 3.7.0_graphql-yoga@3.7.0
+      '@loremlabs/quadratic-funding': 0.0.5
       '@types/node': 18.14.1
       ethers: 5.7.2
       graphql: 16.6.0
@@ -1727,6 +1729,10 @@ packages:
       - bufferutil
       - supports-color
       - utf-8-validate
+    dev: false
+
+  /@loremlabs/quadratic-funding/0.0.5:
+    resolution: {integrity: sha512-DJR4gja2mPDBC/zfXP8z2I7m/U1irFe+YKquEC/BmRb1HNbjgbvasRLnjvEykefr+62JFp+XbyewdrEwtPIb2g==}
     dev: false
 
   /@multiformats/mafmt/11.0.3:
