@@ -2,4 +2,8 @@
 	import '$lib/styles/tailwind.css';
 </script>
 
-<slot />
+<div class="min-h-screen">
+	<div class="z-0">
+		<slot />
+	</div>
+</div>

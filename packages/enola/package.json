@@ -28,6 +28,7 @@
 		"eslint": "^8.34.0",
 		"eslint-config-prettier": "^8.6.0",
 		"eslint-plugin-svelte3": "^4.0.0",
+		"fetch-to-curl": "^0.6.0",
 		"flat": "^5.0.2",
 		"graphql-scalars": "^1.20.1",
 		"graphql-tag": "^2.12.6",

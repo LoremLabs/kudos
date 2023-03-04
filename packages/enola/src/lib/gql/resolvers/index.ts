@@ -37,6 +37,7 @@ export const payVia = async (_, params) => {
 };
 
 export const leaderBoard = async (_, params) => {
+	// log.debug('leaderboard ---------->', params);
 	let subject = (params.subject || '')
 		.toLowerCase()
 		.trim()
