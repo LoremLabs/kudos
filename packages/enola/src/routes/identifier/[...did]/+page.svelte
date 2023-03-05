@@ -14,18 +14,21 @@
 		<div
 			class="divide-y divide-gray-300 shadow ring-1 ring-black ring-opacity-5 rounded-2xl w-full p-4 py-6 md:p-8 md:py-16 bg-cyan-50 "
 		>
-			<div class="flex flex-row pt-12 pb-20">
+			<div class="flex flex-col pt-12 pb-20">
 				<div class="text-center m-auto">
+					<h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl my-12 max-w-xs">
+						Identifier Details
+					</h2>
 					<div class="flex flex-row items-center justify-center m-auto">
 						<p class="text-base font-semibold leading-7 text-cyan-600 break-all">
 							{data.props?.did}
 						</p>
-						<IdentityLink identifier={data.props?.did} />
 					</div>
-					<h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl my-12 max-w-xs">
-						Identifier Details
-					</h2>
 				</div>
+				<IdentityLink
+					identifier={data.props?.did}
+					class="w-8 h-8 m-auto mt-8 text-cyan-900 hover:text-black"
+				/>
 			</div>
 		</div>
 	</div>

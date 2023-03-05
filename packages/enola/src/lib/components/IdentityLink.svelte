@@ -3,6 +3,9 @@
 
 	export let identifier = '';
 
+	let klass = 'w-3 h-3 ml-1 mt-0.5';
+	export { klass as class };
+
 	let link = 'about:blank';
 
 	const calcLink = () => {
@@ -76,7 +79,7 @@
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 20 20"
 			fill="currentColor"
-			class="w-3 h-3 ml-1 mt-0.5"
+			class={`${klass}`}
 		>
 			<path
 				fill-rule="evenodd"
