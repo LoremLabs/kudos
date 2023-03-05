@@ -255,6 +255,14 @@
     activeCohorts[distList.id] = cohort;
   };
 
+  const identResolver = derived(clearConfigStore, ($clearConfig) => {
+    if ($clearConfig.identity?.identResolver) {
+      return $clearConfig.identity.identResolver;
+    } else {
+      return;
+    }
+  });
+
   onMount(async () => {
     if (!browser) {
       return;
@@ -264,8 +272,6 @@
     clearConfigStore.subscribe((config) => {
       clearConfig = config;
     });
-
-    //    activeCohort = clearConfig.activeCohort || '';
 
     ready = true;
   });
@@ -287,7 +293,7 @@
       traceId,
       weight: 1,
       description: '',
-      identifier: 'did:url:https://www.loremlabs.com',
+      identifier: 'did:kudos:url:https://www.loremlabs.com',
       context: JSON.stringify({
         traceId,
         source: 'manual',
@@ -589,7 +595,14 @@
                       <p id="settles-description">
                         Kudos can be published to a global leader board. This
                         will give attention to the people who are contributing
-                        the most to your community.
+                        the most to your community. <a
+                          href={`${
+                            $identResolver || 'https://www.ident.agency'
+                          }/leaderboards/?utm_source=setler`}
+                          class="underline"
+                          rel="noreferrer"
+                          target="_blank">View Leaderboards →</a
+                        >
                       </p>
                     </div>
                     <div
@@ -1354,7 +1367,7 @@
                                             weight: 1,
                                             description: '',
                                             identifier:
-                                              'did:url:https://www.loremlabs.com',
+                                              'did:kudos:url:https://www.loremlabs.com',
                                             context: JSON.stringify({
                                               traceId,
                                               source: 'manual',
@@ -1503,7 +1516,7 @@
                                     weight: 1,
                                     description: '',
                                     identifier:
-                                      'did:url:https://www.loremlabs.com',
+                                      'did:kudos:url:https://www.loremlabs.com',
                                     context: JSON.stringify({
                                       traceId,
                                       source: 'manual',

@@ -91,10 +91,9 @@
     // mainnet with no prefix
     bitcoin: false,
     ethereum: false,
-    xrp: true,
-
-    'test:xrp': true,
-    'dev:xrp': true,
+    'xrpl:livenet': true,
+    'xrpl:testnet': true,
+    'xrpl:devnet': true,
   };
   const DEFAULT_IDENTITY = {
     identResolver: 'https://ident.resolver/graphql',
@@ -207,7 +206,7 @@
         <div slot="main">
           <!-- foreach xrp, bitcoin, ethereum -->
 
-          {#each ['xrp', 'ethereum', 'bitcoin'] as networkName}
+          {#each ['xrpl:livenet', 'ethereum', 'bitcoin'] as networkName}
             {#if $clearConfigStore && $clearConfigStore.networks}
               <button
                 on:click={async () => {
@@ -250,7 +249,7 @@
           </h2>
         </div>
         <div slot="main">
-          {#each ['test:xrp', 'dev:xrp'] as networkName}
+          {#each ['xrpl:testnet', 'xrpl:devnet'] as networkName}
             {#if $clearConfigStore && $clearConfigStore.networks}
               <button
                 on:click={async () => {
@@ -260,7 +259,7 @@
                 <span
                   class="mx-2 inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium"
                   class:bg-pink-100={$clearConfigStore.networks[networkName]}
-                  class:text-gping-800={$clearConfigStore.networks[networkName]}
+                  class:text-pink-800={$clearConfigStore.networks[networkName]}
                   class:bg-slate-100={!$clearConfigStore.networks[networkName]}
                   class:text-slate-800={!$clearConfigStore.networks[
                     networkName

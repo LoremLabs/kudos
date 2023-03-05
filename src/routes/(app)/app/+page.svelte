@@ -17,6 +17,7 @@
   import Settings from '$lib/components/Settings.svelte';
   import IdentLedgerPane from '$lib/components/ident/IdentLedgerPane.svelte';
   import DistributionsPane from '$lib/components/distlists/DistributionsPane.svelte';
+  import AssetsPane from '$lib/components/assets/AssetsPane.svelte';
   import EventsPane from '$lib/components/events/EventsPane.svelte';
   import XRPLLedgerPane from '$lib/components/ledgers/xrpl/XRPLLedgerPane.svelte';
 
@@ -37,17 +38,22 @@
       // { id: 'Dossier', twe: 'identification-card', class: 'twe-2x-tight' },
       // { id: 'Email', twe: 'e-mail', class:"twe-2x-tight" },
       // { id: 'Kudos', twe: 'folded-hands', class: 'twe-2x-tight' },
-      {
-        id: 'Events',
-        icon: 'mini/queue-list',
-        display: 'Events',
-        class: 'h-5 w-5',
-      },
-
+      // {
+      //   id: 'Events',
+      //   icon: 'mini/queue-list',
+      //   display: 'Events',
+      //   class: 'h-5 w-5',
+      // },
       {
         id: 'Ident',
         icon: 'solid/identification',
         display: 'Ident',
+        class: 'h-5 w-5',
+      },
+      {
+        id: 'Assets',
+        icon: 'mini/banknotes',
+        display: 'Assets',
         class: 'h-5 w-5',
       },
 
@@ -282,15 +288,20 @@
           {/if}
         </div>
       </TabList>
-      <TabPanel class="min-h-screen w-full bg-slate-900" id="Events">
-        <EventsPane
-          {sidebarWidth}
-          {sidebarHeight}
-          active={activeSection === 'Events' ? true : false}
-        />
-      </TabPanel>
+      {#if false}
+        <TabPanel class="min-h-screen w-full bg-slate-900" id="Events">
+          <EventsPane
+            {sidebarWidth}
+            {sidebarHeight}
+            active={activeSection === 'Events' ? true : false}
+          />
+        </TabPanel>
+      {/if}
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">
         <IdentLedgerPane {sidebarWidth} {sidebarHeight} />
+      </TabPanel>
+      <TabPanel class="min-h-screen w-full bg-slate-900" id="Assets">
+        <AssetsPane {sidebarWidth} {sidebarHeight} />
       </TabPanel>
       {#if false}
         <TabPanel class="min-h-screen w-full" id="XRPL">

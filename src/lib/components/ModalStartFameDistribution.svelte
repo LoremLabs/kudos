@@ -357,12 +357,12 @@
         {:else if step === 1}
           <div class="mx-auto lg:mx-0">
             <div class="flex flex-row justify-between">
-              <h2 class="text-5xl font-bold tracking-tight text-white">
-                Confirm Account
+              <h2 class="mr-8 text-5xl font-bold tracking-tight text-white">
+                Publish
               </h2>
-              <p class="mt-4 text-lg leading-6 text-gray-300">
-                We'll sign these kudos with your keys, so verify that you're
-                using the desired account.
+              <p class="text-lg leading-6 text-gray-300">
+                Verify you're using the desired signing account. We'll then sign
+                these kudos with your keys and send them to be published.
               </p>
             </div>
           </div>
@@ -488,11 +488,11 @@
                 }
               }}
               type="button"
-              class={`cursor-pointer rounded-full border border-cyan-600 bg-cyan-200 py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
+              class={`cursor-pointer rounded-full border border-cyan-600 bg-white py-2 px-4 text-sm font-medium text-cyan-900 shadow-sm transition delay-150 ease-in-out hover:bg-gray-200 focus:outline-none focus:ring-0 focus:ring-gray-500 focus:ring-offset-0`}
               class:animate-shake={shake}
             >
               <div class="flex flex-row">
-                Next
+                Publish
                 {#if processing}
                   <span
                     aria-label={'processing'}
@@ -500,8 +500,6 @@
                   >
                     <Icon name="misc/spinner" class="h-5 w-5 text-slate-500" />
                   </span>
-                {:else}
-                  <Icon name="chevron-right" class="h-5 w-5 text-cyan-600" />
                 {/if}
               </div>
             </button>

@@ -31,7 +31,7 @@ export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
   const keys = await ethWallet({
     mnemonic,
     passPhrase,
-    path: `m/44'/${coinId}'/0'/0/${id}`,
+    path: `m/44'/${coinId}'/${id}'/0/0`,
   });
 
   return {
@@ -63,14 +63,25 @@ export function deriveXrplKeys({ hdkey, id = 0 }) {
     throw new Error('No hdkey provided');
   }
 
-  const xrplData = {};
-  const keyPair = hdkey.derive(`m/44'/144'/0'/0'/${id}'`); // hardened from .derive("m/44'/144'/0'/0/0");
-  xrplData.publicKey = bytesToHex(keyPair?.publicKey);
-  xrplData.privateKey = bytesToHex(keyPair?.privateKey);
+  const livenet = {};
+  const keyPair = hdkey.derive(`m/44'/144'/${id}'/0'/0'`); // hardened from .derive("m/44'/144'/0'/0/0");
+  livenet.publicKey = bytesToHex(keyPair?.publicKey);
+  livenet.privateKey = bytesToHex(keyPair?.privateKey);
+  livenet.address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
 
-  const address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
-  xrplData.address = address;
-  return xrplData;
+  const testnet = {};
+  const testnetKeyPair = hdkey.derive(`m/44'/144'/${id}'/0'/1'`); // hardened from .derive("m/44'/144'/0'/0/0");
+  testnet.publicKey = bytesToHex(testnetKeyPair?.publicKey);
+  testnet.privateKey = bytesToHex(testnetKeyPair?.privateKey);
+  testnet.address = deriveAddressFromBytes(testnetKeyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
+
+  const devnet = {};
+  const devnetKeyPair = hdkey.derive(`m/44'/144'/${id}'/0'/2'`); // hardened from .derive("m/44'/144'/0'/0/0");
+  devnet.publicKey = bytesToHex(devnetKeyPair?.publicKey);
+  devnet.privateKey = bytesToHex(devnetKeyPair?.privateKey);
+  devnet.address = deriveAddressFromBytes(devnetKeyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
+
+  return { livenet, testnet, devnet };
 }
 
 export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {

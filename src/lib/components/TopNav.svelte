@@ -176,7 +176,7 @@
                   >
                     <span class="sr-only">Open persona menu</span>
                     <div
-                      class="border-0.5 zpr-3 rounded-full border-gray-900 bg-slate-300"
+                      class="border-0.5 rounded-full border-gray-900 bg-slate-300"
                     >
                       <div
                         class="flex h-8 w-full items-center justify-start justify-items-center rounded-full text-sm text-black focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"

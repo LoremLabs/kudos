@@ -54,6 +54,7 @@ export const walletStore = asyncDerived(
 
         data = { ...data, keys };
         data.id = id;
+        console.log('walletStore', { data });
       } catch (e) {
         console.log({ e });
         alert(e.message);
