@@ -11,73 +11,25 @@
 	<title>Kudos Leaderboard for {data.subject}</title>
 </svelte:head>
 
-<div class="flex flex-col items-center justify-center min-h-screen py-2">
-	<main class="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-		<div class="py-6 px-6  lg:px-8">
-			<div class="mx-auto max-w-2xl text-center">
-				<svg
-					viewBox="0 0 1097 845"
-					aria-hidden="true"
-					class="hidden transform-gpu blur-3xl sm:absolute sm:-top-10 sm:right-1/2 sm:-z-10 sm:mr-10 sm:block sm:w-[68.5625rem]"
-				>
-					<path
-						fill="url(#7c63f5ae-130c-4c0f-963f-50ac7fe8d2e1)"
-						fill-opacity=".7"
-						d="M301.174 646.641 193.541 844.786 0 546.172l301.174 100.469 193.845-356.855c1.241 164.891 42.802 431.935 199.124 180.978 195.402-313.696 143.295-588.18 284.729-419.266 113.148 135.13 124.068 367.989 115.378 467.527L811.753 372.553l20.102 451.119-530.681-177.031Z"
-					/>
-					<defs>
-						<linearGradient
-							id="7c63f5ae-130c-4c0f-963f-50ac7fe8d2e1"
-							x1="1097.04"
-							x2="-141.165"
-							y1=".22"
-							y2="363.075"
-							gradientUnits="userSpaceOnUse"
-						>
-							<stop stop-color="#6F77FF" />
-							<stop offset="1" stop-color="#46FF94" />
-						</linearGradient>
-					</defs>
-				</svg>
-				<svg
-					viewBox="0 0 1097 845"
-					aria-hidden="true"
-					class="absolute left-1/2 -top-52 -z-10 w-[68.5625rem] -translate-x-1/2 transform-gpu blur-3xl sm:top-[-28rem] sm:ml-16 sm:translate-x-0"
-				>
-					<path
-						fill="url(#49c00522-612e-41d3-bb32-ce7d1fa28850)"
-						fill-opacity=".2"
-						d="M301.174 646.641 193.541 844.786 0 546.172l301.174 100.469 193.845-356.855c1.241 164.891 42.802 431.935 199.124 180.978 195.402-313.696 143.295-588.18 284.729-419.266 113.148 135.13 124.068 367.989 115.378 467.527L811.753 372.553l20.102 451.119-530.681-177.031Z"
-					/>
-					<defs>
-						<linearGradient
-							id="49c00522-612e-41d3-bb32-ce7d1fa28850"
-							x1="1097.04"
-							x2="-141.165"
-							y1=".22"
-							y2="363.075"
-							gradientUnits="userSpaceOnUse"
-						>
-							<stop stop-color="#6F77FF" />
-							<stop offset="1" stop-color="#46FF94" />
-						</linearGradient>
-					</defs>
-				</svg>
-
-				<p class="text-base font-semibold leading-7 text-cyan-600">
-					<a href={`/leaderboards/${data.subject}`}>{data.subject}</a>
-				</p>
-				<h2 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-					Kudos Leaderboard
-				</h2>
-			</div>
-		</div>
-
-		<div class="px-4 sm:px-6 lg:px-8">
-			<div class="my-8 flow-root">
-				<div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-					<div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-						<div class="flex items-end justify-between w-full">
+<div class="w-full bg-cyan-900">
+	<div class="p-8">
+		<div class="w-full m-auto flex flex-col justify-center items-start max-w-xl">
+			<table
+				class="table-auto divide-y divide-gray-300 shadow ring-1 ring-black ring-opacity-5 rounded-2xl w-full bg-white"
+			>
+				<thead>
+					<tr>
+						<th class="text-center" colspan="4">
+							<p class="text-base font-semibold leading-7 text-cyan-600">
+								<a href={`/leaderboards/${data.subject}`}>{data.subject}</a>
+							</p>
+							<h2 class="m-auto text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+								Kudos Leaderboard
+							</h2>
+						</th>
+					</tr>
+					<tr>
+						<th class="text-left">
 							<button
 								on:click={() => {
 									// TODO: make client side only?
@@ -91,6 +43,9 @@
 							>
 								<span>←</span>
 							</button>
+						</th>
+						<th class="hidden md:table-cell">&nbsp;</th>
+						<th class="text-right" colspan="2">
 							<button
 								on:click={() => {
 									// TODO: make client side only?
@@ -104,60 +59,64 @@
 							>
 								<span>→</span>
 							</button>
-						</div>
-
-						<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-							<table class="min-w-full divide-y divide-gray-300">
-								<thead class="bg-gray-50">
-									<tr>
-										<th
-											scope="col"
-											class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
-											>Rank</th
-										>
-										<th
-											scope="col"
-											class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-											>Identifier</th
-										>
-										<th
-											scope="col"
-											class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Score</th
-										>
-										<th scope="col" class="sr-only">Action</th>
-									</tr>
-								</thead>
-								<tbody class="divide-y divide-gray-200 bg-white">
-									{#each data.leaderboard as row}
-										<tr>
-											<td
-												class="whitespace-nowrap py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6"
-												>{row.rank.toLocaleString()}</td
+						</th>
+					</tr>
+					<tr class="bg-gray-50">
+						<th
+							scope="col"
+							class="py-3.5 pl-4 pr-3 text-left text-xs font-semibold text-gray-900 sm:pl-6"
+							>Rank</th
+						>
+						<th
+							scope="col"
+							class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900 hidden md:table-cell"
+							>Identifier</th
+						>
+						<th scope="col" class="px-3 py-3.5 text-left text-xs font-semibold text-gray-900"
+							>Score</th
+						>
+						<th scope="col" class="sr-only">Action</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-200 bg-white">
+					{#each data.leaderboard as row}
+						<tr>
+							<td class="py-4 pl-4 pr-3 text-xs font-medium text-gray-900 sm:pl-6"
+								><div class="hidden md:table-cell text-right w-5">
+									{row.rank.toLocaleString()}.
+								</div>
+								<div class="text-left flex flex-col md:hidden shrink">
+									<div class="flex flex-row">
+										<div class="mr-1">{row.rank.toLocaleString()}.</div>
+										<div class="text-gray-500 font-mono flex-0 max-w-xs overflow-scroll">
+											<a
+												href={`/identifier/${row.identifier}`}
+												class="text-cyan-800 hover:text-cyan-900">{row.identifier}</a
 											>
-											<td
-												class="whitespace-nowrap px-3 py-4 text-xs text-gray-500 text-left font-mono"
-												>{row.identifier}</td
-											>
-											<td class="whitespace-nowrap px-3 py-4 text-xs text-right text-gray-500"
-												>{row.score.toLocaleString()}</td
-											>
-											<td
-												class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6"
-											>
-												<a
-													href={`/identifier/${row.identifier}`}
-													class="text-cyan-600 hover:text-cyan-900"
-													>→<span class="sr-only">details</span></a
-												>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td
+								class="whitespace-nowrap px-3 py-4 text-xs text-gray-500 text-left font-mono truncate w-18 sm:w-24 md:w-26 hidden md:table-cell"
+								><a href={`/identifier/${row.identifier}`} class="text-cyan-800 hover:text-cyan-900"
+									>{row.identifier}</a
+								>
+							</td>
+							<td class="whitespace-nowrap px-3 py-4 text-xs text-right text-gray-500 font-semibold"
+								>{row.score.toLocaleString()}</td
+							>
+							<td
+								class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 hidden md:table-cell"
+							>
+								<a href={`/identifier/${row.identifier}`} class="text-cyan-600 hover:text-cyan-900"
+									>→<span class="sr-only">details</span></a
+								>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		</div>
-	</main>
+	</div>
 </div>
