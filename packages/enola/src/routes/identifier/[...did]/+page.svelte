@@ -10,7 +10,7 @@
 {/if}
 
 <div class="w-full min-h-screen bg-cyan-500 flex flex-row items-center justify-center">
-	<div class="p-2 md:p-8">
+	<div class="p-2 md:p-8 m-4">
 		<div class="w-full m-auto flex flex-col justify-center items-start max-w-xl">
 			<div
 				class="divide-y divide-gray-300 shadow ring-1 ring-black ring-opacity-5 rounded-2xl w-full bg-cyan-50 p-8 py-16"

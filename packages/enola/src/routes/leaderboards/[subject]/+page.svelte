@@ -1,5 +1,6 @@
 <script>
 	import IdentityLink from '$lib/components/IdentityLink.svelte';
+	import IdentityShort from '$lib/components/IdentityShort.svelte';
 
 	/** @type {import('./$types').PageData} */
 	export let data;
@@ -71,7 +72,7 @@
 					{#each data.leaderboard as row}
 						<div class="flex flex-row justify-between items-start">
 							<div class="py-4 px-2 sm:pr-3 text-xs font-medium text-gray-900 sm:px-6">
-								<div class="hidden md:block text-right w-5">
+								<div class="hidden md:block text-right w-5 mr-3">
 									{row.rank.toLocaleString()}.
 								</div>
 								<div class="text-left flex flex-col md:hidden">
@@ -80,7 +81,8 @@
 										<div class="text-gray-500 font-mono flex flex-row">
 											<a
 												href={`/identifier/${row.identifier}`}
-												class="text-cyan-800 hover:text-cyan-900">{row.identifier}</a
+												class="text-cyan-800 hover:text-cyan-900"
+												><IdentityShort identifier={row.identifier} /></a
 											><IdentityLink identifier={row.identifier} />
 										</div>
 									</div>
@@ -90,7 +92,7 @@
 								class="px-1 sm:pr-3 py-4 text-xs text-gray-500 text-left font-mono truncate hidden md:flex w-full flex-row"
 							>
 								<a href={`/identifier/${row.identifier}`} class="text-cyan-800 hover:text-cyan-900"
-									>{row.identifier}</a
+									><IdentityShort identifier={row.identifier} /></a
 								><IdentityLink identifier={row.identifier} />
 							</div>
 							<div

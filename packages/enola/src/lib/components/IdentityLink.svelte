@@ -8,16 +8,24 @@
 	const calcLink = () => {
 		// given a string like 'did:kudos:url:https://example.com', set identifierType to did:kudos:url
 		// switch on identifierType for various identifier types: did:kudos:url, did:kudos:email, did:kudos:thing, etc
-		const identifierType =
-			identifier.split(':')[0] +
-			':' +
-			identifier.split(':')[1] +
-			':' +
-			identifier.split(':')[2] +
-			':';
+		let identifierType;
+		if (identifier.startsWith('did:kudos')) {
+			identifierType =
+				identifier.split(':')[0] +
+				':' +
+				identifier.split(':')[1] +
+				':' +
+				identifier.split(':')[2] +
+				':';
+		} else {
+			identifierType = identifier.split(':')[0] + ':' + identifier.split(':')[1] + ':';
+		}
 
 		// set link to the appropriate value for the identifier type
 		switch (identifierType) {
+			case 'did:url:':
+				link = identifier.replace('did:url:', '');
+				break;
 			case 'did:kudos:url:':
 				link = identifier.replace('did:kudos:url:', '');
 				break;
