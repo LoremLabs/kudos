@@ -100,6 +100,7 @@ export async function load({ params, url, setHeaders }) {
 		status: results?.status || {},
 		subject: subject,
 		pageSize: pageSize,
+		start,
 		cursor: {
 			next:
 				results?.data?.leaderBoard?.leaderboard?.rows?.length === pageSize
