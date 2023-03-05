@@ -2,7 +2,7 @@
 	"crons": [
 		{
 			"path": "/api/v1/calcLeaderboards",
-			"schedule": "*/2 * * * *"
+			"schedule": "*/5 * * * *"
 		}
 	]
 }
