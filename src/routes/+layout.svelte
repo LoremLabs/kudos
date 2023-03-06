@@ -10,6 +10,10 @@
   import { open as openShell } from '@tauri-apps/api/shell';
 
   //  import { walletStore } from '$lib/stores/wallet';
+  import { Buffer as BufferPolyfill } from 'buffer';
+  global.Buffer = BufferPolyfill;
+
+  import xrpl from 'xrpl';
 
   import { onMount } from 'svelte';
   import { appWindow } from '@tauri-apps/api/window';
@@ -75,5 +79,5 @@
 <main
   class="z-10 mt-8 min-h-screen w-full overflow-hidden overscroll-none bg-slate-100"
 >
-  <slot />
+<!-- slot / -->slot
 </main>

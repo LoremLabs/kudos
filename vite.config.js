@@ -1,8 +1,10 @@
 import * as process from "process";
 
 // import { Buffer } from 'buffer/'
+import { Buffer } from "buffer/";
 import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import { defineConfig } from "vite";
+// import polyfillNode from 'rollup-plugin-polyfill-node';
 import { sveltekit } from "@sveltejs/kit/vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 
@@ -48,19 +50,37 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    //   rollupOptions: {
+    //     plugins: [
+    //         polyfillNode(),
+    //     ]
+    // }
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: "globalThis",
+  resolve: {
+    alias: {
+      events: "events",
+      crypto: "crypto-browserify",
+      stream: "stream-browserify",
+      http: "stream-http",
+      https: "https-browserify",
+      ws: "xrpl/dist/npm/client/WSWrapper",
+      util: "util/",
+      buffer: "buffer/",
+      Buffer: 'buffer/',
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: "globalThis",
+        },
+        inject: ["./src/utils/buffer-shim.js"]
+        //     plugins: [
+        //     NodeGlobalsPolyfillPlugin({
+        //       process: true,
+        //       buffer: true,
+        //     }),
+        //   ],
       },
-      inject: ["./src/utils/buffer-shim.js"],
-      // plugins: [
-      //   NodeGlobalsPolyfillPlugin({
-      //     process: true,
-      //     buffer: true,
-      //   }),
-      // ],
     },
   },
 });

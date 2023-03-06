@@ -8,6 +8,7 @@ import { getConfig, getSalt } from '$lib/utils/config';
 
 import { asyncDerived } from '@square/svelte-store';
 import { derived } from 'svelte/store';
+import { getBalancesXrpl } from '$lib/utils/wallet/xrplWallet';
 
 // import { invoke } from '@tauri-apps/api/tauri';
 
@@ -18,6 +19,10 @@ let data = {
   keys: {},
   id: -1,
 };
+
+// const getBalancesXrpl = async (asset, keys) => {
+//   return {};
+// };
 
 export const walletStore = asyncDerived(
   activePersonaStore,
@@ -64,6 +69,32 @@ export const walletStore = asyncDerived(
     return { ...data };
   }
 );
+
+export const getBalances = async (asset) => {
+  // return {};
+  // asset = xrpl:livenet
+  if (!data) {
+    return {};
+  }
+  const { keys } = data;
+
+  const [network, chain] = asset.split(':');
+  if (network === 'xrpl') {
+    let xrplBalances = {};
+    try {
+      const params = data.keys[network][chain];
+      xrplBalances = await getBalancesXrpl(asset, params);
+    } catch (e) {
+      console.log('getBalancesXrpl', { e });
+      xrplBalances.error = { msg: e.message };
+    }
+    console.log('xrplBalances', xrplBalances);
+    return xrplBalances;
+  } else if (network === 'eth') {
+    const ethBalances = {}; // await eth.getBalances(); TODO
+    return ethBalances;
+  }
+};
 
 //   return {
 //     changeActivePersona: async ({ id = 0 }) => {

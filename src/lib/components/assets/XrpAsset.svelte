@@ -9,8 +9,10 @@
 
   export let networkName = 'xrpl:livenet';
   export let address = '';
-  export let balance = 0;
-  export let balanceUsd = 0;
+  export let balance = {
+    xrp: 0, // in drops
+    usd: 0, // in cents
+  };
 
   let networkDisplay = networkName;
   let showNetworkMenu = false;
@@ -152,11 +154,11 @@
     <!-- current balance -->
     <div class="flex h-full flex-col items-center justify-center">
       <div class="text-2xl font-extrabold text-slate-900">
-        {balance.toLocaleString()}
+        {(balance?.xrp) ? balance?.xrp.toLocaleString() : '0'}
         <span class="uppercase text-slate-700">XRP</span>
       </div>
       <div class="font-base text-sm text-slate-500">
-        $ {balanceUsd.toLocaleString()}
+        $ {(balance?.usd) ? balance?.usd.toLocaleString() : '0'}
         <span class="uppercase text-slate-700">USD</span>
       </div>
     </div>
