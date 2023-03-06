@@ -51,7 +51,7 @@
 
 <svelte:body on:click={handleOutsideClick} on:keydown={handleKeypress} />
 
-<div class="flex h-full flex-col items-start justify-between">
+<div class="group flex h-full flex-col items-start justify-between">
   <div class="flex w-full flex-row items-center justify-between px-2 py-2">
     <div class="flex flex-row">
       <Icon name="brand/xrpl" class="h-6 w-6" />
@@ -184,6 +184,8 @@
       </button>
     </div>
 
-    <div class="font-mono text-xs text-slate-500">{address}</div>
+    <div class="invisible font-mono text-xs text-slate-500 group-hover:visible">
+      {address}
+    </div>
   </div>
 </div>

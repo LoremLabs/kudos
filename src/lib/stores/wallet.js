@@ -27,7 +27,6 @@ export const walletStore = asyncDerived(
       // console.log('not initialized yet');
       return {}; // not initialized yet
     }
-
     // when the active persona changes, reset the wallet store
     if (data.id !== $activePersona.id) {
       isSwitchingPersonasStore.set(true);
@@ -42,7 +41,7 @@ export const walletStore = asyncDerived(
       let passPhrase = data.passPhrase;
       let seed;
       try {
-        seed = await createOrReadSeed({ salt, id, passPhrase });
+        seed = await createOrReadSeed({ salt, id, passPhrase, useCache: true });
 
         data.mnemonic = seed.mnemonic;
         // TODO: store this encrypted too to avoid the need to derive it
@@ -50,8 +49,8 @@ export const walletStore = asyncDerived(
           mnemonic: seed.mnemonic,
           passPhrase,
           id,
+          useCache: true,
         });
-
         data = { ...data, keys };
         data.id = id;
         console.log('walletStore', { data });

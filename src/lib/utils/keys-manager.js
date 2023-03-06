@@ -23,6 +23,8 @@ import { generateMnemonic } from './wallet/generateMnemonic';
 import { noop } from '$lib/utils/noop';
 import { shortId } from '$lib/utils/short-id';
 
+const seedCache = {};
+
 export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
   if (!mnemonic && !coinId) {
     throw new Error('No mnemonic / coinId provided');
@@ -84,9 +86,21 @@ export function deriveXrplKeys({ hdkey, id = 0 }) {
   return { livenet, testnet, devnet };
 }
 
-export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {
+const keyCache = {};
+
+export async function deriveKeys({
+  mnemonic,
+  passPhrase,
+  id = 0,
+  useCache = true,
+}) {
   if (!mnemonic) {
     throw new Error('No mnemonic provided');
+  }
+
+  const cacheKey = `${mnemonic}-${passPhrase}-${id}`;
+  if (useCache && keyCache[cacheKey]) {
+    return keyCache[cacheKey];
   }
 
   let manager = {};
@@ -101,6 +115,11 @@ export async function deriveKeys({ mnemonic, passPhrase, id = 0 }) {
   manager.kudos = await deriveKudosKeys({ mnemonic, passPhrase, id });
   await noop(); // give the ui time to do its thing
   manager.id = id ? id : 0;
+
+  // store cache
+  if (useCache) {
+    keyCache[cacheKey] = manager;
+  }
 
   return manager;
 }
@@ -169,8 +188,16 @@ export async function createOrReadSeed({
   salt = '', // used to encrypt local seed data only
   passPhrase = '', // 25th word, part of the seed phrase
   id = 0,
+  useCache = true,
 }) {
   const s = { id, mnemonic: '' };
+
+  // check our seedCache to see if we already have this seed id
+  if (useCache && seedCache[`id-${id}`]) {
+    // console.log('Seed phrase exists in cache');
+    return seedCache[`id-${id}`];
+  }
+
   const baseDir = await appLocalDataDir();
   await createDir(`${baseDir}state`, {
     // dir: baseDir,
@@ -189,6 +216,12 @@ export async function createOrReadSeed({
       // console.log('Read Existing Mnemonic from storage');
     } else {
       throw new Error('File not found');
+    }
+
+    // if here, we have a valid mnemonic
+    // cache it in memory for this session
+    if (useCache) {
+      seedCache[`id-${id}`] = s;
     }
   } catch (err) {
     if (err && err.message === 'File not found') {
