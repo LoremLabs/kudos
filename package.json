@@ -68,6 +68,7 @@
     "prettier-plugin-tailwindcss": "^0.2.3",
     "pretty-print-json": "^1.4.0",
     "process": "^0.11.10",
+    "qrious": "^4.0.2",
     "ripple-address-codec": "^4.2.4",
     "ripple-bip32": "^0.0.3",
     "ripple-keypairs": "^1.1.4",

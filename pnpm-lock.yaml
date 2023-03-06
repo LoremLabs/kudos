@@ -32,7 +32,7 @@ specifiers:
   esbuild: ^0.17.8
   eslint: ^8.34.0
   eslint-config-prettier: ^8.6.0
-  ethers: ^5.7.2
+  ethers: 5.7.2
   focusable-selectors: ^0.7.0
   hash.js: ^1.1.7
   json-stringify-deterministic: ^1.0.8
@@ -47,6 +47,7 @@ specifiers:
   prettier-plugin-tailwindcss: ^0.2.3
   pretty-print-json: ^1.4.0
   process: ^0.11.10
+  qrious: ^4.0.2
   ripple-address-codec: ^4.2.4
   ripple-bip32: ^0.0.3
   ripple-keypairs: ^1.1.4
@@ -122,6 +123,7 @@ devDependencies:
   prettier-plugin-tailwindcss: 0.2.3_yjdjpc7im5hvpskij45owfsns4
   pretty-print-json: 1.4.0
   process: 0.11.10
+  qrious: 4.0.2
   ripple-address-codec: 4.2.4
   ripple-bip32: 0.0.3
   ripple-keypairs: 1.1.4
@@ -4864,6 +4866,13 @@ packages:
         integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==,
       }
     engines: { node: ">=6" }
+    dev: true
+
+  /qrious/4.0.2:
+    resolution:
+      {
+        integrity: sha512-xWPJIrK1zu5Ypn898fBp8RHkT/9ibquV2Kv24S/JY9VYEhMBMKur1gHVsOiNUh7PHP9uCgejjpZUHUIXXKoU/g==,
+      }
     dev: true
 
   /querystring-es3/0.2.1:

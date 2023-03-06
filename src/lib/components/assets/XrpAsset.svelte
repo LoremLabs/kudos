@@ -4,7 +4,8 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { addToast } from '$lib/stores/toasts';
-  import { dev } from '$app/environment';
+
+  import ModalShowQr from '$lib/components/ModalShowQr.svelte';
 
   export let networkName = 'xrpl:livenet';
   export let address = '';
@@ -13,6 +14,8 @@
 
   let networkDisplay = networkName;
   let showNetworkMenu = false;
+
+  let showQrModal = false;
 
   const goto = (url: string) => {
     openShell(url);
@@ -173,7 +176,9 @@
       </button>
       <button
         class="flex flex-col items-center justify-center"
-        on:click={() => {}}
+        on:click={() => {
+          showQrModal = !showQrModal;
+        }}
       >
         <div
           class="m-auto flex h-10 w-10 flex-col items-center justify-center rounded-full bg-slate-300 hover:bg-slate-400"
@@ -189,3 +194,37 @@
     </div>
   </div>
 </div>
+<ModalShowQr
+  bind:open={showQrModal}
+  {address}
+  handleConfirm={() => {
+    showQrModal = false;
+  }}
+  handleCancel={() => {}}
+>
+  <div slot="header">
+    <h3 class="text-lg font-black leading-6 text-gray-900" id="modal-qr">
+      <span
+        class="inline-flex items-center rounded-md px-2.5 py-2 text-sm font-medium"
+        class:bg-green-100={networkName === 'xrpl:livenet'}
+        class:text-green-800={networkName === 'xrpl:livenet'}
+        class:bg-yellow-100={networkName === 'xrpl:testnet'}
+        class:text-yellow-800={networkName === 'xrpl:testnet'}
+        class:bg-pink-100={networkName === 'xrpl:devnet'}
+        class:text-pink-800={networkName === 'xrpl:devnet'}
+      >
+        <svg
+          class="-ml-0.5 mr-1.5 h-2 w-2"
+          class:text-green-800={networkName === 'xrpl:livenet'}
+          class:text-red-800={networkName === 'xrpl:testnet'}
+          class:text-pink-800={networkName === 'xrpl:devnet'}
+          fill="currentColor"
+          viewBox="0 0 8 8"
+        >
+          <circle cx="4" cy="4" r="3" />
+        </svg>
+        <span class="break-none text-xs uppercase">{networkDisplay}</span>
+      </span>
+    </h3>
+  </div>
+</ModalShowQr>
