@@ -1,4 +1,4 @@
-import xrpl from 'xrpl';
+// import xrpl from 'xrpl';
 
 // export type Balance = {
 //   asset: string;
@@ -6,6 +6,8 @@ import xrpl from 'xrpl';
 //   usd: string;
 //   address: string;
 // };
+
+let xrpl;
 
 export const clients = {
   'xrpl:livenet': {
@@ -19,13 +21,10 @@ export const clients = {
   },
 };
 
-export const getBalancesXrpl = async (
-  clientType,
-  params
-) => {
+export const getBalancesXrpl = async (clientType, params) => {
   // foreach client type, make sure we're connected and get the balance
 
-console.log('getBalancesXrpl', clientType, params);
+  console.log('getBalancesXrpl', clientType, params);
   let client = clients[clientType].client;
   const server = clients[clientType].server;
 
@@ -38,25 +37,38 @@ console.log('getBalancesXrpl', clientType, params);
   // if we don't have a client, create one
   if (!client) {
     // const wallet = xrpl.Wallet.fromSeed(seed);
-console.log('getBalancesXrpl2', clientType, client, clients[clientType], server);
-    //const client2 = new xrpl.Client(server);
-    // clients[clientType].client = client;
-    // await client.connect();
+
+    if (!xrpl) {
+      xrpl = await import('xrpl');
+    }
+
+    console.log(
+      'getBalancesXrpl2',
+      clientType,
+      client,
+      clients[clientType],
+      server,
+      { xrpl }
+    );
+    client = new xrpl.Client(server);
+    clients[clientType].client = client;
+    await client.connect();
   }
-  return {};
+  //  return {};
 
-//   // get the balance
-//   const balance = await client.request({
-//     command: 'account_info',
-//     account: address,
-//     ledger_index: 'validated',
-//   });
+  //   // get the balance
+  const balance = await client.request({
+    command: 'account_info',
+    account: address,
+    ledger_index: 'validated',
+  });
 
-//   // return the balance
-//   return {
-//     asset: clientType,
-//     xrp: balance.result.account_data.Balance,
-//     usd: '0',
-//     address: address,
-//   };
+  // return the balance
+  return {
+    asset: clientType,
+    xrp: xrpl.dropsToXrp(balance.result.account_data.Balance),
+    xrpDrops: balance.result.account_data.Balance,
+    usd: '0',
+    address: address,
+  };
 };

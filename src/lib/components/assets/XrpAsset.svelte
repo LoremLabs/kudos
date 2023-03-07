@@ -154,11 +154,11 @@
     <!-- current balance -->
     <div class="flex h-full flex-col items-center justify-center">
       <div class="text-2xl font-extrabold text-slate-900">
-        {(balance?.xrp) ? balance?.xrp.toLocaleString() : '0'}
+        {balance?.xrp ? balance?.xrp.toLocaleString() : '0'}
         <span class="uppercase text-slate-700">XRP</span>
       </div>
       <div class="font-base text-sm text-slate-500">
-        $ {(balance?.usd) ? balance?.usd.toLocaleString() : '0'}
+        $ {balance?.usd ? balance?.usd.toLocaleString() : '0'}
         <span class="uppercase text-slate-700">USD</span>
       </div>
     </div>

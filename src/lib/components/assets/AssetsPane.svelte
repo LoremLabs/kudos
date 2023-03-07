@@ -29,20 +29,20 @@
   let commanderHeight = 0; // disabled for here
 
   // mock out balances
-    const balancesMock = {
-      'xrpl:livenet': {
-        'xrp': 0,
-        'usd': 0,
-      },
-      'xrpl:testnet': {
-        'xrp': 0,
-        'usd': 0,
-      },
-      'xrpl:devnet': {
-        'xrp': 0,
-        'usd': 0,
-      },
-    };
+  const balancesMock = {
+    'xrpl:livenet': {
+      xrp: 0,
+      usd: 0,
+    },
+    'xrpl:testnet': {
+      xrp: 0,
+      usd: 0,
+    },
+    'xrpl:devnet': {
+      xrp: 0,
+      usd: 0,
+    },
+  };
   const balances = writable(balancesMock);
 
   const addresses = derived(walletStore, ($wallets) => {
@@ -55,12 +55,12 @@
     }
     //
     return {
-      // 'xrpl:livenet': $wallets.keys.xrpl?.livenet?.address,
-      // 'xrpl:testnet': $wallets.keys.xrpl?.testnet?.address,
-      // 'xrpl:devnet': $wallets.keys.xrpl?.devnet?.address,
-      // eth: $wallets.keys.eth?.address,
-      // btc: $wallets.keys.btc?.address,
-      // kudos: $wallets.keys.kudos?.address,
+      'xrpl:livenet': $wallets.keys.xrpl?.livenet?.address,
+      'xrpl:testnet': $wallets.keys.xrpl?.testnet?.address,
+      'xrpl:devnet': $wallets.keys.xrpl?.devnet?.address,
+      eth: $wallets.keys.eth?.address,
+      btc: $wallets.keys.btc?.address,
+      kudos: $wallets.keys.kudos?.address,
     };
   });
 
@@ -70,26 +70,25 @@
     (utilsOpen ? utilsHeight : 0) -
     commanderHeight;
 
-    let lastBalanceCheck = 0;
+  let lastBalanceCheck = 0;
 
-    const updateBalances = async () => {
-      lastBalanceCheck = Date.now();
+  const updateBalances = async () => {
+    lastBalanceCheck = Date.now();
 
-      const data = {};
-      data['xrpl:livenet'] = await getBalances('xrpl:livenet');
-      data['xrpl:testnet'] = await getBalances('xrpl:testnet');
-      data['xrpl:devnet'] = await getBalances('xrpl:devnet');
+    const data = {};
+    data['xrpl:livenet'] = await getBalances('xrpl:livenet');
+    data['xrpl:testnet'] = await getBalances('xrpl:testnet');
+    data['xrpl:devnet'] = await getBalances('xrpl:devnet');
 
-console.log('---------balances', {data});
+    console.log('---------balances', { data });
 
-      balances.set(data);
-    };
+    balances.set(data);
+  };
 
-    onMount(async () => {
+  onMount(async () => {
     if (!browser) {
       return;
     }
-
 
     walletStore.subscribe((data) => {
       // console.log('walletStore', data);
@@ -103,7 +102,7 @@ console.log('---------balances', {data});
         return;
       }
 
-      if ((Date.now() - lastBalanceCheck) < 1000) {
+      if (Date.now() - lastBalanceCheck < 1000) {
         return;
       }
 

@@ -1,20 +1,17 @@
 import * as process from "process";
 
-// import { Buffer } from 'buffer/'
-import { Buffer } from "buffer/";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import { defineConfig } from "vite";
-// import polyfillNode from 'rollup-plugin-polyfill-node';
+import inject from "@rollup/plugin-inject";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { sveltekit } from "@sveltejs/kit/vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    NodeGlobalsPolyfillPlugin({
-      process: true,
-      buffer: true,
-      define: { "process.env.var": "hi" }, // inject will override define, to keep env vars you must also pass define here https://github.com/evanw/esbuild/issues/660
+    nodePolyfills({
+      // Whether to polyfill `node:` protocol imports.
+      protocolImports: true,
     }),
     sveltekit(),
     topLevelAwait(),
@@ -35,14 +32,6 @@ export default defineConfig({
     global: {},
     process,
   },
-  //   //    Buffer,
-  //   // process: {
-  //   //   getNextTick: () => {},
-  //   //   env: {
-  //   //     // this is required for the `crypto` module to work
-  //   //   }
-  //   // }
-  // },
   build: {
     // Tauri supports es2021
     target: ["es2021", "chrome100", "safari13"],
@@ -50,11 +39,12 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
-    //   rollupOptions: {
-    //     plugins: [
-    //         polyfillNode(),
-    //     ]
-    // }
+    rollupOptions: {
+      plugins: [
+        //            polyfillNode(),
+        inject({ Buffer: ["Buffer", "Buffer"] }),
+      ],
+    },
   },
   resolve: {
     alias: {
@@ -65,21 +55,18 @@ export default defineConfig({
       https: "https-browserify",
       ws: "xrpl/dist/npm/client/WSWrapper",
       util: "util/",
-      buffer: "buffer/",
-      Buffer: 'buffer/',
     },
     optimizeDeps: {
       esbuildOptions: {
         define: {
           global: "globalThis",
         },
-        inject: ["./src/utils/buffer-shim.js"]
-        //     plugins: [
-        //     NodeGlobalsPolyfillPlugin({
-        //       process: true,
-        //       buffer: true,
-        //     }),
-        //   ],
+        plugins: [
+          nodePolyfills({
+            // Whether to polyfill `node:` protocol imports.
+            protocolImports: true,
+          }),
+        ],
       },
     },
   },
