@@ -46,10 +46,13 @@
             id="panel-open-2"
             class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
             on:click={() => {
-              panelOpen = document.getElementById('panel-open-2');
+              dispatch('action', {
+                action: 'update:balance',
+                params: {},
+              });
             }}
           >
-            <Icon name="globe-alt" class="h-6 w-6" />
+            <Icon name="refresh" class="h-6 w-6" />
           </button>
         </div>
 

@@ -107,6 +107,7 @@
     | 'brand/unlock'
     | 'brand/unlock-square'
     | 'brand/webmon'
+    | 'brand/ripple'
     | 'brand/xrpl';
 
   export type MiscIcons =

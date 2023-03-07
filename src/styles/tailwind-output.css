@@ -1011,6 +1011,9 @@ select {
 .mt-auto {
   margin-top: auto;
 }
+.-mt-8 {
+  margin-top: -2rem;
+}
 .block {
   display: block;
 }
@@ -1841,6 +1844,10 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(254 252 232 / var(--tw-bg-opacity));
 }
+.bg-slate-800 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(30 41 59 / var(--tw-bg-opacity));
+}
 .bg-opacity-75 {
   --tw-bg-opacity: 0.75;
 }
@@ -1892,6 +1899,12 @@ select {
 }
 .p-px {
   padding: 1px;
+}
+.p-0 {
+  padding: 0px;
+}
+.p-0\.5 {
+  padding: 0.125rem;
 }
 .px-0 {
   padding-left: 0px;

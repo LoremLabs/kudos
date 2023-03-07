@@ -24,6 +24,18 @@ let data = {
 //   return {};
 // };
 
+export const getKeys = async (asset) => {
+  // asset = xrpl:livenet
+  if (!data) {
+    return {};
+  }
+  const { keys } = data;
+  const [network, chain] = asset.split(':');
+  if (network === 'xrpl') {
+    return keys[network][chain];
+  }
+};
+
 export const walletStore = asyncDerived(
   activePersonaStore,
   async ($activePersona) => {
@@ -86,9 +98,9 @@ export const getBalances = async (asset) => {
       xrplBalances = await getBalancesXrpl(asset, params);
     } catch (e) {
       console.log('getBalancesXrpl', { e });
-      xrplBalances.error = { msg: e.message };
+      xrplBalances.message = e.message;
     }
-    console.log('xrplBalances', xrplBalances);
+    //    console.log('xrplBalances', xrplBalances);
     return xrplBalances;
   } else if (network === 'eth') {
     const ethBalances = {}; // await eth.getBalances(); TODO

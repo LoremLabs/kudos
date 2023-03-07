@@ -1,6 +1,8 @@
 <script lang="ts">
   import { open as openShell } from '@tauri-apps/api/shell';
 
+  import { fundViaFaucet } from '$lib/utils/wallet/xrplWallet';
+
   import { createEventDispatcher, onMount } from 'svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { addToast } from '$lib/stores/toasts';
@@ -18,6 +20,8 @@
   let showNetworkMenu = false;
 
   let showQrModal = false;
+
+  const dispatch = createEventDispatcher();
 
   const goto = (url: string) => {
     openShell(url);
@@ -59,7 +63,10 @@
 <div class="group flex h-full flex-col items-start justify-between">
   <div class="flex w-full flex-row items-center justify-between px-2 py-2">
     <div class="flex flex-row">
-      <Icon name="brand/xrpl" class="h-6 w-6" />
+      <Icon
+        name="brand/xrpl"
+        class="h-7 w-7 rounded-full bg-slate-800 p-1 text-white"
+      />
       <button
         class="opener ml-1"
         on:click={() => {
@@ -121,6 +128,45 @@
           </div>
           <div class="">View Transactions</div>
         </button>
+        {#if ['xrpl:devnet', 'xrpl:testnet'].includes(networkName)}
+          <button
+            class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+            id={`net-${networkName}-menu-item`}
+            on:click={async () => {
+              addToast({
+                type: 'info',
+                msg: `Sending funding request.`,
+                duration: 3000,
+              });
+
+              const status = await fundViaFaucet(networkName);
+
+              if (status) {
+                addToast({
+                  type: 'info',
+                  msg: `Successfully funded via faucet`,
+                  duration: 3000,
+                });
+
+                dispatch('action', {
+                  action: 'update:balance',
+                  params: {},
+                });
+              } else {
+                addToast({
+                  type: 'error',
+                  msg: `Funding via faucet failed`,
+                  duration: 3000,
+                });
+              }
+            }}
+          >
+            <div class="w-6">
+              <Icon name="sparkles" class="mr-2 h-4 w-4" />
+            </div>
+            <div class="">Fund via Faucet</div>
+          </button>
+        {/if}
       </div>
     </div>
     <button on:click={async () => {}}>
@@ -146,6 +192,9 @@
         <span class="break-none text-xs uppercase">{networkDisplay}</span>
       </span>
     </button>
+  </div>
+  <div class="m-auto -mt-8 pb-8 font-mono text-xs text-red-800">
+    {balance?.message || ' '}
   </div>
 
   <div

@@ -120,6 +120,10 @@
       case 'utils:add':
         // utilsOpen = !utilsOpen;
         break;
+      case 'update:balance':
+        // utilsOpen = !utilsOpen;
+        updateBalances();
+        break;
       default:
         console.log('unknown action', action);
     }
@@ -166,6 +170,7 @@
                     {networkName}
                     address={$addresses[networkName]}
                     balance={$balances[networkName]}
+                    on:action={onAction}
                   />
                 {/if}
               {/each}
