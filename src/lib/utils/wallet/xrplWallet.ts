@@ -77,12 +77,32 @@ export const getClient = async (clientType, address, endpoint) => {
     clients[clientKey].client = client;
 
     // listen for errors
+    let retryCount = 0;
     client.on('error', (err) => {
       console.log('client error', err);
-      // if (err.message.toLowerCase().includes('disconnected') || err.message.toLowerCase().includes('reset')) {
-      //   // try to reconnect
-      //   console.log('reconnecting', clientType, address);
-      //   client.connect();
+      if (
+        err.message.toLowerCase().includes('disconnected') ||
+        err.message.toLowerCase().includes('reset') ||
+        err.message.toLowerCase().includes('websocket')
+      ) {
+        // try to reconnect
+        console.log('reconnecting', clientType, address);
+
+        // exponential backoff
+        let timeout = Math.pow(2, retryCount) * 1000;
+        if (timeout > 60000) {
+          timeout = 60000;
+        }
+        retryCount++;
+        setTimeout(async () => {
+          client.connect();
+        }, timeout);
+      }
+    });
+
+    client.on('connected', () => {
+      console.log('connected!');
+      retryCount = 0;
     });
 
     await client.connect();

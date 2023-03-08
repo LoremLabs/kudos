@@ -76,11 +76,18 @@
     lastBalanceCheck = Date.now();
 
     const data = {};
-    data['xrpl:livenet'] = await getBalances('xrpl:livenet');
-    data['xrpl:testnet'] = await getBalances('xrpl:testnet');
-    data['xrpl:devnet'] = await getBalances('xrpl:devnet');
 
-    console.log('---------balances', { data });
+    for (const networkName of ['xrpl:livenet', 'xrpl:testnet', 'xrpl:devnet']) {
+      if (
+        $clearConfigStore &&
+        $clearConfigStore.networks &&
+        $clearConfigStore.networks[networkName]
+      ) {
+        data[networkName] = await getBalances(networkName);
+      }
+    }
+
+    // console.log('---------balances', { data });
 
     balances.set(data);
   };
