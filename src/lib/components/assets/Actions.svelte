@@ -13,6 +13,7 @@
   let panelImportOpen: HTMLElement | null = null;
 
   export let utilsOpen = false;
+  export let refreshing = false;
 
   let ready = false;
   onMount(async () => {
@@ -41,7 +42,7 @@
         </div>
       </div>
       {#if true}
-        <div class="text-gray-500">
+        <div class="mr-4 text-gray-500">
           <button
             id="panel-open-2"
             class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
@@ -50,23 +51,27 @@
                 action: 'update:balance',
                 params: {},
               });
+              refreshing = true;
             }}
           >
-            <Icon name="refresh" class="h-6 w-6" />
+            <div class:animate-spin={refreshing}>
+              <Icon name="refresh" class="h-6 w-6" />
+            </div>
           </button>
         </div>
-
-        <div class="mr-4 text-gray-500">
-          <button
-            id="panel-open"
-            class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
-            on:click={() => {
-              panelOpen = document.getElementById('panel-open');
-            }}
-          >
-            <Icon name="cog" class="h-6 w-6" />
-          </button>
-        </div>
+        {#if false}
+          <div class="mr-4 text-gray-500">
+            <button
+              id="panel-open"
+              class="rounded-full p-2 hover:bg-slate-300 focus:outline-none"
+              on:click={() => {
+                panelOpen = document.getElementById('panel-open');
+              }}
+            >
+              <Icon name="cog" class="h-6 w-6" />
+            </button>
+          </div>
+        {/if}
       {/if}
     </div>
   </div>

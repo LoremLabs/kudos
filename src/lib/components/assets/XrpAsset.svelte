@@ -193,10 +193,6 @@
       </span>
     </button>
   </div>
-  <div class="m-auto -mt-8 pb-8 font-mono text-xs text-red-800">
-    {balance?.message || ' '}
-  </div>
-
   <div
     class="m-auto flex h-full w-full flex-col items-center justify-end rounded-2xl p-3"
   >
@@ -214,17 +210,19 @@
 
     <!-- send and receive buttons -->
     <div class="my-8 flex w-full flex-row items-center justify-center">
-      <button
-        class="mr-8 flex flex-col items-center justify-center"
-        on:click={() => {}}
-      >
-        <div
-          class="m-auto flex h-10 w-10 flex-col items-center justify-center rounded-full bg-slate-300 hover:bg-slate-400"
+      {#if false}
+        <button
+          class="mr-8 flex flex-col items-center justify-center"
+          on:click={() => {}}
         >
-          <Icon name="arrow-sm-right" class="h-4 w-4 -rotate-90" />
-        </div>
-        <span class="text-sm font-medium text-slate-700">Send</span>
-      </button>
+          <div
+            class="m-auto flex h-10 w-10 flex-col items-center justify-center rounded-full bg-slate-300 hover:bg-slate-400"
+          >
+            <Icon name="arrow-sm-right" class="h-4 w-4 -rotate-90" />
+          </div>
+          <span class="text-sm font-medium text-slate-700">Send</span>
+        </button>
+      {/if}
       <button
         class="flex flex-col items-center justify-center"
         on:click={() => {
@@ -238,6 +236,13 @@
         </div>
         <span class="text-sm font-medium text-slate-700">Receive</span>
       </button>
+    </div>
+    <div
+      class="flex flex-row items-center justify-center pb-8 text-center font-mono text-xs text-red-800"
+      class:invisible={balance?.message === undefined}
+      class:visible={balance?.message !== undefined}
+    >
+      <div class="">{balance?.message || ' '}</div>
     </div>
 
     <div class="invisible font-mono text-xs text-slate-500 group-hover:visible">

@@ -122,7 +122,10 @@
         break;
       case 'update:balance':
         // utilsOpen = !utilsOpen;
-        updateBalances();
+        await updateBalances();
+        setTimeout(() => {
+          refreshing = false;
+        }, 750);
         break;
       default:
         console.log('unknown action', action);
@@ -131,6 +134,7 @@
   let actionHeight = 0;
   let utilsHeight = 0;
   let utilsOpen = false;
+  let refreshing = false;
   const onCommand = () => {
     dispatch('command');
   };
@@ -146,7 +150,7 @@
     <div slot="main" class="overflow-none w-full">
       <div class="flex w-full flex-col">
         <div id="inner-action" class="mt-2" bind:clientHeight={actionHeight}>
-          <Actions on:action={onAction} bind:utilsOpen />
+          <Actions on:action={onAction} bind:utilsOpen bind:refreshing />
         </div>
         <div class="mr-3 bg-slate-50 dark:bg-slate-500">
           {#if utilsOpen}

@@ -30,36 +30,40 @@ export const convertXrpToUsd = async (xrp, noCache) => {
     });
     const data = await response.data;
     if (data.price) {
-      rate = data.price;
-      conversionRate['xrp-usd'] = {
-        rate,
+      rate = {
+        rate: data.price,
         ts,
       };
+      conversionRate['xrp-usd'] = { ...rate };
     } else {
       throw new Error('Invalid conversion data');
     }
   }
 
   // convert the xrp to usd
-  const usd = xrp * rate;
-  return { usd, xrp, rate };
+  const usd = xrp * rate.rate;
+  console.log({ xrp, rate: rate.rate, usd });
+  return { usd, xrp, rate: rate.rate };
 };
 
-export const clients = {
-  'xrpl:livenet': {
-    server: 'wss://xrplcluster.com',
-  },
-  'xrpl:testnet': {
-    server: 'wss://testnet.xrpl-labs.com',
-  },
-  'xrpl:devnet': {
-    server: 'wss://s.devnet.rippletest.net',
-  },
+export const clients = {};
+
+export const DEFAULT_SERVERS = {
+  'xrpl:livenet': 'wss://xrplcluster.com',
+  'xrpl:testnet': 'wss://testnet.xrpl-labs.com',
+  'xrpl:devnet': 'wss://s.devnet.rippletest.net',
 };
 
-export const getClient = async (clientType) => {
-  let client = clients[clientType].client;
-  const server = clients[clientType].server;
+export const getClient = async (clientType, address, endpoint) => {
+  const clientKey = `${clientType}:${address}`;
+
+  // if we don't have a client, create one
+  if (!clients[clientKey]) {
+    clients[clientKey] = {};
+  }
+
+  let client = clients[clientKey].client;
+  const server = endpoint || DEFAULT_SERVERS[clientType];
 
   // if we don't have a client, create one
   if (!client) {
@@ -70,7 +74,17 @@ export const getClient = async (clientType) => {
     }
 
     client = new xrpl.Client(server);
-    clients[clientType].client = client;
+    clients[clientKey].client = client;
+
+    // listen for errors
+    client.on('error', (err) => {
+      console.log('client error', err);
+      // if (err.message.toLowerCase().includes('disconnected') || err.message.toLowerCase().includes('reset')) {
+      //   // try to reconnect
+      //   console.log('reconnecting', clientType, address);
+      //   client.connect();
+    });
+
     await client.connect();
   }
 
@@ -83,14 +97,14 @@ export const getWallet = async (clientType) => {
 
   // create a wallet from public and private keys
   const wallet = new xrpl.Wallet(keys.publicKey, keys.privateKey);
-  return wallet;
+  return { wallet, keys };
 };
 
 export const fundViaFaucet = async (clientType) => {
   // for dev or testnet, fund the account via the faucet
   if (clientType === 'xrpl:devnet' || clientType === 'xrpl:testnet') {
-    const client = await getClient(clientType);
-    const wallet = await getWallet(clientType);
+    const { wallet, keys } = await getWallet(clientType);
+    const client = await getClient(clientType, keys.address);
     // const address = wallet.getAddress();
     // console.log({address});
     // console.log({wallet});
@@ -135,16 +149,29 @@ export const getBalancesXrpl = async (clientType, params) => {
       ledger_index: 'validated',
     });
   } catch (e) {
-    if (e.message.includes('disconnected')) {
+    if (
+      e.message.toLowerCase().includes('disconnected') ||
+      e.message.toLowerCase().includes('reset')
+    ) {
       // try to reconnect
+      console.log('reconnecting', clientType, address);
       await client.connect();
       balance = await client.request({
         command: 'account_info',
         account: address,
         ledger_index: 'validated',
       });
-    } else if (e.message.includes('not found')) {
+    } else if (e.message.toLowerCase().includes('not found')) {
       // return an empty balance
+      return {
+        asset: clientType,
+        xrp: 0,
+        xrpDrops: 0,
+        usd: 0,
+        address: address,
+        message: 'Account not found',
+      };
+    } else if (e.message.toLowerCase().includes('connection failed')) {
       return {
         asset: clientType,
         xrp: 0,
@@ -155,6 +182,7 @@ export const getBalancesXrpl = async (clientType, params) => {
       };
     } else {
       // throw e;
+      console.log('errr', e);
       return {
         asset: clientType,
         xrp: 0,
