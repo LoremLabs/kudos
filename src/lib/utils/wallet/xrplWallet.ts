@@ -55,32 +55,43 @@ export const DEFAULT_ENDPOINTS = {
 };
 
 export const getEndpoint = async (clientType) => {
-    // get the endpoint
-    const clearConfig = await clearConfigStore.init();
-
-    // TODO: should we validate the endpoint syntax, etc?
+  // get the endpoint
+  const clearConfig = await clearConfigStore.init();
+  console.log({ clearConfig });
+  // TODO: should we validate the endpoint syntax, etc?
 
   switch (clientType) {
     case 'xrpl:livenet':
-      return clearConfig?.advEndpoints?.xrplLivenetEndpoint || DEFAULT_ENDPOINTS[clientType];
+      return (
+        clearConfig?.advEndpoints?.xrplLiveNetEndpoint ||
+        DEFAULT_ENDPOINTS[clientType]
+      );
     case 'xrpl:testnet':
-      return clearConfig?.advEndpoints?.xrplTestnetEndpoint || DEFAULT_ENDPOINTS[clientType];
+      return (
+        clearConfig?.advEndpoints?.xrplTestNetEndpoint ||
+        DEFAULT_ENDPOINTS[clientType]
+      );
     case 'xrpl:devnet':
-      return clearConfig?.advEndpoints?.xrplDevNetEndpoint || DEFAULT_ENDPOINTS[clientType];
+      return (
+        clearConfig?.advEndpoints?.xrplDevNetEndpoint ||
+        DEFAULT_ENDPOINTS[clientType]
+      );
     default:
       return '';
   }
 };
-  
+
 export const getClient = async (clientType, address) => {
-  const clientKey = `${clientType}:${address}`;
+  const endpoint = await getEndpoint(clientType);
+  const clientKey = `${clientType}:${address}:${endpoint}`;
+
+  console.log({ clientKey, endpoint, address });
 
   // if we don't have a client, create one
   if (!clients[clientKey]) {
     clients[clientKey] = {};
   }
 
-  const endpoint = await getEndpoint(clientType); 
   let client = clients[clientKey].client;
 
   // if we don't have a client, create one
@@ -97,7 +108,7 @@ export const getClient = async (clientType, address) => {
     // listen for errors
     let retryCount = 0;
     client.on('error', (err) => {
-      console.log('client error', err);
+      console.log('client error', err, err.message);
       if (
         err.message.toLowerCase().includes('disconnected') ||
         err.message.toLowerCase().includes('reset') ||
@@ -135,6 +146,8 @@ export const getWallet = async (clientType) => {
 
   // create a wallet from public and private keys
   const wallet = new xrpl.Wallet(keys.publicKey, keys.privateKey);
+  console.log({ wallet, keys }, 'wallet and keys');
+
   return { wallet, keys };
 };
 
@@ -170,13 +183,13 @@ export const fundViaFaucet = async (clientType) => {
 export const getBalancesXrpl = async (clientType, params) => {
   // foreach client type, make sure we're connected and get the balance
 
-  let client = await getClient(clientType);
-
   // get the address
   const address = params.address;
   if (!address) {
     throw new Error('No address provided for ' + clientType);
   }
+
+  let client = await getClient(clientType, address);
 
   //   // get the balance
   let balance;

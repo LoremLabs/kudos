@@ -85,7 +85,7 @@
             class="h-full"
             style={`height: 100%; max-height: ${feedHeight}px !important; min-height: ${feedHeight}px`}
           >
-            Ident here todo
+            <div class="h-48 bg-red-100">Ident here todo</div>
           </div>
         </div>
       </div>
