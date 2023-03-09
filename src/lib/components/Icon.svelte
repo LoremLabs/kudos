@@ -73,6 +73,7 @@
     | 'x-circle';
 
   export type SolidIcons =
+    | 'solid/beaker'
     | 'solid/calendar'
     | 'solid/check-circle'
     | 'solid/chevron-down'

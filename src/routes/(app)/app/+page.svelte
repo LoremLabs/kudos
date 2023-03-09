@@ -112,7 +112,7 @@
 <svelte:window
   bind:innerHeight={sidebarHeight}
   on:resize={() => {
-    console.log('resizzed');
+    // console.log('resizzed');
   }}
 />
 

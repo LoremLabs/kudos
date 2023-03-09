@@ -14,14 +14,17 @@
     <span class="text-sm font-medium text-gray-900" id="{id}-switch-label"
       >{label}</span
     >
-    <span class="text-sm text-gray-500" id="{id}-switch-description"
-      >{description}</span
-    >
+    {#if description}
+      <span class="text-sm text-gray-500" id="{id}-switch-description"
+        >{description}</span
+      >
+    {/if}
+    <slot />
   </span>
   <button
     type="button"
     on:click|stopPropagation={() => (value = !value)}
-    class="focus:ring-success-500 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border border-transparent border-gray-200 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
+    class="border-1 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border border-gray-500 border-opacity-25 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
     class:bg-gray-200={!value}
     class:bg-gray-500={value}
     aria-checked={value}
@@ -56,7 +59,7 @@
         class:duration-200={value}
         aria-hidden="true"
       >
-        <Icon name="check" class="text-success-600 h-3 w-3 p-px" />
+        <Icon name="check" class="h-3 w-3 p-px text-green-600" />
       </span>
     </span>
   </button>
