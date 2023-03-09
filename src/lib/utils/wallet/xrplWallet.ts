@@ -7,8 +7,8 @@
 //   address: string;
 // };
 
-import { getKeys, walletStore } from '$lib/stores/wallet';
-
+import { clearConfigStore } from '$lib/stores/clearConfig';
+import { getKeys } from '$lib/stores/wallet';
 import { fetch as tauriFetch } from '@tauri-apps/api/http';
 
 const CONVERSION_API =
@@ -48,13 +48,31 @@ export const convertXrpToUsd = async (xrp, noCache) => {
 
 export const clients = {};
 
-export const DEFAULT_SERVERS = {
+export const DEFAULT_ENDPOINTS = {
   'xrpl:livenet': 'wss://xrplcluster.com',
   'xrpl:testnet': 'wss://testnet.xrpl-labs.com',
   'xrpl:devnet': 'wss://s.devnet.rippletest.net',
 };
 
-export const getClient = async (clientType, address, endpoint) => {
+export const getEndpoint = async (clientType) => {
+    // get the endpoint
+    const clearConfig = await clearConfigStore.init();
+
+    // TODO: should we validate the endpoint syntax, etc?
+
+  switch (clientType) {
+    case 'xrpl:livenet':
+      return clearConfig?.advEndpoints?.xrplLivenetEndpoint || DEFAULT_ENDPOINTS[clientType];
+    case 'xrpl:testnet':
+      return clearConfig?.advEndpoints?.xrplTestnetEndpoint || DEFAULT_ENDPOINTS[clientType];
+    case 'xrpl:devnet':
+      return clearConfig?.advEndpoints?.xrplDevNetEndpoint || DEFAULT_ENDPOINTS[clientType];
+    default:
+      return '';
+  }
+};
+  
+export const getClient = async (clientType, address) => {
   const clientKey = `${clientType}:${address}`;
 
   // if we don't have a client, create one
@@ -62,8 +80,8 @@ export const getClient = async (clientType, address, endpoint) => {
     clients[clientKey] = {};
   }
 
+  const endpoint = await getEndpoint(clientType); 
   let client = clients[clientKey].client;
-  const server = endpoint || DEFAULT_SERVERS[clientType];
 
   // if we don't have a client, create one
   if (!client) {
@@ -73,7 +91,7 @@ export const getClient = async (clientType, address, endpoint) => {
       xrpl = await import('xrpl');
     }
 
-    client = new xrpl.Client(server);
+    client = new xrpl.Client(endpoint);
     clients[clientKey].client = client;
 
     // listen for errors

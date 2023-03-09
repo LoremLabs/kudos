@@ -10,7 +10,7 @@
   import { clearConfigStore } from '$lib/stores/clearConfig';
   import { walletStore } from '$lib/stores/wallet.js';
   import { addToast } from '$lib/stores/toasts';
-  import { DEFAULT_SERVERS } from '$lib/utils/wallet/xrplWallet';
+  import { DEFAULT_ENDPOINTS } from '$lib/utils/wallet/xrplWallet';
 
   import { Tab, TabList, TabPanel, Tabs } from '$lib/components/Tabs';
 
@@ -78,21 +78,21 @@
           type: 'url',
           displayName: 'XRPL Devnet Endpoint',
           value: $clearConfigStore?.advEndpoints?.xrplDevNetEndpoint || '',
-          placeholder: DEFAULT_SERVERS['xrpl:devnet'],
+          placeholder: DEFAULT_ENDPOINTS['xrpl:devnet'],
         },
         {
           name: 'xrplTestNetEndpoint',
           type: 'url',
           displayName: 'XRPL Testnet Endpoint',
           value: $clearConfigStore?.advEndpoints?.xrplDevNetEndpoint || '',
-          placeholder: DEFAULT_SERVERS['xrpl:testnet'],
+          placeholder: DEFAULT_ENDPOINTS['xrpl:testnet'],
         },
         {
           name: 'xrplLiveNetEndpoint',
           type: 'url',
           displayName: 'XRPL Livenet Endpoint',
           value: $clearConfigStore?.advEndpoints?.xrplDevNetEndpoint || '',
-          placeholder: DEFAULT_SERVERS['xrpl:livenet'],
+          placeholder: DEFAULT_ENDPOINTS['xrpl:livenet'],
         },
       ],
     },
@@ -165,6 +165,24 @@
       }
       //      console.log('input', input, input.name, input.value);
       clearConfig.identity[input.name] = input.value;
+
+      clearConfigStore.save(clearConfig);
+      addToast({
+        msg: 'Saved.',
+        type: 'success',
+        duration: 2000,
+      });
+    }, 1500);
+  };
+
+  const updateAdvEndpoints = async (input) => {
+    // debounce
+    debounce(() => {
+      if (!clearConfig.advEndpoints) {
+        clearConfig.advEndpoints = {};
+      }
+      //      console.log('input', input, input.name, input.value);
+      clearConfig.advEndpoints[input.name] = input.value;
 
       clearConfigStore.save(clearConfig);
       addToast({
@@ -336,7 +354,7 @@
                   hidden={['xrplTestNetEndpoint', 'xrplDevNetEndpoint']}
                   bind:formData={formData.AdvEndpoints}
                   on:changed={async (event) => {
-                    // await updateIdentity(event.detail);
+                    await updateAdvEndpoints(event.detail);
                   }}
                 />
               </div>
@@ -424,7 +442,7 @@
                   hidden={['xrplLiveNetEndpoint']}
                   bind:formData={formData.AdvEndpoints}
                   on:changed={async (event) => {
-                    // await updateIdentity(event.detail);
+                    await updateAdvEndpoints(event.detail);
                   }}
                 />
               </div>
