@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
 
-  parser: '@typescript-eslint/parser', // Make ESLint compatible with TypeScript
+  // parser: '@typescript-eslint/parser', // Make ESLint compatible with TypeScript
   parserOptions: {
     // Enable linting rules with type information from our tsconfig
     tsconfigRootDir: __dirname,
@@ -22,7 +22,7 @@ module.exports = {
   },
 
   plugins: [],
-  extends: ['@xrplf/eslint-config/base'],
+//  extends: ['@xrplf/eslint-config/base'],
 
   rules: {
     // This creates a lot of false positives. We should turn this off in our
@@ -33,7 +33,7 @@ module.exports = {
     // all of the below are turned off for now during the migration to a
     // monorepo. They need to actually be addressed!
     // **
-    '@typescript-eslint/no-magic-numbers': 'off',
+    // '@typescript-eslint/no-magic-numbers': 'off',
     'jsdoc/require-returns': 'off',
     'jsdoc/check-param-names': 'off',
     'jsdoc/require-throws': 'off',

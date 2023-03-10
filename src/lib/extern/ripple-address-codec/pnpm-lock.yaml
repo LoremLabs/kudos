@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@types/create-hash': ^1.2.2
+  base: link:@xrplf/eslint-config/base
   base-x: 3.0.9
   buffer: ^6.0.3
   create-hash: ^1.1.2
@@ -14,6 +15,7 @@ dependencies:
 
 devDependencies:
   '@types/create-hash': 1.2.2
+  base: link:@xrplf/eslint-config/base
   typescript: 4.9.4
 
 packages:

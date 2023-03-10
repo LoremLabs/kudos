@@ -10,3 +10,4 @@ coverage
 
 # Don't lint NYC configuration
 nyc.config.js
+.
