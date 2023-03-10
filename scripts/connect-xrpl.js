@@ -1,15 +1,8 @@
 import * as bip39 from "@scure/bip39";
 import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 
-import {
-  bytesToHex,
-  concatBytes,
-  createView,
-  hexToBytes,
-  utf8ToBytes,
-} from "@noble/hashes/utils";
-
 import { HDKey } from "micro-ed25519-hdkey";
+import { bytesToHex } from "@noble/hashes/utils";
 import xrpl from "xrpl";
 
 dotenv.config();
