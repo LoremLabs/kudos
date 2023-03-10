@@ -39,7 +39,7 @@ const normalizeIdentifier = (
 
   // scope should not contain a :, but value could?
 
-    return `${scope}:${identifier}`;
+  return `${scope}:${identifier}`;
 };
 
 export { normalizeIdentifier };
