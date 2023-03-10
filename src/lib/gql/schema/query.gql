@@ -1,0 +1,18 @@
+# Request Status
+type Status {
+	# status code
+	code: Int!
+	# status message
+	message: String!
+}
+
+# temp
+type DidDocument {
+	name: String
+	age: Int
+}
+
+type Query {
+	payVia(identifier: String!): [PaymentMethod]
+	resolveDid(did: String): DidDocument
+}

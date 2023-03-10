@@ -1,0 +1,2354 @@
+"""
+ISO 639-1 Language code
+"""
+enum TargetLanguage {
+	"""
+	English
+	"""
+	EN
+
+	"""
+	Spanish
+	"""
+	ES
+
+	"""
+	French
+	"""
+	FR
+
+	"""
+	German
+	"""
+	DE
+
+	"""
+	Dutch
+	"""
+	NL
+
+	"""
+	Japanese
+	"""
+	JA
+
+	"""
+	Korean
+	"""
+	KO
+
+	"""
+	Chinese
+	"""
+	ZH
+
+	"""
+	Simplified Chinese, PRC
+	"""
+	ZH_CN
+
+	"""
+	Simplified Chinese, Singapore
+	"""
+	ZH_SG
+
+	"""
+	Traditional Chinese, Taiwan
+	"""
+	ZH_TW
+
+	"""
+	Traditional Chinese, Hongkong
+	"""
+	ZH_HK
+
+	"""
+	Russian
+	"""
+	RU
+}
+
+"""
+Geo markets (Nielsen US DMA Codes)
+"""
+enum TargetGeoMarket {
+	"""
+	500 - Portland-Auburn, ME
+	"""
+	DMA_500
+
+	"""
+	501 - New York, NY
+	"""
+	DMA_501
+
+	"""
+	502 - Binghamton, NY
+	"""
+	DMA_502
+
+	"""
+	503 - Macon, GA
+	"""
+	DMA_503
+
+	"""
+	504 - Philadelphia, PA
+	"""
+	DMA_504
+
+	"""
+	505 - Detroit, MI
+	"""
+	DMA_505
+
+	"""
+	506 - Boston, MA-Manchester, NH
+	"""
+	DMA_506
+
+	"""
+	507 - Savannah, GA
+	"""
+	DMA_507
+
+	"""
+	508 - Pittsburgh, PA
+	"""
+	DMA_508
+
+	"""
+	509 - Ft. Wayne, IN
+	"""
+	DMA_509
+
+	"""
+	510 - Cleveland-Akron (Canton), OH
+	"""
+	DMA_510
+
+	"""
+	511 - Washington, DC (Hagerstown, MD)
+	"""
+	DMA_511
+
+	"""
+	512 - Baltimore, MD
+	"""
+	DMA_512
+
+	"""
+	513 - Flint-Saginaw-Bay City, MI
+	"""
+	DMA_513
+
+	"""
+	514 - Buffalo, NY
+	"""
+	DMA_514
+
+	"""
+	515 - Cincinnati, OH
+	"""
+	DMA_515
+
+	"""
+	516 - Erie, PA
+	"""
+	DMA_516
+
+	"""
+	517 - Charlotte, NC
+	"""
+	DMA_517
+
+	"""
+	518 - Greensboro-Winston Salem, NC
+	"""
+	DMA_518
+
+	"""
+	519 - Charleston, SC
+	"""
+	DMA_519
+
+	"""
+	520 - Augusta, GA
+	"""
+	DMA_520
+
+	"""
+	521 - Providence, RI-New Bedford, MA
+	"""
+	DMA_521
+
+	"""
+	522 - Columbus, GA
+	"""
+	DMA_522
+
+	"""
+	523 - Burlington, VT-Plattsburgh, NY
+	"""
+	DMA_523
+
+	"""
+	524 - Atlanta, GA
+	"""
+	DMA_524
+
+	"""
+	525 - Albany, GA
+	"""
+	DMA_525
+
+	"""
+	526 - Utica, NY
+	"""
+	DMA_526
+
+	"""
+	527 - Indianapolis, IN
+	"""
+	DMA_527
+
+	"""
+	528 - Miami-Ft. Lauderdale, FL
+	"""
+	DMA_528
+
+	"""
+	529 - Louisville, KY
+	"""
+	DMA_529
+
+	"""
+	530 - Tallahassee, FL-Thomasville, GA
+	"""
+	DMA_530
+
+	"""
+	531 - Tri-Cities, TN-VA
+	"""
+	DMA_531
+
+	"""
+	532 - Albany-Schenectady-Troy, NY
+	"""
+	DMA_532
+
+	"""
+	533 - Hartford & New Haven, CT
+	"""
+	DMA_533
+
+	"""
+	534 - Orlando-Daytona Beach, FL
+	"""
+	DMA_534
+
+	"""
+	535 - Columbus, OH
+	"""
+	DMA_535
+
+	"""
+	536 - Youngstown, OH
+	"""
+	DMA_536
+
+	"""
+	537 - Bangor, ME
+	"""
+	DMA_537
+
+	"""
+	538 - Rochester, NY
+	"""
+	DMA_538
+
+	"""
+	539 - Tampa-St Petersburg (Sarasota), FL
+	"""
+	DMA_539
+
+	"""
+	540 - Traverse City-Cadillac, MI
+	"""
+	DMA_540
+
+	"""
+	541 - Lexington, KY
+	"""
+	DMA_541
+
+	"""
+	542 - Dayton, OH
+	"""
+	DMA_542
+
+	"""
+	543 - Springfield-Holyoke, MA
+	"""
+	DMA_543
+
+	"""
+	544 - Norfolk-Portsmouth-Newport News,VA
+	"""
+	DMA_544
+
+	"""
+	545 - Greenville-New Bern-Washington, NC
+	"""
+	DMA_545
+
+	"""
+	546 - Columbia, SC
+	"""
+	DMA_546
+
+	"""
+	547 - Toledo, OH
+	"""
+	DMA_547
+
+	"""
+	548 - West Palm Beach-Ft. Pierce, FL
+	"""
+	DMA_548
+
+	"""
+	549 - Watertown, NY
+	"""
+	DMA_549
+
+	"""
+	550 - Wilmington, NC
+	"""
+	DMA_550
+
+	"""
+	551 - Lansing, MI
+	"""
+	DMA_551
+
+	"""
+	552 - Presque Isle, ME
+	"""
+	DMA_552
+
+	"""
+	553 - Marquette, MI
+	"""
+	DMA_553
+
+	"""
+	554 - Wheeling, WV-Steubenville, OH
+	"""
+	DMA_554
+
+	"""
+	555 - Syracuse, NY
+	"""
+	DMA_555
+
+	"""
+	556 - Richmond-Petersburg, VA
+	"""
+	DMA_556
+
+	"""
+	557 - Knoxville, TN
+	"""
+	DMA_557
+
+	"""
+	558 - Lima, OH
+	"""
+	DMA_558
+
+	"""
+	559 - Bluefield-Beckley-Oak Hill, WV
+	"""
+	DMA_559
+
+	"""
+	560 - Raleigh-Durham (Fayetteville), NC
+	"""
+	DMA_560
+
+	"""
+	561 - Jacksonville, FL
+	"""
+	DMA_561
+
+	"""
+	563 - Grand Rapids-Kalamazoo, MI
+	"""
+	DMA_563
+
+	"""
+	564 - Charleston-Huntington, WV
+	"""
+	DMA_564
+
+	"""
+	565 - Elmira, NY
+	"""
+	DMA_565
+
+	"""
+	566 - Harrisburg-Lancaster-York, PA
+	"""
+	DMA_566
+
+	"""
+	567 - Greenville-Spartanburg, SC
+	"""
+	DMA_567
+
+	"""
+	569 - Harrisonburg, VA
+	"""
+	DMA_569
+
+	"""
+	570 - Florence-Myrtle Beach, SC
+	"""
+	DMA_570
+
+	"""
+	571 - Ft. Myers-Naples, FL
+	"""
+	DMA_571
+
+	"""
+	573 - Roanoke-Lynchburg, VA
+	"""
+	DMA_573
+
+	"""
+	574 - Johnstown-Altoona, PA
+	"""
+	DMA_574
+
+	"""
+	575 - Chattanooga, TN
+	"""
+	DMA_575
+
+	"""
+	576 - Salisbury, MD
+	"""
+	DMA_576
+
+	"""
+	577 - Wilkes Barre-Scranton, PA
+	"""
+	DMA_577
+
+	"""
+	581 - Terre Haute, IN
+	"""
+	DMA_581
+
+	"""
+	582 - Lafayette, IN
+	"""
+	DMA_582
+
+	"""
+	583 - Alpena, MI
+	"""
+	DMA_583
+
+	"""
+	584 - Charlottesville, VA
+	"""
+	DMA_584
+
+	"""
+	588 - South Bend-Elkhart, IN
+	"""
+	DMA_588
+
+	"""
+	592 - Gainesville, FL
+	"""
+	DMA_592
+
+	"""
+	596 - Zanesville, OH
+	"""
+	DMA_596
+
+	"""
+	597 - Parkersburg, WV
+	"""
+	DMA_597
+
+	"""
+	598 - Clarksburg-Weston, WV
+	"""
+	DMA_598
+
+	"""
+	600 - Corpus Christi, TX
+	"""
+	DMA_600
+
+	"""
+	602 - Chicago, IL
+	"""
+	DMA_602
+
+	"""
+	603 - Joplin, MO-Pittsburg, KS
+	"""
+	DMA_603
+
+	"""
+	604 - Columbia-Jefferson City, MO
+	"""
+	DMA_604
+
+	"""
+	605 - Topeka, KS
+	"""
+	DMA_605
+
+	"""
+	606 - Dothan, AL
+	"""
+	DMA_606
+
+	"""
+	609 - St. Louis, MO
+	"""
+	DMA_609
+
+	"""
+	610 - Rockford, IL
+	"""
+	DMA_610
+
+	"""
+	611 - Rochester-Austin, MN-Mason City, IA
+	"""
+	DMA_611
+
+	"""
+	612 - Shreveport, LA
+	"""
+	DMA_612
+
+	"""
+	613 - Minneapolis-St. Paul, MN
+	"""
+	DMA_613
+
+	"""
+	616 - Kansas City, MO
+	"""
+	DMA_616
+
+	"""
+	617 - Milwaukee, WI
+	"""
+	DMA_617
+
+	"""
+	618 - Houston, TX
+	"""
+	DMA_618
+
+	"""
+	619 - Springfield, MO
+	"""
+	DMA_619
+
+	"""
+	622 - New Orleans, LA
+	"""
+	DMA_622
+
+	"""
+	623 - Dallas-Ft. Worth, TX
+	"""
+	DMA_623
+
+	"""
+	624 - Sioux City, IA
+	"""
+	DMA_624
+
+	"""
+	625 - Waco-Temple-Bryan, TX
+	"""
+	DMA_625
+
+	"""
+	626 - Victoria, TX
+	"""
+	DMA_626
+
+	"""
+	627 - Wichita Falls, TX & Lawton, OK
+	"""
+	DMA_627
+
+	"""
+	628 - Monroe, LA-El Dorado, AR
+	"""
+	DMA_628
+
+	"""
+	630 - Birmingham, AL
+	"""
+	DMA_630
+
+	"""
+	631 - Ottumwa, IA-Kirksville, MO
+	"""
+	DMA_631
+
+	"""
+	632 - Paducah, KY-Harrisburg, IL
+	"""
+	DMA_632
+
+	"""
+	633 - Odessa-Midland, TX
+	"""
+	DMA_633
+
+	"""
+	634 - Amarillo, TX
+	"""
+	DMA_634
+
+	"""
+	635 - Austin, TX
+	"""
+	DMA_635
+
+	"""
+	636 - Harlingen-Weslaco-McAllen, TX
+	"""
+	DMA_636
+
+	"""
+	637 - Cedar Rapids-Waterloo-Iowa City, IA
+	"""
+	DMA_637
+
+	"""
+	638 - St. Joseph, MO
+	"""
+	DMA_638
+
+	"""
+	639 - Jackson, TN
+	"""
+	DMA_639
+
+	"""
+	640 - Memphis, TN
+	"""
+	DMA_640
+
+	"""
+	641 - San Antonio, TX
+	"""
+	DMA_641
+
+	"""
+	642 - Lafayette, LA
+	"""
+	DMA_642
+
+	"""
+	643 - Lake Charles, LA
+	"""
+	DMA_643
+
+	"""
+	644 - Alexandria, LA
+	"""
+	DMA_644
+
+	"""
+	647 - Greenwood-Greenville, MS
+	"""
+	DMA_647
+
+	"""
+	648 - Champaign & Springfield-Decatur,IL
+	"""
+	DMA_648
+
+	"""
+	649 - Evansville, IN
+	"""
+	DMA_649
+
+	"""
+	650 - Oklahoma City, OK
+	"""
+	DMA_650
+
+	"""
+	651 - Lubbock, TX
+	"""
+	DMA_651
+
+	"""
+	652 - Omaha, NE
+	"""
+	DMA_652
+
+	"""
+	656 - Panama City, FL
+	"""
+	DMA_656
+
+	"""
+	657 - Sherman, TX-Ada, OK
+	"""
+	DMA_657
+
+	"""
+	658 - Green Bay-Appleton, WI
+	"""
+	DMA_658
+
+	"""
+	659 - Nashville, TN
+	"""
+	DMA_659
+
+	"""
+	661 - San Angelo, TX
+	"""
+	DMA_661
+
+	"""
+	662 - Abilene-Sweetwater, TX
+	"""
+	DMA_662
+
+	"""
+	669 - Madison, WI
+	"""
+	DMA_669
+
+	"""
+	670 - Ft Smith-Springdale, AR
+	"""
+	DMA_670
+
+	"""
+	671 - Tulsa, OK
+	"""
+	DMA_671
+
+	"""
+	673 - Columbus-Tupelo-West Point, MS
+	"""
+	DMA_673
+
+	"""
+	675 - Peoria-Bloomington, IL
+	"""
+	DMA_675
+
+	"""
+	676 - Duluth, MN-Superior, WI
+	"""
+	DMA_676
+
+	"""
+	678 - Wichita-Hutchinson, KS
+	"""
+	DMA_678
+
+	"""
+	679 - Des Moines-Ames, IA
+	"""
+	DMA_679
+
+	"""
+	682 - Davenport,IA-Rock Island-Moline,IL
+	"""
+	DMA_682
+
+	"""
+	686 - Mobile, AL-Pensacola, FL
+	"""
+	DMA_686
+
+	"""
+	687 - Minot-Bismarck-Dickinson, ND
+	"""
+	DMA_687
+
+	"""
+	691 - Huntsville-Decatur (Florence), AL
+	"""
+	DMA_691
+
+	"""
+	692 - Beaumont-Port Arthur, TX
+	"""
+	DMA_692
+
+	"""
+	693 - Little Rock-Pine Bluff, AR
+	"""
+	DMA_693
+
+	"""
+	698 - Montgomery (Selma), AL
+	"""
+	DMA_698
+
+	"""
+	702 - La Crosse-Eau Claire, WI
+	"""
+	DMA_702
+
+	"""
+	705 - Wausau-Rhinelander, WI
+	"""
+	DMA_705
+
+	"""
+	709 - Tyler-Longview(Nacogdoches), TX
+	"""
+	DMA_709
+
+	"""
+	710 - Hattiesburg-Laurel, MS
+	"""
+	DMA_710
+
+	"""
+	711 - Meridian, MS
+	"""
+	DMA_711
+
+	"""
+	716 - Baton Rouge, LA
+	"""
+	DMA_716
+
+	"""
+	717 - Quincy, IL-Hannibal, MO-Keokuk, IA
+	"""
+	DMA_717
+
+	"""
+	718 - Jackson, MS
+	"""
+	DMA_718
+
+	"""
+	722 - Lincoln & Hastings-Kearney, NE
+	"""
+	DMA_722
+
+	"""
+	724 - Fargo-Valley City, ND
+	"""
+	DMA_724
+
+	"""
+	725 - Sioux Falls(Mitchell), SD
+	"""
+	DMA_725
+
+	"""
+	734 - Jonesboro, AR
+	"""
+	DMA_734
+
+	"""
+	736 - Bowling Green, KY
+	"""
+	DMA_736
+
+	"""
+	737 - Mankato, MN
+	"""
+	DMA_737
+
+	"""
+	740 - North Platte, NE
+	"""
+	DMA_740
+
+	"""
+	743 - Anchorage, AK
+	"""
+	DMA_743
+
+	"""
+	744 - Honolulu, HI
+	"""
+	DMA_744
+
+	"""
+	745 - Fairbanks, AK
+	"""
+	DMA_745
+
+	"""
+	746 - Biloxi-Gulfport, MS
+	"""
+	DMA_746
+
+	"""
+	747 - Juneau, AK
+	"""
+	DMA_747
+
+	"""
+	749 - Laredo, TX
+	"""
+	DMA_749
+
+	"""
+	751 - Denver, CO
+	"""
+	DMA_751
+
+	"""
+	752 - Colorado Springs-Pueblo, CO
+	"""
+	DMA_752
+
+	"""
+	753 - Phoenix, AZ
+	"""
+	DMA_753
+
+	"""
+	754 - Butte-Bozeman, MT
+	"""
+	DMA_754
+
+	"""
+	755 - Great Falls, MT
+	"""
+	DMA_755
+
+	"""
+	756 - Billings, MT
+	"""
+	DMA_756
+
+	"""
+	757 - Boise, ID
+	"""
+	DMA_757
+
+	"""
+	758 - Idaho Falls-Pocatello, ID
+	"""
+	DMA_758
+
+	"""
+	759 - Cheyenne, WY-Scottsbluff, NE
+	"""
+	DMA_759
+
+	"""
+	760 - Twin Falls, ID
+	"""
+	DMA_760
+
+	"""
+	762 - Missoula, MT
+	"""
+	DMA_762
+
+	"""
+	764 - Rapid City, SD
+	"""
+	DMA_764
+
+	"""
+	765 - El Paso, TX
+	"""
+	DMA_765
+
+	"""
+	766 - Helena, MT
+	"""
+	DMA_766
+
+	"""
+	767 - Casper-Riverton, WY
+	"""
+	DMA_767
+
+	"""
+	770 - Salt Lake City, UT
+	"""
+	DMA_770
+
+	"""
+	771 - Yuma, AZ-El Centro, CA
+	"""
+	DMA_771
+
+	"""
+	773 - Grand Junction-Montrose, CO
+	"""
+	DMA_773
+
+	"""
+	789 - Tucson (Sierra Vista), AZ
+	"""
+	DMA_789
+
+	"""
+	790 - Albuquerque-Santa Fe, NM
+	"""
+	DMA_790
+
+	"""
+	798 - Glendive, MT
+	"""
+	DMA_798
+
+	"""
+	800 - Bakersfield, CA
+	"""
+	DMA_800
+
+	"""
+	801 - Eugene, OR
+	"""
+	DMA_801
+
+	"""
+	802 - Eureka, CA
+	"""
+	DMA_802
+
+	"""
+	803 - Los Angeles, CA
+	"""
+	DMA_803
+
+	"""
+	804 - Palm Springs, CA
+	"""
+	DMA_804
+
+	"""
+	807 - San Francisco-Oakland-San Jose, CA
+	"""
+	DMA_807
+
+	"""
+	810 - Yakima-Pasco-Richland-Kennewick, WA
+	"""
+	DMA_810
+
+	"""
+	811 - Reno, NV
+	"""
+	DMA_811
+
+	"""
+	813 - Medford-Klamath Falls, OR
+	"""
+	DMA_813
+
+	"""
+	819 - Seattle-Tacoma, WA
+	"""
+	DMA_819
+
+	"""
+	820 - Portland, OR
+	"""
+	DMA_820
+
+	"""
+	821 - Bend, OR
+	"""
+	DMA_821
+
+	"""
+	825 - San Diego, CA
+	"""
+	DMA_825
+
+	"""
+	828 - Monterey-Salinas, CA
+	"""
+	DMA_828
+
+	"""
+	839 - Las Vegas, NV
+	"""
+	DMA_839
+
+	"""
+	855 - Santa Barbara-San Luis Obispo, CA
+	"""
+	DMA_855
+
+	"""
+	862 - Sacramento-Stockton-Modesto, CA
+	"""
+	DMA_862
+
+	"""
+	866 - Fresno-Visalia, CA
+	"""
+	DMA_866
+
+	"""
+	868 - Chico-Redding, CA
+	"""
+	DMA_868
+
+	"""
+	881 - Spokane, WA
+	"""
+	DMA_881
+}
+
+"""
+ISO 3166-1 alpha-2 Country Code
+"""
+enum Country {
+	"""
+	Andorra
+	"""
+	AD
+
+	"""
+	United Arab Emirates
+	"""
+	AE
+
+	"""
+	Afghanistan
+	"""
+	AF
+
+	"""
+	Antigua and Barbuda
+	"""
+	AG
+
+	"""
+	Anguilla
+	"""
+	AI
+
+	"""
+	Albania
+	"""
+	AL
+
+	"""
+	Armenia
+	"""
+	AM
+
+	"""
+	Angola
+	"""
+	AO
+
+	"""
+	Antarctica
+	"""
+	AQ
+
+	"""
+	Argentina
+	"""
+	AR
+
+	"""
+	American Samoa
+	"""
+	AS
+
+	"""
+	Austria
+	"""
+	AT
+
+	"""
+	Australia
+	"""
+	AU
+
+	"""
+	Aruba
+	"""
+	AW
+
+	"""
+	Aland Islands
+	"""
+	AX
+
+	"""
+	Azerbaijan
+	"""
+	AZ
+
+	"""
+	Bosnia and Herzegovina
+	"""
+	BA
+
+	"""
+	Barbados
+	"""
+	BB
+
+	"""
+	Bangladesh
+	"""
+	BD
+
+	"""
+	Belgium
+	"""
+	BE
+
+	"""
+	Burkina Faso
+	"""
+	BF
+
+	"""
+	Bulgaria
+	"""
+	BG
+
+	"""
+	Bahrain
+	"""
+	BH
+
+	"""
+	Burundi
+	"""
+	BI
+
+	"""
+	Benin
+	"""
+	BJ
+
+	"""
+	Saint Barthelemy
+	"""
+	BL
+
+	"""
+	Bermuda
+	"""
+	BM
+
+	"""
+	Brunei Darussalam
+	"""
+	BN
+
+	"""
+	Bolivia
+	"""
+	BO
+
+	"""
+	Brazil
+	"""
+	BR
+
+	"""
+	Bahamas
+	"""
+	BS
+
+	"""
+	Bhutan
+	"""
+	BT
+
+	"""
+	Bouvet Island
+	"""
+	BV
+
+	"""
+	Botswana
+	"""
+	BW
+
+	"""
+	Belarus
+	"""
+	BY
+
+	"""
+	Belize
+	"""
+	BZ
+
+	"""
+	Canada
+	"""
+	CA
+
+	"""
+	Cocos (Keeling) Islands
+	"""
+	CC
+
+	"""
+	Congo, the Democratic Republic of the
+	"""
+	CD
+
+	"""
+	Central African Republic
+	"""
+	CF
+
+	"""
+	Congo
+	"""
+	CG
+
+	"""
+	Switzerland
+	"""
+	CH
+
+	"""
+	Cote D'Ivoire
+	"""
+	CI
+
+	"""
+	Cook Islands
+	"""
+	CK
+
+	"""
+	Chile
+	"""
+	CL
+
+	"""
+	Cameroon
+	"""
+	CM
+
+	"""
+	China
+	"""
+	CN
+
+	"""
+	Colombia
+	"""
+	CO
+
+	"""
+	Costa Rica
+	"""
+	CR
+
+	"""
+	Cuba
+	"""
+	CU
+
+	"""
+	Cape Verde
+	"""
+	CV
+
+	"""
+	Christmas Island
+	"""
+	CX
+
+	"""
+	Cyprus
+	"""
+	CY
+
+	"""
+	Czech Republic
+	"""
+	CZ
+
+	"""
+	Germany
+	"""
+	DE
+
+	"""
+	Djibouti
+	"""
+	DJ
+
+	"""
+	Denmark
+	"""
+	DK
+
+	"""
+	Dominica
+	"""
+	DM
+
+	"""
+	Dominican Republic
+	"""
+	DO
+
+	"""
+	Algeria
+	"""
+	DZ
+
+	"""
+	Ecuador
+	"""
+	EC
+
+	"""
+	Estonia
+	"""
+	EE
+
+	"""
+	Egypt
+	"""
+	EG
+
+	"""
+	Western Sahara
+	"""
+	EH
+
+	"""
+	Eritrea
+	"""
+	ER
+
+	"""
+	Spain
+	"""
+	ES
+
+	"""
+	Ethiopia
+	"""
+	ET
+
+	"""
+	Finland
+	"""
+	FI
+
+	"""
+	Fiji
+	"""
+	FJ
+
+	"""
+	Falkland Islands (Malvinas)
+	"""
+	FK
+
+	"""
+	Micronesia, Federated States of
+	"""
+	FM
+
+	"""
+	Faroe Islands
+	"""
+	FO
+
+	"""
+	France
+	"""
+	FR
+
+	"""
+	Gabon
+	"""
+	GA
+
+	"""
+	United Kingdom
+	"""
+	GB
+
+	"""
+	Grenada
+	"""
+	GD
+
+	"""
+	Georgia
+	"""
+	GE
+
+	"""
+	French Guiana
+	"""
+	GF
+
+	"""
+	Guernsey
+	"""
+	GG
+
+	"""
+	Ghana
+	"""
+	GH
+
+	"""
+	Gibraltar
+	"""
+	GI
+
+	"""
+	Greenland
+	"""
+	GL
+
+	"""
+	Gambia
+	"""
+	GM
+
+	"""
+	Guinea
+	"""
+	GN
+
+	"""
+	Guadeloupe
+	"""
+	GP
+
+	"""
+	Equatorial Guinea
+	"""
+	GQ
+
+	"""
+	Greece
+	"""
+	GR
+
+	"""
+	South Georgia and the South Sandwich Islands
+	"""
+	GS
+
+	"""
+	Guatemala
+	"""
+	GT
+
+	"""
+	Guam
+	"""
+	GU
+
+	"""
+	Guinea-Bissau
+	"""
+	GW
+
+	"""
+	Guyana
+	"""
+	GY
+
+	"""
+	Hong Kong
+	"""
+	HK
+
+	"""
+	Heard Island and McDonald Islands
+	"""
+	HM
+
+	"""
+	Honduras
+	"""
+	HN
+
+	"""
+	Croatia
+	"""
+	HR
+
+	"""
+	Haiti
+	"""
+	HT
+
+	"""
+	Hungary
+	"""
+	HU
+
+	"""
+	Indonesia
+	"""
+	ID
+
+	"""
+	Ireland
+	"""
+	IE
+
+	"""
+	Israel
+	"""
+	IL
+
+	"""
+	Isle of Man
+	"""
+	IM
+
+	"""
+	India
+	"""
+	IN
+
+	"""
+	British Indian Ocean Territory
+	"""
+	IO
+
+	"""
+	Iraq
+	"""
+	IQ
+
+	"""
+	Iran, Islamic Republic of
+	"""
+	IR
+
+	"""
+	Iceland
+	"""
+	IS
+
+	"""
+	Italy
+	"""
+	IT
+
+	"""
+	Jersey
+	"""
+	JE
+
+	"""
+	Jamaica
+	"""
+	JM
+
+	"""
+	Jordan
+	"""
+	JO
+
+	"""
+	Japan
+	"""
+	JP
+
+	"""
+	Kenya
+	"""
+	KE
+
+	"""
+	Kyrgyzstan
+	"""
+	KG
+
+	"""
+	Cambodia
+	"""
+	KH
+
+	"""
+	Kiribati
+	"""
+	KI
+
+	"""
+	Comoros
+	"""
+	KM
+
+	"""
+	Saint Kitts and Nevis
+	"""
+	KN
+
+	"""
+	Korea, Republic of
+	"""
+	KR
+
+	"""
+	Kuwait
+	"""
+	KW
+
+	"""
+	Cayman Islands
+	"""
+	KY
+
+	"""
+	Kazakhstan
+	"""
+	KZ
+
+	"""
+	Lao People's Democratic Republic
+	"""
+	LA
+
+	"""
+	Lebanon
+	"""
+	LB
+
+	"""
+	Saint Lucia
+	"""
+	LC
+
+	"""
+	Liechtenstein
+	"""
+	LI
+
+	"""
+	Sri Lanka
+	"""
+	LK
+
+	"""
+	Liberia
+	"""
+	LR
+
+	"""
+	Lesotho
+	"""
+	LS
+
+	"""
+	Lithuania
+	"""
+	LT
+
+	"""
+	Luxembourg
+	"""
+	LU
+
+	"""
+	Latvia
+	"""
+	LV
+
+	"""
+	Libyan Arab Jamahiriya
+	"""
+	LY
+
+	"""
+	Morocco
+	"""
+	MA
+
+	"""
+	Monaco
+	"""
+	MC
+
+	"""
+	Moldova, Republic of
+	"""
+	MD
+
+	"""
+	Montenegro
+	"""
+	ME
+
+	"""
+	Saint Martin
+	"""
+	MF
+
+	"""
+	Madagascar
+	"""
+	MG
+
+	"""
+	Marshall Islands
+	"""
+	MH
+
+	"""
+	Macedonia, the Former Yugoslav Republic of
+	"""
+	MK
+
+	"""
+	Mali
+	"""
+	ML
+
+	"""
+	Myanmar
+	"""
+	MM
+
+	"""
+	Mongolia
+	"""
+	MN
+
+	"""
+	Macau
+	"""
+	MO
+
+	"""
+	Northern Mariana Islands
+	"""
+	MP
+
+	"""
+	Martinique
+	"""
+	MQ
+
+	"""
+	Mauritania
+	"""
+	MR
+
+	"""
+	Montserrat
+	"""
+	MS
+
+	"""
+	Malta
+	"""
+	MT
+
+	"""
+	Mauritius
+	"""
+	MU
+
+	"""
+	Maldives
+	"""
+	MV
+
+	"""
+	Malawi
+	"""
+	MW
+
+	"""
+	Mexico
+	"""
+	MX
+
+	"""
+	Malaysia
+	"""
+	MY
+
+	"""
+	Mozambique
+	"""
+	MZ
+
+	"""
+	Namibia
+	"""
+	NA
+
+	"""
+	New Caledonia
+	"""
+	NC
+
+	"""
+	Niger
+	"""
+	NE
+
+	"""
+	Norfolk Island
+	"""
+	NF
+
+	"""
+	Nigeria
+	"""
+	NG
+
+	"""
+	Nicaragua
+	"""
+	NI
+
+	"""
+	Netherlands
+	"""
+	NL
+
+	"""
+	Norway
+	"""
+	NO
+
+	"""
+	Nepal
+	"""
+	NP
+
+	"""
+	Nauru
+	"""
+	NR
+
+	"""
+	Niue
+	"""
+	NU
+
+	"""
+	New Zealand
+	"""
+	NZ
+
+	"""
+	Oman
+	"""
+	OM
+
+	"""
+	Panama
+	"""
+	PA
+
+	"""
+	Peru
+	"""
+	PE
+
+	"""
+	French Polynesia
+	"""
+	PF
+
+	"""
+	Papua New Guinea
+	"""
+	PG
+
+	"""
+	Philippines
+	"""
+	PH
+
+	"""
+	Pakistan
+	"""
+	PK
+
+	"""
+	Poland
+	"""
+	PL
+
+	"""
+	Saint Pierre and Miquelon
+	"""
+	PM
+
+	"""
+	Pitcairn
+	"""
+	PN
+
+	"""
+	Puerto Rico
+	"""
+	PR
+
+	"""
+	Palestinian Territory, Occupied
+	"""
+	PS
+
+	"""
+	Portugal
+	"""
+	PT
+
+	"""
+	Palau
+	"""
+	PW
+
+	"""
+	Paraguay
+	"""
+	PY
+
+	"""
+	Qatar
+	"""
+	QA
+
+	"""
+	Reunion
+	"""
+	RE
+
+	"""
+	Romania
+	"""
+	RO
+
+	"""
+	Serbia
+	"""
+	RS
+
+	"""
+	Russian Federation
+	"""
+	RU
+
+	"""
+	Rwanda
+	"""
+	RW
+
+	"""
+	Saudi Arabia
+	"""
+	SA
+
+	"""
+	Solomon Islands
+	"""
+	SB
+
+	"""
+	Seychelles
+	"""
+	SC
+
+	"""
+	Sudan
+	"""
+	SD
+
+	"""
+	Sweden
+	"""
+	SE
+
+	"""
+	Singapore
+	"""
+	SG
+
+	"""
+	Saint Helena
+	"""
+	SH
+
+	"""
+	Slovenia
+	"""
+	SI
+
+	"""
+	Svalbard and Jan Mayen
+	"""
+	SJ
+
+	"""
+	Slovakia
+	"""
+	SK
+
+	"""
+	Sierra Leone
+	"""
+	SL
+
+	"""
+	San Marino
+	"""
+	SM
+
+	"""
+	Senegal
+	"""
+	SN
+
+	"""
+	Somalia
+	"""
+	SO
+
+	"""
+	Suriname
+	"""
+	SR
+
+	"""
+	Sao Tome and Principe
+	"""
+	ST
+
+	"""
+	El Salvador
+	"""
+	SV
+
+	"""
+	Syrian Arab Republic
+	"""
+	SY
+
+	"""
+	Swaziland
+	"""
+	SZ
+
+	"""
+	Turks and Caicos Islands
+	"""
+	TC
+
+	"""
+	Chad
+	"""
+	TD
+
+	"""
+	French Southern Territories
+	"""
+	TF
+
+	"""
+	Togo
+	"""
+	TG
+
+	"""
+	Thailand
+	"""
+	TH
+
+	"""
+	Tajikistan
+	"""
+	TJ
+
+	"""
+	Tokelau
+	"""
+	TK
+
+	"""
+	Timor-Leste
+	"""
+	TL
+
+	"""
+	Turkmenistan
+	"""
+	TM
+
+	"""
+	Tunisia
+	"""
+	TN
+
+	"""
+	Tonga
+	"""
+	TO
+
+	"""
+	Turkey
+	"""
+	TR
+
+	"""
+	Trinidad and Tobago
+	"""
+	TT
+
+	"""
+	Tuvalu
+	"""
+	TV
+
+	"""
+	Taiwan, Province of China
+	"""
+	TW
+
+	"""
+	Tanzania, United Republic of
+	"""
+	TZ
+
+	"""
+	Ukraine
+	"""
+	UA
+
+	"""
+	Uganda
+	"""
+	UG
+
+	"""
+	United States Minor Outlying Islands
+	"""
+	UM
+
+	"""
+	United States
+	"""
+	US
+
+	"""
+	Uruguay
+	"""
+	UY
+
+	"""
+	Uzbekistan
+	"""
+	UZ
+
+	"""
+	Holy See (Vatican City State)
+	"""
+	VA
+
+	"""
+	Saint Vincent and the Grenadines
+	"""
+	VC
+
+	"""
+	Venezuela
+	"""
+	VE
+
+	"""
+	Virgin Islands, British
+	"""
+	VG
+
+	"""
+	Virgin Islands, U.S.
+	"""
+	VI
+
+	"""
+	Viet Nam
+	"""
+	VN
+
+	"""
+	Vanuatu
+	"""
+	VU
+
+	"""
+	Wallis and Futuna
+	"""
+	WF
+
+	"""
+	Samoa
+	"""
+	WS
+
+	"""
+	Yemen
+	"""
+	YE
+
+	"""
+	Mayotte
+	"""
+	YT
+
+	"""
+	South Africa
+	"""
+	ZA
+
+	"""
+	Zambia
+	"""
+	ZM
+
+	"""
+	Zimbabwe
+	"""
+	ZW
+
+	"""
+	Unknown
+	"""
+	ZZ
+}
