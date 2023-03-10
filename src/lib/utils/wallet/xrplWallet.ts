@@ -233,7 +233,7 @@ export const getBalancesXrpl = async (clientType, params) => {
       };
     } else {
       // throw e;
-      console.log('errr', e);
+      console.log('errr!', e, e.message);
       return {
         asset: clientType,
         xrp: 0,
