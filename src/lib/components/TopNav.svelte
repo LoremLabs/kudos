@@ -3,7 +3,6 @@
 
   import { browser } from '$app/environment';
 
-  import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import {
     eventsStore,

@@ -195,7 +195,7 @@
 
   onMount(async () => {
     clearConfig = await clearConfigStore.init();
-    formData.Identity = { ...clearConfig.identity };
+    formData.Identity = { ...DEFAULT_IDENTITY, ...clearConfig.identity };
     formData.AdvEndpoints = { ...clearConfig.advEndpoints };
     walletStore.subscribe((wallet) => {
       if (wallet) {
@@ -204,7 +204,7 @@
     });
     clearConfigStore.subscribe((config) => {
       clearConfig = config;
-      formData.Identity = { ...clearConfig.identity };
+      formData.Identity = { ...DEFAULT_IDENTITY, ...clearConfig.identity };
       formData.AdvEndpoints = { ...clearConfig.advEndpoints };
     });
   });

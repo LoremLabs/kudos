@@ -8,7 +8,7 @@
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
 
-  import { getConfig } from '$lib/utils/config';
+  // import { getConfig } from '$lib/utils/config';
   import { walletStore } from '$lib/stores/wallet';
   import { addEvents, addEphemeralEvent } from '$lib/events/db';
   import {

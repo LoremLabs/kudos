@@ -4,11 +4,11 @@ import {
   isSwitchingPersonasStore,
 } from '$lib/stores/persona';
 import { createOrReadSeed, deriveKeys } from '$lib/utils/keys-manager';
-import { getConfig, getSalt } from '$lib/utils/config';
 
 import { asyncDerived } from '@square/svelte-store';
-import { derived } from 'svelte/store';
+// import { derived } from 'svelte/store';
 import { getBalancesXrpl } from '$lib/utils/wallet/xrplWallet';
+import { getSalt } from '$lib/utils/config';
 
 // import { invoke } from '@tauri-apps/api/tauri';
 
@@ -48,10 +48,10 @@ export const walletStore = asyncDerived(
     if (data.id !== $activePersona.id) {
       isSwitchingPersonasStore.set(true);
       // console.log('regen keys');
-      const config = await getConfig(true); // using cache
+      // const config = await getConfig(true); // using cache
       const salt = await getSalt(true); // using cache
 
-      data.passPhrase = config.passPhrase; // NB: not currently used
+      data.passPhrase = ''; // config.passPhrase; // NB: not currently used
       data.salt = salt;
 
       let id = $activePersona.id;

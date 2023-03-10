@@ -8,7 +8,7 @@
   const { registerTab, selectTab, selectedTab } = getContext<TabsContext>(TABS);
 
   export let id: string;
-  export let skip: boolean = false;
+  export let skip = false;
   export { klass as class };
   let klass = '';
 

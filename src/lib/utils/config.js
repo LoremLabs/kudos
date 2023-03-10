@@ -1,6 +1,8 @@
+// import { appConfigDir } from '@tauri-apps/api/path';
 import { invoke } from '@tauri-apps/api/tauri';
+// import toml from '@iarna/toml';
 
-let configCache = null;
+// let configCache = null;
 let saltCache = null;
 
 export const getSalt = async (useCache) => {
@@ -20,34 +22,50 @@ export const getSalt = async (useCache) => {
   return salt;
 };
 
-export const getConfig = async (useCache) => {
-  if (useCache && configCache) {
-    return configCache;
-  }
+// export const readConfig = async (useCache) => {
+//   if (useCache && configCache) {
+//     return configCache;
+//   }
 
-  let config = {};
-  try {
-    const configJson = await invoke('get_config');
-    // console.log('configJson', configJson);
-    config = JSON.parse(configJson);
-    configCache = config;
-  } catch (e) {
-    console.log('error getting config', e);
-  }
-  return config;
-};
+//   let config = {};
+//   try {
+//     // get config from env-paths.config
+//     // parse as toml
+//     const configPath = await appConfigDir();
+//     const configToml = await fs.readFileSync(configPath, 'utf8');
+//     config = toml.parse(configToml);
+//     console.log({fromFile: config, paths});
+//   } catch (e) {
+//     console.log('error reading config', e);
+//   }
+//   return config;
+// };
 
 export const setConfig = async (/** @type {Object} */ config) => {
-  const configJson = JSON.stringify(config || {});
-  // console.log('setConfig', configJson);
-  let ok = false;
-  try {
-    // @ts-ignore
-    ok = await invoke('set_config', { configJson });
-    // console.log({ ok });
-  } catch (e) {
-    console.log('error setting config', e);
-  }
+  console.log('deprecated setconfig');
+  // let ok = false;
+  // try {
+  //   // get config from env-paths.config
+  //   // parse as toml
+  //   const paths = envPaths('setler');
+  //   const configToml = toml.stringify(config);
+  //   await fs.writeFileSync(paths.config, configToml, 'utf8');
+  //   ok = true;
+  // } catch (e) {
+  //   console.log('error saving config', e);
+  // }
+  // return ok;
+};
 
-  return ok;
+export const getConfig = async (useCache) => {
+  console.log('deprecated getConfig');
+  // let config = {};
+  // try {
+  //   // const configJson = await invoke('get_config');
+  //   config = await readConfig(useCache);
+  //   configCache = config;
+  // } catch (e) {
+  //   console.log('error getting config', e);
+  // }
+  // return config;
 };

@@ -16,7 +16,7 @@ const CONVERSION_API =
 const CONVERSION_CACHE_MS = 1000 * 60 * 5; // 5 minutes
 
 let xrpl;
-let conversionRate = {};
+const conversionRate = {};
 
 export const convertXrpToUsd = async (xrp, noCache) => {
   // get the conversion rate
@@ -189,7 +189,7 @@ export const getBalancesXrpl = async (clientType, params) => {
     throw new Error('No address provided for ' + clientType);
   }
 
-  let client = await getClient(clientType, address);
+  const client = await getClient(clientType, address);
 
   //   // get the balance
   let balance;

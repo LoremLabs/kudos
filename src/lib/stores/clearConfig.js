@@ -1,17 +1,25 @@
+import { appConfigDir, appLocalDataDir } from '@tauri-apps/api/path';
 import { createDir, exists, readTextFile, writeFile } from '@tauri-apps/api/fs';
 
-import { appLocalDataDir } from '@tauri-apps/api/path';
-// import { invoke } from '@tauri-apps/api/tauri';
+import { addToast } from '$lib/stores/toasts';
+import toml from '@iarna/toml';
 import { writable } from 'svelte/store';
+
+// import { invoke } from '@tauri-apps/api/tauri';
 
 let initDone = false;
 
 export const defaultClearConfig = {
   _init: false,
-  personas: [{ id: 0, name: 'Persona 1' }],
   identity: {
     identResolver: 'https://graph.ident.agency',
   },
+  networks: {
+    'xrpl:livenet': true,
+    'xrpl:testnet': true,
+    'xrpl:devnet': false,
+  },
+  personas: [{ id: 0, name: 'Persona 1' }],
 };
 
 export const createClearConfigStore = () => {
@@ -27,18 +35,27 @@ export const createClearConfigStore = () => {
     }
   ) => {
     try {
-      const baseDir = await appLocalDataDir();
-      await createDir(`${baseDir}config`, {
+      const baseDir = await appConfigDir();
+      //      const baseDir = await appLocalDataDir();
+      console.log({ baseDir });
+      await createDir(`${baseDir}`, {
         // dir: baseDir,
         recursive: true,
       });
 
-      const fullPath = `${baseDir}config/clear.json`;
-      await writeFile({ contents: JSON.stringify(newData), path: fullPath });
+      const fullPath = `${baseDir}/config.toml`;
+      console.log({ fullPath, newData });
+      const contents = toml.stringify(newData);
+
+      await writeFile({ contents, path: fullPath });
     } catch (e) {
       console.log('error saving clear config', e);
-      // TODO: should this be a bigger error?
-      alert('Error: CLEAR_CONFIG_SAVE');
+      addToast({
+        msg: 'Error saving config',
+        type: 'error',
+        duration: 5000,
+      });
+      return;
     }
 
     set(newData);
@@ -46,26 +63,29 @@ export const createClearConfigStore = () => {
 
   const init = async () => {
     if (initDone) {
-      // console.log('using cached init config');
+      console.log('using cached init config');
       return clearConfig;
     }
+    const baseDir = await appLocalDataDir();
+    console.log({ baseDir });
+
     try {
-      const baseDir = await appLocalDataDir();
-      await createDir(`${baseDir}config`, {
+      await createDir(`${baseDir}`, {
         // dir: baseDir,
         recursive: true,
       });
 
-      const fullPath = `${baseDir}config/clear.json`;
+      const fullPath = `${baseDir}/config.toml`;
 
       // read clear config file
       try {
         const fileFound = await exists(fullPath);
+        console.log({ fileFound });
         if (fileFound) {
           // console.log('config exists');
 
-          const configJsonData = await readTextFile(fullPath);
-          clearConfig = JSON.parse(configJsonData);
+          const configTomlData = await readTextFile(fullPath);
+          clearConfig = toml.parse(configTomlData);
         } else {
           throw new Error('File not found');
         }
@@ -74,7 +94,7 @@ export const createClearConfigStore = () => {
           console.log('No clear config yet. Creating new one', err);
 
           try {
-            await writeFile({ contents: JSON.stringify({}), path: fullPath });
+            await writeFile({ contents: toml.stringify({}), path: fullPath });
           } catch (ee) {
             console.log('error writing clear config file', ee);
           }
@@ -83,7 +103,13 @@ export const createClearConfigStore = () => {
         }
       }
     } catch (e) {
-      console.log('error getting clear config', e);
+      console.log('Error getting clear config', e, e.message);
+      addToast({
+        msg: 'Error getting config',
+        type: 'error',
+        duration: 5000,
+      });
+      return;
     }
 
     clearConfig._init = true; // allow derived stores to know when init is done
@@ -97,7 +123,7 @@ export const createClearConfigStore = () => {
   };
 
   // TODO: race condition
-  init();
+  // init();
 
   return {
     addPersona: async ({ name = 'Persona' }) => {

@@ -71,7 +71,7 @@ export const renderMessage = (msg) => {
   msg = msg.replace(/:\/\//g, ':face-with-rolling-eyes:');
 
   // see if we have the :format: for the emoji
-  let emojiMatches = msg.match(/:([a-z0-9_+-]+):/g);
+  const emojiMatches = msg.match(/:([a-z0-9_+-]+):/g);
 
   if (emojiMatches) {
     emojiMatches.forEach((emoji) => {
