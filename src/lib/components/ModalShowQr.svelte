@@ -29,7 +29,7 @@
     setValueFromForm();
   });
 
-  let modalDone = (fd: {}) => {};
+  let modalDone = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
   export let done = new Promise((resolve) => {
     modalDone = resolve;
   });

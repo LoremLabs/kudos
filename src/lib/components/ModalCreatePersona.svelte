@@ -18,7 +18,7 @@
   export let confirmActive = true;
   export let cancelActive = false;
 
-  let modalDone = (fd: {}) => {
+  let modalDone = (fd: unknown) => {
     console.log({ fd });
   };
   export let done = new Promise((resolve) => {

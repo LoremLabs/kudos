@@ -4,8 +4,8 @@
 
   import jazzicon from '@metamask/jazzicon';
 
-  export let address: string = '0x00';
-  export let diameter: number = 30;
+  export let address = '0x00';
+  export let diameter = 30;
   export let style = '';
   export { klass as class };
   let klass = 'w-full h-full';

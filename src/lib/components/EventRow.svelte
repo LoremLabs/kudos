@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  // import { onMount } from 'svelte';
 
   import DefaultEventRow from '$lib/components/events/DefaultEventRow.svelte';
   import ChatEventRow from '$lib/components/events/ChatEventRow.svelte';
@@ -11,7 +11,7 @@
   export let allowDetails = false;
   export let opened = false;
 
-  onMount(() => {});
+  // onMount(() => {});
 </script>
 
 <div class="relative ml-2">

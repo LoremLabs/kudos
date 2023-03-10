@@ -4,15 +4,15 @@
   export let msg: string;
   export let type = 'success';
   export let noClose = false;
-  export { klass as class };
-  let klass = '';
+  // export { klass as class };
+  // let klass = '';
 
   let show = true;
   function close() {
     show = false;
     onClose();
   }
-  export let onClose = () => {};
+  export let onClose = () => {}; // eslint-disable-line @typescript-eslint/no-empty-function
 </script>
 
 {#if show}
