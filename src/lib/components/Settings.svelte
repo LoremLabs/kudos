@@ -197,6 +197,11 @@
     clearConfig = await clearConfigStore.init();
     formData.Identity = { ...clearConfig.identity };
     formData.AdvEndpoints = { ...clearConfig.advEndpoints };
+    walletStore.subscribe((wallet) => {
+      if (wallet) {
+        forms.General.inputs[0].value = wallet.mnemonic;
+      }
+    });
     clearConfigStore.subscribe((config) => {
       clearConfig = config;
       formData.Identity = { ...clearConfig.identity };
