@@ -1,0 +1,14 @@
+# Kudos to our creators:
+context: 
+  description: Example Kudos File. Add Description here.
+creators:
+  # everything in a single creator map is treated as being about the same entity
+  - email: mankins@gmail.com
+    name: Matt Mankins
+    github.username: mankins
+    github.url: https://github.com/mankins
+    reddit.username: mankins
+    twitter.username: mankins
+  - email: matt@loremlabs.com
+    company: Lorem Industries
+    # the creator entity here is Lorem Industries, not the individual
