@@ -7,12 +7,16 @@ import { encryptAES } from "./encryptSeedAES.js";
 import envPaths from "env-paths";
 import fs from "fs";
 import { generateMnemonic } from "./generateMnemonic.js";
+import { initConfig } from "../config.js";
 import keytar from "keytar";
 import prompts from "prompts";
 
 const log = console.log;
 
 export const gatekeep = async (context, shouldCreate) => {
+  // check to see if we have a config file and load it
+  context.config = context.config || initConfig();
+
   let profile = context.flags.profile || process.env.SETLER_PROFILE || 0; // this is the branch in the HD wallet, default to 0
   context.profile = profile;
   context.passPhrase =
