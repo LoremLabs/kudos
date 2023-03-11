@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import chalk from "chalk";
 import crypto from "node:crypto";
 import { decryptAES } from "../lib/wallet/decryptSeedAES.js";
+import { deriveKeys } from "../lib/wallet/keys.js";
+import { encryptAES } from "../lib/wallet/encryptSeedAES.js";
 import envPaths from "env-paths";
 import fs from "fs";
 import { generateMnemonic } from "../lib/wallet/generateMnemonic.js";
@@ -11,24 +13,31 @@ import prompts from "prompts";
 const log = console.log;
 
 // should exit if password is invalid
-const gatekeep = async (context) => {
+const gatekeep = async (context, shouldCreate) => {
   let profile = context.flags.profile || process.env.SETLER_PROFILE || 0;
+  context.profile = profile;
+  context.passPhrase =
+    context.flags.passPhrase || process.env.SETLER_PASSPHRASE || "";
 
   let scope = context.flags.scope || process.env.SETLER_SCOPE || "";
+  context.scope = `${scope}`;
   // add a : to the end of scope if it's not already there to make the code easier
-  if (scope.length && scope.slice(-1) !== ':') {
+  if (scope.length && scope.slice(-1) !== ":") {
     scope = `${scope}:`;
   }
 
   // see if we have a pw as a flag or process.env
-  let userPw = context.flags.password || process.env.SETLER_PW; // TODO: not a good idea?
+  let userPw = context.flags.password || process.env.SETLER_PASSWORD; // TODO: not a good idea?
 
   let isNewUser = false;
 
   // unlock the vault
   let hash = await keytar.getPassword("Setler", `${scope}pass`);
   if (!hash) {
-    log(chalk.red(`No password found`));
+    if (!shouldCreate) {
+      log(chalk.red(`No password found. Try wallet init`));
+      process.exit(1);
+    }
 
     // prompt to set one
     const response = await prompts([
@@ -51,14 +60,32 @@ const gatekeep = async (context) => {
           message: `Setler Password: `,
           initial: false,
         },
+        {
+          type: "password",
+          name: "password2",
+          message: `Confirm Password: `,
+          initial: false,
+        },
       ]);
-      if (response && response.password) {
+      if (
+        response &&
+        response.password &&
+        response.password === response.password2
+      ) {
         const bcrypted = await bcrypt.hash(response.password, 12);
         await keytar.setPassword("Setler", `${scope}pass`, bcrypted);
         log(chalk.green(`Password set`));
         hash = await keytar.getPassword("Setler", `${scope}pass`);
+      } else if (response.password !== response.password2) {
+        log(chalk.red(`Passwords do not match`));
+        process.exit(1);
       }
     }
+  }
+
+  if (!hash) {
+    log(chalk.red(`Password required`));
+    process.exit(1);
   }
 
   if (!userPw) {
@@ -85,11 +112,11 @@ const gatekeep = async (context) => {
   }
 
   // if password is valid, we should continue, reading the salt
-  let salt = await keytar.getPassword("Setler", `${scope}salt`); 
+  let salt = await keytar.getPassword("Setler", `${scope}salt`);
   if (!salt && !isNewUser) {
     log(chalk.red(`No salt found`));
     process.exit(1);
-  } else if (!salt && isNewUser) {
+  } else if (!salt && isNewUser && shouldCreate) {
     // if we are a new user, we should set a salt
     // salt = generate 32 bytes of random data, then hex encode them
     // and store them in the keychain
@@ -110,7 +137,10 @@ const gatekeep = async (context) => {
   const seedFile = `${configDir}/state/setlr-${scope}${profile}.seed`;
 
   const createSeed = async () => {
-    log(chalk.red(`No seed found for ${scope}${profile}`));
+    if (!shouldCreate) {
+      log(chalk.red(`No seed found for ${scope}${profile}`));
+      process.exit(1);
+    }
     // ask user if we should create it.
     const response = await prompts([
       {
@@ -126,31 +156,89 @@ const gatekeep = async (context) => {
 
     // create a seed
     const mnemonic = generateMnemonic();
-    log(`Seed created for ${scope}${profile}: ${mnemonic}`);
+    // log(`Seed created for ${scope}${profile}: ${mnemonic}`);
+
+    // write seed file
+    const encrypted = encryptAES(mnemonic, salt);
+    fs.writeFileSync(seedFile, encrypted, "utf8");
+    // log(chalk.green(`Seed file created for ${scope}${profile}`));
+
+    if (context.flags.discloseMnemonic || shouldCreate) {
+      log(`Write down your mnemonic phrase:`);
+      log(chalk.bold(mnemonic));
+    }
+
+    return mnemonic;
   };
 
-  log(`Looking for seed file: ${seedFile}`);
+  let mnemonic = "";
+  // log(`Looking for seed file: ${seedFile}`);
   if (fs.existsSync(seedFile)) {
     const data = fs.readFileSync(seedFile, "utf8");
-    log(`Seed found for ${profile}: ${data} salt: ${salt}`);
+    // log(`Seed found for ${profile}: ${data} salt: ${salt}`);
     if (data) {
       // we'll read it in and decrypt it.
-      const mnemonic = decryptAES(data, salt);
+      mnemonic = decryptAES(data, salt);
       if (!mnemonic) {
         log(chalk.red(`Unable to decrypt seed for Profile ${profile}`));
         process.exit(1);
       }
-      log(`Seed found for ${profile}: ${mnemonic}`);
+      // log(`Seed found for ${profile}: ${mnemonic}`);
     } else {
-      await createSeed();
+      mnemonic = await createSeed();
     }
   } else {
-    await createSeed();
+    mnemonic = await createSeed();
   }
+
+  // if we have a mneumonic, we should continue
+  context.mnemonic = mnemonic;
+};
+
+const getKeys = async (context) => {
+  let keys = await deriveKeys({
+    mnemonic: context.mnemonic,
+    passPhrase: context.passPhrase,
+    id: context.profile,
+  });
+  return keys;
 };
 
 const exec = async (context) => {
-  await gatekeep(context);
+  // switch based on the subcommand
+  switch (context.input[1]) {
+    case "init":
+      await gatekeep(context, true);
+      break;
+    case "keys":
+      await gatekeep(context);
+
+      context.keys = await getKeys(context);
+      log(`keys: ${JSON.stringify(context.keys, null, "  ")}`);
+      break;
+    case "mnemonic":
+      await gatekeep(context);
+
+      if (!context.flags.yes) {
+        // ask if we should print the mnemonic
+        const response = await prompts([
+          {
+            type: "confirm",
+            name: "ok",
+            message: `Would you like to disclose your mnemonic phrase?`,
+            initial: false,
+          },
+        ]);
+        if (!response.ok) {
+          process.exit(1);
+        }
+      }
+      log(chalk.bold(context.mnemonic));
+      break;
+    default:
+      log(chalk.red(`Unknown command: ${context.input[1]}`));
+      process.exit(1);
+  }
 };
 
 export { exec };

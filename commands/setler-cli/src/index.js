@@ -3,7 +3,8 @@ import * as actions from "./actions/index.js"; // add new top level actions here
 import { setContextFunctions, setFlagDefaults } from "./lib/env.js";
 
 import chalk from "chalk";
-import getStdin from "get-stdin";
+
+// import getStdin from "get-stdin";
 
 const log = console.log;
 

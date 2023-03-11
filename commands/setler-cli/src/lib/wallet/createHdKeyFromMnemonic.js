@@ -1,12 +1,9 @@
 import * as bip39 from "@scure/bip39";
 
 import { HDKey } from "micro-ed25519-hdkey";
-import { wordlist as wordlistEnglish } from "@scure/bip39/wordlists/english";
+import { wordlist as wordlistEnglish } from "@scure/bip39/wordlists/english.js";
 
-export const createHdKeyFromMnemonic = (
-  mnemonicSeedphrase: string,
-  passPhrase: string
-) => {
+export const createHdKeyFromMnemonic = (mnemonicSeedphrase, passPhrase) => {
   const masterSeed = bip39.mnemonicToSeedSync(mnemonicSeedphrase, passPhrase);
 
   // See: https://github.com/paulmillr/micro-ed25519-hdkey
