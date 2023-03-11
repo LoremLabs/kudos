@@ -236,6 +236,22 @@ const exec = async (context) => {
       log(chalk.bold(context.mnemonic));
       break;
     default:
+      if (!context.input[1]) {
+        // give help with available subcommands and flags
+        log("Usage: setler wallet [command] [options]");
+        log("");
+        log("Commands:");
+        log("  init");
+        log("  keys");
+        log("  mnemonic");
+        log("");
+        log("Options:");
+        log("  --yes");
+        log("  --profile, -p");
+
+        process.exit(1);
+      }
+
       log(chalk.red(`Unknown command: ${context.input[1]}`));
       process.exit(1);
   }
