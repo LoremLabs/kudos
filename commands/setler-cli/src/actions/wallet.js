@@ -14,7 +14,11 @@ const log = console.log;
 const gatekeep = async (context) => {
   let profile = context.flags.profile || process.env.SETLER_PROFILE || 0;
 
-  let user = context.flags.user || process.env.SETLER_USER || process.env.USER; // whoami
+  let scope = context.flags.scope || process.env.SETLER_SCOPE || "";
+  // add a : to the end of scope if it's not already there to make the code easier
+  if (scope.length && scope.slice(-1) !== ':') {
+    scope = `${scope}:`;
+  }
 
   // see if we have a pw as a flag or process.env
   let userPw = context.flags.password || process.env.SETLER_PW; // TODO: not a good idea?
@@ -22,16 +26,16 @@ const gatekeep = async (context) => {
   let isNewUser = false;
 
   // unlock the vault
-  let hash = await keytar.getPassword("Setler", `${user}:pass`);
+  let hash = await keytar.getPassword("Setler", `${scope}pass`);
   if (!hash) {
-    log(chalk.red(`No password found for ${user}`));
+    log(chalk.red(`No password found`));
 
     // prompt to set one
     const response = await prompts([
       {
         type: "confirm",
         name: "ok",
-        message: `Would you like to set a password for ${user}?`,
+        message: `A password is required to continue. Set ${scope} password?`,
         initial: false,
       },
     ]);
@@ -50,9 +54,9 @@ const gatekeep = async (context) => {
       ]);
       if (response && response.password) {
         const bcrypted = await bcrypt.hash(response.password, 12);
-        await keytar.setPassword("Setler", `${user}:pass`, bcrypted);
-        log(chalk.green(`Password set for ${user}`));
-        hash = await keytar.getPassword("Setler", `${user}:pass`);
+        await keytar.setPassword("Setler", `${scope}pass`, bcrypted);
+        log(chalk.green(`Password set`));
+        hash = await keytar.getPassword("Setler", `${scope}pass`);
       }
     }
   }
@@ -81,9 +85,9 @@ const gatekeep = async (context) => {
   }
 
   // if password is valid, we should continue, reading the salt
-  let salt = await keytar.getPassword("Setler", `salt`); // TODO: should scope?
+  let salt = await keytar.getPassword("Setler", `${scope}salt`); 
   if (!salt && !isNewUser) {
-    log(chalk.red(`No salt found for ${user}`));
+    log(chalk.red(`No salt found`));
     process.exit(1);
   } else if (!salt && isNewUser) {
     // if we are a new user, we should set a salt
@@ -93,7 +97,7 @@ const gatekeep = async (context) => {
     const randomBytes = await crypto.getRandomValues(new Uint8Array(32));
     salt = Buffer.from(randomBytes).toString("hex");
 
-    await keytar.setPassword("Setler", `${user}`, salt);
+    await keytar.setPassword("Setler", `${scope}salt`, salt);
     // log(chalk.green(`Salt set for ${user} ${salt}`));
   }
 
@@ -103,16 +107,16 @@ const gatekeep = async (context) => {
     suffix: "",
   }).data;
   // log(`Looking for: ${JSON.stringify(envPaths("setler"))}`);
-  const seedFile = `${configDir}/state/setlr-${profile}.seed`;
+  const seedFile = `${configDir}/state/setlr-${scope}${profile}.seed`;
 
   const createSeed = async () => {
-    log(chalk.red(`No seed found for ${profile}`));
+    log(chalk.red(`No seed found for ${scope}${profile}`));
     // ask user if we should create it.
     const response = await prompts([
       {
         type: "confirm",
         name: "ok",
-        message: `Would you like to create a seed for Profile ${profile}?`,
+        message: `Would you like to create a seed for Profile ${scope}${profile}?`,
         initial: false,
       },
     ]);
@@ -122,7 +126,7 @@ const gatekeep = async (context) => {
 
     // create a seed
     const mnemonic = generateMnemonic();
-    log(`Seed created for ${profile}: ${mnemonic}`);
+    log(`Seed created for ${scope}${profile}: ${mnemonic}`);
   };
 
   log(`Looking for seed file: ${seedFile}`);
