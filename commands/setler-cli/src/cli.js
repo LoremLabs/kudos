@@ -33,12 +33,19 @@ const defaultHelp = `
     Examples
     $ ${personality}
 
-    Install
-    % ${personality} enable --all
-    % ${personality} init [--dbDir=.]
-
     Run Commands
-    $ ${personality} echo    
+    $ ${personality} help
+    $ ${personality} help [command]
+
+    $ ${personality} wallet
+    $ ${personality} wallet help
+    $ ${personality} wallet help [command]
+    $ ${personality} wallet init --profile [profile] --scope [scope]
+    $ ${personality} wallet keys
+    $ ${personality} wallet mnemonic 
+    $ ${personality} wallet mnemonic set
+    $ ${personality} wallet mnemonic get
+
 `;
 
 const cli = meow(defaultHelp, {
