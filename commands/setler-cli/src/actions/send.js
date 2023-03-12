@@ -215,23 +215,39 @@ const exec = async (context) => {
         if (types.did) {
           // expand this address
           const did = address.address;
-          log(`send: expanding did ${did} ...`);
-
-          // log (`send: identResolver: ${JSON.stringify(context.config.identity?.identResolver)}`);
-
+          const identResolver =
+            context.flags.identResolver ||
+            context.config.identity?.identResolver;
           const expanded = await expandDid({
             did,
-            identResolver: context.config.identity?.identResolver,
+            identResolver,
             network,
           });
           // loop through expanded see if any are xrpl addresses with our network
-          log(`send: expanded did ${did} to ${JSON.stringify(expanded)}`);
+          if (context.flags.verbose) {
+            log(`send: expanded did ${did} to ${JSON.stringify(expanded)}`);
+          }
 
           if (!expanded) {
             // ask if we should create an escrow payment
-
-            log(chalk.red(`send: could not expand did ${did}`));
-            process.exit(1);
+            const confirm4 = await prompts([
+              {
+                type: "confirm",
+                name: "ok",
+                message: `No xrpl address found for did ${did}, create escrow payment via ${identResolver}?`,
+                initial: false,
+              },
+            ]);
+            if (!confirm4.ok) {
+              log(
+                chalk.red(
+                  `send: could not expand did ${did}. Remove from list and try again.`
+                )
+              );
+              process.exit(1);
+            }
+            // mark this address as an escrow
+            weightedAddresses[i].escrow = true;
           }
           weightedAddresses[i].expandedAddress = expanded;
         } else if (types.xrpl) {
@@ -243,12 +259,35 @@ const exec = async (context) => {
       }
 
       // see how much we have in this account, to verify it's enough to cover the transaction?
-
+      const accountInfo = await context.coins.getAccountInfo({
+        network,
+        sourceAddress,
+      });
+      const balance = accountInfo?.xrpDrops;
+      if (!balance) {
+        log(chalk.red(`send: could not get balance for ${sourceAddress}`), {
+          balance,
+          accountInfo,
+        });
+        process.exit(1);
+      }
+      const balanceXrp = parseFloat(balance) / 1000000;
+      if (balanceXrp < amountXrp) {
+        log(
+          chalk.red(
+            `send: not enough balance in ${sourceAddress} to send ${amountXrp} XRP`
+          )
+        );
+        process.exit(1);
+      }
+      log(`send: ${sourceAddress} has ${balanceXrp} XRP`);
       log(
         `send: sending to ${addresses.length} addresses: ${addresses.join(
           ", "
         )}`
       );
+
+      context.coins.disconnect();
       break;
     }
     case "help": {

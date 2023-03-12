@@ -1,3 +1,4 @@
+import { Coins } from "../coins.js";
 import { Vault } from "../vault.js";
 import bcrypt from "bcrypt";
 import chalk from "chalk";
@@ -215,5 +216,7 @@ export const gatekeep = async (context, shouldCreate) => {
   // if we have a mneumonic, we should continue
   context.mnemonic = mnemonic;
 
+  // setup helpers
   context.vault = new Vault({ context });
+  context.coins = new Coins({ context });
 };
