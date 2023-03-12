@@ -48,12 +48,11 @@ Vault.prototype.write = function (key, value) {
 };
 
 Vault.prototype.keys = async function () {
+  this.context.keys = await deriveKeys({
+    mnemonic: this.context.mnemonic,
+    passPhrase: this.context.passPhrase,
+    id: this.context.profile,
+  });
 
-    this.context.keys = await deriveKeys({
-        mnemonic: this.context.mnemonic,
-        passPhrase: this.context.passPhrase,
-        id: this.context.profile,
-      });
-
-    return this.context.keys;
+  return this.context.keys;
 };
