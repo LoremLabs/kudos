@@ -95,6 +95,11 @@ const exec = async (context) => {
       let longestPercentLength = 0;
       weightedAddresses = weightedAddresses.map((address) => {
         const amount = (amountXrp * address.weight) / totalWeight;
+        // check if amount is less than 0
+        if (amount < 0) {
+          log(chalk.red(`send: amount is less than 0`));
+          process.exit(1);
+        }
         if (`${amount}`.length > longestAmountLength) {
           longestAmountLength = `${amount}`.length;
         }
