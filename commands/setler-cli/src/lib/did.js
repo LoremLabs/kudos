@@ -8,17 +8,28 @@ export const expandDid = async ({ did, identResolver, network }) => {
   const identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
 
   const gqlQuery = {
-    query: `query LookupPayVia($identifier: String!) {
-        payVia(identifier: $identifier) {
-          type
-          value
+    query: `query SocialPay($identifier: String!) {
+        socialPay(identifier: $identifier) {
+            paymentMethods {
+                type
+                value
+              }
+              escrowMethods {
+                type
+                account
+                time
+              }
+              status {
+                message
+                code
+              }
         }
        }`,
 
     variables: {
       identifier: did,
     },
-    operationName: "LookupPayVia",
+    operationName: "SocialPay",
     extensions: {},
   };
   // console.log('gqlQuery', gqlQuery);
@@ -48,7 +59,7 @@ export const expandDid = async ({ did, identResolver, network }) => {
           log(`\nError submitting did lookup: ${r.status} ${r.statusText}\n`);
           const json = await r.json(); // not guaranteed to be json :(
           if (json) {
-            const errMsg = json.data?.LookupPayVia?.status || "";
+            const errMsg = json.data?.SocialPay?.status?.message || "";
             throw new Error(errMsg);
           }
           throw new Error("Error submitting did lookup");
@@ -74,11 +85,20 @@ export const expandDid = async ({ did, identResolver, network }) => {
     return results;
   }
 
-  const payVias = results.data.payVia || [];
+  const payVias = results.data.socialPay.paymentMethods || [];
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
   if (payVia) {
-    return payVia.value;
+    return { directPaymentVia: payVia.value };
   }
-  return null;
+
+  // otherwise we search for an escrow that matches
+  const escrowMethods = results.data.socialPay.escrowMethods || [];
+  // search for our network
+  const escrowMethod = escrowMethods.find((p) => p.type === network);
+  if (escrowMethod) {
+    return { directPaymentVia: null, escrowMethod };
+  }
+
+  return { directPaymentVia: null, escrowMethod: null };
 };

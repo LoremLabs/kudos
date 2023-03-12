@@ -218,23 +218,28 @@ const exec = async (context) => {
           const identResolver =
             context.flags.identResolver ||
             context.config.identity?.identResolver;
-          const expanded = await expandDid({
+          const { directPaymentVia, escrowMethod } = await expandDid({
             did,
             identResolver,
             network,
           });
           // loop through expanded see if any are xrpl addresses with our network
           if (context.flags.verbose) {
-            log(`send: expanded did ${did} to ${JSON.stringify(expanded)}`);
+            log(
+              `send: expanded did ${did} to ${JSON.stringify({
+                directPaymentVia,
+                escrowMethod,
+              })}`
+            );
           }
 
-          if (!expanded) {
+          if (!directPaymentVia && escrowMethod) {
             // ask if we should create an escrow payment
             const confirm4 = await prompts([
               {
                 type: "confirm",
                 name: "ok",
-                message: `No xrpl address found for did ${did}, create escrow payment via ${identResolver}?`,
+                message: `No xrpl address found for did ${did}, create escrow payment via ${escrowMethod.account}?`,
                 initial: false,
               },
             ]);
@@ -247,9 +252,17 @@ const exec = async (context) => {
               process.exit(1);
             }
             // mark this address as an escrow
-            weightedAddresses[i].escrow = true;
+            weightedAddresses[i].escrow = escrowMethod;
+          } else if (!directPaymentVia) {
+            log(
+              chalk.red(
+                `send: could not expand did ${did}. Remove from list and try again.`
+              )
+            );
+            process.exit(1);
           }
-          weightedAddresses[i].expandedAddress = expanded;
+
+          weightedAddresses[i].expandedAddress = directPaymentVia;
         } else if (types.xrpl) {
           weightedAddresses[i].expandedAddress = address.address;
         } else {
@@ -281,6 +294,50 @@ const exec = async (context) => {
         process.exit(1);
       }
       log(`send: ${sourceAddress} has ${balanceXrp} XRP`);
+
+      // we should do the direct transfers first, then the escrow transfers
+      const directAddresses = weightedAddresses.filter(
+        (address) => !address.escrow
+      );
+      const escrowAddresses = weightedAddresses.filter(
+        (address) => address.escrow
+      );
+
+      // send direct payments
+      const directAddressesXrp = directAddresses.map((address) => {
+        return {
+          address: address.expandedAddress,
+          amount: address.amount,
+        };
+      });
+      const directPayment = await context.coins.send({
+        network,
+        sourceAddress,
+        destinationAddresses: directAddressesXrp,
+      });
+      if (!directPayment) {
+        log(chalk.red(`send: could not send direct payment`));
+        process.exit(1);
+      }
+
+      // send escrow payments
+      const escrowAddressesXrp = escrowAddresses.map((address) => {
+        return {
+          address: address.address, // the did?
+          amount: address.amount,
+        };
+      });
+      const escrowPayment = await context.coins.sendEscrow({
+        network,
+        sourceAddress,
+        addresses: escrowAddressesXrp,
+        escrow: escrowAddresses[0].escrow,
+      });
+      if (!escrowPayment) {
+        log(chalk.red(`send: could not send escrow payment`));
+        process.exit(1);
+      }
+
       log(
         `send: sending to ${addresses.length} addresses: ${addresses.join(
           ", "

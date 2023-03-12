@@ -40,6 +40,35 @@ Coins.prototype.getConfig = async function (network, type) {
   return null;
 };
 
+Coins.prototype.send = async function ({
+  network,
+  sourceAddress,
+  destinationAddresses,
+  amount,
+}) {
+  // const client = await this.getClient(network);
+  log(
+    "send",
+    JSON.stringify({ network, sourceAddress, destinationAddresses, amount })
+  );
+
+  return true;
+};
+
+Coins.prototype.sendEscrow = async function ({
+  network,
+  sourceAddress,
+  addresses,
+  escrow,
+}) {
+  log(
+    "sendEscrow",
+    JSON.stringify({ network, sourceAddress, addresses, escrow })
+  );
+
+  return true;
+};
+
 Coins.prototype.getClient = async function (network) {
   let client = this.clients[network];
   if (!client) {
