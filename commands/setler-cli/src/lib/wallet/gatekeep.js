@@ -15,7 +15,7 @@ const log = console.log;
 
 export const gatekeep = async (context, shouldCreate) => {
   // check to see if we have a config file and load it
-  context.config = context.config || initConfig();
+  context.config = initConfig();
 
   let profile = context.flags.profile || process.env.SETLER_PROFILE || 0; // this is the branch in the HD wallet, default to 0
   context.profile = profile;

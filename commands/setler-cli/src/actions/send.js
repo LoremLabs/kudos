@@ -1,4 +1,6 @@
 import chalk from "chalk";
+import { detectStringTypes } from "../lib/detect.js";
+import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import prompts from "prompts";
@@ -31,6 +33,7 @@ const exec = async (context) => {
       }
 
       // ask for the amount
+      log("");
       const response = await prompts([
         {
           type: "text",
@@ -51,8 +54,8 @@ const exec = async (context) => {
 
       // convert the amount into usd
       const exchangeRate = await getExchangeRate("XRP");
-      const amountUsd = amountXrp * exchangeRate;
-      log(chalk.gray(`\tAmount in usd  : \t$${amountUsd}`));
+      const amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(2);
+      log(chalk.gray(`\tAmount in usd  : \t$${amountUsd}\n`));
 
       // confirm
       const confirm = await prompts([
@@ -68,16 +71,20 @@ const exec = async (context) => {
       }
       log("");
 
+      const weights = (context.flags.weights || "").split(","); // comma separated list of weights, should match the number of addresses if present, otherwise equal weights of 1 assumed
+
       // parse the addresses and weights
       let longestLength = 0;
-      let weightedAddresses = addresses.map((address) => {
-        const parts = address.split(":");
-        if (parts[0].length > longestLength) {
-          longestLength = parts[0].length;
+      let weightedAddresses = addresses.map((address, i) => {
+        if (address.length > longestLength) {
+          longestLength = address.length;
         }
+
+        // get corresponding weight
+        const weight = weights[i] ? parseFloat(weights[i]) : 1;
         return {
-          address: parts[0],
-          weight: parts[1] ? parseFloat(parts[1]) : 1,
+          address,
+          weight,
         };
       });
 
@@ -141,11 +148,14 @@ const exec = async (context) => {
             )}  ` +
             chalk.greenBright(`${address.amount} XRP`) +
             "  ~  " +
-            chalk.cyanBright(`$${address.amount * exchangeRate}`)
+            chalk.cyanBright(
+              `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
+            )
         );
       });
 
       // ask for confirmation
+      log("");
       const confirm2 = await prompts([
         {
           type: "confirm",
@@ -157,6 +167,82 @@ const exec = async (context) => {
       if (!confirm2.ok) {
         process.exit(1);
       }
+
+      // confirm the account
+      log("");
+      const network = context.flags.network || "xrpl:testnet";
+      const keys = await context.vault.keys();
+      // log(JSON.stringify(keys, null, 2));
+
+      // convert xrpl:testnet to keys[xrpl][testnet]
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
+      const confirm3 = await prompts([
+        {
+          type: "confirm",
+          name: "ok",
+          message:
+            `Confirm source address: ` +
+            chalk.yellow(`${sourceAddress}`) +
+            " on network " +
+            chalk.magentaBright(`${network}`) +
+            " ?",
+          initial: false,
+        },
+      ]);
+      if (!confirm3.ok) {
+        process.exit(1);
+      }
+
+      // see what type of addresses we have, and send accordingly
+      // addresses can be an xrpl address, or a did (did:kudos:...) if they're not, we should error
+
+      // loop through addresses and expand if needed
+      for (let i = 0; i < weightedAddresses.length; i++) {
+        const address = weightedAddresses[i];
+        const types = detectStringTypes(address.address);
+        if (types.did) {
+          // expand this address
+          const did = address.address;
+          log(`send: expanding did ${did} ...`);
+
+          // log (`send: identResolver: ${JSON.stringify(context.config.identity?.identResolver)}`);
+
+          const expanded = await expandDid({
+            did,
+            identResolver: context.config.identity?.identResolver,
+            network,
+          });
+          // loop through expanded see if any are xrpl addresses with our network
+          log(`send: expanded did ${did} to ${JSON.stringify(expanded)}`);
+
+          if (!expanded) {
+            // ask if we should create an escrow payment
+
+            log(chalk.red(`send: could not expand did ${did}`));
+            process.exit(1);
+          }
+          weightedAddresses[i].expandedAddress = expanded;
+        } else if (types.xrpl) {
+          weightedAddresses[i].expandedAddress = address.address;
+        } else {
+          log(chalk.red(`send: unknown address type ${address.address}`));
+          process.exit(1);
+        }
+      }
+
+      // see how much we have in this account, to verify it's enough to cover the transaction?
 
       log(
         `send: sending to ${addresses.length} addresses: ${addresses.join(
