@@ -1,18 +1,8 @@
 import chalk from "chalk";
-import { deriveKeys } from "../lib/wallet/keys.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import prompts from "prompts";
 
 const log = console.log;
-
-const getKeys = async (context) => {
-  let keys = await deriveKeys({
-    mnemonic: context.mnemonic,
-    passPhrase: context.passPhrase,
-    id: context.profile,
-  });
-  return keys;
-};
 
 const exec = async (context) => {
   // switch based on the subcommand
@@ -23,7 +13,9 @@ const exec = async (context) => {
     case "keys":
       await gatekeep(context);
 
-      context.keys = await getKeys(context);
+      if (!context.keys) {
+        context.keys = await context.vault.keys();
+      }
       log(`keys: ${JSON.stringify(context.keys, null, "  ")}`);
       break;
     case "mnemonic":

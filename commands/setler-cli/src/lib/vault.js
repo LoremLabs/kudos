@@ -4,7 +4,7 @@ import envPaths from "env-paths";
 import fs from "fs";
 
 // const vault = new Vault(context);
-// vault.set("mnemonic", "mnemonic phrase");
+// await vault.set("mnemonic", "mnemonic phrase");
 
 export const Vault = function ({ context }) {
   this.context = context;
@@ -15,11 +15,11 @@ export const Vault = function ({ context }) {
   this.seedFile = `${this.configDir}/state/setlr-${context.scope}.seed`;
 };
 
-Vault.prototype.set = function (key, value) {
+Vault.prototype.set = async function (key, value) {
   // set the value in the vault
   this.context[key] = value;
   if (key === "mnemonic") {
-    this.context.keys = deriveKeys({
+    this.context.keys = await deriveKeys({
       mnemonic: value,
       passPhrase: this.context.passPhrase,
       id: this.context.profile,
@@ -45,4 +45,15 @@ Vault.prototype.write = function (key, value) {
     const encrypted = encryptAES(value, this.context.salt);
     fs.writeFileSync(this.seedFile, encrypted, "utf8");
   }
+};
+
+Vault.prototype.keys = async function () {
+
+    this.context.keys = await deriveKeys({
+        mnemonic: this.context.mnemonic,
+        passPhrase: this.context.passPhrase,
+        id: this.context.profile,
+      });
+
+    return this.context.keys;
 };
