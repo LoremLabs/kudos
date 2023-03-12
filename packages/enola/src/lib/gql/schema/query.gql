@@ -8,6 +8,10 @@ type Status {
 
 type Query {
 	payVia(identifier: String!): [PaymentMethod]
+
+	# Facilitate paying a social identifier
+	socialPay(identifier: String!): SocialPayResult
+
 	# Get the top N users from the leaderboard
 	leaderBoard(subject: String, start: Int, pageSize: Int): LeaderBoardResult
 }

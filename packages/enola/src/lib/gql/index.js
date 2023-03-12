@@ -11,6 +11,7 @@ import PaymentMethodSchema from './schema/payment-method.gql';
 // import MoneySchema from './schema/money.gql';
 import QuerySchema from './schema/query.gql';
 import Resolvers from './resolvers';
+import SocialPaySchema from './schema/social-pay.gql';
 
 // import TempSchema from './schema/temp.gql';
 
@@ -26,7 +27,8 @@ const typeDefs = [
 	LeaderBoardSchema,
 	PaymentMethodSchema,
 	QuerySchema,
-	MutationSchema
+	MutationSchema,
+	SocialPaySchema
 	// TempSchema
 	// SortSchema,
 	// CryptographySchema,

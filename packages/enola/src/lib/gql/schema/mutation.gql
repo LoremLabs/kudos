@@ -1,5 +1,5 @@
 type Mutation {
-	setPayVia(identifier: String!, type: PaymentMethods!, value: String!): PaymentMethod
+	setPayVia(identifier: String!, type: String!, value: String!): PaymentMethod
 	submitKudosForFame(
 		payload: String!
 		signature: String!

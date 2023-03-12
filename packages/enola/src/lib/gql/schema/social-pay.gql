@@ -1,0 +1,5 @@
+type SocialPayResult {
+	paymentMethods: [PaymentMethod]
+	escrowMethods: [EscrowMethod]
+	status: Status
+}

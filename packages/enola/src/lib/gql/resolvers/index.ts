@@ -14,6 +14,84 @@ try {
 	process.exit(1);
 }
 
+// socialPay is like payVia, but it returns escrow information if available
+export const socialPay = async (_, params) => {
+	// return {
+
+	// 	status: {
+	// 		code: 2000,
+	// 		message: 'ok?'
+	// 	},
+	// 	paymentMethods: [
+	// 		{
+	// 			type: 'xrpl:testnet',
+	// 			value: 'rabc'
+	// 		}
+	// 	],
+	// 	escrowMethods: [
+	// 		{
+	// 			type: 'xrpl:testnet',
+	// 			account: 'rxyz',
+	// 			time: 86400 * 7 // 7 days
+	// 		}]
+	// };
+
+	const identifier = params.identifier.toLowerCase().trim();
+
+	// make sure it's not too big of input
+	if (identifier.length > 2000) {
+		throw new Error('Identifier too long');
+	}
+
+	let result = {
+		status: {
+			message: 'error',
+			code: 500
+		}
+	};
+
+	const data = await redis.hget(`u:${identifier}`, 'payVia');
+	if (data) {
+		//		const data = JSON.parse(payload);
+		result = {
+			...result,
+			paymentMethods: [
+				{
+					type: data[0],
+					value: data[1]
+				}
+			]
+		};
+	} else {
+		result = { ...result, paymentMethods: [] };
+	}
+
+	// see if this id is escrowable
+	// for now they all are
+	const escrowMethods = [
+		{
+			type: 'xrpl:testnet',
+			account: 'rG4fmQf9X2VFWiE63GerPouKfVuE4LYbJn',
+			time: 86400 * 7 // 7 days
+		}
+		// {
+		// 	type: 'xrpl:livenet',
+		// 	value: '',
+		// 	time: 86400 * 7 // 7 days
+		// },
+	];
+	result = {
+		...result,
+		escrowMethods: escrowMethods,
+		status: {
+			message: 'ok',
+			code: 200
+		}
+	};
+
+	return result;
+};
+
 export const payVia = async (_, params) => {
 	const identifier = params.identifier.toLowerCase().trim();
 
@@ -123,6 +201,7 @@ export const leaderBoard = async (_, params) => {
 
 export default {
 	leaderBoard,
-	payVia
+	payVia,
+	socialPay
 	//	resolveDid
 };
