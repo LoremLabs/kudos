@@ -17,6 +17,22 @@ const pkgJson = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "../package.json"))
 );
 
+// squelch experimental warnings
+const originalEmit = process.emit;
+process.emit = function (name, data) {
+  // , ...args
+  if (
+    name === `warning` &&
+    typeof data === `object` &&
+    data.name === `ExperimentalWarning`
+    //if you want to only stop certain messages, test for the message here:
+    //&& data.message.includes(`Fetch API`)
+  ) {
+    return false;
+  }
+  return originalEmit.apply(process, arguments);
+};
+
 const defaultHelp = `
   ${personality}: additional commands
 
@@ -35,7 +51,6 @@ const defaultHelp = `
 
     Run Commands
     $ ${personality} help
-    $ ${personality} help [command]
 
     $ ${personality} wallet
     $ ${personality} wallet help

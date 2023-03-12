@@ -25,7 +25,10 @@ export const gatekeep = async (context, shouldCreate) => {
   let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
   scope = parseInt(scope, 10);
   context.scope = `${scope}`;
-  log(chalk.green(`Scope: ${scope}`));
+
+  if (context.flags.verbose) {
+    log(chalk.green(`Scope: ${scope}`));
+  }
   //   // add a : to the end of scope if it's not already there to make the code easier
   //   if (scope.length && scope.slice(-1) !== ":") {
   //     scope = `${scope}:`;
