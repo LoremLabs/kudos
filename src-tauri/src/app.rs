@@ -1,7 +1,7 @@
 // #[path = "app.rs"] mod app;
 
 extern crate keyring;
-extern crate whoami;
+// extern crate whoami;
 extern crate bcrypt;
 
 use bcrypt::{hash, verify};
@@ -13,10 +13,10 @@ pub fn store_password(app_name: &str, password: &str) -> bool {
     // given a password, encrypt it with bcrypt and store it in the keyring
     let service = app_name;
 
-    let username: String = whoami::username();
+    // let username: String = whoami::username(); // we don't want username because user may change it.
 
     // create entry name from username : "pass"
-    let entry_name = format!("{}:{}", username, "pass");
+    let entry_name = "pass"; //format!("{}", "pass");
     let entry = keyring::Entry::new(&service, &entry_name);
 
     let hashed = hash(&password, DEFAULT_COST);
@@ -37,12 +37,12 @@ pub fn store_password(app_name: &str, password: &str) -> bool {
 pub fn validate_password(app_name: &str, password: &str) -> bool {
     let service = app_name;
     // let username = "salt";
-    let username: String = whoami::username();
+    // let username: String = whoami::username();
 
     // create entry name from username : "pass"
-    let entry_name = format!("{}:{}", username, "pass");
+    let keyname = "pass"; // format!("{}", "pass");
 
-    let entry = keyring::Entry::new(&service, &entry_name);
+    let entry = keyring::Entry::new(&service, &keyname);
     match entry.get_password() {
         Ok(stored_passhash) => {
             info!("Stored pass found in keyring");
@@ -72,10 +72,10 @@ pub fn get_salt(app_name: &str) -> Result<String, keyring::Error> {
     // setup keyring secrets
     // TODO: this on the mac is asking for the password everytime. Not sure if this is a dev thing or not.
     let service = app_name;
-    // let username = "salt";
-    let username: String = whoami::username();
+    let keyname = "salt";
+    // let username: String = whoami::username();
 
-    let entry = keyring::Entry::new(&service, &username);
+    let entry = keyring::Entry::new(&service, &keyname);
     match entry.get_password() {
         Ok(wallet_salt) => {
             info!("Salt found in keyring");

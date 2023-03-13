@@ -168,7 +168,7 @@
         method: 'POST',
         body: JSON.stringify(gqlQuery),
       })
-        .then((r) => {
+        .then(async (r) => {
           // check status code
           if (r.status !== 200) {
             const json = r.json(); // not guaranteed to be json :(
@@ -179,7 +179,7 @@
             throw new Error('Error submitting Kudos for Fame');
           }
 
-          return r.json();
+          return await r.json(); // maybe no await here? fetch api different?
         })
         .catch((e) => {
           console.log('error submitting to gql', e);

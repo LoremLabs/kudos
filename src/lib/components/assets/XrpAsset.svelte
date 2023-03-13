@@ -138,7 +138,6 @@
                 msg: `Sending funding request.`,
                 duration: 3000,
               });
-
               const status = await fundViaFaucet(networkName);
 
               if (status) {

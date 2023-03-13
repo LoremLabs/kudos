@@ -9,13 +9,13 @@ import {
   readTextFile,
   writeFile,
 } from '@tauri-apps/api/fs';
+import { bytesToHex, hexToBytes } from '@noble/hashes/utils';
 import {
   createHdKeyFromMnemonic,
   mnemonicIsValid,
 } from './wallet/createHdKeyFromMnemonic';
 
 import { appLocalDataDir } from '@tauri-apps/api/path';
-import { bytesToHex } from '@noble/hashes/utils';
 import { decryptAES } from './wallet/decryptSeedAES';
 import { encryptAES } from './wallet/encryptSeedAES';
 import { ethWallet } from './wallet/ethWallet';
@@ -25,7 +25,14 @@ import { shortId } from '$lib/utils/short-id';
 
 const seedCache = {};
 
-export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
+export async function deriveAddress({
+  coinId,
+  mnemonic,
+  passPhrase,
+  id = 0,
+  leaf = 0,
+  isXrpl = false,
+}) {
   if (!mnemonic && !coinId) {
     throw new Error('No mnemonic / coinId provided');
   }
@@ -33,8 +40,23 @@ export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
   const keys = await ethWallet({
     mnemonic,
     passPhrase,
-    path: `m/44'/${coinId}'/${id}'/0/0`,
+    path: `m/44'/${coinId}'/${id}'/0/${leaf}`,
   });
+
+  if (isXrpl) {
+    // use xrpl address encoding
+    // remove 0x from start of public key
+    if (keys.publicKey.startsWith('0x')) {
+      keys.publicKey = keys.publicKey.slice(2);
+      keys.publicKey = `${keys.publicKey}`;
+    }
+    keys.address = deriveAddressFromBytes(hexToBytes(keys.publicKey));
+    if (keys.privateKey.startsWith('0x')) {
+      keys.privateKey = keys.privateKey.slice(2);
+    }
+    keys.privateKey = `00${keys.privateKey}`;
+    // toUpperCase() ?
+  }
 
   return {
     address: keys.address,
@@ -60,7 +82,43 @@ export async function deriveKudosKeys({ mnemonic, passPhrase, id = 0 }) {
   return await deriveAddress({ coinId: 1280, mnemonic, passPhrase, id });
 }
 
-export function deriveXrplKeys({ hdkey, id = 0 }) {
+export async function deriveXrplKeys({ mnemonic, passPhrase, id = 0 }) {
+  if (!mnemonic) {
+    throw new Error('No mnemonic provided');
+  }
+  const livenet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 0,
+  });
+  const testnet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 1,
+  });
+  const devnet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 2,
+  });
+
+  return {
+    livenet,
+    testnet,
+    devnet,
+  };
+}
+
+export function deriveXrplKeys2({ hdkey, id = 0 }) {
   if (!hdkey) {
     throw new Error('No hdkey provided');
   }
@@ -108,13 +166,20 @@ export async function deriveKeys({
   const hdkey = createHdKeyFromMnemonic(mnemonic, passPhrase);
 
   await noop(); // give the ui time to do its thing
-  manager.xrpl = deriveXrplKeys({ hdkey, id });
+  manager.xrpl = await deriveXrplKeys({ mnemonic, hdkey, id });
   await noop(); // give the ui time to do its thing
   manager.eth = await deriveEthKeys({ mnemonic, passPhrase, id });
   await noop(); // give the ui time to do its thing
   manager.kudos = await deriveKudosKeys({ mnemonic, passPhrase, id });
   await noop(); // give the ui time to do its thing
   manager.id = id ? id : 0;
+
+  const testnet = {};
+  const testnetKeyPair = hdkey.derive(`m/44'/144'/${id}'/0'/1'`); // hardened from .derive("m/44'/144'/0'/0/0");
+  testnet.publicKey = bytesToHex(testnetKeyPair?.publicKey);
+  testnet.privateKey = bytesToHex(testnetKeyPair?.privateKey);
+  testnet.address = deriveAddressFromBytes(testnetKeyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
+  console.log('testnet', { testnet });
 
   // store cache
   if (useCache) {
@@ -187,15 +252,15 @@ export async function saveSeed({
 export async function createOrReadSeed({
   salt = '', // used to encrypt local seed data only
   passPhrase = '', // 25th word, part of the seed phrase
+  scope = 0, // used to create a unique seed for each app, currently only 0 is used for setlr
   id = 0,
   useCache = true,
 }) {
   const s = { id, mnemonic: '' };
-
   // check our seedCache to see if we already have this seed id
-  if (useCache && seedCache[`id-${id}`]) {
+  if (useCache && seedCache[`scope-${scope}`]) {
     // console.log('Seed phrase exists in cache');
-    return seedCache[`id-${id}`];
+    return seedCache[`scope-${scope}`];
   }
 
   const baseDir = await appLocalDataDir();
@@ -204,7 +269,7 @@ export async function createOrReadSeed({
     recursive: true,
   });
 
-  const fullPath = `${baseDir}state/setlr-${id}.seed`;
+  const fullPath = `${baseDir}state/setlr-${scope}.seed`;
 
   try {
     const fileFound = await exists(fullPath);
@@ -221,7 +286,7 @@ export async function createOrReadSeed({
     // if here, we have a valid mnemonic
     // cache it in memory for this session
     if (useCache) {
-      seedCache[`id-${id}`] = s;
+      seedCache[`scope-${scope}`] = s;
     }
   } catch (err) {
     if (err && err.message === 'File not found') {

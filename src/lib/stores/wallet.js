@@ -58,7 +58,13 @@ export const walletStore = asyncDerived(
       let passPhrase = data.passPhrase;
       let seed;
       try {
-        seed = await createOrReadSeed({ salt, id, passPhrase, useCache: true });
+        seed = await createOrReadSeed({
+          salt,
+          id,
+          passPhrase,
+          useCache: true,
+          scope: 0,
+        });
 
         data.mnemonic = seed.mnemonic;
         // TODO: store this encrypted too to avoid the need to derive it
