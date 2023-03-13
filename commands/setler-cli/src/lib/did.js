@@ -16,7 +16,7 @@ export const expandDid = async ({ did, identResolver, network }) => {
               }
               escrowMethods {
                 type
-                account
+                address
                 time
               }
               status {

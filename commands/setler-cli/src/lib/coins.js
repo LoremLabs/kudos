@@ -43,14 +43,11 @@ Coins.prototype.getConfig = async function (network, type) {
 Coins.prototype.send = async function ({
   network,
   sourceAddress,
-  destinationAddresses,
+  address,
   amount,
 }) {
   // const client = await this.getClient(network);
-  log(
-    "send",
-    JSON.stringify({ network, sourceAddress, destinationAddresses, amount })
-  );
+  log("send", JSON.stringify({ network, sourceAddress, address, amount }));
 
   return true;
 };
