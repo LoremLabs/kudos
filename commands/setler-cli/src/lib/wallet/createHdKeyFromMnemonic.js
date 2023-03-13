@@ -1,6 +1,6 @@
 import * as bip39 from "@scure/bip39";
 
-import { HDKey } from "micro-ed25519-hdkey";
+import { HDKey } from "ed25519-keygen/hdkey";
 import { wordlist as wordlistEnglish } from "@scure/bip39/wordlists/english.js";
 
 export const createHdKeyFromMnemonic = (mnemonicSeedphrase, passPhrase) => {

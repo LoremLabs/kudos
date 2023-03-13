@@ -8,6 +8,31 @@ export const Coins = function ({ context }) {
   this.context = context;
 
   this.clients = {}; // cache of clients
+  this.wallets = {}; // cache of wallets
+};
+
+Coins.prototype.getWallet = async function (address) {
+  if (this.wallets[address]) {
+    return this.wallets[address];
+  }
+
+  // otherwise, create from the context
+  await this.context.vault.keys();
+  const walletKeys = this.context.addressKeys[address];
+  if (!walletKeys) {
+    throw new Error(`Wallet not found for address: ${address}`);
+  }
+  const wallet = new xrpl.Wallet(walletKeys.publicKey, walletKeys.privateKey, {
+    masterAddress: address,
+  });
+  if (wallet.classicAddress !== address) {
+    throw new Error(
+      `Wallet address mismatch: ${wallet.classicAddress} !== ${address}`
+    );
+  }
+
+  this.wallets[address] = wallet;
+  return wallet;
 };
 
 Coins.prototype.getConfig = async function (network, type) {
@@ -45,11 +70,49 @@ Coins.prototype.send = async function ({
   sourceAddress,
   address,
   amount,
+  amountDrops,
 }) {
-  // const client = await this.getClient(network);
-  log("send", JSON.stringify({ network, sourceAddress, address, amount }));
+  const client = await this.getClient(network);
+  // log("send", JSON.stringify({ network, sourceAddress, address, amount }));
 
-  return true;
+  if (amountDrops != xrpl.xrpToDrops(amount)) {
+    console.log("amountDrops", amountDrops);
+    console.log("xrpl.xrpToDrops(amount)", xrpl.xrpToDrops(amount));
+    throw new Error("Amount Drops calculation error?");
+  }
+
+  const wallet = await this.getWallet(sourceAddress);
+
+  const tx = {
+    TransactionType: "Payment",
+    Account: wallet.classicAddress,
+    Amount: xrpl.xrpToDrops(amount),
+    Destination: address,
+  };
+
+  // Prepare transaction -------------------------------------------------------
+  const prepared = await client.autofill(tx);
+  console.log("Prepared transaction instructions:", prepared);
+
+  //prepared.SigningPubKey = wallet.publicKey;
+  const max_ledger = prepared.LastLedgerSequence;
+
+  console.log("Transaction cost:", xrpl.dropsToXrp(prepared.Fee), "XRP");
+  console.log("Transaction expires after ledger:", max_ledger);
+  const signed = wallet.sign(prepared);
+
+  console.log("Identifying hash:", signed.hash);
+  console.log("Signed blob:", signed.tx_blob);
+
+  let result;
+  try {
+    result = await client.submitAndWait(signed.tx_blob);
+  } catch (err) {
+    console.log("Error:", err, err.message);
+    throw err;
+  }
+  console.log("send result", result);
+  return result;
 };
 
 Coins.prototype.sendEscrow = async function ({

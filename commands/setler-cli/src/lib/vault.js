@@ -48,11 +48,30 @@ Vault.prototype.write = function (key, value) {
 };
 
 Vault.prototype.keys = async function () {
+  if (this.context.keys) {
+    return this.context.keys;
+  }
+
   this.context.keys = await deriveKeys({
     mnemonic: this.context.mnemonic,
     passPhrase: this.context.passPhrase,
     id: this.context.profile,
   });
+
+  // flatten tree to one level, keyed off address
+  const addressKeys = {};
+  for (const [, value] of Object.entries(this.context.keys)) {
+    if (value.address) {
+      // top level
+      addressKeys[value.address] = value;
+    } else {
+      // nested
+      for (const [, value2] of Object.entries(value)) {
+        addressKeys[value2.address] = value2;
+      }
+    }
+  }
+  this.context.addressKeys = addressKeys;
 
   return this.context.keys;
 };

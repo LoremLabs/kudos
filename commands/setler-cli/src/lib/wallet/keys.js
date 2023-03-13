@@ -1,12 +1,10 @@
 import addressCodec from "ripple-address-codec";
-import { bytesToHex } from "@noble/hashes/utils";
 import { createHdKeyFromMnemonic } from "./createHdKeyFromMnemonic.js";
 import hashjs from "hash.js";
+import { hexToBytes } from "@noble/hashes/utils";
 import { utils } from "ethers";
 
 const keyCache = {};
-
-// console.log('hashjs', hashjs);
 
 export const walletKeys = async ({
   mnemonic,
@@ -33,7 +31,14 @@ export const walletKeys = async ({
   };
 };
 
-export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
+export async function deriveAddress({
+  coinId,
+  mnemonic,
+  passPhrase,
+  id = 0,
+  leaf = 0,
+  isXrpl = false,
+}) {
   if (!mnemonic && !coinId) {
     throw new Error("No mnemonic / coinId provided");
   }
@@ -41,8 +46,22 @@ export async function deriveAddress({ coinId, mnemonic, passPhrase, id = 0 }) {
   const keys = await walletKeys({
     mnemonic,
     passPhrase,
-    path: `m/44'/${coinId}'/${id}'/0/0`,
+    path: `m/44'/${coinId}'/${id}'/0/${leaf}`,
   });
+
+  if (isXrpl) {
+    // use xrpl address encoding
+    // remove 0x from start of public key
+    if (keys.publicKey.startsWith("0x")) {
+      keys.publicKey = keys.publicKey.slice(2);
+      keys.publicKey = `${keys.publicKey}`.toUpperCase();
+    }
+    keys.address = deriveAddressFromBytes(hexToBytes(keys.publicKey));
+    if (keys.privateKey.startsWith("0x")) {
+      keys.privateKey = keys.privateKey.slice(2);
+    }
+    keys.privateKey = `00${keys.privateKey}`.toUpperCase();
+  }
 
   return {
     address: keys.address,
@@ -60,30 +79,40 @@ export async function deriveKudosKeys({ mnemonic, passPhrase, id = 0 }) {
   return await deriveAddress({ coinId: 1280, mnemonic, passPhrase, id });
 }
 
-export function deriveXrplKeys({ hdkey, id = 0 }) {
-  if (!hdkey) {
-    throw new Error("No hdkey provided");
+export async function deriveXrplKeys({ mnemonic, passPhrase, id = 0 }) {
+  if (!mnemonic) {
+    throw new Error("No mnemonic provided");
   }
+  const livenet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 0,
+  });
+  const testnet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 1, // this is a convention used here for testnet and devnet. TODO: what do others do? Different coinId?
+  });
+  const devnet = await deriveAddress({
+    coinId: 144,
+    mnemonic,
+    passPhrase,
+    isXrpl: true,
+    id,
+    leaf: 2,
+  });
 
-  const livenet = {};
-  const keyPair = hdkey.derive(`m/44'/144'/${id}'/0'/0'`); // hardened from .derive("m/44'/144'/0'/0/0");
-  livenet.publicKey = bytesToHex(keyPair?.publicKey);
-  livenet.privateKey = bytesToHex(keyPair?.privateKey);
-  livenet.address = deriveAddressFromBytes(keyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
-
-  const testnet = {};
-  const testnetKeyPair = hdkey.derive(`m/44'/144'/${id}'/0'/1'`); // hardened from .derive("m/44'/144'/0'/0/0");
-  testnet.publicKey = bytesToHex(testnetKeyPair?.publicKey);
-  testnet.privateKey = bytesToHex(testnetKeyPair?.privateKey);
-  testnet.address = deriveAddressFromBytes(testnetKeyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
-
-  const devnet = {};
-  const devnetKeyPair = hdkey.derive(`m/44'/144'/${id}'/0'/2'`); // hardened from .derive("m/44'/144'/0'/0/0");
-  devnet.publicKey = bytesToHex(devnetKeyPair?.publicKey);
-  devnet.privateKey = bytesToHex(devnetKeyPair?.privateKey);
-  devnet.address = deriveAddressFromBytes(devnetKeyPair.publicKey); // see also: https://xrpl.org/accounts.html#address-encoding
-
-  return { livenet, testnet, devnet };
+  return {
+    livenet,
+    testnet,
+    devnet,
+  };
 }
 
 export async function deriveKeys({
@@ -105,7 +134,7 @@ export async function deriveKeys({
   // generate hierarchical deterministic key
   const hdkey = createHdKeyFromMnemonic(mnemonic, passPhrase);
 
-  manager.xrpl = deriveXrplKeys({ hdkey, id });
+  manager.xrpl = await deriveXrplKeys({ mnemonic, hdkey, id });
   manager.kudos = await deriveKudosKeys({ mnemonic, passPhrase, id });
   manager.id = id ? id : 0;
 

@@ -110,6 +110,9 @@ const exec = async (context) => {
 
         weightedAddresses = weightedAddresses.map((address) => {
           const amount = (amountXrp * address.weight) / totalWeight;
+          const amountDrops = Math.round(
+            (drops * address.weight) / totalWeight
+          ); // TODO: validate the drops usage is correct
           // check if amount is less than 0
           if (amount < 0) {
             log(chalk.red(`send: amount is less than 0`));
@@ -130,7 +133,8 @@ const exec = async (context) => {
             ...address,
             // address: address.address,
             // weight: address.weight,
-            amount: amount,
+            amount: amount.toFixed(6),
+            amountDrops: amountDrops,
           };
         });
       };
@@ -403,6 +407,8 @@ const exec = async (context) => {
           sourceAddress,
           address: currentAddress.expandedAddress,
           amount: currentAddress.amount,
+          amountDrops: currentAddress.amountDrops,
+          tag: currentAddress.tag,
         });
         if (!directPayment) {
           log(
