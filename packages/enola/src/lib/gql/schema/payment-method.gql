@@ -14,6 +14,6 @@ EscrowMethod is a payment method that is used to hold funds for a transaction
 """
 type EscrowMethod {
 	type: String!
-	account: String!
+	address: String!
 	time: Int
 }
