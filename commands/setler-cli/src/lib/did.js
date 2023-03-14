@@ -67,7 +67,6 @@ export const expandDid = async ({ did, identResolver, network }) => {
         }
 
         const out = await r.json();
-        //        console.log("out", out);
         return out;
       }
     );
@@ -98,7 +97,9 @@ export const expandDid = async ({ did, identResolver, network }) => {
   // search for our network
   const escrowMethod = escrowMethods.find((p) => p.type === network);
   if (escrowMethod) {
-    return { directPaymentVia: null, escrowMethod };
+    const e = new Error("Escrow only");
+    e.extra = { directPaymentVia: null, escrowMethod };
+    throw e;
   }
 
   return { directPaymentVia: null, escrowMethod: null };

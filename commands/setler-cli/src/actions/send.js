@@ -1,5 +1,5 @@
+import { format as ago } from "timeago.js";
 import chalk from "chalk";
-import { colorizeString } from "../lib/colorize.js";
 import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
@@ -7,6 +7,8 @@ import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import ora from "ora";
 import prompts from "prompts";
 import spinners from "cli-spinners";
+import { stringToColorBlocks } from "../lib/colorize.js";
+import windowSize from "window-size";
 import { xrpToDrops } from "xrpl";
 
 const log = console.log;
@@ -90,7 +92,7 @@ const exec = async (context) => {
         process.exit(1);
       }
 
-      const amountXrp = parseFloat(response.amount);
+      const amountXrp = parseFloat(response.amount); // takes care of scientific notation?
 
       // convert the amount into drops
       const drops = parseFloat(amountXrp) * 1000000;
@@ -260,16 +262,21 @@ const exec = async (context) => {
 
       // confirm the account
       log("");
+      log(
+        `Source address: ` +
+          chalk.yellow(`${sourceAddress}`) +
+          "\n                " +
+          stringToColorBlocks(sourceAddress) +
+          "\n\nNetwork:        " +
+          chalk.magentaBright(`${network}`)
+      );
+      log("");
+
       const confirm3 = await prompts([
         {
           type: "confirm",
           name: "ok",
-          message:
-            `Confirm source address: ` +
-            chalk.yellow(`${sourceAddress}`) +
-            " on network " +
-            chalk.magentaBright(`${network}`) +
-            " ?",
+          message: `Addresses and network Ok?`,
           initial: false,
         },
       ]);
@@ -294,15 +301,31 @@ const exec = async (context) => {
           const identResolver =
             context.flags.identResolver ||
             context.config.identity?.identResolver;
-          const expandPromise = expandDid({
-            did,
-            identResolver,
-            network,
-          });
-          const { directPaymentVia, escrowMethod } = await waitFor(
-            expandPromise,
-            { text: `Looking up address for ` + chalk.blue(`${did}`) }
-          );
+
+          let directPaymentVia, escrowMethod;
+          try {
+            // this throws so we have a red x
+            const expandPromise = expandDid({
+              did,
+              identResolver,
+              network,
+            });
+
+            const response = await waitFor(expandPromise, {
+              text: `Looking up address for ` + chalk.blue(`${did}`),
+            });
+
+            directPaymentVia = response.directPaymentVia;
+            escrowMethod = response.escrowMethod;
+          } catch (e) {
+            if (e.message !== "Escrow only") {
+              log(chalk.red(`Error expanding did ${did}: ${e.message}`));
+              process.exit(1);
+            }
+            // no payment methods found
+            directPaymentVia = e.extra.directPaymentVia;
+            escrowMethod = e.extra.escrowMethod;
+          }
 
           // loop through expanded see if any are xrpl addresses with our network
           if (context.flags.verbose) {
@@ -322,8 +345,43 @@ const exec = async (context) => {
             log(`No xrpl address found for did ` + chalk.blue(`${did}`) + `.`);
             log(
               `Escrow payment available via: ` +
-                chalk.yellow(`${escrowMethod.address}`)
+                chalk.yellow(`${escrowMethod.address} `) +
+                "\n                              " +
+                stringToColorBlocks(escrowMethod.address)
             );
+            if (escrowMethod.time) {
+              log("");
+              log(
+                `Escrow payment expires:       ` +
+                  chalk.cyan(
+                    `${ago(new Date(Date.now() + escrowMethod.time * 1000))}`
+                  )
+              );
+              if (escrowMethod.onExpiration === "snowball") {
+                log(
+                  chalk.gray(
+                    "=> Unclaimed funds will be redistributed via the "
+                  ) +
+                    " snowball " +
+                    chalk.gray("method.")
+                );
+              } else {
+                // the default
+                log(
+                  chalk.gray(
+                    "=> After this time, the payment will be returned to the sender."
+                  )
+                );
+              }
+
+              if (escrowMethod.terms) {
+                log(
+                  chalk.gray(
+                    "=> Sending via escrow implies agreeing to the terms:\n   "
+                  ) + chalk.cyan(escrowMethod.terms)
+                );
+              }
+            }
             log("");
             const confirm4 = await prompts([
               {
@@ -395,7 +453,12 @@ const exec = async (context) => {
       });
       const accountInfo = await waitFor(getAcctPromise, {
         text:
-          `Getting account balance for ` + colorizeString(`${sourceAddress}`),
+          `Getting account balance for: ` +
+          chalk.yellow(
+            `${sourceAddress}\n` +
+              "                               " +
+              stringToColorBlocks(sourceAddress)
+          ),
       });
       const balance = accountInfo?.xrpDrops;
       if (!balance) {
@@ -416,18 +479,15 @@ const exec = async (context) => {
       }
       log("");
       log(
-        chalk.yellow(`${sourceAddress}`) +
-          chalk.bold(` has `) +
-          chalk.green(`${balanceXrp} XRP`)
-      );
-      log(
-        `After sending ` +
+        `Balance after sending ` +
           chalk.green(`${amountXrp} XRP`) +
-          `, will have ` +
+          ` will be ` +
           chalk.green(`${balanceXrp - amountXrp} XRP`)
       );
       log("");
 
+      const { width } = windowSize.get();
+      log(" " + "─".repeat(width - 2));
       // we should do the direct transfers first, then the escrow transfers
       // log(JSON.stringify(weightedAddresses, null, 2));
 
@@ -437,7 +497,8 @@ const exec = async (context) => {
           {
             type: "text",
             name: "doit",
-            message: `Type: "send it" to initiate transfer: `,
+            message:
+              `Type: ` + chalk.red("send it") + ` to initiate transfer: `,
             initial: false,
           },
         ]);
@@ -479,7 +540,9 @@ const exec = async (context) => {
             `Sending ` +
             chalk.green(`${currentAddress.amount}`) +
             " to " +
-            chalk.blue(`${currentAddress.expandedAddress}`),
+            chalk.blue(`${currentAddress.expandedAddress}`) +
+            " " +
+            stringToColorBlocks(currentAddress.expandedAddress),
         });
 
         if (!directPayment) {
