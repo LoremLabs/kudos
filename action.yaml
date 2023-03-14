@@ -1,10 +1,6 @@
 name: Kudos for Code
 description: "Identify Contributors and Ink Kudos"
 
-branding:
-  icon: users
-  color: blue
-
 inputs:
   search-dir:
     description: "Root directory containing package.json"
@@ -63,7 +59,6 @@ runs:
         USER_COHORT: ${{ inputs.cohort }}
       shell: bash
 
-
     - name: Download last artifact
       # Not using actions/download-artifact as it doesn't let us specify the "source" of artifact.
       uses: dawidd6/action-download-artifact@v2
@@ -108,3 +103,7 @@ runs:
       with:
         name: ${{ format('{0}-kudos.db', github.event.repository.name) }}
         path: ${{ env.KUDOS_DIR }}/kudos.db
+
+branding:
+  icon: users
+  color: blue

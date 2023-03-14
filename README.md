@@ -18,4 +18,5 @@ jobs:
       - uses: actions/setup-node@v3
       - run: npm i # required as we search package.json files through node_modules folder (and rootg)
       - uses: LoremLabs/kudos-for-code-action@main
+        with: {} # See action.yaml
 ```
