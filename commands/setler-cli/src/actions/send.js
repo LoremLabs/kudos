@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { colorizeString } from "../lib/colorize.js";
 import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
@@ -393,7 +394,8 @@ const exec = async (context) => {
         sourceAddress,
       });
       const accountInfo = await waitFor(getAcctPromise, {
-        text: `Getting account balance for ` + chalk.yellow(`${sourceAddress}`),
+        text:
+          `Getting account balance for ` + colorizeString(`${sourceAddress}`),
       });
       const balance = accountInfo?.xrpDrops;
       if (!balance) {
