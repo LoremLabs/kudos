@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 export const getExchangeRate = async (currency) => {
   // currency = usd
   const url = `https://www.binance.com/api/v3/ticker/price?symbol=${currency}USDT`;

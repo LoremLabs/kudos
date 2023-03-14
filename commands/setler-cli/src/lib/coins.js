@@ -92,17 +92,17 @@ Coins.prototype.send = async function ({
 
   // Prepare transaction -------------------------------------------------------
   const prepared = await client.autofill(tx);
-  console.log("Prepared transaction instructions:", prepared);
+  // console.log("Prepared transaction instructions:", prepared);
 
   //prepared.SigningPubKey = wallet.publicKey;
-  const max_ledger = prepared.LastLedgerSequence;
+  // const max_ledger = prepared.LastLedgerSequence;
 
-  console.log("Transaction cost:", xrpl.dropsToXrp(prepared.Fee), "XRP");
-  console.log("Transaction expires after ledger:", max_ledger);
+  // console.log("Transaction cost:", xrpl.dropsToXrp(prepared.Fee), "XRP");
+  // console.log("Transaction expires after ledger:", max_ledger);
   const signed = wallet.sign(prepared);
 
-  console.log("Identifying hash:", signed.hash);
-  console.log("Signed blob:", signed.tx_blob);
+  // console.log("Identifying hash:", signed.hash);
+  // console.log("Signed blob:", signed.tx_blob);
 
   let result;
   try {
@@ -111,7 +111,7 @@ Coins.prototype.send = async function ({
     console.log("Error:", err, err.message);
     throw err;
   }
-  console.log("send result", result);
+  // console.log("send result", result);
   return result;
 };
 
@@ -121,10 +121,12 @@ Coins.prototype.sendEscrow = async function ({
   addresses,
   escrow,
 }) {
-  log(
-    "sendEscrow",
-    JSON.stringify({ network, sourceAddress, addresses, escrow })
-  );
+  // log(
+  //   "sendEscrow",
+  //   JSON.stringify({ network, sourceAddress, addresses, escrow })
+  // );
+
+  throw new Error("not implemented yet");
 
   return true;
 };

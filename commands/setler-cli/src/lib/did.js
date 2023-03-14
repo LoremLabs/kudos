@@ -1,4 +1,5 @@
 import { DEFAULTS } from "./config.js";
+import fetch from "node-fetch";
 
 const log = console.log;
 

@@ -3,9 +3,31 @@ import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
+import ora from "ora";
 import prompts from "prompts";
+import spinners from "cli-spinners";
 
 const log = console.log;
+
+const waitFor = (promise, options) => {
+  // await waitFor(promise, { text: 'Loading unicorns', spinner: spinners.dots });
+
+  const spinner = ora({
+    text: "Processing...",
+    spinner: spinners.earth,
+    ...options,
+  });
+  spinner.start();
+  promise.then(
+    () => {
+      spinner.succeed();
+    },
+    () => {
+      spinner.fail();
+    }
+  );
+  return promise;
+};
 
 const help = () => {
   log("");
@@ -56,7 +78,11 @@ const exec = async (context) => {
       log(chalk.gray(`\tAmount in drops: \t${drops.toLocaleString()}`));
 
       // convert the amount into usd
-      const exchangeRate = await getExchangeRate("XRP");
+      const getExchange = getExchangeRate("XRP");
+      const exchangeRate = await waitFor(getExchange, {
+        text: "Fetching current exchange rate",
+      });
+
       const amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(2);
       log(chalk.gray(`\tAmount in usd  : \t$${amountUsd}\n`));
 
@@ -233,7 +259,7 @@ const exec = async (context) => {
         const address = weightedAddresses[i];
         const types = detectStringTypes(address.address); // is this a did, xrpl address, etc
         if (context.flags.verbose) {
-          log(`send: detected types ${JSON.stringify(types)}`);
+          log(`Detected types ${JSON.stringify(types)}`);
         }
         if (types.did) {
           // expand this address
@@ -241,16 +267,21 @@ const exec = async (context) => {
           const identResolver =
             context.flags.identResolver ||
             context.config.identity?.identResolver;
-          const { directPaymentVia, escrowMethod } = await expandDid({
+          const expandPromise = expandDid({
             did,
             identResolver,
             network,
           });
+          const { directPaymentVia, escrowMethod } = await waitFor(
+            expandPromise,
+            { text: `Looking up address for ` + chalk.blue(`${did}`) }
+          );
+
           // loop through expanded see if any are xrpl addresses with our network
           if (context.flags.verbose) {
             log(
               chalk.gray(
-                `send: expanded did ${did} to ${JSON.stringify({
+                `Expanded did ${did} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
                 })}`
@@ -261,23 +292,24 @@ const exec = async (context) => {
           if (!directPaymentVia && escrowMethod) {
             // ask if we should create an escrow payment
             log("");
+            log(`No xrpl address found for did ` + chalk.blue(`${did}`) + `.`);
+            log(
+              `Escrow payment available via: ` +
+                chalk.yellow(`${escrowMethod.address}`)
+            );
+            log("");
             const confirm4 = await prompts([
               {
                 type: "confirm",
                 name: "ok",
-                message:
-                  `No xrpl address found for did ` +
-                  chalk.blue(`${did}`) +
-                  `,\ncreate escrow payment via ` +
-                  chalk.yellow(`${escrowMethod.address}`) +
-                  "?",
+                message: "Create escrow payment? ",
                 initial: false,
               },
             ]);
             if (!confirm4.ok) {
               log(
                 chalk.red(
-                  `send: could not expand did ${did}. Remove from list and try again.`
+                  `send: Could not expand did ${did}. Remove from list and try again.`
                 )
               );
               process.exit(1);
@@ -285,11 +317,13 @@ const exec = async (context) => {
             // mark this address as an escrow
             weightedAddresses[i].escrow = { identifier: did, ...escrowMethod };
             weightedAddresses[i].expandedAddress = escrowMethod.address;
-            log(chalk.magenta(JSON.stringify(escrowMethod, null, 2)));
+            if (context.flags.verbose) {
+              log(chalk.magenta(JSON.stringify(escrowMethod, null, 2)));
+            }
           } else if (!directPaymentVia) {
             log(
               chalk.red(
-                `send: could not expand did ${did}. Remove from list and try again.`
+                `send: Could not expand did ${did}. Remove from list and try again.`
               )
             );
             process.exit(1);
@@ -308,7 +342,7 @@ const exec = async (context) => {
           changedWeights = true;
           log(
             chalk.red(
-              `send: removing entry for address ${sourceAddress}. Won't send to self.`
+              `send: Removing entry for address ${sourceAddress}. Won't send to self.`
             )
           );
           weightedAddresses[i].weight = 0;
@@ -325,19 +359,19 @@ const exec = async (context) => {
 
       // see how much we have in this account, to verify it's enough to cover the transaction?
       log("");
-      log(
-        chalk.bold(`send: checking account balance for `) +
-          chalk.yellow(`${sourceAddress}`) +
-          chalk.bold(` on network `) +
-          chalk.magentaBright(`${network}`)
-      );
-      const accountInfo = await context.coins.getAccountInfo({
+      log(chalk.bold(`Using network: `) + chalk.magentaBright(`${network}`));
+      log("");
+
+      const getAcctPromise = context.coins.getAccountInfo({
         network,
         sourceAddress,
       });
+      const accountInfo = await waitFor(getAcctPromise, {
+        text: `Getting account balance for ` + chalk.yellow(`${sourceAddress}`),
+      });
       const balance = accountInfo?.xrpDrops;
       if (!balance) {
-        log(chalk.red(`send: could not get balance for ${sourceAddress}`), {
+        log(chalk.red(`send: Could not get balance for ${sourceAddress}`), {
           balance,
           accountInfo,
         });
@@ -347,18 +381,19 @@ const exec = async (context) => {
       if (balanceXrp < amountXrp) {
         log(
           chalk.red(
-            `send: not enough funds in ${sourceAddress} to send ${amountXrp} XRP`
+            `send: Not enough funds in ${sourceAddress} to send ${amountXrp} XRP`
           )
         );
         process.exit(1);
       }
       log("");
       log(
-        chalk.bold(`send:`) +
-          chalk.yellow(` ${sourceAddress}`) +
+        chalk.yellow(`${sourceAddress}`) +
           chalk.bold(` has `) +
-          chalk.green(`${balanceXrp} XRP`) +
-          `, after sending ` +
+          chalk.green(`${balanceXrp} XRP`)
+      );
+      log(
+        `After sending ` +
           chalk.green(`${amountXrp} XRP`) +
           `, will have ` +
           chalk.green(`${balanceXrp - amountXrp} XRP`)
@@ -369,7 +404,6 @@ const exec = async (context) => {
       // log(JSON.stringify(weightedAddresses, null, 2));
 
       // last confirmation
-      log("");
       if (!context.flags.yes) {
         const confirm2 = await prompts([
           {
@@ -385,6 +419,7 @@ const exec = async (context) => {
         }
       }
 
+      log("");
       // send direct payments
       let directSent = 0;
       for (let i = 0; i < weightedAddresses.length; i++) {
@@ -396,13 +431,13 @@ const exec = async (context) => {
           continue;
         }
         // log(chalk.yellow(JSON.stringify(currentAddress, null, 2)));
-        log(
-          `Sending ` +
-            chalk.green(`${currentAddress.amount}`) +
-            ` to ` +
-            chalk.blue(`${currentAddress.expandedAddress}`)
-        );
-        const directPayment = await context.coins.send({
+        // log(
+        //   `Sending ` +
+        //     chalk.green(`${currentAddress.amount}`) +
+        //     ` to ` +
+        //     chalk.blue(`${currentAddress.expandedAddress}`)
+        // );
+        const dpPromise = context.coins.send({
           network,
           sourceAddress,
           address: currentAddress.expandedAddress,
@@ -410,6 +445,15 @@ const exec = async (context) => {
           amountDrops: currentAddress.amountDrops,
           tag: currentAddress.tag,
         });
+
+        const directPayment = await waitFor(dpPromise, {
+          text:
+            `Sending ` +
+            chalk.green(`${currentAddress.amount}`) +
+            " to " +
+            chalk.blue(`${currentAddress.expandedAddress}`),
+        });
+
         if (!directPayment) {
           log(
             chalk.red(
@@ -425,9 +469,7 @@ const exec = async (context) => {
         log("");
         log(
           chalk.bold(
-            `send: ` +
-              chalk.green(`✔`) +
-              ` Ok, direct payments sent successfully.`
+            chalk.green(`✔`) + ` Ok, direct payments sent successfully.`
           )
         );
         log("");
@@ -445,18 +487,27 @@ const exec = async (context) => {
           continue;
         }
         // log(JSON.stringify(currentAddress.escrow));
-        log(
-          `Sending ` +
-            chalk.green(`${currentAddress.amount}`) +
-            ` to ` +
-            chalk.blue(`${currentAddress.expandedAddress} as escrow`)
-        );
-        const escrowPayment = await context.coins.sendEscrow({
+        // log(
+        //   `Sending ` +
+        //     chalk.green(`${currentAddress.amount}`) +
+        //     ` to ` +
+        //     chalk.blue(`${currentAddress.expandedAddress} as escrow`)
+        // );
+
+        const epPromise = context.coins.sendEscrow({
           network,
           sourceAddress,
           address: currentAddress.expandedAddress,
           escrow: currentAddress.escrow,
         });
+        const escrowPayment = await waitFor(epPromise, {
+          text:
+            `Sending Escrow of ` +
+            chalk.green(`${currentAddress.amount}`) +
+            " to " +
+            chalk.blue(`${currentAddress.expandedAddress}`),
+        });
+
         if (!escrowPayment) {
           log(chalk.red(`send: could not send escrow payment`));
           process.exit(1);
