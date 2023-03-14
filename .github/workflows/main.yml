@@ -4,15 +4,15 @@
   uses: LoremLabs/kudos-for-code-action@v0.0.1
   with:
     # Root directory containing package.json
-    search-dir: # optional, default is .
+    # search-dir: # optional, default is .
     # Cohort
-    cohort: # optional, default is 
+    # cohort: # optional, default is
     # Identify contributors from devDependecies (Node.js)
-    dev-dependencies: # optional, default is false
+    # dev-dependencies: # optional, default is false
     # Where to save the generated files. Options:
-  - artifact: store as a GitHub Actions artifact
-  - branch: store in a GitHub branch.
+  # - artifact: store as a GitHub Actions artifact
+  # - branch: store in a GitHub branch.
 
-    destination: # optional, default is artifact
-    # Pass custom GITHUB_TOKEN
-    github-token: # optional
+  # destination: # optional, default is artifact
+  # Pass custom GITHUB_TOKEN
+  # github-token: # optional
