@@ -1,18 +1,26 @@
-- name: Kudos for Code
-  # You may pin to the exact commit or the version.
-  # uses: LoremLabs/kudos-for-code-action@d5e53b3d9f9138efaf80f5ea52ab868108252dc0
-  uses: LoremLabs/kudos-for-code-action@v0.0.1
-  with:
-    # Root directory containing package.json
-    # search-dir: # optional, default is .
-    # Cohort
-    # cohort: # optional, default is
-    # Identify contributors from devDependecies (Node.js)
-    # dev-dependencies: # optional, default is false
-    # Where to save the generated files. Options:
-  # - artifact: store as a GitHub Actions artifact
-  # - branch: store in a GitHub branch.
+name: create kudos for code
+on:
+  push:
+    branches: [main]
 
-  # destination: # optional, default is artifact
-  # Pass custom GITHUB_TOKEN
-  # github-token: # optional
+concurrency:
+  group: kudos-identify-contributors-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kudos_for_code_job:
+    - name: Kudos for Code
+      # You may pin to the exact commit or the version.
+      # uses: LoremLabs/kudos-for-code-action@36d2a826e5460f5e392b620868a18166efca9b04
+      uses: LoremLabs/kudos-for-code-action@v0.0.3
+      # with:
+      #   # Root directory containing package.json
+      #   search-dir: # optional, default is .
+      #   # Cohort
+      #   cohort: # optional, default is
+      #   # Identify contributors from devDependecies (Node.js)
+      #   dev-dependencies: # optional, default is false
+      #   # Where to save the generated files. Options: artifact
+      #   destination: # optional, default is artifact
+      #   # A GITHUB_TOKEN with custom permissions.
+      #   github-token: # optional
