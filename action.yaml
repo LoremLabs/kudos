@@ -12,7 +12,7 @@ inputs:
     description: Identify contributors from devDependecies (Node.js)
     default: "false"
   destination:
-    description: |
+    description: >
       Where to save the generated files. Options:
         - artifact: store as a GitHub Actions artifact
         - branch: store in a GitHub branch.
