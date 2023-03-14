@@ -6,6 +6,7 @@ import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import ora from "ora";
 import prompts from "prompts";
 import spinners from "cli-spinners";
+import { xrpToDrops } from "xrpl";
 
 const log = console.log;
 
@@ -46,6 +47,23 @@ const exec = async (context) => {
     case "social": {
       await gatekeep(context);
 
+      const network = context.flags.network || "xrpl:testnet";
+      const keys = await context.vault.keys();
+
+      // convert xrpl:testnet to keys[xrpl][testnet]
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
       // get addresses from rest of input
       const addresses = context.input.slice(2);
       if (addresses.length === 0) {
@@ -76,6 +94,24 @@ const exec = async (context) => {
       // convert the amount into drops
       const drops = parseFloat(amountXrp) * 1000000;
       log(chalk.gray(`\tAmount in drops: \t${drops.toLocaleString()}`));
+
+      // estimate the fees
+      const estPromise = context.coins.estimatedSendFee({
+        network,
+        sourceAddress, // estimate
+        address: sourceAddress, // estimate
+        amount: amountXrp,
+        amountDrops: drops,
+      });
+
+      const estimatedFees = await waitFor(estPromise, {
+        text: `Estimating fees`,
+      });
+      log(
+        chalk.gray(
+          `\tEstimated fees : \t${estimatedFees * addresses.length} XRP`
+        )
+      );
 
       // convert the amount into usd
       const getExchange = getExchangeRate("XRP");
@@ -123,6 +159,14 @@ const exec = async (context) => {
       let longestPercentLength = 0;
       let changedWeights = false;
 
+      let totalFeeEstimate = estimatedFees * weightedAddresses.length; // total fee estimate for all addresses
+      let totalFeeEstimateDrops = xrpToDrops(totalFeeEstimate); // bignumber?
+
+      let totalDropsBeforeFees = drops - totalFeeEstimateDrops;
+      let totalXrpBeforeFees = totalDropsBeforeFees / 1000000;
+
+      // log('drops', drops, 'minus fees', totalFeeEstimateDrops, 'equals', drops - totalFeeEstimateDrops);
+
       const calcWeights = () => {
         totalWeight = 0;
         totalWeight = weightedAddresses.reduce((total, address) => {
@@ -135,9 +179,9 @@ const exec = async (context) => {
         }
 
         weightedAddresses = weightedAddresses.map((address) => {
-          const amount = (amountXrp * address.weight) / totalWeight;
+          const amount = (totalXrpBeforeFees * address.weight) / totalWeight;
           const amountDrops = Math.round(
-            (drops * address.weight) / totalWeight
+            (totalDropsBeforeFees * address.weight) / totalWeight
           ); // TODO: validate the drops usage is correct
           // check if amount is less than 0
           if (amount < 0) {
@@ -215,24 +259,6 @@ const exec = async (context) => {
 
       // confirm the account
       log("");
-      const network = context.flags.network || "xrpl:testnet";
-      const keys = await context.vault.keys();
-      // log(JSON.stringify(keys, null, 2));
-
-      // convert xrpl:testnet to keys[xrpl][testnet]
-      let sourceAddress;
-      const networkParts = network.split(":");
-      if (networkParts.length === 1) {
-        sourceAddress = keys[network].address;
-      } else {
-        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
-      }
-
-      if (!sourceAddress) {
-        log(chalk.red(`send: no account found for network ${network}`));
-        process.exit(1);
-      }
-
       const confirm3 = await prompts([
         {
           type: "confirm",

@@ -65,6 +65,31 @@ Coins.prototype.getConfig = async function (network, type) {
   return null;
 };
 
+Coins.prototype.estimatedSendFee = async function ({
+  network,
+  sourceAddress,
+  address,
+  amount,
+  amountDrops,
+}) {
+  const client = await this.getClient(network);
+
+  const wallet = await this.getWallet(sourceAddress);
+
+  const tx = {
+    TransactionType: "Payment",
+    Account: wallet.classicAddress,
+    Amount: xrpl.xrpToDrops(amount),
+    Destination: address,
+  };
+
+  // Prepare transaction -------------------------------------------------------
+  const prepared = await client.autofill(tx);
+  // console.log("Prepared transaction", prepared);
+
+  return xrpl.dropsToXrp(prepared.Fee);
+};
+
 Coins.prototype.send = async function ({
   network,
   sourceAddress,
