@@ -1,4 +1,6 @@
 import { DEFAULTS } from "./config.js";
+import crypto from "node:crypto";
+import cryptoCondition from "five-bells-condition"; // TODO: use crypto-conditions?
 import xrpl from "xrpl";
 
 const log = console.log;
@@ -143,17 +145,94 @@ Coins.prototype.send = async function ({
 Coins.prototype.sendEscrow = async function ({
   network,
   sourceAddress,
-  addresses,
+  address,
   escrow,
+  amount,
+  amountDrops,
 }) {
   // log(
   //   "sendEscrow",
-  //   JSON.stringify({ network, sourceAddress, addresses, escrow })
+  //   JSON.stringify({ network, sourceAddress, addresses, escrow }, null, 2)
   // );
 
-  throw new Error("not implemented yet");
+  // {
+  //   "network": "xrpl:testnet",
+  //   "sourceAddress": "r4bqzg7iZFBGmLyYRa3o6vgtCMDzvVoRCh",
+  //   "escrow": {
+  //     "identifier": "did:kudos:matt@loremlabs.com",
+  //     "type": "xrpl:testnet",
+  //     "address": "raxswZCMXNNoCVd54HJUX36eMstNq7TDCj",
+  //     "time": 604800
+  //   }
+  // }
 
-  return true;
+  const fulfillmentBytes = crypto.randomBytes(32); // could use string, but why
+
+  let myFulfillment = new cryptoCondition.PreimageSha256();
+  myFulfillment.setPreimage(fulfillmentBytes);
+
+  // to include in tx
+  const condition = myFulfillment
+    .getConditionBinary()
+    .toString("hex")
+    .toUpperCase();
+
+  // keep secret until you want to finish executing the held payment:
+  const fulfillmentTicket = myFulfillment
+    .serializeBinary()
+    .toString("hex")
+    .toUpperCase();
+
+  // get expiration time
+  const cancelAfter = xrpl.isoTimeToRippleTime(Date()) + (escrow.time || 300); // TODO: check for enough escrow.time, defaulting to 5 minutes
+
+  const client = await this.getClient(network);
+  if (amountDrops != xrpl.xrpToDrops(amount)) {
+    console.log("amountDrops", amountDrops);
+    console.log("xrpl.xrpToDrops(amount)", xrpl.xrpToDrops(amount));
+    throw new Error("Amount Drops calculation error?");
+  }
+
+  const wallet = await this.getWallet(sourceAddress);
+
+  // Enter memo data to insert into a transaction
+  const MemoData = xrpl.convertStringToHex(escrow.identifier).toUpperCase();
+  const MemoType = xrpl.convertStringToHex("relayto.identifier").toUpperCase();
+  // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+  const MemoFormat = xrpl.convertStringToHex("text/plain").toUpperCase();
+  const Memos = [
+    {
+      Memo: {
+        MemoType,
+        MemoFormat,
+        MemoData,
+      },
+    },
+  ];
+
+  const escrowTx = {
+    TransactionType: "EscrowCreate",
+    Account: wallet.classicAddress,
+    Destination: address,
+    Amount: xrpl.xrpToDrops(amount),
+    CancelAfter: cancelAfter,
+    Condition: condition,
+    // DestinationTag: 12345,
+    Memos, // shows up in tx history, used as source for relayto.identifier
+  };
+
+  const prepared = await client.autofill(escrowTx);
+  const signed = wallet.sign(prepared);
+
+  let result;
+  try {
+    result = await client.submitAndWait(signed.tx_blob);
+  } catch (err) {
+    console.log("Error:", err, err.message);
+    throw err;
+  }
+  // console.log("send result", result);
+  return { result, fulfillmentTicket };
 };
 
 Coins.prototype.getClient = async function (network) {

@@ -589,20 +589,27 @@ const exec = async (context) => {
           network,
           sourceAddress,
           address: currentAddress.expandedAddress,
+          amount: currentAddress.amount,
+          amountDrops: currentAddress.amountDrops,
           escrow: currentAddress.escrow,
         });
-        const escrowPayment = await waitFor(epPromise, {
+        const { result, fulfillmentTicket } = await waitFor(epPromise, {
           text:
-            `Sending Escrow of ` +
+            `Creating Escrow of ` +
             chalk.green(`${currentAddress.amount}`) +
-            " to " +
+            " via " +
             chalk.blue(`${currentAddress.expandedAddress}`),
         });
 
-        if (!escrowPayment) {
+        if (!result && !fulfillmentTicket) {
           log(chalk.red(`send: could not send escrow payment`));
           process.exit(1);
         }
+
+        // log(JSON.stringify(result, null, 2));
+
+        // TODO: post it to ident agency, don't treat transaction as complete until we get a response
+        log(JSON.stringify(fulfillmentTicket, null, 2));
       }
 
       context.coins.disconnect();
