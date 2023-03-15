@@ -231,8 +231,8 @@ Coins.prototype.sendEscrow = async function ({
     console.log("Error:", err, err.message);
     throw err;
   }
-  // console.log("send result", result);
-  return { result, fulfillmentTicket };
+  //console.log("send result", result);
+  return { result, fulfillmentTicket, escrowTx };
 };
 
 Coins.prototype.getClient = async function (network) {

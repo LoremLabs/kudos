@@ -4,6 +4,7 @@ import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
+import { notifyEscrow } from "../lib/escrow.js";
 import ora from "ora";
 import prompts from "prompts";
 import spinners from "cli-spinners";
@@ -288,6 +289,9 @@ const exec = async (context) => {
       // addresses can be an xrpl address, or a did (did:kudos:...) if they're not, we should error
       log("");
 
+      const identResolver =
+        context.flags.identResolver || context.config.identity?.identResolver;
+
       // loop through addresses and expand if needed
       for (let i = 0; i < weightedAddresses.length; i++) {
         const address = weightedAddresses[i];
@@ -298,9 +302,6 @@ const exec = async (context) => {
         if (types.did) {
           // expand this address
           const did = address.address;
-          const identResolver =
-            context.flags.identResolver ||
-            context.config.identity?.identResolver;
 
           let directPaymentVia, escrowMethod;
           try {
@@ -539,9 +540,12 @@ const exec = async (context) => {
           text:
             `Sending ` +
             chalk.green(`${currentAddress.amount}`) +
-            " to " +
+            " XRP to " +
             chalk.blue(`${currentAddress.expandedAddress}`) +
-            " " +
+            "\n" +
+            " ".repeat(
+              `  Sending ${currentAddress.amount + ""} XRP to `.length
+            ) +
             stringToColorBlocks(currentAddress.expandedAddress),
         });
 
@@ -593,23 +597,43 @@ const exec = async (context) => {
           amountDrops: currentAddress.amountDrops,
           escrow: currentAddress.escrow,
         });
-        const { result, fulfillmentTicket } = await waitFor(epPromise, {
-          text:
-            `Creating Escrow of ` +
-            chalk.green(`${currentAddress.amount}`) +
-            " via " +
-            chalk.blue(`${currentAddress.expandedAddress}`),
-        });
+        const { result, fulfillmentTicket, escrowTx } = await waitFor(
+          epPromise,
+          {
+            text:
+              `Creating Escrow of ` +
+              chalk.green(`${currentAddress.amount}`) +
+              " via " +
+              chalk.blue(`${currentAddress.expandedAddress}`),
+          }
+        );
 
         if (!result && !fulfillmentTicket) {
           log(chalk.red(`send: could not send escrow payment`));
           process.exit(1);
         }
 
-        // log(JSON.stringify(result, null, 2));
+        const toNotify = {
+          network,
+          sourceAddress,
+          amount: currentAddress.amount,
+          amountDrops: currentAddress.amountDrops,
+          escrow: currentAddress.escrow,
+          fulfillmentTicket,
+          sequenceNumber: result.result.Sequence,
+          cancelAfter: escrowTx.CancelAfter,
+          identResolver,
+          identifier: currentAddress.escrow.identifier,
+        };
+        // log(toNotify);
 
-        // TODO: post it to ident agency, don't treat transaction as complete until we get a response
-        log(JSON.stringify(fulfillmentTicket, null, 2));
+        // send the fulfillment to the escrow agent
+        const nePromise = notifyEscrow(toNotify);
+        await waitFor(nePromise, {
+          text: `Notifying Escrow Agent for ${chalk.cyan(
+            currentAddress.escrow.identifier
+          )}`,
+        });
       }
 
       context.coins.disconnect();
