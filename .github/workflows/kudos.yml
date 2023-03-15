@@ -12,8 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with: { version: 7 }
       - uses: actions/setup-node@v3
-      - run: npm i && cd commands/setler-cli && npm i
+      - run: pnpm i -r
+
       - uses: LoremLabs/kudos-for-code-action@v0.0.3
         with:
         #   # Root directory containing package.json
