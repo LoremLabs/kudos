@@ -19,12 +19,12 @@ jobs:
 
       - uses: LoremLabs/kudos-for-code-action@v0.0.3
         with:
-        #   # Root directory containing package.json
-        #   search-dir: # optional, default is .
-        #   # Cohort
-        #   cohort: # optional, default is
-        #   # Identify contributors from devDependecies (Node.js)
-          dev-dependencies: "true" # optional, default is false
+          #   # Root directory containing package.json
+          #   search-dir: # optional, default is .
+          #   # Cohort
+          #   cohort: # optional, default is
+          #   # Identify contributors from devDependecies (Node.js)
+          dev-dependencies: 'true' # optional, default is false
         #   # Where to save the generated files. Options: artifact
         #   destination: # optional, default is artifact
         #   # A GITHUB_TOKEN with custom permissions.
