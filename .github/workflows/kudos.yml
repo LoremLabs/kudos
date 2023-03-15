@@ -11,15 +11,17 @@ jobs:
   kudos_for_code_job:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
       - run: npm i && cd commands/setler-cli && npm i
       - uses: LoremLabs/kudos-for-code-action@v0.0.3
-        # with:
+        with:
         #   # Root directory containing package.json
         #   search-dir: # optional, default is .
         #   # Cohort
         #   cohort: # optional, default is
         #   # Identify contributors from devDependecies (Node.js)
-          dev-dependencies: true # optional, default is false
+          dev-dependencies: "true" # optional, default is false
         #   # Where to save the generated files. Options: artifact
         #   destination: # optional, default is artifact
         #   # A GITHUB_TOKEN with custom permissions.
