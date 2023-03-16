@@ -1,5 +1,6 @@
 import { Receiver as Qstash } from '@upstash/qstash';
 import { Redis } from '@upstash/redis';
+import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
 
 let redis = {};
@@ -17,33 +18,6 @@ const qstash = new Qstash({
 	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
 	nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY
 });
-
-const MAX_RUNTIME = 1000 * 55; // 55s to have a chance to finish
-
-const getIngressAddresses = (network) => {
-	const addresses = new Set();
-	// process.env.RELAY_MANAGER_SCOPE is a string "xrpl:livenet=rEt8yCY2rcbY94vyGrUDUAiRfea1cncpYU,xrpl:testnet=..."
-
-	// setup our ingress addresses
-	(process.env.RELAY_MANAGER_SCOPE || '').split(',').forEach((definition) => {
-		if (!definition) {
-			return;
-		}
-		let [net, addr] = definition.split('=');
-		// remove whitespace
-		net = net.trim();
-		addr = addr.trim();
-
-		// change - to : (qstash limit of allowable chars in q names)
-		net = net.replace(/-/g, ':');
-
-		if (net === network) {
-			addresses.add(addr);
-		}
-	});
-
-	return addresses;
-};
 
 const onNewEscrow = async ({ request }) => {
 	const startTs = Date.now();
