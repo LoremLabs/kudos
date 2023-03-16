@@ -71,8 +71,8 @@ export const socialPay = async (_, params) => {
 	const escrowMethods = [
 		{
 			type: 'xrpl:testnet',
-			address: 'raxswZCMXNNoCVd54HJUX36eMstNq7TDCj',
-			time: 86400 * 7 // 7 days
+			address: 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3',
+			time: 300 // TODO: set longer after testing
 		}
 		// {
 		// 	type: 'xrpl:livenet',

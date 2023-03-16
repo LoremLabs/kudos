@@ -5,3 +5,20 @@ input Pagination {
 	# default false
 	needTotal: Boolean
 }
+
+# Request Status
+type Status {
+	# status code
+	code: Int!
+	# status message
+	message: String!
+}
+
+# General Purpose Response
+type GenericResponse {
+	# status
+	status: Status!
+
+	# data
+	data: JSON
+}

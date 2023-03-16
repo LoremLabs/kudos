@@ -1,11 +1,3 @@
-# Request Status
-type Status {
-	# status code
-	code: Int!
-	# status message
-	message: String!
-}
-
 type Query {
 	payVia(identifier: String!): [PaymentMethod]
 

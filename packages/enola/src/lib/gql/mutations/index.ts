@@ -217,7 +217,117 @@ export const setPayVia = async (_, params) => {
 	};
 };
 
+// escrowNotify(
+// 	address: String!
+// 	identifier: String!
+// 	network: String!
+// 	expiresAt: Int
+// 	amount: String!
+// 	fulfillmentTicket: String!
+// ): GenericResponse
+
+export const escrowNotify = async (_, params) => {
+	//	log.debug('---------------------', params);
+
+	const { address, identifier, network, cancelAfter, amount, fulfillmentTicket, sequenceNumber } =
+		params;
+
+	// check the payload for requirements
+	if (!identifier || !address || !network || !amount || !fulfillmentTicket || !sequenceNumber) {
+		return {
+			status: {
+				message: 'invalid payload',
+				code: 400
+			}
+		};
+	}
+
+	// see if cancelAfter is in the past
+	const nowInRippleTime = Math.floor(Date.now() / 1000) - 946684800; // year 2000 epoch
+	if (cancelAfter && cancelAfter < nowInRippleTime) {
+		return {
+			status: {
+				message: 'expired',
+				code: 400
+			}
+		};
+	}
+
+	// see if this address is one of the addresses we know about
+	const ingresses = new Set();
+	// process.env.ENOLA_INGRESS_ADDRESSES is a string "xrpl-livenet=rEt8yCY2rcbY94vyGrUDUAiRfea1cncpYU,xrpl-testnet=..."
+
+	// setup our ingress addresses
+	(process.env.ENOLA_INGRESSES || '').split(',').forEach((ingress) => {
+		if (!ingress) {
+			return;
+		}
+		let [net, addr] = ingress.split('=');
+		// remove whitespace
+		net = net.trim();
+		addr = addr.trim();
+
+		// change - to : (qstash limit of allowable chars in q names)
+		net = net.replace(/-/g, ':');
+
+		ingresses.add(`${net}>${addr}`); // xrpl-testnet=rEt8yCY2rcbY94vyGrUDUAiRfea1cncpYU
+	});
+
+	// see if this address is one of the addresses we know about
+	if (!ingresses.has(`${network}>${address}`)) {
+		return {
+			status: { message: 'unknown address', code: 400 }
+		};
+	}
+
+	// NB: this is an ingress function, it should only pass along the data
+	// we should not trust this data, it should be validated by the
+	// reading the ledger and its memo fields directly
+
+	const queueName = `xrpl-testnet.onNewEscrow`;
+
+	let response;
+	try {
+		// send to queue for processing
+		response = await fetch('https://qstash.upstash.io/v1/publish/' + queueName, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Upstash-Content-Based-Deduplication': true, // prevent duplicate messages
+				Authorization: 'Bearer ' + process.env.QSTASH_TOKEN
+			},
+			body: JSON.stringify({
+				...params
+			})
+		});
+
+		if (!response.ok) {
+			log.error('error publishing to queue', response);
+			return {
+				status: { message: 'queue error', code: 500 }
+			};
+		}
+	} catch (e) {
+		log.error('redis error', e);
+		return {
+			status: { message: 'insert error', code: 500 }
+		};
+	}
+
+	if (!response.ok) {
+		log.error('error publishing to queue', response);
+		return {
+			status: { message: 'queue error', code: 500 }
+		};
+	}
+
+	return {
+		status: { message: 'success', code: 200 }
+	};
+};
+
 export default {
+	escrowNotify,
 	setPayVia,
 	submitKudosForFame
 };

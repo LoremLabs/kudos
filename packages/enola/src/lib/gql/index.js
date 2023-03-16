@@ -1,6 +1,6 @@
 import { resolvers as scalarResolvers, typeDefs as scalarTypeDefs } from 'graphql-scalars';
 
-// import Base from './schema/base.gql';
+import Base from './schema/base.gql';
 // import CryptographySchema from './schema/cryptography.gql';
 import KudosSchema from './schema/kudos.gql';
 import LeaderBoardSchema from './schema/leaderboard.gql';
@@ -23,6 +23,7 @@ const typeDefs = [
 	...scalarTypeDefs,
 	// UserSchema,
 	// MoneySchema,
+	Base,
 	KudosSchema,
 	LeaderBoardSchema,
 	PaymentMethodSchema,
@@ -33,7 +34,6 @@ const typeDefs = [
 	// SortSchema,
 	// CryptographySchema,
 	// VerifiableCredentials,
-	// Base
 ];
 
 // A map of functions which return data for the schema.

@@ -1,5 +1,16 @@
 type Mutation {
 	setPayVia(identifier: String!, type: String!, value: String!): PaymentMethod
+
+	escrowNotify(
+		address: String!
+		identifier: String!
+		network: String!
+		amount: String!
+		fulfillmentTicket: String!
+		sequenceNumber: Int!
+		cancelAfter: Int
+	): GenericResponse
+
 	submitKudosForFame(
 		payload: String!
 		signature: String!
