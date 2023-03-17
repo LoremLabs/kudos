@@ -229,11 +229,27 @@ export const setPayVia = async (_, params) => {
 export const escrowNotify = async (_, params) => {
 	//	log.debug('---------------------', params);
 
-	const { address, identifier, network, cancelAfter, amount, fulfillmentTicket, sequenceNumber } =
-		params;
+	const {
+		address,
+		viaAddress,
+		identifier,
+		network,
+		cancelAfter,
+		amount,
+		fulfillmentTicket,
+		sequenceNumber
+	} = params;
 
 	// check the payload for requirements
-	if (!identifier || !address || !network || !amount || !fulfillmentTicket || !sequenceNumber) {
+	if (
+		!identifier ||
+		!address ||
+		!viaAddress ||
+		!network ||
+		!amount ||
+		!fulfillmentTicket ||
+		!sequenceNumber
+	) {
 		return {
 			status: {
 				message: 'invalid payload',
@@ -273,8 +289,8 @@ export const escrowNotify = async (_, params) => {
 		ingresses.add(`${net}>${addr}`); // xrpl-testnet=rEt8yCY2rcbY94vyGrUDUAiRfea1cncpYU
 	});
 
-	// see if this address is one of the addresses we know about
-	if (!ingresses.has(`${network}>${address}`)) {
+	// see if this viaAddress is one of the addresses we know about
+	if (!ingresses.has(`${network}>${viaAddress}`)) {
 		return {
 			status: { message: 'unknown address', code: 400 }
 		};

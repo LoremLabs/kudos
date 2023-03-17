@@ -55,13 +55,18 @@ const ledgerWatcher = async ({ request }) => {
 	// connect our client
 	const xrplClient = await getClient(network);
 
+	// make sure we're connected
+	await xrplClient.connect();
+
 	// get the last processed ledger index
 	const lastLedgerIndex = {};
 	for (const address of [...addresses]) {
 		lastLedgerIndex[address] = await redis.get(`lw:${network}:${address}:lastIndex`);
+		lastLedgerIndex[address] = parseInt(lastLedgerIndex[address], 10);
 		if (!lastLedgerIndex[address]) {
-			lastLedgerIndex[address] = 0;
+			lastLedgerIndex[address] = -1;
 		}
+		lastLedgerIndex[address] = lastLedgerIndex[address] + 1; // start with the next index
 	}
 
 	let loop = true;
@@ -69,19 +74,21 @@ const ledgerWatcher = async ({ request }) => {
 		while (loop) {
 			let limitReached = false;
 			let lastProcessed = 0;
+			let accountInfo = {};
+
 			for (const address of [...addresses]) {
 				// get the account info
 				log.info(`ledgerWatcher: checking ${address} on ${network}...`);
-				const accountInfo = await xrplClient.request({
+				accountInfo = await xrplClient.request({
 					command: 'account_info',
 					account: address,
 					ledger_index: 'validated'
 				});
 				log.debug(`ledgerWatcher: account_info for ${address} on ${network}`, accountInfo);
 				// check if we have a new ledger
-				if (accountInfo.ledger_current_index > lastLedgerIndex[address]) {
+				if (accountInfo.result.ledger_index > lastLedgerIndex[address]) {
 					// get the transactions
-					const transactions = await xrplClient.request({
+					const transactionsResponse = await xrplClient.request({
 						command: 'account_tx',
 						account: address,
 						ledger_index_min: lastLedgerIndex[address],
@@ -89,19 +96,62 @@ const ledgerWatcher = async ({ request }) => {
 						binary: false,
 						limit: TX_LIMIT
 					});
+					const { result: transactions } = transactionsResponse;
 
 					lastProcessed = lastLedgerIndex[address];
-
+					log.debug(`ledgerWatcher: account_tx`, transactions);
 					// process the transactions
 					for (const tx of transactions.transactions) {
-						lastProcessed = tx.ledger_index; // TODO: check if this is correct
+						log.debug(`ledgerWatcher: processing ${tx.tx.TransactionType}`, tx);
+						// look to see if this has been validated
+						if (tx.validated === false) {
+							// shouldn't happen because we are using validated ledger
+							throw new Error('transaction not validated');
+						}
+						lastProcessed = tx.tx.ledger_index;
 						switch (tx.tx.TransactionType) {
 							case 'EscrowCreate': {
 								// relay to queue
+								if (tx.tx.Destination !== address) {
+									// not for us? should not happen
+									log.warn(
+										`ledgerWatcher: EscrowCreate for ${tx.tx.Destination} not for us ${address}`,
+										tx.tx
+									);
+									continue;
+								}
+
+								log.debug(
+									`ledgerWatcher: publishing EscrowCreate for ${address} on ${network}`,
+									tx.tx
+								);
 								const res = await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowCreate`,
 									body: {
-										...tx.tx
+										tx: tx.tx
+									}
+								});
+								break;
+							}
+							case 'EscrowCancel': {
+								// relay to queue
+								log.debug(
+									`ledgerWatcher: publishing EscrowCancel for ${address} on ${network}`,
+									tx.tx
+								);
+								if (tx.tx.Destination !== address) {
+									// not for us? should not happen
+									log.warn(
+										`ledgerWatcher: EscrowCancel for ${address} on ${network} not for us`,
+										tx.tx
+									);
+									continue;
+								}
+
+								const res = await qstash.publishJSON({
+									topic: `${network.replace(':', '-')}.onEscrowCancel`,
+									body: {
+										tx: tx.tx
 									}
 								});
 								break;
@@ -115,19 +165,30 @@ const ledgerWatcher = async ({ request }) => {
 
 					// see if we read a full page
 					if (transactions.transactions.length === TX_LIMIT) {
+						log.info(`ledgerWatcher: limit reached for ${address} on ${network}...`);
 						limitReached = true;
+					}
+
+					// if we processed no transactions then we should record the index anyway
+					if (transactions.transactions.length === 0) {
+						log.info(`ledgerWatcher: no new transactions for ${address} on ${network}...`);
+						lastProcessed = accountInfo.result.ledger_index;
 					}
 				}
 
 				// update the last ledger index if needed
 				if (lastProcessed > lastLedgerIndex[address]) {
 					lastLedgerIndex[address] = lastProcessed;
+					log.info(
+						`ledgerWatcher: updating last index for ${address} on ${network} to ${lastLedgerIndex[address]}`
+					);
 					await redis.set(`lw:${network}:${address}:lastIndex`, lastLedgerIndex[address]);
 				}
 
 				// check if we are over the max runtime
 				if (Date.now() - startTs > MAX_RUNTIME) {
 					loop = false;
+					log.info(`ledgerWatcher: max runtime reached for ${address} on ${network}.`);
 					break;
 				}
 

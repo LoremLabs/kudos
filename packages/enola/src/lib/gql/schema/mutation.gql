@@ -3,6 +3,7 @@ type Mutation {
 
 	escrowNotify(
 		address: String!
+		viaAddress: String!
 		identifier: String!
 		network: String!
 		amount: String!
