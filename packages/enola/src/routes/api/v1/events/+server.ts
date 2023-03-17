@@ -58,7 +58,7 @@ const ledgerWatcher = async ({ request }) => {
 	// make sure we're connected
 	await xrplClient.connect();
 
-	// get the last processed ledger index
+	// get the last processed ledger index stored in redis
 	const lastLedgerIndex = {};
 	for (const address of [...addresses]) {
 		lastLedgerIndex[address] = await redis.get(`lw:${network}:${address}:lastIndex`);
@@ -73,10 +73,11 @@ const ledgerWatcher = async ({ request }) => {
 	try {
 		while (loop) {
 			let limitReached = false;
-			let lastProcessed = 0;
 			let accountInfo = {};
 
 			for (const address of [...addresses]) {
+				let lastLedgerIndexProcessed = 0;
+
 				// get the account info
 				log.info(`ledgerWatcher: checking ${address} on ${network}...`);
 				accountInfo = await xrplClient.request({
@@ -84,7 +85,11 @@ const ledgerWatcher = async ({ request }) => {
 					account: address,
 					ledger_index: 'validated'
 				});
-				log.debug(`ledgerWatcher: account_info for ${address} on ${network}`, accountInfo);
+
+				log.debug(
+					`ledgerWatcher: account_info for ${address} on ${network} after ${lastLedgerIndex[address]}`,
+					accountInfo
+				);
 				// check if we have a new ledger
 				if (accountInfo.result.ledger_index > lastLedgerIndex[address]) {
 					// get the transactions
@@ -98,8 +103,12 @@ const ledgerWatcher = async ({ request }) => {
 					});
 					const { result: transactions } = transactionsResponse;
 
-					lastProcessed = lastLedgerIndex[address];
-					log.debug(`ledgerWatcher: account_tx`, transactions);
+					lastLedgerIndexProcessed = lastLedgerIndex[address];
+
+					log.debug(
+						`ledgerWatcher: account_tx lastLedgerIndexProcessed: ${lastLedgerIndexProcessed}`,
+						transactions
+					);
 					// process the transactions
 					for (const tx of transactions.transactions) {
 						log.debug(`ledgerWatcher: processing ${tx.tx.TransactionType}`, tx);
@@ -108,7 +117,12 @@ const ledgerWatcher = async ({ request }) => {
 							// shouldn't happen because we are using validated ledger
 							throw new Error('transaction not validated');
 						}
-						lastProcessed = tx.tx.ledger_index;
+						log.debug(
+							`lastLedgerIndexProcessed ${lastLedgerIndexProcessed} vs ${tx.tx.ledger_index} vs ${lastLedgerIndex[address]}`
+						);
+						if (lastLedgerIndexProcessed < tx.tx.ledger_index) {
+							lastLedgerIndexProcessed = tx.tx.ledger_index;
+						}
 						switch (tx.tx.TransactionType) {
 							case 'EscrowCreate': {
 								// relay to queue
@@ -127,6 +141,7 @@ const ledgerWatcher = async ({ request }) => {
 								);
 								const res = await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowCreate`,
+									deduplicationId: tx.tx.hash,
 									body: {
 										tx: tx.tx
 									}
@@ -150,6 +165,7 @@ const ledgerWatcher = async ({ request }) => {
 
 								const res = await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowCancel`,
+									deduplicationId: tx.tx.hash,
 									body: {
 										tx: tx.tx
 									}
@@ -164,7 +180,7 @@ const ledgerWatcher = async ({ request }) => {
 					}
 
 					// see if we read a full page
-					if (transactions.transactions.length === TX_LIMIT) {
+					if (transactions.transactions.length >= TX_LIMIT) {
 						log.info(`ledgerWatcher: limit reached for ${address} on ${network}...`);
 						limitReached = true;
 					}
@@ -172,13 +188,13 @@ const ledgerWatcher = async ({ request }) => {
 					// if we processed no transactions then we should record the index anyway
 					if (transactions.transactions.length === 0) {
 						log.info(`ledgerWatcher: no new transactions for ${address} on ${network}...`);
-						lastProcessed = accountInfo.result.ledger_index;
+						lastLedgerIndexProcessed = accountInfo.result.ledger_index;
 					}
 				}
 
 				// update the last ledger index if needed
-				if (lastProcessed > lastLedgerIndex[address]) {
-					lastLedgerIndex[address] = lastProcessed;
+				if (lastLedgerIndexProcessed > lastLedgerIndex[address]) {
+					lastLedgerIndex[address] = lastLedgerIndexProcessed;
 					log.info(
 						`ledgerWatcher: updating last index for ${address} on ${network} to ${lastLedgerIndex[address]}`
 					);
