@@ -187,6 +187,24 @@ const exec = async (context) => {
           const amountDrops = Math.round(
             (totalDropsBeforeFees * address.weight) / totalWeight
           ); // TODO: validate the drops usage is correct
+          // see if we're below minimus threshold
+          if (amountDrops < 750) {
+            // don't try to send less than 0.0000075 XRP
+            // if the amount is less than 0.0000075 XRP, then we need to adjust the weight of this address
+            // and recalculate the weights
+            address.weight = 0;
+            changedWeights = true;
+            log(
+              chalk.rgb(
+                255,
+                165,
+                0
+              )(
+                `send: amount for ${address.address} is less than 0.0000075 XRP. Will skip this address.`
+              )
+            );
+          }
+
           // check if amount is less than 0
           if (amount < 0) {
             log(chalk.red(`send: amount is less than 0`));
@@ -213,7 +231,9 @@ const exec = async (context) => {
         });
       };
       calcWeights();
-
+      if (changedWeights) {
+        calcWeights();
+      }
       const confirmWeights = async () => {
         // confirm the addresses and weights
         weightedAddresses.forEach((address) => {
@@ -616,6 +636,7 @@ const exec = async (context) => {
         const toNotify = {
           network,
           sourceAddress,
+          viaAddress: currentAddress.expandedAddress,
           amount: currentAddress.amount,
           amountDrops: currentAddress.amountDrops,
           escrow: currentAddress.escrow,
@@ -626,14 +647,43 @@ const exec = async (context) => {
           identifier: currentAddress.escrow.identifier,
         };
         // log(toNotify);
+        // TODO: store the fulfillment ticket locally?
 
         // send the fulfillment to the escrow agent
-        const nePromise = notifyEscrow(toNotify);
-        await waitFor(nePromise, {
-          text: `Notifying Escrow Agent for ${chalk.cyan(
-            currentAddress.escrow.identifier
-          )}`,
-        });
+        const sendToEscrowAgent = async () => {
+          const nePromise = notifyEscrow(toNotify);
+          try {
+            const neResults = await waitFor(nePromise, {
+              text: `Notifying Escrow Agent for ${chalk.cyan(
+                currentAddress.escrow.identifier
+              )}`,
+            });
+          } catch (e) {
+            log("");
+            log(" " + "─".repeat(width - 2));
+            log(chalk.red(`send: could not notify escrow agent: ${e.message}`));
+            log("");
+
+            // see if we should try again
+            const retry = await prompts([
+              {
+                type: "confirm",
+                name: "value",
+                message: `Do you want to try to notify again? (No new transaction is created.)`,
+                initial: true,
+              },
+            ]);
+            if (retry.value) {
+              log("");
+              return await sendToEscrowAgent();
+            } else {
+              log({ toNotify });
+              process.exit(1);
+            }
+          }
+        };
+
+        await sendToEscrowAgent();
       }
 
       context.coins.disconnect();

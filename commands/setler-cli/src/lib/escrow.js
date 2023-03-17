@@ -16,6 +16,7 @@ const log = console.log;
 export const notifyEscrow = async ({
   network, // xrpl:livenet
   sourceAddress,
+  viaAddress,
   escrow,
   fulfillmentTicket,
   sequenceNumber,
@@ -31,7 +32,8 @@ export const notifyEscrow = async ({
   const identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
   const operationName = "EscrowNotify";
   const gqlMutation = {
-    query: `mutation EscrowNotify($address: String!, 		
+    query: `mutation EscrowNotify($address: String!,
+              $viaAddress: String!,
               $identifier: String!
               $network: String!
               $amount: String!
@@ -40,6 +42,7 @@ export const notifyEscrow = async ({
               $cancelAfter: Int
       ) {
         escrowNotify(address: $address
+              viaAddress: $viaAddress
               identifier: $identifier
               network: $network
               amount: $amount
@@ -56,6 +59,7 @@ export const notifyEscrow = async ({
     variables: {
       identifier,
       address: sourceAddress,
+      viaAddress,
       network,
       amount: amountDrops + "",
       fulfillmentTicket,
@@ -100,6 +104,18 @@ export const notifyEscrow = async ({
         }
 
         const out = await r.json();
+        // console.log("out", JSON.stringify(out, null, 2));
+        // {
+        //     "data": {
+        //       "escrowNotify": {
+        //         "status": {
+        //           "code": 400,
+        //           "message": "unknown address"
+        //         }
+        //       }
+        //     }
+        //   }
+
         return out;
       }
     );
@@ -119,5 +135,8 @@ export const notifyEscrow = async ({
   }
   // console.log("results", results);
   const status = results.data.escrowNotify.status.code === 200 ? "ok" : "error";
+  if (status === "error") {
+    throw new Error(results.data.escrowNotify.status.message + " error");
+  }
   return status;
 };
