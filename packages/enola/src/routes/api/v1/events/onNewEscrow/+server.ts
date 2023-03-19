@@ -67,14 +67,14 @@ const onNewEscrow = async ({ request }) => {
 		});
 	}
 
-	// add to redis hmset `ident:$address:$sequenceNumber` = ...params
+	// add this as a "Known Escrow" : set `ident:$address:$sequenceNumber:$identifier` = ...params
 	await redis.set(
-		`ident:${address}:${sequenceNumber}`,
+		`ident:${address}:${sequenceNumber}:${identifier}`,
 		{
 			...params
 		},
 		{
-			nx: true // only set if not exists. we ignore this
+			nx: true // only set if not exists. we ignore this error
 		}
 	);
 	// TODO: log error if set
