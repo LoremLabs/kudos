@@ -2,6 +2,7 @@ import { Receiver as Qstash } from '@upstash/qstash';
 import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
+import { shortAddress } from '$lib/utils/display.js';
 
 let redis = {};
 try {
@@ -69,9 +70,9 @@ const onNewEscrow = async ({ request }) => {
 
 	// add this as a "Known Escrow" : set `ident:$address:$sequenceNumber:$identifier` = ...params
 	await redis.set(
-		`ident:${address}:${sequenceNumber}:${identifier}`,
+		`escrow:${shortAddress(address)}:${sequenceNumber}:${identifier}`,
 		{
-			...params
+			...params // includes network
 		},
 		{
 			nx: true // only set if not exists. we ignore this error
@@ -81,7 +82,7 @@ const onNewEscrow = async ({ request }) => {
 
 	// add to `pending:$identifier` = $address:$sequenceNumber
 	await redis.zadd(`pending:${identifier}`, {
-		member: `${address}:${sequenceNumber}`,
+		member: `${address}:${sequenceNumber}`, // full address
 		score: Date.now(),
 		nx: true
 	}); // nb: not ripple time
