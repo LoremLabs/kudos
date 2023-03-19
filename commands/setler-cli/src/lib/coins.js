@@ -13,6 +13,47 @@ export const Coins = function ({ context }) {
   this.wallets = {}; // cache of wallets
 };
 
+Coins.prototype.fulfillEscrow = async function ({
+  network,
+  address,
+  sequence,
+  fulfillment,
+}) {
+  const client = await this.getClient(network);
+  const wallet = await this.getWallet(address);
+
+  const tx = {
+    TransactionType: "EscrowFinish",
+    Account: address,
+    Owner: address,
+    OfferSequence: sequence,
+    Condition: fulfillment,
+  };
+
+  const result = await client.submit(wallet, tx);
+  return result;
+};
+
+Coins.prototype.cancelEscrow = async function ({
+  network,
+  address,
+  sequence,
+  fulfillment,
+}) {
+  const client = await this.getClient(network);
+  const wallet = await this.getWallet(address);
+
+  const tx = {
+    TransactionType: "EscrowCancel",
+    Account: address,
+    Owner: address,
+    OfferSequence: sequence,
+  };
+
+  const result = await client.submit(wallet, tx);
+  return result;
+};
+
 Coins.prototype.getWallet = async function (address) {
   if (this.wallets[address]) {
     return this.wallets[address];
