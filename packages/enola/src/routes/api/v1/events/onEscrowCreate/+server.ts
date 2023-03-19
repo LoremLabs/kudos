@@ -47,7 +47,7 @@ const onEscrowCreate = async ({ request }) => {
 
 	if (!isValid) {
 		return new Response(JSON.stringify({ status: { message: 'invalid request', code: 400 } }), {
-			status: 400 
+			status: 400
 		});
 	}
 
@@ -57,10 +57,13 @@ const onEscrowCreate = async ({ request }) => {
 	const { Destination, Amount, CancelAfter, Memos, Sequence, TransactionType } = tx;
 
 	if (TransactionType !== 'EscrowCreate') {
-		return new Response(JSON.stringify({ status: { message: 'invalid transaction type', code: 400 } }), {
-			status: 400
-		});
-	}	
+		return new Response(
+			JSON.stringify({ status: { message: 'invalid transaction type', code: 400 } }),
+			{
+				status: 400
+			}
+		);
+	}
 
 	// see how we're configured
 	const addresses = getIngressAddresses(network);
@@ -88,7 +91,6 @@ const onEscrowCreate = async ({ request }) => {
 			status: 400
 		});
 	}
-
 
 	// return a response object
 	return new Response(JSON.stringify({ status: { message: 'ok', code: 200 } }), {
