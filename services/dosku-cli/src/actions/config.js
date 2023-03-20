@@ -46,7 +46,7 @@ const exec = (context) => {
       process.exit(2);
     }
   } else {
-    log("Usage: kudos config [get|set|reset|del]");
+    log("Usage: dosku config [get|set|reset|del]");
     process.exit(2);
   }
 };

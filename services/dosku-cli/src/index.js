@@ -7,16 +7,16 @@ import { setFlagDefaults, setContextFunctions } from "./lib/env.js";
 const log = console.log;
 
 // call the action with the given name
-const kudos = async (commandInput) => {
+const dosku = async (commandInput) => {
   // read from STDIN. stdin = '' if no input
-  const stdin = await getStdin();
+  // const stdin = await getStdin();
 
-  const { action, flags, input } = commandInput;
+  const { action, argv, flags, input } = commandInput;
   flags.debug &&
-    log(chalk.green(JSON.stringify({ action, flags, stdin, input })));
+    log(chalk.green(JSON.stringify({ action, argv, flags, stdin: process.stdin, input })));
 
   if (Object.prototype.hasOwnProperty.call(actions, action)) {
-    const context = { ...commandInput, stdin };
+    const context = { ...commandInput, stdin: process.stdin };
 
     setContextFunctions(context);
     setFlagDefaults(context); // allow flag defaults to be set from ENV
@@ -27,4 +27,4 @@ const kudos = async (commandInput) => {
   }
 };
 
-export default kudos;
+export default dosku;

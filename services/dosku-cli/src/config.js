@@ -22,12 +22,12 @@ const schema = {
     items: {
       type: "string",
     },
-    default: ["cmd.kudos.cli"],
+    default: ["cmd.dosku.cli"],
   },
 };
 
 const config = new Conf({
-  projectName: "kudos-cli",
+  projectName: "dosku-cli",
   schema,
   fileExtension: "toml",
   serialize: (store) => {
