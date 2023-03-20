@@ -225,7 +225,8 @@ Coins.prototype.sendEscrow = async function ({
     .toUpperCase();
 
   // get expiration time
-  const cancelAfter = xrpl.isoTimeToRippleTime(Date()) + (escrow.time || 300); // TODO: check for enough escrow.time, defaulting to 5 minutes
+  const cancelAfterIso = new Date(Date.now() + ((parseInt(escrow.time,10) || 300) * 1000)).toISOString();
+  const cancelAfter = xrpl.isoTimeToRippleTime(cancelAfterIso); // TODO: check for enough escrow.time, defaulting to 5 minutes
 
   const client = await this.getClient(network);
   if (amountDrops != xrpl.xrpToDrops(amount)) {
