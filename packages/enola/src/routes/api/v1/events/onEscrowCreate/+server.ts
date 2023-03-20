@@ -1,9 +1,11 @@
-import { Receiver as Qstash } from '@upstash/qstash';
+import { fulfillEscrow, getEscrowDataFromMemos } from '$lib/xrpl.js';
+import { getPayViaForNetwork, shortAddress } from '$lib/utils/escrow.js';
+
 import { Redis } from '@upstash/redis';
-import { getEscrowDataFromMemos } from '$lib/xrpl.js';
 import { getIngressAddresses } from '$lib/configured.js';
+import { getKycStatus } from '$lib/kyc.js';
 import log from '$lib/logging';
-import { shortAddress } from '$lib/utils/display.js';
+import { verifyQueueRequest } from '$lib/queue.js';
 
 let redis = {};
 try {
@@ -16,46 +18,27 @@ try {
 	process.exit(1);
 }
 
-const qstash = new Qstash({
-	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
-	nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY
-});
-
 const onEscrowCreate = async ({ request }) => {
-	const body = await request.text(); // raw request body
-	const isValid = await qstash.verify({
-		/**
-		 * The signature from the `Upstash-Signature` header.
-		 *
-		 * Please note that on some platforms (e.g. Vercel or Netlify) you might
-		 * receive the header in lower case: `upstash-signature`
-		 *
-		 */
-		signature: request.headers.get('upstash-signature'),
-
-		/**
-		 * The raw request body.
-		 */
-		body,
-
-		/**
-		 * Number of seconds to tolerate when checking `nbf` and `exp` claims, to deal with small clock differences among different servers
-		 *
-		 * @default 0
-		 */
-		clockTolerance: 2
-	});
-
-	if (!isValid) {
-		return new Response(JSON.stringify({ status: { message: 'invalid request', code: 400 } }), {
-			status: 400
+	let params;
+	try {
+		params = await verifyQueueRequest({ request });
+	} catch (e) {
+		return new Response(JSON.stringify({ status: { message: e.message, code: 401 } }), {
+			status: 401
 		});
 	}
 
-	// parse the body
-	const params = JSON.parse(body); // error on fail
 	const { tx } = params;
 	const { Destination, Amount, CancelAfter, Memos, Sequence, TransactionType } = tx;
+
+	// get the eligible network from the params
+	const qp = new URL(request.url).searchParams;
+	const NETWORK = qp.get('network'); // ?network=xrpl-testnet
+	if (!NETWORK) {
+		return new Response(JSON.stringify({ status: { message: 'missing network', code: 400 } }), {
+			status: 400
+		});
+	}
 
 	log.debug('onEscrowCreate', {
 		Destination,
@@ -77,7 +60,7 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	// see how we're configured
-	const addresses = getIngressAddresses(network);
+	const addresses = getIngressAddresses(NETWORK);
 
 	if (!addresses.has(Destination)) {
 		// not configured to accept this address
@@ -96,7 +79,19 @@ const onEscrowCreate = async ({ request }) => {
 		});
 	}
 
-	const { identifier } = getEscrowDataFromMemos(Memos);
+	let matchedMemo = {
+		identifier: ''
+	};
+	try {
+		matchedMemo = getEscrowDataFromMemos({ memos: Memos });
+	} catch (e) {
+		log.warn('invalid memo', { Memos });
+		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
+			status: 400
+		});
+	}
+
+	const { identifier } = matchedMemo;
 
 	if (!identifier) {
 		log.warn('identifier not found in Memo');
@@ -124,14 +119,23 @@ const onEscrowCreate = async ({ request }) => {
 		});
 	}
 
-	const network = knownEscrowData.network; // TODO: should we scope this process to a particular network?
-
 	// we know about this escrow, but is it the right one?
 	// does the internal address match?
 	if (knownEscrowData.address !== Destination) {
 		log.warn('escrow address mismatch', { address: knownEscrowData.address, Destination });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow address mismatch', code: 500 } }),
+			{
+				status: 500
+			}
+		);
+	}
+
+	// see if the network matches
+	if (knownEscrowData.network !== NETWORK) {
+		log.warn('escrow network mismatch', { network: knownEscrowData.network, NETWORK });
+		return new Response(
+			JSON.stringify({ status: { message: 'escrow network mismatch', code: 500 } }),
 			{
 				status: 500
 			}
@@ -151,17 +155,49 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	// see if we have a PayVia address for this identifier
-	const payViaAddresses = await redis.get(`u:${identifier}`);
-	const bestPayVia = getPayViaForNetwork(payViaAddresses, network); // TODO does this function exist yet?
+	const payViaData = await redis.hget(`u:${identifier}`, 'payVia');
+	const bestPayVia = getPayViaForNetwork(payViaData, NETWORK); // return the best address for this network
 	if (!bestPayVia) {
 		log.warn('no payVia address found', { identifier });
+
+		// no payVia address found, so we can't fulfill this escrow now, but we'll treat it as queued
+		// as it's in the `pending` set for this identifier
+		return new Response(JSON.stringify({ status: { message: 'queued', code: 202 } }), {
+			status: 202
+		});
+	}
+
+	// check if this address is KYC compliant
+	const kycStatus = await getKycStatus({ network: NETWORK, address: bestPayVia, identifier });
+	if (!kycStatus || kycStatus !== 'pass') {
+		log.warn('payVia address not KYC compliant', { bestPayVia });
 		return new Response(
-			JSON.stringify({ status: { message: 'no payVia address found', code: 503 } }),
+			JSON.stringify({ status: { message: 'payVia address not KYC compliant', code: 403 } }),
 			{
-				status: 503
+				status: 403
 			}
 		);
 	}
+
+	// if we're here then we have an address that we can pay via
+	// and we have an escrow that we can pay
+	// so let's fulfill the escrow
+
+	// TODO: fulfill the escrow here, mark it fulfilled in the set
+	const fulfillStatus = await fulfillEscrow({
+		network: NETWORK,
+		address: Destination,
+		sequence: Sequence,
+		fulfillment: knownEscrowData.fulfillment
+	});
+	log.debug('fulfillEscrow', fulfillStatus);
+
+	// if we've fulfilled the escrow, we'll set the timestamp to negative to note that it's been fulfilled, but still in process
+	// once another process has completed the payment, it'll remove the escrow from the set
+	await redis.zadd(`pending:${identifier}`, -1 * pending, `${Destination}:${Sequence}`); // updates score only
+
+	// when that escrow is fulfilled, we'll send out the payment via that process
+	// we're done here.
 
 	// return a response object
 	return new Response(JSON.stringify({ status: { message: 'ok', code: 200 } }), {

@@ -1,8 +1,8 @@
-import { Receiver as Qstash } from '@upstash/qstash';
 import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
-import { shortAddress } from '$lib/utils/display.js';
+import { shortAddress } from '$lib/utils/escrow.js';
+import { verifyQueueRequest } from '$lib/queue.js';
 
 let redis = {};
 try {
@@ -15,46 +15,19 @@ try {
 	process.exit(1);
 }
 
-const qstash = new Qstash({
-	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
-	nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY
-});
-
+// onNewEscrow fires from the fulfillment creation process, not from ledger events
 const onNewEscrow = async ({ request }) => {
 	const startTs = Date.now();
 
-	const body = await request.text(); // raw request body
-	const isValid = await qstash.verify({
-		/**
-		 * The signature from the `Upstash-Signature` header.
-		 *
-		 * Please note that on some platforms (e.g. Vercel or Netlify) you might
-		 * receive the header in lower case: `upstash-signature`
-		 *
-		 */
-		signature: request.headers.get('upstash-signature'),
-
-		/**
-		 * The raw request body.
-		 */
-		body,
-
-		/**
-		 * Number of seconds to tolerate when checking `nbf` and `exp` claims, to deal with small clock differences among different servers
-		 *
-		 * @default 0
-		 */
-		clockTolerance: 2
-	});
-
-	if (!isValid) {
-		return new Response(JSON.stringify({ status: { message: 'invalid request', code: 401 } }), {
+	let params;
+	try {
+		params = await verifyQueueRequest({ request });
+	} catch (e) {
+		return new Response(JSON.stringify({ status: { message: e.message, code: 401 } }), {
 			status: 401
 		});
 	}
 
-	// parse the body
-	const params = JSON.parse(body); // error on fail
 	const { network, address, identifier, sequenceNumber } = params;
 
 	// see how we're configured
