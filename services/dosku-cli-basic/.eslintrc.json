@@ -1,0 +1,14 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended", "prettier"],
+  "overrides": [],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2020
+  },
+  "env": {
+    "browser": false,
+    "es2017": true,
+    "node": true
+  }
+}
