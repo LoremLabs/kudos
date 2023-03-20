@@ -236,6 +236,7 @@ export const escrowNotify = async (_, params) => {
 		network,
 		cancelAfter,
 		amount,
+		// TODO: add condition?
 		fulfillmentTicket,
 		sequenceNumber
 	} = params;

@@ -28,22 +28,22 @@ const onNewEscrow = async ({ request }) => {
 		});
 	}
 
-	const { network, address, identifier, sequenceNumber } = params;
+	const { network, viaAddress, identifier, sequenceNumber } = params;
 
 	// see how we're configured
 	const addresses = getIngressAddresses(network);
 
-	if (!addresses.has(address)) {
+	if (!addresses.has(viaAddress)) {
 		// not configured to accept this address
-		// log.warn('not configured to accept this address', address, network, addresses);
-		return new Response(JSON.stringify({ status: { message: 'invalid address', code: 401 } }), {
-			status: 401 // will be retried
+		log.warn('not configured to accept this address', viaAddress, network, addresses);
+		return new Response(JSON.stringify({ status: { message: 'invalid address', code: 403 } }), {
+			status: 403 // will be retried
 		});
 	}
 
 	// add this as a "Known Escrow" : set `ident:$address:$sequenceNumber:$identifier` = ...params
 	await redis.set(
-		`escrow:${shortAddress(address)}:${sequenceNumber}:${identifier}`,
+		`escrow:${shortAddress(viaAddress)}:${sequenceNumber}:${identifier}`,
 		{
 			...params // includes network
 		},
@@ -55,7 +55,7 @@ const onNewEscrow = async ({ request }) => {
 
 	// add to `pending:$identifier` = $address:$sequenceNumber
 	await redis.zadd(`pending:${identifier}`, {
-		member: `${address}:${sequenceNumber}`, // full address
+		member: `${viaAddress}:${sequenceNumber}`, // full address TODO: do we need to add `address` in for who sent it?
 		score: Date.now(),
 		nx: true
 	}); // nb: not ripple time

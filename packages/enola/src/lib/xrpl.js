@@ -1,3 +1,4 @@
+import log from './logging';
 import xrpl from 'xrpl';
 
 const clients = {};
@@ -13,6 +14,7 @@ export const getClient = async function (network) {
 	let client = clients[network];
 	if (!client) {
 		const endpoint = ENDPOINTS[network];
+		log.debug(`getClient [${network}] endpoint: ${endpoint}`);
 		switch (network) {
 			case 'xrpl:testnet':
 				client = new xrpl.Client(endpoint);
@@ -30,29 +32,40 @@ export const getClient = async function (network) {
 
 		// auto-connect
 		client.on('error', (err) => {
-			console.log(`client [${network}] error`, err.message);
+			log.debug(`client [${network}] error`, err.message);
 		});
 
-		// client.on('connected', () => {
-		// });
+		client.on('connected', () => {
+			log.debug(`client [${network}] connected`);
+		});
 
 		await client.connect();
 		return client;
 	} else {
+		await client.connect();
 		return client;
 	}
 };
 
-export const getSeed = async function (address) {
+export const getKeys = async function (address) {
 	// TODO: get seed from vault directly
-	return process.env[`WALLET_SEED_${address.toUpperCase()}`];
+	const keyString = process.env[`WALLET_SEED_${address.toUpperCase()}`] || '';
+	if (!keyString) {
+		throw new Error(`Wallet seed not found for address: ${address}`);
+	}
+
+	const [publicKey, privateKey] = keyString.split(':');
+
+	return { publicKey, privateKey };
 };
 
 export const getWallet = async function (address) {
 	let wallet = wallets[address];
 	if (!wallet) {
-		const addressSeed = await getSeed(address);
-		wallet = xrpl.Wallet.fromSeed(`${addressSeed}`);
+		const walletKeys = await getKeys(address);
+		wallet = new xrpl.Wallet(walletKeys.publicKey, walletKeys.privateKey, {
+			masterAddress: address
+		});
 		if (wallet) {
 			if (wallet.classicAddress !== address) {
 				throw new Error(`Wallet address mismatch: ${wallet.classicAddress} !== ${address}`);
@@ -66,20 +79,49 @@ export const getWallet = async function (address) {
 	return wallet;
 };
 
-export const fulfillEscrow = async function ({ network, address, sequence, fulfillment }) {
+export const fulfillEscrow = async function ({
+	network,
+	address,
+	sequence,
+	fulfillment,
+	condition
+}) {
 	const client = await getClient(network);
 	const wallet = await getWallet(address);
+
+	log.debug('Fulfillment:', fulfillment);
+
+	const Fee = (330 + 10 * Math.ceil(Buffer.byteLength(fulfillment) / 16)).toString();
+	log.debug('Fee:', Fee);
 
 	const tx = {
 		TransactionType: 'EscrowFinish',
 		Account: address,
 		Owner: address,
-		OfferSequence: sequence,
-		Condition: fulfillment
+		OfferSequence: Number(sequence),
+		Condition: condition,
+		Fulfillment: fulfillment,
+		Fee
 	};
 
-	const result = await client.submit(wallet, tx);
+	// const prepared = await client.autofill(tx);
+	// const signed = wallet.sign(prepared);
+
+	// log.debug("Identifying hash:", signed.hash);
+	// log.debug("Signed blob:", signed.tx_blob);
+
+	const result = await client.submitAndWait(tx, { wallet });
+	log.debug('Result:', result);
 	return result;
+};
+
+export const disconnect = async function (network) {
+	const client = clients[network];
+	if (!client) {
+		return;
+	}
+	await client.disconnect();
+	delete clients[network];
 };
 
 export const getEscrowDataFromMemos = function ({ memos }) {
@@ -108,6 +150,7 @@ export const getEscrowDataFromMemos = function ({ memos }) {
 	});
 
 	if (!matchedMemo.identifier) {
+		log.info('No identifier found in memos', memos);
 		throw new Error('No identifier found in memos');
 	}
 

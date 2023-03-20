@@ -5,6 +5,11 @@ export const shortAddress = function (address) {
 };
 
 export const getPayViaForNetwork = (payVias, network) => {
-	// given an array of payVias, return the first one that matches the network
-	return payVias.find((p) => p.type === network);
+	// payVias is an array. network, value, network, value, etc. in order of preference
+	// so we need to search for the first network that matches
+	for (let i = 0; i < payVias.length; i += 2) {
+		if (payVias[i] === network) {
+			return payVias[i + 1];
+		}
+	}
 };

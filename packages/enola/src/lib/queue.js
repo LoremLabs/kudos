@@ -1,4 +1,5 @@
 import { Receiver as Qstash } from '@upstash/qstash';
+import log from '$lib/logging';
 
 const qstash = new Qstash({
 	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
@@ -31,6 +32,7 @@ export const verifyQueueRequest = async function ({ request }) {
 	});
 
 	if (!isValid) {
+		log.warn('verifyQueueRequest invalid');
 		throw new Error('invalid request');
 	}
 

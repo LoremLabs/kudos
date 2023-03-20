@@ -1,4 +1,4 @@
-import { fulfillEscrow, getEscrowDataFromMemos } from '$lib/xrpl.js';
+import { disconnect, fulfillEscrow, getEscrowDataFromMemos } from '$lib/xrpl.js';
 import { getPayViaForNetwork, shortAddress } from '$lib/utils/escrow.js';
 
 import { Redis } from '@upstash/redis';
@@ -29,11 +29,12 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	const { tx } = params;
-	const { Destination, Amount, CancelAfter, Memos, Sequence, TransactionType } = tx;
+	const { Destination, Amount, CancelAfter, Memos, Sequence, Condition, TransactionType } = tx;
 
 	// get the eligible network from the params
 	const qp = new URL(request.url).searchParams;
-	const NETWORK = qp.get('network'); // ?network=xrpl-testnet
+	const NETWORK = qp.get('network').replace(/-/g, ':'); // ?network=xrpl-testnet
+
 	if (!NETWORK) {
 		return new Response(JSON.stringify({ status: { message: 'missing network', code: 400 } }), {
 			status: 400
@@ -46,6 +47,7 @@ const onEscrowCreate = async ({ request }) => {
 		CancelAfter,
 		Memos,
 		Sequence,
+		Condition,
 		TransactionType
 	});
 
@@ -121,8 +123,8 @@ const onEscrowCreate = async ({ request }) => {
 
 	// we know about this escrow, but is it the right one?
 	// does the internal address match?
-	if (knownEscrowData.address !== Destination) {
-		log.warn('escrow address mismatch', { address: knownEscrowData.address, Destination });
+	if (knownEscrowData.viaAddress !== Destination) {
+		log.warn('escrow address mismatch', { viaAddress: knownEscrowData.viaAddress, Destination });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow address mismatch', code: 500 } }),
 			{
@@ -155,7 +157,7 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	// see if we have a PayVia address for this identifier
-	const payViaData = await redis.hget(`u:${identifier}`, 'payVia');
+	const payViaData = (await redis.hget(`u:${identifier}`, 'payVia')) || [];
 	const bestPayVia = getPayViaForNetwork(payViaData, NETWORK); // return the best address for this network
 	if (!bestPayVia) {
 		log.warn('no payVia address found', { identifier });
@@ -183,17 +185,50 @@ const onEscrowCreate = async ({ request }) => {
 	// and we have an escrow that we can pay
 	// so let's fulfill the escrow
 
-	// TODO: fulfill the escrow here, mark it fulfilled in the set
-	const fulfillStatus = await fulfillEscrow({
-		network: NETWORK,
-		address: Destination,
-		sequence: Sequence,
-		fulfillment: knownEscrowData.fulfillment
-	});
-	log.debug('fulfillEscrow', fulfillStatus);
+	let fulfillStatus;
+	try {
+		const fulfillParams = {
+			network: NETWORK,
+			address: Destination,
+			sequence: Sequence,
+			fulfillment: knownEscrowData.fulfillmentTicket,
+			condition: Condition
+		};
+		log.debug('fulfillEscrowParams', fulfillParams);
+		fulfillStatus = await fulfillEscrow(fulfillParams);
+		log.debug('fulfillEscrowStatus', fulfillStatus);
+	} catch (e) {
+		log.error('fulfillEscrowStatus', e);
+		return new Response(JSON.stringify({ status: { message: 'fulfillEscrow error', code: 500 } }), {
+			status: 500
+		});
+	}
+	await disconnect(NETWORK); // so the process hangs up
+
+	// see if the escrow was fulfilled
+	if (!fulfillStatus || !fulfillStatus.result || !fulfillStatus.result.validated) {
+		log.warn('escrow not fulfilled', { fulfillStatus });
+		return new Response(
+			JSON.stringify({ status: { message: 'escrow not fulfilled', code: 500 } }),
+			{
+				status: 500
+			}
+		);
+	}
+	const fullfillmentState = fulfillStatus.result.meta.TransactionResult;
+	if (fullfillmentState.indexOf('SUCCESS') === -1) {
+		log.warn('escrow not fulfilled', { fullfillmentState });
+		return new Response(
+			JSON.stringify({ status: { message: 'escrow not fulfilled', code: 500 } }),
+			{
+				status: 500
+			}
+		);
+	}
 
 	// if we've fulfilled the escrow, we'll set the timestamp to negative to note that it's been fulfilled, but still in process
 	// once another process has completed the payment, it'll remove the escrow from the set
+	log.debug('fulfilled escrow', { Destination, Sequence, pending });
 	await redis.zadd(`pending:${identifier}`, -1 * pending, `${Destination}:${Sequence}`); // updates score only
 
 	// when that escrow is fulfilled, we'll send out the payment via that process

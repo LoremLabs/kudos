@@ -148,13 +148,38 @@ const ledgerWatcher = async ({ request }) => {
 								});
 								break;
 							}
+							case 'EscrowFinish': {
+								// relay to queue
+								if (tx.tx.Account !== address) {
+									// not for us? should not happen
+									log.warn(
+										`ledgerWatcher: EscrowFinish for ${tx.tx.Account} not for us ${address}`,
+										tx.tx
+									);
+									continue;
+								}
+
+								log.debug(
+									`ledgerWatcher: publishing EscrowFinish for ${address} on ${network}`,
+									tx.tx
+								);
+
+								const res = await qstash.publishJSON({
+									topic: `${network.replace(':', '-')}.onEscrowFinish`,
+									deduplicationId: tx.tx.hash,
+									body: {
+										tx: tx.tx
+									}
+								});
+								break;
+							}
 							case 'EscrowCancel': {
 								// relay to queue
 								log.debug(
 									`ledgerWatcher: publishing EscrowCancel for ${address} on ${network}`,
 									tx.tx
 								);
-								if (tx.tx.Destination !== address) {
+								if (tx.tx.Account !== address) {
 									// not for us? should not happen
 									log.warn(
 										`ledgerWatcher: EscrowCancel for ${address} on ${network} not for us`,
