@@ -238,6 +238,7 @@ export const escrowNotify = async (_, params) => {
 		amount,
 		// TODO: add condition?
 		fulfillmentTicket,
+		condition,
 		sequenceNumber
 	} = params;
 
@@ -247,6 +248,7 @@ export const escrowNotify = async (_, params) => {
 		!address ||
 		!viaAddress ||
 		!network ||
+		!condition ||
 		!amount ||
 		!fulfillmentTicket ||
 		!sequenceNumber
@@ -301,7 +303,7 @@ export const escrowNotify = async (_, params) => {
 	// we should not trust this data, it should be validated by the
 	// reading the ledger and its memo fields directly
 
-	const queueName = `xrpl-testnet.onNewEscrow`;
+	const queueName = `${network.replace(':', '-')}.onNewEscrow`;
 
 	let response;
 	try {

@@ -1,9 +1,9 @@
 import { disconnect, fulfillEscrow, getEscrowDataFromMemos } from '$lib/xrpl.js';
-import { getPayViaForNetwork, shortAddress } from '$lib/utils/escrow.js';
 
 import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import { getKycStatus } from '$lib/kyc.js';
+import { getPayViaForNetwork } from '$lib/utils/escrow.js';
 import log from '$lib/logging';
 import { verifyQueueRequest } from '$lib/queue.js';
 
@@ -29,7 +29,8 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	const { tx } = params;
-	const { Destination, Amount, CancelAfter, Memos, Sequence, Condition, TransactionType } = tx;
+	const { Destination, Account, Amount, CancelAfter, Memos, Sequence, Condition, TransactionType } =
+		tx;
 
 	// get the eligible network from the params
 	const qp = new URL(request.url).searchParams;
@@ -42,7 +43,8 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	log.debug('onEscrowCreate', {
-		Destination,
+		Destination, // place the money goes
+		Owner: Account, // owner of the escrow
 		Amount,
 		CancelAfter,
 		Memos,
@@ -52,7 +54,7 @@ const onEscrowCreate = async ({ request }) => {
 	});
 
 	if (TransactionType !== 'EscrowCreate') {
-		log.warn('invalid transaction type', TransactionType);
+		log.info('invalid transaction type', TransactionType);
 		return new Response(
 			JSON.stringify({ status: { message: 'invalid transaction type', code: 400 } }),
 			{
@@ -66,7 +68,7 @@ const onEscrowCreate = async ({ request }) => {
 
 	if (!addresses.has(Destination)) {
 		// not configured to accept this address
-		log.warn('not configured to accept this address', { Destination });
+		log.info('not configured to accept this address', { Destination });
 		return new Response(JSON.stringify({ status: { message: 'invalid address', code: 401 } }), {
 			status: 401 // will be retried
 		});
@@ -75,7 +77,7 @@ const onEscrowCreate = async ({ request }) => {
 	// get the identifier from the Memo
 	// const identifier = Memos[0].Memo.MemoData;
 	if (!Memos || !Memos[0] || !Memos[0].Memo || !Memos[0].Memo.MemoData) {
-		log.warn('invalid memo', { Memos });
+		log.info('invalid memo', { Memos });
 		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
 			status: 400
 		});
@@ -87,7 +89,7 @@ const onEscrowCreate = async ({ request }) => {
 	try {
 		matchedMemo = getEscrowDataFromMemos({ memos: Memos });
 	} catch (e) {
-		log.warn('invalid memo', { Memos });
+		log.info('invalid memo', { Memos });
 		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
 			status: 400
 		});
@@ -96,20 +98,21 @@ const onEscrowCreate = async ({ request }) => {
 	const { identifier } = matchedMemo;
 
 	if (!identifier) {
-		log.warn('identifier not found in Memo');
+		log.info('identifier not found in Memo');
 		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
 			status: 400
 		});
 	}
 
 	// see if this is a Known Escrow
-	const knownEscrowData = await redis.get(
-		`escrow:${shortAddress(Destination)}:${Sequence}:${identifier}`
-	);
+	const escrowKey = `escrow:${Destination}:${Sequence}:${Account}`; // Account = Owner, Destination = ViaAddress
+
+	const knownEscrowData = await redis.get(escrowKey);
 	if (!knownEscrowData) {
 		// we don't know about this escrow (yet?)
-		log.warn('unknown escrow', {
+		log.info(`unknown escrow: ${escrowKey}`, {
 			Destination,
+			Account,
 			Amount,
 			CancelAfter,
 			Memos,
@@ -124,7 +127,7 @@ const onEscrowCreate = async ({ request }) => {
 	// we know about this escrow, but is it the right one?
 	// does the internal address match?
 	if (knownEscrowData.viaAddress !== Destination) {
-		log.warn('escrow address mismatch', { viaAddress: knownEscrowData.viaAddress, Destination });
+		log.info('escrow address mismatch', { viaAddress: knownEscrowData.viaAddress, Destination });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow address mismatch', code: 500 } }),
 			{
@@ -135,7 +138,7 @@ const onEscrowCreate = async ({ request }) => {
 
 	// see if the network matches
 	if (knownEscrowData.network !== NETWORK) {
-		log.warn('escrow network mismatch', { network: knownEscrowData.network, NETWORK });
+		log.info('escrow network mismatch', { network: knownEscrowData.network, NETWORK });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow network mismatch', code: 500 } }),
 			{
@@ -147,7 +150,7 @@ const onEscrowCreate = async ({ request }) => {
 	// see the status of the escrow is still pending (exists in the set)
 	const pending = await redis.zscore(`pending:${identifier}`, `${Destination}:${Sequence}`);
 	if (!pending || pending <= 0) {
-		log.warn('escrow already processed?', { Sequence, Destination });
+		log.info('escrow already processed?', { Sequence, Destination });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow already processed', code: 500 } }),
 			{
@@ -160,7 +163,7 @@ const onEscrowCreate = async ({ request }) => {
 	const payViaData = (await redis.hget(`u:${identifier}`, 'payVia')) || [];
 	const bestPayVia = getPayViaForNetwork(payViaData, NETWORK); // return the best address for this network
 	if (!bestPayVia) {
-		log.warn('no payVia address found', { identifier });
+		log.info('no payVia address found', { identifier });
 
 		// no payVia address found, so we can't fulfill this escrow now, but we'll treat it as queued
 		// as it's in the `pending` set for this identifier
@@ -172,7 +175,7 @@ const onEscrowCreate = async ({ request }) => {
 	// check if this address is KYC compliant
 	const kycStatus = await getKycStatus({ network: NETWORK, address: bestPayVia, identifier });
 	if (!kycStatus || kycStatus !== 'pass') {
-		log.warn('payVia address not KYC compliant', { bestPayVia });
+		log.info('payVia address not KYC compliant', { bestPayVia });
 		return new Response(
 			JSON.stringify({ status: { message: 'payVia address not KYC compliant', code: 403 } }),
 			{
@@ -189,7 +192,8 @@ const onEscrowCreate = async ({ request }) => {
 	try {
 		const fulfillParams = {
 			network: NETWORK,
-			address: Destination,
+			address: knownEscrowData.viaAddress,
+			owner: knownEscrowData.address,
 			sequence: Sequence,
 			fulfillment: knownEscrowData.fulfillmentTicket,
 			condition: Condition
@@ -203,11 +207,15 @@ const onEscrowCreate = async ({ request }) => {
 			status: 500
 		});
 	}
+	try {
 	await disconnect(NETWORK); // so the process hangs up
-
+	} catch (e) {
+		log.error('disconnect error', e);
+	}
+	
 	// see if the escrow was fulfilled
 	if (!fulfillStatus || !fulfillStatus.result || !fulfillStatus.result.validated) {
-		log.warn('escrow not fulfilled', { fulfillStatus });
+		log.info('escrow not fulfilled', { fulfillStatus });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow not fulfilled', code: 500 } }),
 			{
@@ -217,7 +225,7 @@ const onEscrowCreate = async ({ request }) => {
 	}
 	const fullfillmentState = fulfillStatus.result.meta.TransactionResult;
 	if (fullfillmentState.indexOf('SUCCESS') === -1) {
-		log.warn('escrow not fulfilled', { fullfillmentState });
+		log.info('escrow not fulfilled', { fullfillmentState });
 		return new Response(
 			JSON.stringify({ status: { message: 'escrow not fulfilled', code: 500 } }),
 			{
@@ -229,7 +237,10 @@ const onEscrowCreate = async ({ request }) => {
 	// if we've fulfilled the escrow, we'll set the timestamp to negative to note that it's been fulfilled, but still in process
 	// once another process has completed the payment, it'll remove the escrow from the set
 	log.debug('fulfilled escrow', { Destination, Sequence, pending });
-	await redis.zadd(`pending:${identifier}`, -1 * pending, `${Destination}:${Sequence}`); // updates score only
+	await redis.zadd(`pending:${identifier}`, {
+		score: -1 * pending,
+		member: `${Destination}:${Sequence}`
+	}); // updates score only
 
 	// when that escrow is fulfilled, we'll send out the payment via that process
 	// we're done here.

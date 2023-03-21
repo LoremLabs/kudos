@@ -101,6 +101,7 @@ importers:
       '@sveltejs/kit': ^1.8.3
       '@types/bloomfilter': ^0.0.0
       '@types/node': ^18.14.1
+      '@types/uuid': ^9.0.1
       '@typescript-eslint/eslint-plugin': ^5.53.0
       '@typescript-eslint/parser': ^5.53.0
       '@upstash/qstash': ^0.3.6
@@ -147,6 +148,7 @@ importers:
       '@sveltejs/adapter-auto': 1.0.3_@sveltejs+kit@1.8.3
       '@sveltejs/kit': 1.8.3_svelte@3.55.1+vite@4.1.4
       '@types/bloomfilter': 0.0.0
+      '@types/uuid': 9.0.1
       '@typescript-eslint/eslint-plugin': 5.53.0_ny4s7qc6yg74faf3d6xty2ofzy
       '@typescript-eslint/parser': 5.53.0_7kw3g6rralp5ps6mg3uyzz6azm
       '@upstash/qstash': 0.3.6
@@ -2118,6 +2120,10 @@ packages:
 
   /@types/semver/7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: true
+
+  /@types/uuid/9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
     dev: true
 
   /@types/zen-observable/0.8.3:

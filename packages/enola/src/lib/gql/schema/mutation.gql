@@ -3,10 +3,11 @@ type Mutation {
 
 	escrowNotify(
 		address: String!
+		amount: String!
+		condition: String!
 		viaAddress: String!
 		identifier: String!
 		network: String!
-		amount: String!
 		fulfillmentTicket: String!
 		sequenceNumber: Int!
 		cancelAfter: Int

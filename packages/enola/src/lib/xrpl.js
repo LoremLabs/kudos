@@ -81,7 +81,8 @@ export const getWallet = async function (address) {
 
 export const fulfillEscrow = async function ({
 	network,
-	address,
+	address, // wallet address
+    owner, // escrow owner (Creator)
 	sequence,
 	fulfillment,
 	condition
@@ -97,7 +98,7 @@ export const fulfillEscrow = async function ({
 	const tx = {
 		TransactionType: 'EscrowFinish',
 		Account: address,
-		Owner: address,
+		Owner: owner,
 		OfferSequence: Number(sequence),
 		Condition: condition,
 		Fulfillment: fulfillment,
@@ -113,6 +114,12 @@ export const fulfillEscrow = async function ({
 	const result = await client.submitAndWait(tx, { wallet });
 	log.debug('Result:', result);
 	return result;
+};
+
+export const currentLedger = async function (network) {
+    const client = await getClient(network);
+    const info = await client.request({ command: 'ledger' });
+    return info.ledger_index;
 };
 
 export const disconnect = async function (network) {

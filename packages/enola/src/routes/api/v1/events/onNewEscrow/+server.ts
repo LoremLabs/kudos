@@ -1,7 +1,7 @@
 import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
-import { shortAddress } from '$lib/utils/escrow.js';
+// import { shortAddress } from '$lib/utils/escrow.js';
 import { verifyQueueRequest } from '$lib/queue.js';
 
 let redis = {};
@@ -28,7 +28,7 @@ const onNewEscrow = async ({ request }) => {
 		});
 	}
 
-	const { network, viaAddress, identifier, sequenceNumber } = params;
+	const { network, viaAddress, identifier, sequenceNumber, address } = params;
 
 	// see how we're configured
 	const addresses = getIngressAddresses(network);
@@ -43,7 +43,7 @@ const onNewEscrow = async ({ request }) => {
 
 	// add this as a "Known Escrow" : set `ident:$address:$sequenceNumber:$identifier` = ...params
 	await redis.set(
-		`escrow:${shortAddress(viaAddress)}:${sequenceNumber}:${identifier}`,
+		`escrow:${viaAddress}:${sequenceNumber}:${address}`,
 		{
 			...params // includes network
 		},
