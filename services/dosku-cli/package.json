@@ -53,20 +53,16 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "2.4.1"
   },
-  "directories": {
-    "doc": "docs"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LoremLabs/kudos-for-code.git"
+    "url": "https://github.com/LoremLabs/kudos-for-code.git",
+    "directory": "services/dosku-cli"
   },
-  "homepage": "https://github.com/LoremLabs/kudos-for-code/tree/main/services/dosku-cli#readme",
   "author": {
     "name": "Matt Mankins",
     "email": "mankins@gmail.com",
     "url": "https://github.com/LoremLabs/"
   },
-  "bugs": {
-    "url": "https://github.com/mankins/kudos/issues"
-  }
+  "bugs": "https://github.com/LoremLabs/kudos-for-code/issues",
+  "homepage": "https://github.com/LoremLabs/kudos-for-code/tree/main/services/dosku-cli#readme"
 }
