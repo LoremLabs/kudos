@@ -60,16 +60,16 @@
     "prettier": "2.4.1"
   },
   "main": "src/cli.js",
-  "directories": {
-    "doc": "docs"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mankins/kudos.git"
+    "url": "https://github.com/LoremLabs/kudos-for-code.git",
+    "directory": "services/dosku-cli-basic"
   },
-  "author": "matt mankins",
-  "bugs": {
-    "url": "https://github.com/mankins/kudos/issues"
+  "author": {
+    "name": "Matt Mankins",
+    "email": "mankins@gmail.com",
+    "url": "https://github.com/LoremLabs/"
   },
-  "homepage": "https://github.com/mankins/kudos/tree/main/commands/dosku-basic#readme"
+  "bugs": "https://github.com/LoremLabs/kudos-for-code/issues",
+  "homepage": "https://github.com/LoremLabs/kudos-for-code/tree/main/services/dosku-cli-basic#readme"
 }
