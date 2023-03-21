@@ -82,10 +82,11 @@ export const getWallet = async function (address) {
 export const fulfillEscrow = async function ({
 	network,
 	address, // wallet address
-    owner, // escrow owner (Creator)
+	owner, // escrow owner (Creator)
 	sequence,
 	fulfillment,
-	condition
+	condition,
+	escrowId
 }) {
 	const client = await getClient(network);
 	const wallet = await getWallet(address);
@@ -95,10 +96,22 @@ export const fulfillEscrow = async function ({
 	const Fee = (330 + 10 * Math.ceil(Buffer.byteLength(fulfillment) / 16)).toString();
 	log.debug('Fee:', Fee);
 
+	// add our escrowId to the Memo
+	const memos = [
+		{
+			Memo: {
+				MemoType: xrpl.convertStringToHex('relayto.id'),
+				MemoData: xrpl.convertStringToHex(escrowId),
+				MemoFormat: xrpl.convertStringToHex('text/plain')
+			}
+		}
+	];
+
 	const tx = {
 		TransactionType: 'EscrowFinish',
 		Account: address,
 		Owner: owner,
+		Memos: memos,
 		OfferSequence: Number(sequence),
 		Condition: condition,
 		Fulfillment: fulfillment,
@@ -117,9 +130,9 @@ export const fulfillEscrow = async function ({
 };
 
 export const currentLedger = async function (network) {
-    const client = await getClient(network);
-    const info = await client.request({ command: 'ledger' });
-    return info.ledger_index;
+	const client = await getClient(network);
+	const info = await client.request({ command: 'ledger' });
+	return info.ledger_index;
 };
 
 export const disconnect = async function (network) {
@@ -131,35 +144,102 @@ export const disconnect = async function (network) {
 	delete clients[network];
 };
 
-export const getEscrowDataFromMemos = function ({ memos }) {
+export const getMemoData = function ({ memos, memoType, memoFormat }) {
 	if (!memos) {
 		throw new Error('No memos found');
 	}
 
-	let matchedMemo = {
-		identifier: ''
-	};
-
 	// go through the memos in order, looking for the relayto.identifier
+	let found;
 	memos.forEach((memo) => {
-		if (xrpl.convertHexToString(memo.Memo.MemoType) === 'relayto.identifier') {
-			const identifier = xrpl.convertHexToString(memo.Memo.MemoData);
+		if (xrpl.convertHexToString(memo.Memo.MemoType) === memoType) {
+			const data = xrpl.convertHexToString(memo.Memo.MemoData);
 
 			// // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 			const format = xrpl.convertHexToString(memo.Memo.MemoFormat);
-			if (format === 'text/plain') {
-				matchedMemo = { identifier };
-				return matchedMemo;
-			} else {
-				throw new Error(`Unsupported memo format: ${format}`);
+			if (format === memoFormat) {
+				found = data;
+				return data; // NB: returns first match, could there be multiple?
 			}
 		}
 	});
-
-	if (!matchedMemo.identifier) {
-		log.info('No identifier found in memos', memos);
-		throw new Error('No identifier found in memos');
+	if (!found) {
+		throw new Error(`${memoType} not found in memos`);
 	}
 
+	return found;
+};
+
+export const getEscrowDataFromMemos = function ({ memos }) {
+	let matchedMemo = {
+		identifier: getMemoData({ memos, memoType: 'relayto.identifier', memoFormat: 'text/plain' })
+	};
+
 	return matchedMemo;
+};
+
+export const getEscrowIdFromMemos = function ({ memos }) {
+	let matchedMemo = {
+		escrowId: getMemoData({ memos, memoType: 'relayto.id', memoFormat: 'text/plain' })
+	};
+	return matchedMemo;
+};
+
+export const sendEscrowedPayment = async function ({
+	network,
+	address, // wallet address
+	destination, // destination address
+	amount, // amount to send in drops
+	escrowId,
+	identifier
+}) {
+	const client = await getClient(network);
+	const wallet = await getWallet(address);
+
+	// add our escrowId to the Memo
+	const memos = [
+		{
+			Memo: {
+				MemoType: xrpl.convertStringToHex('relayto.id').toUpperCase(),
+				MemoData: xrpl.convertStringToHex(escrowId).toUpperCase(),
+				MemoFormat: xrpl.convertStringToHex('text/plain').toUpperCase()
+			}
+		},
+		{
+			Memo: {
+				MemoType: xrpl.convertStringToHex('relayto.identifier').toUpperCase(),
+				MemoData: xrpl.convertStringToHex(identifier).toUpperCase(),
+				MemoFormat: xrpl.convertStringToHex('text/plain').toUpperCase()
+			}
+		}
+	];
+
+	const tx = {
+		TransactionType: 'Payment',
+		Account: address,
+		Destination: destination,
+		Amount: amount,
+		Memos: memos
+	};
+
+	const prepared = await client.autofill(tx);
+	const signed = wallet.sign(prepared);
+
+	// TODO: maybe? check if fee is greater than amount sent
+	// const fee = Number(signed.tx_json.Fee);
+	// const amountSent = Number(signed.tx_json.Amount);
+	// if (fee > amountSent) {
+	//     throw new Error(`Fee is greater than amount sent: ${fee} > ${amountSent}`);
+	// }
+
+	let result;
+	try {
+		result = await client.submitAndWait(signed.tx_blob);
+	} catch (err) {
+		log.info('Error:', err, err.message);
+		throw err;
+	}
+	// console.log("send result", result);
+	log.info('send result', result);
+	return result;
 };

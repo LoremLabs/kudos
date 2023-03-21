@@ -28,7 +28,8 @@ const onNewEscrow = async ({ request }) => {
 		});
 	}
 
-	const { network, viaAddress, identifier, sequenceNumber, address } = params;
+	// we use the txHash of the escrowCreate -> "escrowId" to identify the escrow in its lifecycle: Create->Fulfill->Send Payment
+	const { network, viaAddress, identifier, escrowId } = params;
 
 	// see how we're configured
 	const addresses = getIngressAddresses(network);
@@ -43,7 +44,7 @@ const onNewEscrow = async ({ request }) => {
 
 	// add this as a "Known Escrow" : set `ident:$address:$sequenceNumber:$identifier` = ...params
 	await redis.set(
-		`escrow:${viaAddress}:${sequenceNumber}:${address}`,
+		`escrow:${escrowId}`,
 		{
 			...params // includes network
 		},
@@ -55,7 +56,7 @@ const onNewEscrow = async ({ request }) => {
 
 	// add to `pending:$identifier` = $address:$sequenceNumber
 	await redis.zadd(`pending:${identifier}`, {
-		member: `${viaAddress}:${sequenceNumber}`, // full address TODO: do we need to add `address` in for who sent it?
+		member: `${escrowId}`, // full address TODO: do we need to add `address` in for who sent it?
 		score: Date.now(),
 		nx: true
 	}); // nb: not ripple time

@@ -2,6 +2,7 @@ type Mutation {
 	setPayVia(identifier: String!, type: String!, value: String!): PaymentMethod
 
 	escrowNotify(
+		escrowId: String!
 		address: String!
 		amount: String!
 		condition: String!

@@ -23,6 +23,7 @@
 		"@upstash/qstash": "^0.3.6",
 		"@upstash/redis": "^1.20.0",
 		"autoprefixer": "^10.4.13",
+		"bignumber.js": "^9.1.1",
 		"bloomfilter": "^0.0.18",
 		"casual": "^1.6.2",
 		"daf-core": "5.6.4",

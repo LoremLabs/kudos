@@ -31,6 +31,7 @@ const onEscrowCreate = async ({ request }) => {
 	const { tx } = params;
 	const { Destination, Account, Amount, CancelAfter, Memos, Sequence, Condition, TransactionType } =
 		tx;
+	const escrowId = `${tx.hash}`;
 
 	// get the eligible network from the params
 	const qp = new URL(request.url).searchParams;
@@ -76,6 +77,16 @@ const onEscrowCreate = async ({ request }) => {
 
 	// get the identifier from the Memo
 	// const identifier = Memos[0].Memo.MemoData;
+	// Memos: [
+	// 	{
+	// 	  "Memo": {
+	// 		"MemoData": "6469643A6B75646F733A656D61696C3A6D6174742B323063406C6F72656D6C6162732E636F6D",
+	// 		"MemoFormat": "746578742F706C61696E",
+	// 		"MemoType": "72656C6179746F2E6964656E746966696572"
+	// 	  }
+	// 	}
+	//   ]
+
 	if (!Memos || !Memos[0] || !Memos[0].Memo || !Memos[0].Memo.MemoData) {
 		log.info('invalid memo', { Memos });
 		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
@@ -89,7 +100,7 @@ const onEscrowCreate = async ({ request }) => {
 	try {
 		matchedMemo = getEscrowDataFromMemos({ memos: Memos });
 	} catch (e) {
-		log.info('invalid memo', { Memos });
+		log.info('invalid memo err', { Memos, e: e.message });
 		return new Response(JSON.stringify({ status: { message: 'invalid memo', code: 400 } }), {
 			status: 400
 		});
@@ -105,12 +116,13 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	// see if this is a Known Escrow
-	const escrowKey = `escrow:${Destination}:${Sequence}:${Account}`; // Account = Owner, Destination = ViaAddress
+	const escrowKey = `escrow:${escrowId}`;
 
 	const knownEscrowData = await redis.get(escrowKey);
 	if (!knownEscrowData) {
 		// we don't know about this escrow (yet?)
 		log.info(`unknown escrow: ${escrowKey}`, {
+			escrowId,
 			Destination,
 			Account,
 			Amount,
@@ -148,7 +160,7 @@ const onEscrowCreate = async ({ request }) => {
 	}
 
 	// see the status of the escrow is still pending (exists in the set)
-	const pending = await redis.zscore(`pending:${identifier}`, `${Destination}:${Sequence}`);
+	const pending = await redis.zscore(`pending:${identifier}`, `${escrowId}`);
 	if (!pending || pending <= 0) {
 		log.info('escrow already processed?', { Sequence, Destination });
 		return new Response(
@@ -196,7 +208,8 @@ const onEscrowCreate = async ({ request }) => {
 			owner: knownEscrowData.address,
 			sequence: Sequence,
 			fulfillment: knownEscrowData.fulfillmentTicket,
-			condition: Condition
+			condition: Condition,
+			escrowId
 		};
 		log.debug('fulfillEscrowParams', fulfillParams);
 		fulfillStatus = await fulfillEscrow(fulfillParams);
@@ -208,11 +221,11 @@ const onEscrowCreate = async ({ request }) => {
 		});
 	}
 	try {
-	await disconnect(NETWORK); // so the process hangs up
+		await disconnect(NETWORK); // so the process hangs up
 	} catch (e) {
 		log.error('disconnect error', e);
 	}
-	
+
 	// see if the escrow was fulfilled
 	if (!fulfillStatus || !fulfillStatus.result || !fulfillStatus.result.validated) {
 		log.info('escrow not fulfilled', { fulfillStatus });
@@ -239,7 +252,7 @@ const onEscrowCreate = async ({ request }) => {
 	log.debug('fulfilled escrow', { Destination, Sequence, pending });
 	await redis.zadd(`pending:${identifier}`, {
 		score: -1 * pending,
-		member: `${Destination}:${Sequence}`
+		member: `${escrowId}`
 	}); // updates score only
 
 	// when that escrow is fulfilled, we'll send out the payment via that process
