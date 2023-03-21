@@ -34,4 +34,3 @@ $ setler send social did:kudos:email:matt@loremlabs.com ...
 ## Overview Architecture
 
 ![Architecture](./docs/send-to-social-overview.svg)
-

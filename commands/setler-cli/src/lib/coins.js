@@ -16,41 +16,70 @@ export const Coins = function ({ context }) {
 Coins.prototype.fulfillEscrow = async function ({
   network,
   address,
+  owner,
   sequence,
   fulfillment,
+  condition,
 }) {
   const client = await this.getClient(network);
   const wallet = await this.getWallet(address);
 
+  const Fee = (
+    330 +
+    10 * Math.ceil(Buffer.byteLength(fulfillment) / 16)
+  ).toString();
+
   const tx = {
     TransactionType: "EscrowFinish",
-    Account: address,
-    Owner: address,
-    OfferSequence: sequence,
-    Condition: fulfillment,
+    Account: address, // the wallet owner
+    Owner: owner, // the address that first created the escrow
+    OfferSequence: Number(sequence),
+    Condition: condition,
+    Fulfillment: fulfillment,
+    Fee,
   };
 
-  const result = await client.submit(wallet, tx);
+  const { result } = await client.submitAndWait(tx, { wallet });
+  // check to see if the result is a success
+  if (!result || result?.meta?.TransactionResult !== "tesSUCCESS") {
+    throw new Error(`failed: ${result.meta?.TransactionResult} ${result.hash}`);
+  }
+
   return result;
 };
 
 Coins.prototype.cancelEscrow = async function ({
   network,
   address,
+  owner,
   sequence,
   fulfillment,
+  condition,
 }) {
   const client = await this.getClient(network);
   const wallet = await this.getWallet(address);
 
+  const Fee = (
+    330 +
+    10 * Math.ceil(Buffer.byteLength(fulfillment) / 16)
+  ).toString();
+
   const tx = {
     TransactionType: "EscrowCancel",
-    Account: address,
-    Owner: address,
-    OfferSequence: sequence,
+    Account: address, // the wallet owner
+    Owner: owner, // the address that first created the escrow
+    OfferSequence: Number(sequence),
+    Condition: condition,
+    Fulfillment: fulfillment,
+    Fee,
   };
 
-  const result = await client.submit(wallet, tx);
+  const { result } = await client.submitAndWait(tx, { wallet });
+  // check to see if the result is a success
+  if (!result || result?.meta?.TransactionResult !== "tesSUCCESS") {
+    throw new Error(`failed: ${result.meta?.TransactionResult} ${result.hash}`);
+  }
+
   return result;
 };
 
@@ -113,7 +142,7 @@ Coins.prototype.estimatedSendFee = async function ({
   sourceAddress,
   address,
   amount,
-  amountDrops,
+  // amountDrops,
 }) {
   const client = await this.getClient(network);
 
@@ -225,7 +254,9 @@ Coins.prototype.sendEscrow = async function ({
     .toUpperCase();
 
   // get expiration time
-  const cancelAfterIso = new Date(Date.now() + ((parseInt(escrow.time,10) || 300) * 1000)).toISOString();
+  const cancelAfterIso = new Date(
+    Date.now() + (parseInt(escrow.time, 10) || 300) * 1000
+  ).toISOString();
   const cancelAfter = xrpl.isoTimeToRippleTime(cancelAfterIso); // TODO: check for enough escrow.time, defaulting to 5 minutes
 
   const client = await this.getClient(network);
@@ -273,8 +304,8 @@ Coins.prototype.sendEscrow = async function ({
     console.log("Error:", err, err.message);
     throw err;
   }
-  //console.log("send result", result);
-  return { result, fulfillmentTicket, escrowTx };
+  // console.log("send result", result);
+  return { result, fulfillmentTicket, escrowTx, condition };
 };
 
 Coins.prototype.getClient = async function (network) {
@@ -307,6 +338,7 @@ Coins.prototype.getClient = async function (network) {
     await client.connect();
     return client;
   } else {
+    await client.connect();
     return client;
   }
 };

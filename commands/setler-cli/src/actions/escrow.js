@@ -1,7 +1,8 @@
 import chalk from "chalk";
+import { gatekeep } from "../lib/wallet/gatekeep.js";
 // import fetch from "node-fetch";
 import prompts from "prompts";
-import { gatekeep } from "../lib/wallet/gatekeep.js";
+import { waitFor } from "../lib/wait.js";
 
 const log = console.log;
 
@@ -12,11 +13,85 @@ const exec = async (context) => {
     case "cancel": {
       const network = context.flags.network || "xrpl:testnet";
 
-      const address = context.input[2]; // the escrow address
+      // get input
+      let address = context.flags.address || context.vault.address;
       if (!address) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "address",
+          message: "Enter escrow address: ",
+        });
+
+        address = response.address;
+
+        if (!address) {
+          log(
+            chalk.red(
+              `Usage: setler escrow fulfill --network="xrpl:testnet" --address="..." --sequence="..." --fulfillment="..." --condition="..."`
+            )
+          );
+          process.exit(1);
+        }
+      }
+
+      let condition = context.flags.condition;
+      if (!condition) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "condition",
+          message: "Enter escrow condition: ",
+        });
+
+        condition = response.condition;
+
+        if (!condition) {
+          log(
+            chalk.red(
+              `Usage: setler escrow fulfill --network="xrpl:testnet" --address="..." --sequence="..." --fulfillment="..." --condition="..."`
+            )
+          );
+          process.exit(1);
+        }
+      }
+
+      let fulfillment = context.flags.fulfillment;
+      if (!fulfillment) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "fulfillment",
+          message: "Enter fulfillment: ",
+        });
+
+        fulfillment = response.fulfillment;
+      }
+      if (!fulfillment) {
         log(
           chalk.red(
-            `Usage: setler escrow cancel <address> --network="xrpl:testnet" --sequence="..."`
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
+          )
+        );
+        process.exit(1);
+      }
+
+      let owner = context.flags.owner;
+      if (!owner) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "owner",
+          message: "Enter Owner address: ",
+        });
+
+        owner = response.owner;
+      }
+
+      if (!owner) {
+        log(
+          chalk.red(
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
           )
         );
         process.exit(1);
@@ -36,7 +111,7 @@ const exec = async (context) => {
       if (!sequence) {
         log(
           chalk.red(
-            `Usage: setler escrow cancel <address> --network="xrpl:testnet" --sequence="..."`
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
           )
         );
         process.exit(1);
@@ -57,7 +132,10 @@ const exec = async (context) => {
 
       const cancelPromise = context.coins.cancelEscrow({
         network,
-        address: sourceAddress,
+        address,
+        owner,
+        condition,
+        fulfillment,
         sequence,
       });
 
@@ -76,14 +154,46 @@ const exec = async (context) => {
     case "fulfill": {
       const network = context.flags.network || "xrpl:testnet";
 
-      const address = context.input[2]; // the escrow address
+      let address = context.flags.address || context.vault.address;
       if (!address) {
-        log(
-          chalk.red(
-            `Usage: setler escrow fulfill <address> --network="xrpl:testnet" --fulfillment="..."`
-          )
-        );
-        process.exit(1);
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "address",
+          message: "Enter escrow address: ",
+        });
+
+        address = response.address;
+
+        if (!address) {
+          log(
+            chalk.red(
+              `Usage: setler escrow fulfill --network="xrpl:testnet" --address="..." --sequence="..." --fulfillment="..." --condition="..."`
+            )
+          );
+          process.exit(1);
+        }
+      }
+
+      let condition = context.flags.condition;
+      if (!condition) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "condition",
+          message: "Enter escrow condition: ",
+        });
+
+        condition = response.condition;
+
+        if (!condition) {
+          log(
+            chalk.red(
+              `Usage: setler escrow fulfill --network="xrpl:testnet" --address="..." --sequence="..." --fulfillment="..." --condition="..."`
+            )
+          );
+          process.exit(1);
+        }
       }
 
       let fulfillment = context.flags.fulfillment;
@@ -100,7 +210,28 @@ const exec = async (context) => {
       if (!fulfillment) {
         log(
           chalk.red(
-            `Usage: setler escrow fulfill <address> --network="xrpl:testnet" --fulfillment="..." --sequence="..."`
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
+          )
+        );
+        process.exit(1);
+      }
+
+      let owner = context.flags.owner;
+      if (!owner) {
+        // prompt user for it
+        const response = await prompts({
+          type: "text",
+          name: "owner",
+          message: "Enter Owner address: ",
+        });
+
+        owner = response.owner;
+      }
+
+      if (!owner) {
+        log(
+          chalk.red(
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
           )
         );
         process.exit(1);
@@ -120,7 +251,7 @@ const exec = async (context) => {
       if (!sequence) {
         log(
           chalk.red(
-            `Usage: setler escrow fulfill <address> --network="xrpl:testnet" --fulfillment="..." --sequence="..."`
+            `Usage: setler escrow fulfill --network="xrpl:testnet" --fulfillment="..." --sequence="..." --condition="..."`
           )
         );
         process.exit(1);
@@ -131,7 +262,9 @@ const exec = async (context) => {
       const response = await prompts({
         type: "confirm",
         name: "value",
-        message: `Are you sure you want to fulfill the escrow ${address}?`,
+        message: chalk.cyan(
+          `Are you sure you want to fulfill the escrow ${owner} - ${sequence}?`
+        ),
         initial: false,
       });
       if (!response.value) {
@@ -140,20 +273,25 @@ const exec = async (context) => {
       }
 
       const fulfillPromise = context.coins.fulfillEscrow({
-        network,
-        address: sourceAddress, // estimate
-        sequence,
+        address,
+        owner,
+        condition,
         fulfillment,
+        network,
+        sequence,
       });
 
-      const escrowResults = await waitFor(fulfillPromise, {
-        text: `Fulfilling Escrow ${address}`,
-      });
-
+      let escrowResults;
+      try {
+        escrowResults = await waitFor(fulfillPromise, {
+          text: `Fulfilling Escrow ${address}`,
+        });
+      } catch (e) {
+        log(chalk.red(`Escrow fulfillment ${e.message}`));
+      }
       if (escrowResults) {
-        log(chalk.green(`Escrow ${address} fulfilled`));
-      } else {
-        log(chalk.red(`Escrow ${address} not fulfilled`));
+        log(escrowResults);
+        log(chalk.green(`Escrow ${result.hash} fulfilled`));
       }
       break;
     }
@@ -162,6 +300,7 @@ const exec = async (context) => {
       break;
     }
   }
+  context.coins.disconnect();
 };
 
 export { exec };

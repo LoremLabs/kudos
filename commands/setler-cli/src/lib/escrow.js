@@ -17,7 +17,8 @@ export const notifyEscrow = async ({
   network, // xrpl:livenet
   sourceAddress,
   viaAddress,
-  escrow,
+  escrowId,
+  condition,
   fulfillmentTicket,
   sequenceNumber,
   identifier,
@@ -38,6 +39,8 @@ export const notifyEscrow = async ({
               $network: String!
               $amount: String!
               $fulfillmentTicket: String!
+              $condition: String!
+              $escrowId: String!
               $sequenceNumber: Int!
               $cancelAfter: Int
       ) {
@@ -46,6 +49,8 @@ export const notifyEscrow = async ({
               identifier: $identifier
               network: $network
               amount: $amount
+              condition: $condition
+              escrowId: $escrowId
               fulfillmentTicket: $fulfillmentTicket
               sequenceNumber: $sequenceNumber
               cancelAfter: $cancelAfter
@@ -63,6 +68,8 @@ export const notifyEscrow = async ({
       network,
       amount: amountDrops + "",
       fulfillmentTicket,
+      condition,
+      escrowId,
       sequenceNumber: parseInt(sequenceNumber, 10), // 32 bit
       cancelAfter: parseInt(cancelAfter, 10), // 32 bit
     },

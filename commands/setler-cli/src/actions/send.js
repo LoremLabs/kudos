@@ -5,34 +5,13 @@ import { expandDid } from "../lib/did.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import { notifyEscrow } from "../lib/escrow.js";
-import ora from "ora";
 import prompts from "prompts";
-import spinners from "cli-spinners";
 import { stringToColorBlocks } from "../lib/colorize.js";
+import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { xrpToDrops } from "xrpl";
 
 const log = console.log;
-
-const waitFor = (promise, options) => {
-  // await waitFor(promise, { text: 'Loading unicorns', spinner: spinners.dots });
-
-  const spinner = ora({
-    text: "Processing...",
-    spinner: spinners.earth,
-    ...options,
-  });
-  spinner.start();
-  promise.then(
-    () => {
-      spinner.succeed();
-    },
-    () => {
-      spinner.fail();
-    }
-  );
-  return promise;
-};
 
 const help = () => {
   log("");
@@ -360,6 +339,8 @@ const exec = async (context) => {
             );
           }
 
+          escrowMethod.time = 86400; // TODO: temp for debuggging
+
           if (!directPaymentVia && escrowMethod) {
             // ask if we should create an escrow payment
             log("");
@@ -617,16 +598,14 @@ const exec = async (context) => {
           amountDrops: currentAddress.amountDrops,
           escrow: currentAddress.escrow,
         });
-        const { result, fulfillmentTicket, escrowTx } = await waitFor(
-          epPromise,
-          {
+        const { result, fulfillmentTicket, escrowTx, condition } =
+          await waitFor(epPromise, {
             text:
               `Creating Escrow of ` +
               chalk.green(`${currentAddress.amount}`) +
               " via " +
               chalk.blue(`${currentAddress.expandedAddress}`),
-          }
-        );
+          });
 
         if (!result && !fulfillmentTicket) {
           log(chalk.red(`send: could not send escrow payment`));
@@ -641,19 +620,23 @@ const exec = async (context) => {
           amountDrops: currentAddress.amountDrops,
           escrow: currentAddress.escrow,
           fulfillmentTicket,
+          condition,
           sequenceNumber: result.result.Sequence,
+          escrowId: result.result.hash,
           cancelAfter: escrowTx.CancelAfter,
           identResolver,
           identifier: currentAddress.escrow.identifier,
         };
-        // log(toNotify);
+        if (context.flags.verbose) {
+          log(toNotify);
+        }
         // TODO: store the fulfillment ticket locally?
 
         // send the fulfillment to the escrow agent
         const sendToEscrowAgent = async () => {
           const nePromise = notifyEscrow(toNotify);
           try {
-            const neResults = await waitFor(nePromise, {
+            await waitFor(nePromise, {
               text: `Notifying Escrow Agent for ${chalk.cyan(
                 currentAddress.escrow.identifier
               )}`,
