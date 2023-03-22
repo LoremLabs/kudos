@@ -60,7 +60,15 @@ export const paletteSolid = [
   chalk.white.bgRgb(255, 20, 147),
 ];
 
-export const stringToColorBlocks = (str) => {
+export const stringToColorBlocks = (str, extra) => {
+  let extraShift = 0;
+  if (extra) {
+    // convert extra into an amount to shift by (for instance to have different colors for different scopes)
+    const chars = extra.split("");
+    const ascii = chars.map((char) => char.charCodeAt(0));
+    extraShift = ascii.reduce((a, b) => a + b, 0);
+  }
+
   const chars = str.split("");
 
   // map each character to a color
@@ -74,7 +82,7 @@ export const stringToColorBlocks = (str) => {
       shifted = 3;
     }
 
-    color = paletteSolid[(shifted + ascii) % paletteSolid.length];
+    color = paletteSolid[(shifted + extraShift + ascii) % paletteSolid.length];
     return color(" ") + chalk.reset();
   });
 

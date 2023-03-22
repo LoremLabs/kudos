@@ -266,7 +266,7 @@ const exec = async (context) => {
         `Source address: ` +
           chalk.yellow(`${sourceAddress}`) +
           "\n                " +
-          stringToColorBlocks(sourceAddress) +
+          stringToColorBlocks(sourceAddress, network) +
           "\n\nNetwork:        " +
           chalk.magentaBright(`${network}`)
       );
@@ -331,7 +331,7 @@ const exec = async (context) => {
           if (context.flags.verbose) {
             log(
               chalk.gray(
-                `Expanded did ${did} to ${JSON.stringify({
+                `Expanded ${did} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
                 })}`
@@ -347,7 +347,7 @@ const exec = async (context) => {
               `Escrow payment available via: ` +
                 chalk.yellow(`${escrowMethod.address} `) +
                 "\n                              " +
-                stringToColorBlocks(escrowMethod.address)
+                stringToColorBlocks(escrowMethod.address, network)
             );
             if (escrowMethod.time) {
               log("");
@@ -432,6 +432,18 @@ const exec = async (context) => {
             process.exit(1);
           } else {
             weightedAddresses[i].expandedAddress = directPaymentVia;
+
+            // show user the expanded address
+            log("");
+            log(
+              chalk.blue(`Expanded ${did} to `) +
+                chalk.yellow(`${directPaymentVia} `) +
+                "\n" +
+                " ".repeat(`Expanded ${did} to `.length) +
+                stringToColorBlocks(directPaymentVia, network)
+            );
+
+            log("");
           }
         } else if (types.accountAddress) {
           weightedAddresses[i].expandedAddress = address.address;
@@ -461,10 +473,6 @@ const exec = async (context) => {
       }
 
       // see how much we have in this account, to verify it's enough to cover the transaction?
-      log("");
-      log(chalk.bold(`Using network: `) + chalk.magentaBright(`${network}`));
-      log("");
-
       const getAcctPromise = context.coins.getAccountInfo({
         network,
         sourceAddress,
@@ -475,7 +483,7 @@ const exec = async (context) => {
           chalk.yellow(
             `${sourceAddress}\n` +
               "                               " +
-              stringToColorBlocks(sourceAddress)
+              stringToColorBlocks(sourceAddress, network)
           ),
       });
       const balance = accountInfo?.xrpDrops;
@@ -563,7 +571,7 @@ const exec = async (context) => {
             " ".repeat(
               `  Sending ${currentAddress.amount + ""} XRP to `.length
             ) +
-            stringToColorBlocks(currentAddress.expandedAddress),
+            stringToColorBlocks(currentAddress.expandedAddress, network),
         });
 
         if (!directPayment) {
