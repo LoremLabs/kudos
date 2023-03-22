@@ -47,8 +47,8 @@ export const socialPay = async (_, params) => {
 
 		for (let i = 0; i < data.length; i = i + 2) {
 			paymentMethods.push({
-				type: item[i],
-				value: item[i + 1]
+				type: data[i],
+				value: data[i + 1]
 			});
 		}
 
