@@ -19,6 +19,9 @@ export const expandDid = async ({ did, identResolver, network }) => {
                 type
                 address
                 time
+                fee
+                terms
+                onExpiration
               }
               status {
                 message

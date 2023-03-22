@@ -339,8 +339,6 @@ const exec = async (context) => {
             );
           }
 
-          escrowMethod.time = 86400; // TODO: temp for debuggging
-
           if (!directPaymentVia && escrowMethod) {
             // ask if we should create an escrow payment
             log("");
@@ -354,36 +352,54 @@ const exec = async (context) => {
             if (escrowMethod.time) {
               log("");
               log(
-                `Escrow payment expires:       ` +
+                chalk.gray(`=> Escrow payment expires: `) +
                   chalk.cyan(
                     `${ago(new Date(Date.now() + escrowMethod.time * 1000))}`
                   )
               );
               if (escrowMethod.onExpiration === "snowball") {
+                log("");
                 log(
                   chalk.gray(
-                    "=> Unclaimed funds will be redistributed via the "
+                    "=> Unclaimed funds will be redistributed via the"
                   ) +
                     " snowball " +
-                    chalk.gray("method.")
+                    chalk.gray("method.") +
+                    "\n   " +
+                    chalk.red(
+                      "! There is no option to receive your funds back !"
+                    ) +
+                    "\n   " +
+                    chalk.gray(
+                      "Unclaimed funds are used to support other projects."
+                    )
                 );
               } else {
                 // the default
+                log("");
                 log(
-                  chalk.gray(
-                    "=> After this time, the payment will be returned to the sender."
-                  )
+                  chalk.gray("=> After this time, the escrow can be cancelled.")
                 );
               }
 
               if (escrowMethod.terms) {
+                log("");
                 log(
                   chalk.gray(
                     "=> Sending via escrow implies agreeing to the terms:\n   "
                   ) + chalk.cyan(escrowMethod.terms)
                 );
               }
+
+              if (escrowMethod.fee) {
+                log("");
+                log(
+                  chalk.gray("=> Escrow fees:\n   ") +
+                    chalk.cyan(escrowMethod.fee.toFixed(4) + " %")
+                );
+              }
             }
+            log("");
             log("");
             const confirm4 = await prompts([
               {
