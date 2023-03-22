@@ -582,6 +582,12 @@ const exec = async (context) => {
           );
           process.exit(1);
         }
+        log(
+          chalk.bold(
+            `Transaction: ` + chalk.green(`${directPayment.result.hash}`)
+          )
+        );
+
         directSent++;
       }
 
@@ -655,6 +661,13 @@ const exec = async (context) => {
           log(toNotify);
         }
         // TODO: store the fulfillment ticket locally?
+
+        // show escrowId to user
+        log(
+          chalk.bold(
+            `Escrow Transaction: ` + chalk.green(`${toNotify.escrowId}`)
+          )
+        );
 
         // send the fulfillment to the escrow agent
         const sendToEscrowAgent = async () => {
