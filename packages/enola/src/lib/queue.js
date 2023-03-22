@@ -1,14 +1,23 @@
-import { Receiver as Qstash } from '@upstash/qstash';
+import { Client as QstashPublish, Receiver as QstashReceive } from '@upstash/qstash';
+
 import log from '$lib/logging';
 
-const qstash = new Qstash({
+const qstashReceive = new QstashReceive({
 	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
 	nextSigningKey: process.env.QSTASH_NEXT_SIGNING_KEY
 });
 
+const qstashPublish = new QstashPublish({
+	token: process.env.QSTASH_TOKEN
+});
+
+export const queuePublish = async (request) => {
+	return await qstashPublish.publishJSON(request);
+};
+
 export const verifyQueueRequest = async function ({ request }) {
 	const body = await request.text(); // raw request body
-	const isValid = await qstash.verify({
+	const isValid = await qstashReceive.verify({
 		/**
 		 * The signature from the `Upstash-Signature` header.
 		 *

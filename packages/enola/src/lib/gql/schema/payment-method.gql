@@ -16,4 +16,7 @@ type EscrowMethod {
 	type: String!
 	address: String!
 	time: Int
+	terms: String
+	fee: Float
+	onExpiration: String
 }

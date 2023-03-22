@@ -1,18 +1,6 @@
-import { Redis } from '@upstash/redis';
-// import casual from 'casual';
 import { currentCohort } from '$lib/utils/date';
-import log from '$lib/logging';
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
+// import log from '$lib/logging';
+import { redis } from '$lib/redis.js';
 
 // socialPay is like payVia, but it returns escrow information if available
 export const socialPay = async (_, params) => {
@@ -53,14 +41,20 @@ export const socialPay = async (_, params) => {
 	const data = await redis.hget(`u:${identifier}`, 'payVia');
 	if (data) {
 		//		const data = JSON.parse(payload);
+
+		// paymentMethods is built from data, which is an array of [type, value]
+		const paymentMethods = [];
+
+		for (let i = 0; i < data.length; i = i + 2) {
+			paymentMethods.push({
+				type: item[i],
+				value: item[i + 1]
+			});
+		}
+
 		result = {
 			...result,
-			paymentMethods: [
-				{
-					type: data[0],
-					value: data[1]
-				}
-			]
+			paymentMethods
 		};
 	} else {
 		result = { ...result, paymentMethods: [] };
@@ -72,7 +66,10 @@ export const socialPay = async (_, params) => {
 		{
 			type: 'xrpl:testnet',
 			address: 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3',
-			time: 300 // TODO: set longer after testing
+			time: 300, // TODO: set longer after testing,
+			fee: 2.0,
+			terms: `https://www.ident.agency/terms/escrow`,
+			onExpiration: 'snowball' // or snowball -> move to pool
 		}
 		// {
 		// 	type: 'xrpl:livenet',

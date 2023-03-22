@@ -1,19 +1,8 @@
 import { BloomFilter } from 'bloomfilter';
-import { Redis } from '@upstash/redis';
 import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
+import { redis } from '$lib/redis.js';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
 
 export const submitKudosForFame = async (_, params) => {
 	//	log.debug('---------------------', params);

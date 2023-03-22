@@ -1,28 +1,10 @@
 import { MINIMUM_PAYMENT_AMOUNT, calculateFeeForEscrow } from '$lib/businessLogic.js';
 import { currentLedger, disconnect, getEscrowIdFromMemos, sendEscrowedPayment } from '$lib/xrpl.js';
+import { queuePublish, verifyQueueRequest } from '$lib/queue.js';
 
-import { Client as Qstash } from '@upstash/qstash';
-import { Redis } from '@upstash/redis';
-//import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
+import { redis } from '$lib/redis.js';
 import { v4 as uuid } from 'uuid';
-// import { shortAddress } from '$lib/utils/escrow.js';
-import { verifyQueueRequest } from '$lib/queue.js';
-
-const qstash = new Qstash({
-	token: process.env.QSTASH_TOKEN
-});
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
 
 // onEscrowFinish fires from a ledger event, once the escrow is fulfilled (not cancelled)
 const onEscrowFinish = async ({ request }) => {
@@ -229,9 +211,11 @@ const onEscrowFinish = async ({ request }) => {
 
 		log.info('removed pending member', escrowId);
 
+		// 599993 in drops is 0.000599993 XRP
+
 		// record what we've done
 		// send a onEscrowFinishedFinalized event
-		await qstash.publishJSON({
+		await queuePublish({
 			topic: `${NETWORK.replace(':', '-')}.onEscrowFinishedFinalized`,
 			deduplicationId: results.result.hash, // if we somehow pay twice, this will produce multiple events, but that's ok
 			body: {

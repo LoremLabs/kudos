@@ -1,22 +1,11 @@
 import { disconnect, fulfillEscrow, getEscrowDataFromMemos } from '$lib/xrpl.js';
 
-import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import { getKycStatus } from '$lib/kyc.js';
 import { getPayViaForNetwork } from '$lib/utils/escrow.js';
 import log from '$lib/logging';
+import { redis } from '$lib/redis.js';
 import { verifyQueueRequest } from '$lib/queue.js';
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
 
 const onEscrowCreate = async ({ request }) => {
 	let params;

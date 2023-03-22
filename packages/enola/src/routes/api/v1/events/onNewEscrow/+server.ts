@@ -1,19 +1,9 @@
 import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
+import { redis } from '$lib/redis.js';
 // import { shortAddress } from '$lib/utils/escrow.js';
 import { verifyQueueRequest } from '$lib/queue.js';
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
 
 // onNewEscrow fires from the fulfillment creation process, not from ledger events
 const onNewEscrow = async ({ request }) => {

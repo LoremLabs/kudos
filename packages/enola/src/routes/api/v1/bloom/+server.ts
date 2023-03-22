@@ -1,17 +1,6 @@
-import { Redis } from '@upstash/redis';
 import { createHmac } from 'node:crypto';
 import log from '$lib/logging';
-
-let redis = {};
-try {
-	redis = new Redis({
-		url: process.env.UPSTASH_REDIS_REST_URL,
-		token: process.env.UPSTASH_REDIS_REST_TOKEN
-	});
-} catch (e) {
-	log.error('Redis connect error', e);
-	process.exit(1);
-}
+import { redis } from '$lib/redis.js';
 
 const payVia = async () => {
 	const bloomFilterData = await redis.get('bloom:payVia');
