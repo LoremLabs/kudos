@@ -350,6 +350,33 @@ Coins.prototype.disconnect = async function () {
   }
 };
 
+Coins.prototype.getTransaction = async function ({ network, txHash }) {
+  const client = await this.getClient(network);
+
+  // network ~ xrpl:testnet
+  const networkType = network.split(":")[0];
+  let tx;
+  if (networkType === "xrpl") {
+    try {
+      tx = await client.request({
+        command: "tx",
+        transaction: txHash,
+        binary: false,
+      });
+    } catch (err) {
+      if (err.message === "transaction not found") {
+        return null;
+      } else {
+        throw err;
+      }
+    }
+  } else {
+    throw new Error("unknown network: " + network);
+  }
+
+  return tx;
+};
+
 Coins.prototype.getAccountInfo = async function ({ network, sourceAddress }) {
   // could look at network and use a different client implementation
 
