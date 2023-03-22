@@ -1,5 +1,6 @@
 import { DEFAULTS } from "./config.js";
 import fetch from "node-fetch";
+// import { fetchToCurl } from "fetch-to-curl";
 
 const log = console.log;
 
@@ -70,6 +71,7 @@ export const expandDid = async ({ did, identResolver, network }) => {
         }
 
         const out = await r.json();
+        // console.log('out', JSON.stringify(out,null,2));
         return out;
       }
     );
@@ -88,15 +90,15 @@ export const expandDid = async ({ did, identResolver, network }) => {
     return results;
   }
 
-  const payVias = results.data.socialPay.paymentMethods || [];
+  const payVias = results?.data?.socialPay?.paymentMethods || [];
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
   if (payVia) {
-    return { directPaymentVia: payVia.value };
+    return { directPaymentVia: payVia.value, escrowMethod: null };
   }
 
   // otherwise we search for an escrow that matches
-  const escrowMethods = results.data.socialPay.escrowMethods || [];
+  const escrowMethods = results?.data?.socialPay?.escrowMethods || [];
   // search for our network
   const escrowMethod = escrowMethods.find((p) => p.type === network);
   if (escrowMethod) {
