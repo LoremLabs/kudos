@@ -291,7 +291,7 @@ const exec = async (context) => {
       }
       if (escrowResults) {
         log(escrowResults);
-        log(chalk.green(`Escrow ${result.hash} fulfilled`));
+        log(chalk.green(`Escrow ${escrowResults.hash} fulfilled`));
       }
       break;
     }

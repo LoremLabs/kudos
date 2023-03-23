@@ -1,3 +1,4 @@
+import { AuthAgent } from "../auth-agent.js";
 import { Coins } from "../coins.js";
 import { Vault } from "../vault.js";
 import bcrypt from "bcrypt";
@@ -219,4 +220,5 @@ export const gatekeep = async (context, shouldCreate) => {
   // setup helpers
   context.vault = new Vault({ context });
   context.coins = new Coins({ context });
+  context.auth = new AuthAgent({ context });
 };
