@@ -50,9 +50,7 @@
 		"@envelop/graphql-jit": "^5.0.6",
 		"@graphql-yoga/render-graphiql": "^3.7.0",
 		"@types/node": "^18.14.1",
-		"five-bells-condition": "^5.0.1",
 		"graphql": "^16.6.0",
-		"graphql-yoga": "^3.7.0",
-		"json-colorizer": "^2.2.2"
+		"graphql-yoga": "^3.7.0"
 	}
 }
