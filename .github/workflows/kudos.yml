@@ -24,7 +24,7 @@ jobs:
           #   # Cohort
           #   cohort: # optional, default is
           #   # Identify contributors from devDependecies (Node.js)
-          dev-dependencies: 'true' # optional, default is false
+          dev-dependencies: "true" # optional, default is false
         #   # Where to save the generated files. Options: artifact
         #   destination: # optional, default is artifact
         #   # A GITHUB_TOKEN with custom permissions.
