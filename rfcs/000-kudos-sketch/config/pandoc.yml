@@ -1,0 +1,14 @@
+---
+geometry: "left=4cm, right=4cm, top=3cm, bottom=3cm"
+title: "Kudos: A Protocol for Compensating Contributions"
+author: "Matt Mankins <mankins@gmail.com>"
+abstract: "The open internet is missing a method to easily reward contributions with economic incentives. Micropayments help fractionalize royalties to be scaled correctly for impact, however implementations to date add friction and worry where there was none. Web Monetization solves some of this, utilizing micropayments behind the scenes, taken from a fixed monthly allocation, however its implementation imagines a new namespace and content tagging requirements that impede adoption. We introduce kudos, an open protocol to compensate contributors by recording the Ids in existing content. Kudos are written in a local ledger that can then be used for settling funds, a process of sending payments toward these contributor Ids in a manner proportional to their impact."
+type: working-draft
+draft: 1
+header-includes: |
+    \usepackage{fancyhdr}
+    \pagestyle{fancy}
+    \fancyfoot[CO,CE]{000-kudos-sketch - draft 1}
+    \fancyfoot[LE,RO]{\thepage}
+---
+
