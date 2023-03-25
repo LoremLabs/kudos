@@ -22,7 +22,8 @@ This repo contains several sub-components of the reference implementation of Kud
 
 - `kudos-for-code` - A reference implementation of Kudos to support open source code contributions
 - `kudos-for-content` - A reference implementation of Kudos to support content creators
-- `identity-wallet` - Examples of `identity wallets` that allows users to send and receive payments but also manager their Identities, and of course settle Kudos.
+- `ident-agency` - Reference backend GraphQL and API services
+- `identity-wallet` - Examples of `identity wallets` that allows users to send and receive payments but also manager their Identities, and of course settle Kudos. `Setler` is available as both a CLI and GUI application.
 - `rfcs` - A collection of RFCs that describe the Kudos protocol and its components.
 
 ## Overview Architecture

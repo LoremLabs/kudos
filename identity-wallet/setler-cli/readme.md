@@ -1,5 +1,7 @@
 # Setler CLI
 
+Identity Wallet command line interface. 
+
 Use Social Media usernames to send money and perform other Kudos actions.
 
 ## Overview
