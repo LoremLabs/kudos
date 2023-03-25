@@ -30,6 +30,9 @@ This repo contains several sub-components of the reference implementation of Kud
 
 ![Overview Flow](./docs/kudos-overview-flow.svg)
 
+<img width="828" alt="Screenshot 2023-03-25 at 20 44 39" src="https://user-images.githubusercontent.com/170588/227738308-fb03c70a-2a45-4765-b917-d14af2b56d50.png">
+
+
 Further details on the motivation for Kudos can be found in the [Kudos Sketch](./rfcs/000-kudos-sketch/000-kudos-sketch.md).
 
 ## History
