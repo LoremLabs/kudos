@@ -1,0 +1,22 @@
+"""
+Payment Method
+"""
+type PaymentMethod {
+	"""
+	type of payment method: xrpl:testnet, xrpl:mainnet, paypal, etc
+	"""
+	type: String!
+	value: String!
+}
+
+"""
+EscrowMethod is a payment method that is used to hold funds for a transaction
+"""
+type EscrowMethod {
+	type: String!
+	address: String!
+	time: Int
+	terms: String
+	fee: Float
+	onExpiration: String
+}

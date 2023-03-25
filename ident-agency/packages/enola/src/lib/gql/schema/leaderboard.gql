@@ -1,0 +1,31 @@
+type LeaderBoard {
+	# The leader board rows.
+	rows: [LeaderboardRow]!
+
+	# The subject of the leaderboard.
+	subject: String!
+
+	# the view's starting row, 0-based
+	start: Int!
+
+	# the view's page size requested
+	pageSize: Int!
+}
+
+# A leader board row
+type LeaderboardRow {
+	# The rank of the contributor for this leader board.
+	rank: Int!
+
+	# The Did of the contributor, ex: did:kudos:url:https://www.loremlabs.com
+	identifier: String!
+
+	# The computed score of the contributor's contributions.
+	score: Int!
+}
+
+# The result of a leader board query.
+type LeaderBoardResult {
+	leaderboard: LeaderBoard
+	status: Status
+}

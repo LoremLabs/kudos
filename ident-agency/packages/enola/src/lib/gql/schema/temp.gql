@@ -1,0 +1,19 @@
+"""
+Temp testing
+"""
+type Person {
+	name: String
+	age: Int
+	isAlive: Boolean
+}
+
+type Query {
+	sayHello: Person
+	getPerson: Person
+	account: Account
+}
+
+scalar DIDDocument
+extend type Query {
+	resolveDid(didUrl: String!): DIDDocument
+}
