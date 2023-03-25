@@ -2,7 +2,7 @@
 
 # Kudos
 
-`Kudos` is a new way for rewarding creation while keeping the best parts of the "free Internet". End users (optionally) fund their accounts with a monthly fee which will be proportionally distributed to all kudos they generate for that month.
+`Kudos` is a new way for rewarding creation while keeping the best parts of the "free Internet". Kudos creates an _attribution economy_ where end users record those who help them, and then later optionally fund their accounts with a monthly fee which will be proportionally distributed to all kudos attributions they generate for that month.
 
 At its core, Kudos is two steps:
 
