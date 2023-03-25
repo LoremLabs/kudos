@@ -1,0 +1,52 @@
+on: 
+  push:
+    branches: [main]
+
+concurrency:
+  group: kudos-identify-contributors-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kudos_identify_job:
+    runs-on: ubuntu-latest
+    name: Identify Contributors Basic
+    env:
+      searchDir: .
+    steps:
+    - uses: actions/checkout@v3
+    # use a cached node, more options at https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md
+    - name: Get current cohort
+      id: cohort
+      run: echo "cohort=$(date +'%Y%W')" >> $GITHUB_ENV
+    - name: Setup Kudos Storage Cache
+      id: kudos-dir-cache
+      uses: actions/cache@v3
+      env:
+        cache-name: kudos-dir-cache
+      with:
+        # npm cache files are stored in `~/.npm` on Linux/macOS
+        path: kudos-dir
+        key: cache-${{ env.cache-name }}-${{ env.cohort  }}
+    - uses: actions/setup-node@v3
+      with:
+        # node-version-file: '.nvmrc' 
+        node-version: 18 
+    # - run: npm ci
+    # - run: npm run build
+
+    - name: "Install Kudos Basic Tools"
+      run: |
+        mkdir -p kudos-dir
+        npx @kudos-protocol/dosku-cli@next init
+        npx @kudos-protocol/dosku-cli-basic@next enable --all --yes
+        npx @kudos-protocol/dosku-cli@next init --dbDir=./kudos-dir
+
+    - name: "Identify Contributors and Ink Kudos"
+      run: |
+        npx @kudos-protocol/dosku-cli@next config set kudos.context '{\"code\":{\"type\":\"deploy\",\"repositoryUrl\":\"${{github.repositoryUrl}}\",\"commit\":\"${{github.sha}}\"}}'
+        npx @kudos-protocol/dosku-cli@next identify ${{ env.searchDir }} --outFile="kudos-dir/${{ env.cohort }}-${{github.sha}}.ndjson"
+        npx @kudos-protocol/dosku-cli@next ink --inFile="kudos-dir/${{ env.cohort }}-${{github.sha}}.ndjson" --src="github-action"
+
+    - name: "List All Current Kudos"
+      run: |
+        npx @kudos-protocol/dosku-cli@next list --cohort=${{ env.cohort }}
