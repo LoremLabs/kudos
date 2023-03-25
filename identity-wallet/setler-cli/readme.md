@@ -14,6 +14,9 @@ Setler is part of the Kudos ecosystem which rewards content creators.
 
 ![Architecture](./docs/send-to-social-overview.svg)
 
+## CLI Demo
+
+![Screen-Recording-2023-03-25-at-20 03 15](https://user-images.githubusercontent.com/170588/227736633-93f70b05-56d2-4993-9de2-9a446d19404c.gif)
 
 ## Installation
 
