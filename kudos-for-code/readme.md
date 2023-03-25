@@ -17,6 +17,14 @@ Kudos is composed of several services:
 - `Kudos Inker` is a process that takes a contributor file and records Kudos transactions.
 - `Kudos Exchange` takes care of settling a user's balance on a monthly basis, converting between XRP and off-ledger balances.
 
+## Example Kudos
+
+![image](https://user-images.githubusercontent.com/170588/227737785-a59c6fa9-c823-4ca2-b80c-339138167142.png)
+
+## GitHub Action
+
+![image](https://user-images.githubusercontent.com/170588/227737917-3e094606-2a1c-4c48-9879-2338347ec4eb.png)
+
 ## CLI
 
 In addition, a CLI command is available to be able to run commands on your own infrastructure / locally.
