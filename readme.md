@@ -29,3 +29,22 @@ This repo contains several sub-components of the reference implementation of Kud
 ## Overview Architecture
 
 ![Overview Flow](./docs/kudos-overview-flow.svg)
+
+Further details on the motivation for Kudos can be found in the [Kudos Sketch](./rfcs/000-kudos-sketch/000-kudos-sketch.md).
+
+## History
+
+Kudos owes its start to the [In-a-Moon](https://www.slideshare.net/mankins/inamoon-overview) project from 2009. In-a-Moon required websites to include an identifier which would be used to split up a monthly payment. For In-a-Moon to be successful required adding JavaScript to every website on the web, a task that became increasingly difficult as the web grew. Atri was the second attempt to solve the same problem but without the need to add JavaScript to every website. Atri was a browser extension that would record the social media handles already embedded in websites that a user visited. While Atri solved In-a-Moon's problem, it was difficult to split up the monthly payment between the social media handles as there wasn't a viable micropayment solution at the time. Kudos solves this problem by using the XRPL and its escrow capabilities which make delayed access micropayments possible.
+
+## License
+
+Kudos is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
+
+## Contributing
+
+We welcome contributions from the community. Please see [CONTRIBUTING](./CONTRIBUTING.md) for details on how to contribute.
+
+## Code of Conduct
+
+This project adheres to the Contributor Covenant [code of conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. 
+
