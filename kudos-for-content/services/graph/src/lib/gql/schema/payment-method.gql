@@ -1,0 +1,12 @@
+enum PaymentMethods {
+	XRP
+	USD
+}
+
+"""
+Payment Method
+"""
+type PaymentMethod {
+	type: PaymentMethods!
+	value: String!
+}

@@ -1,0 +1,67 @@
+"""
+An [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html)-encoded datetime.
+
+This standard allows datetimes to be represented for different timezones.  For example:
+
+```
+2018-01-01T00:00:00Z
+2018-01-01T00:00:00-04:00
+2018-01-01T00:00:00+02:00
+```
+"""
+scalar DateTime
+
+"""
+A range of times with a start and an end
+"""
+input DateTimeRangeInput {
+	"""
+	Start time for the range
+	"""
+	from: DateTime!
+
+	"""
+	End time for the range
+	"""
+	until: DateTime!
+}
+
+"""
+Information about a specific time zone
+"""
+type TimeZone {
+	"""
+	Abbreviation for the name of this time zone (e.g. UTC). Changes per daylight
+	savings time when applicable (e.g. EDT vs EST)
+	"""
+	abbreviation: String!
+
+	"""
+	Name of the time zone (e.g. Eastern Time (US & Canada))
+	"""
+	name: String!
+
+	"""
+	Time zone given as offset from UTC (in the format +/- hh:mm, e.g. -05:00)
+	"""
+	utcOffset: String!
+}
+
+"""
+The DateFormat enum list all the supported styles available
+when formatting Time values.
+"""
+enum DateFormat {
+	"""
+	Example: "2006-01-02T15:04:05Z07:00"
+	"""
+	RFC3339
+	"""
+	Example: "02 Jan 06 15:04 MST"
+	"""
+	RFC822
+	"""
+	Returns the date as its UNIX timestamp value (in seconds)
+	"""
+	UNIX
+}

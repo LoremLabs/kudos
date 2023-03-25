@@ -1,0 +1,28 @@
+{
+  "name": "kudos-for-content",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "prettier --plugin-search-dir . --check . && eslint .",
+    "format": "prettier --plugin-search-dir . --write .",
+    "test": "jest"
+  },
+  "keywords": [
+    "kudos",
+    "content",
+    "micropayment",
+    "xrpl"
+  ],
+  "author": "@loremlabs",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint-community/eslint-utils": "^4.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "eslint": "^8.36.0",
+    "parser": "link:@typescript/eslint/parser",
+    "prettier": "^2.8.7",
+    "prettier-plugin-svelte": "^2.10.0",
+    "typescript": "^5.0.2"
+  }
+}
