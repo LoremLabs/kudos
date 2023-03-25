@@ -2,8 +2,11 @@
 
 # Ident Agency
 
-
 <img width="1255" alt="Screenshot 2023-03-25 at 20 16 16" src="https://user-images.githubusercontent.com/170588/227737091-64f129c1-0dfe-43be-a8d2-82cd582be2a5.png">
 
 <img width="1257" alt="Screenshot 2023-03-25 at 20 16 31" src="https://user-images.githubusercontent.com/170588/227737093-d9f3cfaf-ef06-4603-8f81-2117c97f7a77.png">
 
+# Packages
+
+- `enola` - GraphQL / API for Ident Agency, currently including Fame Leaderboard web front-end
+- `diditd` - LibP2p storage mechanism
