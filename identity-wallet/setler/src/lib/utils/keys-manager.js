@@ -1,4 +1,5 @@
-import * as addressCodec from '$lib/extern/ripple-address-codec/src';
+// import * as addressCodec from '$lib/extern/ripple-address-codec/src';
+import * as addressCodec from 'ripple-address-codec';
 import * as hashjs from 'hash.js';
 
 import {

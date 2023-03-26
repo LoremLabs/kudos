@@ -1,6 +1,6 @@
 /*
 ! tailwindcss v3.2.6 | MIT License | https://tailwindcss.com
-*/ /*
+*//*
 1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
 2. Allow adding a border to an element by just adding a border-width. (https://github.com/tailwindcss/tailwindcss/pull/116)
 */
@@ -32,11 +32,8 @@ html {
   -webkit-text-size-adjust: 100%; /* 2 */
   -moz-tab-size: 4; /* 3 */
   -o-tab-size: 4;
-  tab-size: 4; /* 3 */
-  font-family: Inter var, ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-    'Noto Color Emoji'; /* 4 */
+     tab-size: 4; /* 3 */
+  font-family: Inter var, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* 4 */
   font-feature-settings: normal; /* 5 */
 }
 
@@ -68,7 +65,7 @@ Add the correct text decoration in Chrome, Edge, and Safari.
 
 abbr:where([title]) {
   -webkit-text-decoration: underline dotted;
-  text-decoration: underline dotted;
+          text-decoration: underline dotted;
 }
 
 /*
@@ -112,8 +109,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace; /* 1 */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* 1 */
   font-size: 1em; /* 2 */
 }
 
@@ -319,8 +315,7 @@ textarea {
 2. Set the default placeholder color to the user's configured gray 400 color.
 */
 
-input::-moz-placeholder,
-textarea::-moz-placeholder {
+input::-moz-placeholder, textarea::-moz-placeholder {
   opacity: 1; /* 1 */
   color: #9ca3af; /* 2 */
 }
@@ -336,7 +331,7 @@ Set the default cursor for buttons.
 */
 
 button,
-[role='button'] {
+[role="button"] {
   cursor: pointer;
 }
 
@@ -380,24 +375,10 @@ video {
   display: none;
 }
 
-[type='text'],
-[type='email'],
-[type='url'],
-[type='password'],
-[type='number'],
-[type='date'],
-[type='datetime-local'],
-[type='month'],
-[type='search'],
-[type='tel'],
-[type='time'],
-[type='week'],
-[multiple],
-textarea,
-select {
+[type='text'],[type='email'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select {
   -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+     -moz-appearance: none;
+          appearance: none;
   background-color: #fff;
   border-color: #6b7280;
   border-width: 1px;
@@ -411,44 +392,25 @@ select {
   --tw-shadow: 0 0 #0000;
 }
 
-[type='text']:focus,
-[type='email']:focus,
-[type='url']:focus,
-[type='password']:focus,
-[type='number']:focus,
-[type='date']:focus,
-[type='datetime-local']:focus,
-[type='month']:focus,
-[type='search']:focus,
-[type='tel']:focus,
-[type='time']:focus,
-[type='week']:focus,
-[multiple]:focus,
-textarea:focus,
-select:focus {
+[type='text']:focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
-  --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+  --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-color: #fff;
   --tw-ring-color: #2563eb;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   border-color: #2563eb;
 }
 
-input::-moz-placeholder,
-textarea::-moz-placeholder {
+input::-moz-placeholder, textarea::-moz-placeholder {
   color: #6b7280;
   opacity: 1;
 }
 
-input::placeholder,
-textarea::placeholder {
+input::placeholder,textarea::placeholder {
   color: #6b7280;
   opacity: 1;
 }
@@ -461,15 +423,7 @@ textarea::placeholder {
   min-height: 1.5em;
 }
 
-::-webkit-datetime-edit,
-::-webkit-datetime-edit-year-field,
-::-webkit-datetime-edit-month-field,
-::-webkit-datetime-edit-day-field,
-::-webkit-datetime-edit-hour-field,
-::-webkit-datetime-edit-minute-field,
-::-webkit-datetime-edit-second-field,
-::-webkit-datetime-edit-millisecond-field,
-::-webkit-datetime-edit-meridiem-field {
+::-webkit-datetime-edit,::-webkit-datetime-edit-year-field,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute-field,::-webkit-datetime-edit-second-field,::-webkit-datetime-edit-millisecond-field,::-webkit-datetime-edit-meridiem-field {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -481,7 +435,7 @@ select {
   background-size: 1.5em 1.5em;
   padding-right: 2.5rem;
   -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+          print-color-adjust: exact;
 }
 
 [multiple] {
@@ -491,23 +445,22 @@ select {
   background-size: initial;
   padding-right: 0.75rem;
   -webkit-print-color-adjust: unset;
-  print-color-adjust: unset;
+          print-color-adjust: unset;
 }
 
-[type='checkbox'],
-[type='radio'] {
+[type='checkbox'],[type='radio'] {
   -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+     -moz-appearance: none;
+          appearance: none;
   padding: 0;
   -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+          print-color-adjust: exact;
   display: inline-block;
   vertical-align: middle;
   background-origin: border-box;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   flex-shrink: 0;
   height: 1rem;
   width: 1rem;
@@ -526,24 +479,19 @@ select {
   border-radius: 100%;
 }
 
-[type='checkbox']:focus,
-[type='radio']:focus {
+[type='checkbox']:focus,[type='radio']:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
-  --tw-ring-inset: var(--tw-empty, /*!*/ /*!*/);
+  --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
   --tw-ring-offset-width: 2px;
   --tw-ring-offset-color: #fff;
   --tw-ring-color: #2563eb;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
-[type='checkbox']:checked,
-[type='radio']:checked {
+[type='checkbox']:checked,[type='radio']:checked {
   border-color: transparent;
   background-color: currentColor;
   background-size: 100% 100%;
@@ -559,10 +507,7 @@ select {
   background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
 }
 
-[type='checkbox']:checked:hover,
-[type='checkbox']:checked:focus,
-[type='radio']:checked:hover,
-[type='radio']:checked:focus {
+[type='checkbox']:checked:hover,[type='checkbox']:checked:focus,[type='radio']:checked:hover,[type='radio']:checked:focus {
   border-color: transparent;
   background-color: currentColor;
 }
@@ -576,8 +521,7 @@ select {
   background-repeat: no-repeat;
 }
 
-[type='checkbox']:indeterminate:hover,
-[type='checkbox']:indeterminate:focus {
+[type='checkbox']:indeterminate:hover,[type='checkbox']:indeterminate:focus {
   border-color: transparent;
   background-color: currentColor;
 }
@@ -597,9 +541,7 @@ select {
   outline: 1px auto -webkit-focus-ring-color;
 }
 
-*,
-::before,
-::after {
+*, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
   --tw-translate-x: 0;
@@ -609,16 +551,16 @@ select {
   --tw-skew-y: 0;
   --tw-scale-x: 1;
   --tw-scale-y: 1;
-  --tw-pan-x: ;
-  --tw-pan-y: ;
-  --tw-pinch-zoom: ;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
-  --tw-ordinal: ;
-  --tw-slashed-zero: ;
-  --tw-numeric-figure: ;
-  --tw-numeric-spacing: ;
-  --tw-numeric-fraction: ;
-  --tw-ring-inset: ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-color: #fff;
   --tw-ring-color: rgb(59 130 246 / 0.5);
@@ -626,24 +568,24 @@ select {
   --tw-ring-shadow: 0 0 #0000;
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
-  --tw-blur: ;
-  --tw-brightness: ;
-  --tw-contrast: ;
-  --tw-grayscale: ;
-  --tw-hue-rotate: ;
-  --tw-invert: ;
-  --tw-saturate: ;
-  --tw-sepia: ;
-  --tw-drop-shadow: ;
-  --tw-backdrop-blur: ;
-  --tw-backdrop-brightness: ;
-  --tw-backdrop-contrast: ;
-  --tw-backdrop-grayscale: ;
-  --tw-backdrop-hue-rotate: ;
-  --tw-backdrop-invert: ;
-  --tw-backdrop-opacity: ;
-  --tw-backdrop-saturate: ;
-  --tw-backdrop-sepia: ;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
 }
 
 ::backdrop {
@@ -656,16 +598,16 @@ select {
   --tw-skew-y: 0;
   --tw-scale-x: 1;
   --tw-scale-y: 1;
-  --tw-pan-x: ;
-  --tw-pan-y: ;
-  --tw-pinch-zoom: ;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
   --tw-scroll-snap-strictness: proximity;
-  --tw-ordinal: ;
-  --tw-slashed-zero: ;
-  --tw-numeric-figure: ;
-  --tw-numeric-spacing: ;
-  --tw-numeric-fraction: ;
-  --tw-ring-inset: ;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-color: #fff;
   --tw-ring-color: rgb(59 130 246 / 0.5);
@@ -673,24 +615,24 @@ select {
   --tw-ring-shadow: 0 0 #0000;
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
-  --tw-blur: ;
-  --tw-brightness: ;
-  --tw-contrast: ;
-  --tw-grayscale: ;
-  --tw-hue-rotate: ;
-  --tw-invert: ;
-  --tw-saturate: ;
-  --tw-sepia: ;
-  --tw-drop-shadow: ;
-  --tw-backdrop-blur: ;
-  --tw-backdrop-brightness: ;
-  --tw-backdrop-contrast: ;
-  --tw-backdrop-grayscale: ;
-  --tw-backdrop-hue-rotate: ;
-  --tw-backdrop-invert: ;
-  --tw-backdrop-opacity: ;
-  --tw-backdrop-saturate: ;
-  --tw-backdrop-sepia: ;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
 }
 .sr-only {
   position: absolute;
@@ -1229,59 +1171,42 @@ select {
 }
 .-translate-x-1\/2 {
   --tw-translate-x: -50%;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .translate-x-0 {
   --tw-translate-x: 0px;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .translate-x-5 {
   --tw-translate-x: 1.25rem;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .-rotate-45 {
   --tw-rotate: -45deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .-rotate-90 {
   --tw-rotate: -90deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .rotate-45 {
   --tw-rotate: 45deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .rotate-90 {
   --tw-rotate: 90deg;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .scale-\[1\] {
   --tw-scale-x: 1;
   --tw-scale-y: 1;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .transform {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 @keyframes entering {
+
   from {
     opacity: 0;
     scale: 0.95px;
@@ -1296,6 +1221,7 @@ select {
   animation: entering 0.1s ease-out forwards;
 }
 @keyframes leaving {
+
   from {
     opacity: 1;
     scale: 1px;
@@ -1310,31 +1236,25 @@ select {
   animation: leaving 0.075s ease-in forwards;
 }
 @keyframes pulse {
+
   50% {
-    opacity: 0.5;
+    opacity: .5;
   }
 }
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 @keyframes shake {
-  0%,
-  100% {
+
+  0%, 100% {
     transform: translateX(0);
   }
 
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
+  10%, 30%, 50%, 70%, 90% {
     transform: translateX(-10px);
   }
 
-  20%,
-  40%,
-  60%,
-  80% {
+  20%, 40%, 60%, 80% {
     transform: translateX(10px);
   }
 }
@@ -1342,6 +1262,7 @@ select {
   animation: shake 0.75s infinite;
 }
 @keyframes spin {
+
   to {
     transform: rotate(360deg);
   }
@@ -1357,8 +1278,8 @@ select {
 }
 .select-none {
   -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
+     -moz-user-select: none;
+          user-select: none;
 }
 .resize {
   resize: both;
@@ -1443,7 +1364,7 @@ select {
 }
 .gap-x-8 {
   -moz-column-gap: 2rem;
-  column-gap: 2rem;
+       column-gap: 2rem;
 }
 .gap-y-10 {
   row-gap: 2.5rem;
@@ -1874,11 +1795,11 @@ select {
 }
 .object-cover {
   -o-object-fit: cover;
-  object-fit: cover;
+     object-fit: cover;
 }
 .object-center {
   -o-object-position: center;
-  object-position: center;
+     object-position: center;
 }
 .p-1 {
   padding: 0.25rem;
@@ -2102,8 +2023,7 @@ select {
   vertical-align: middle;
 }
 .font-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    'Liberation Mono', 'Courier New', monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 .text-2xl {
   font-size: 1.5rem;
@@ -2377,65 +2297,47 @@ select {
 }
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
-    0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-2xl {
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-lg {
-  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color),
-    0 4px 6px -4px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-md {
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
-    0 2px 4px -2px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-sm {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-xl {
-  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color),
-    0 8px 10px -6px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .outline-none {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
 .ring-0 {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .ring-1 {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .ring-black {
   --tw-ring-opacity: 1;
@@ -2450,25 +2352,15 @@ select {
 }
 .blur {
   --tw-blur: blur(8px);
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
-    var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate)
-    var(--tw-sepia) var(--tw-drop-shadow);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 .filter {
-  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
-    var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate)
-    var(--tw-sepia) var(--tw-drop-shadow);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 .transition {
-  transition-property: color, background-color, border-color, outline-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    -webkit-backdrop-filter;
-  transition-property: color, background-color, border-color, outline-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    backdrop-filter;
-  transition-property: color, background-color, border-color, outline-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    backdrop-filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -2478,8 +2370,7 @@ select {
   transition-duration: 150ms;
 }
 .transition-colors {
-  transition-property: color, background-color, border-color, outline-color,
-    text-decoration-color, fill, stroke;
+  transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -2509,896 +2400,486 @@ select {
 .font-inter {
   font-family: 'Inter', system-ui, sans-serif;
 }
-@supports (font-variation-settings: normal) {
+@supports(font-variation-settings: normal) {
+
   .font-inter {
     font-family: 'Inter var', system-ui, sans-serif;
   }
 }
-.font-inter .font-feature-normal,
-.font-inter.font-feature-normal {
+.font-inter .font-feature-normal, .font-inter.font-feature-normal {
   font-feature-settings: normal;
 }
-.font-inter .font-feature-default,
-.font-inter.font-feature-default {
-  font-feature-settings: 'calt' 1, 'kern' 1;
+.font-inter .font-feature-default,.font-inter.font-feature-default {
+  font-feature-settings: "calt" 1, "kern" 1;
 }
-.font-inter .text-xs,
-.font-inter.text-xs {
+.font-inter .text-xs, .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.000490774em;
 }
-.font-inter .text-xs .tracking-tighter,
-.font-inter .text-xs.tracking-tighter,
-.font-inter.text-xs .tracking-tighter,
-.font-inter.text-xs.tracking-tighter,
-.tracking-tighter .font-inter .text-xs,
-.tracking-tighter .font-inter.text-xs {
+.font-inter .text-xs .tracking-tighter, .font-inter .text-xs.tracking-tighter, .font-inter.text-xs .tracking-tighter, .font-inter.text-xs.tracking-tighter, .tracking-tighter .font-inter .text-xs, .tracking-tighter .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: -0.049509226em;
 }
-.font-inter .text-xs .tracking-tight,
-.font-inter .text-xs.tracking-tight,
-.font-inter.text-xs .tracking-tight,
-.font-inter.text-xs.tracking-tight,
-.tracking-tight .font-inter .text-xs,
-.tracking-tight .font-inter.text-xs {
+.font-inter .text-xs .tracking-tight, .font-inter .text-xs.tracking-tight, .font-inter.text-xs .tracking-tight, .font-inter.text-xs.tracking-tight, .tracking-tight .font-inter .text-xs, .tracking-tight .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: -0.024509226em;
 }
-.font-inter .text-xs .tracking-normal,
-.font-inter .text-xs.tracking-normal,
-.font-inter.text-xs .tracking-normal,
-.font-inter.text-xs.tracking-normal,
-.tracking-normal .font-inter .text-xs,
-.tracking-normal .font-inter.text-xs {
+.font-inter .text-xs .tracking-normal, .font-inter .text-xs.tracking-normal, .font-inter.text-xs .tracking-normal, .font-inter.text-xs.tracking-normal, .tracking-normal .font-inter .text-xs, .tracking-normal .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.000490774em;
 }
-.font-inter .text-xs .tracking-wide,
-.font-inter .text-xs.tracking-wide,
-.font-inter.text-xs .tracking-wide,
-.font-inter.text-xs.tracking-wide,
-.tracking-wide .font-inter .text-xs,
-.tracking-wide .font-inter.text-xs {
+.font-inter .text-xs .tracking-wide, .font-inter .text-xs.tracking-wide, .font-inter.text-xs .tracking-wide, .font-inter.text-xs.tracking-wide, .tracking-wide .font-inter .text-xs, .tracking-wide .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.025490774em;
 }
-.font-inter .text-xs .tracking-wider,
-.font-inter .text-xs.tracking-wider,
-.font-inter.text-xs .tracking-wider,
-.font-inter.text-xs.tracking-wider,
-.tracking-wider .font-inter .text-xs,
-.tracking-wider .font-inter.text-xs {
+.font-inter .text-xs .tracking-wider, .font-inter .text-xs.tracking-wider, .font-inter.text-xs .tracking-wider, .font-inter.text-xs.tracking-wider, .tracking-wider .font-inter .text-xs, .tracking-wider .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.050490774em;
 }
-.font-inter .text-xs .tracking-widest,
-.font-inter .text-xs.tracking-widest,
-.font-inter.text-xs .tracking-widest,
-.font-inter.text-xs.tracking-widest,
-.tracking-widest .font-inter .text-xs,
-.tracking-widest .font-inter.text-xs {
+.font-inter .text-xs .tracking-widest, .font-inter .text-xs.tracking-widest, .font-inter.text-xs .tracking-widest, .font-inter.text-xs.tracking-widest, .tracking-widest .font-inter .text-xs, .tracking-widest .font-inter.text-xs {
   line-height: 1rem;
   font-size: 0.75rem;
   letter-spacing: 0.100490774em;
 }
-.font-inter .text-sm,
-.font-inter.text-sm {
+.font-inter .text-sm, .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: -0.006223544em;
 }
-.font-inter .text-sm .tracking-tighter,
-.font-inter .text-sm.tracking-tighter,
-.font-inter.text-sm .tracking-tighter,
-.font-inter.text-sm.tracking-tighter,
-.tracking-tighter .font-inter .text-sm,
-.tracking-tighter .font-inter.text-sm {
+.font-inter .text-sm .tracking-tighter, .font-inter .text-sm.tracking-tighter, .font-inter.text-sm .tracking-tighter, .font-inter.text-sm.tracking-tighter, .tracking-tighter .font-inter .text-sm, .tracking-tighter .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: -0.056223544em;
 }
-.font-inter .text-sm .tracking-tight,
-.font-inter .text-sm.tracking-tight,
-.font-inter.text-sm .tracking-tight,
-.font-inter.text-sm.tracking-tight,
-.tracking-tight .font-inter .text-sm,
-.tracking-tight .font-inter.text-sm {
+.font-inter .text-sm .tracking-tight, .font-inter .text-sm.tracking-tight, .font-inter.text-sm .tracking-tight, .font-inter.text-sm.tracking-tight, .tracking-tight .font-inter .text-sm, .tracking-tight .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: -0.031223544em;
 }
-.font-inter .text-sm .tracking-normal,
-.font-inter .text-sm.tracking-normal,
-.font-inter.text-sm .tracking-normal,
-.font-inter.text-sm.tracking-normal,
-.tracking-normal .font-inter .text-sm,
-.tracking-normal .font-inter.text-sm {
+.font-inter .text-sm .tracking-normal, .font-inter .text-sm.tracking-normal, .font-inter.text-sm .tracking-normal, .font-inter.text-sm.tracking-normal, .tracking-normal .font-inter .text-sm, .tracking-normal .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: -0.006223544em;
 }
-.font-inter .text-sm .tracking-wide,
-.font-inter .text-sm.tracking-wide,
-.font-inter.text-sm .tracking-wide,
-.font-inter.text-sm.tracking-wide,
-.tracking-wide .font-inter .text-sm,
-.tracking-wide .font-inter.text-sm {
+.font-inter .text-sm .tracking-wide, .font-inter .text-sm.tracking-wide, .font-inter.text-sm .tracking-wide, .font-inter.text-sm.tracking-wide, .tracking-wide .font-inter .text-sm, .tracking-wide .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: 0.018776456em;
 }
-.font-inter .text-sm .tracking-wider,
-.font-inter .text-sm.tracking-wider,
-.font-inter.text-sm .tracking-wider,
-.font-inter.text-sm.tracking-wider,
-.tracking-wider .font-inter .text-sm,
-.tracking-wider .font-inter.text-sm {
+.font-inter .text-sm .tracking-wider, .font-inter .text-sm.tracking-wider, .font-inter.text-sm .tracking-wider, .font-inter.text-sm.tracking-wider, .tracking-wider .font-inter .text-sm, .tracking-wider .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: 0.043776456em;
 }
-.font-inter .text-sm .tracking-widest,
-.font-inter .text-sm.tracking-widest,
-.font-inter.text-sm .tracking-widest,
-.font-inter.text-sm.tracking-widest,
-.tracking-widest .font-inter .text-sm,
-.tracking-widest .font-inter.text-sm {
+.font-inter .text-sm .tracking-widest, .font-inter .text-sm.tracking-widest, .font-inter.text-sm .tracking-widest, .font-inter.text-sm.tracking-widest, .tracking-widest .font-inter .text-sm, .tracking-widest .font-inter.text-sm {
   line-height: 1.25rem;
   font-size: 0.875rem;
   letter-spacing: 0.093776456em;
 }
-.font-inter .text-base,
-.font-inter.text-base {
+.font-inter .text-base, .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: -0.010959779em;
 }
-.font-inter .text-base .tracking-tighter,
-.font-inter .text-base.tracking-tighter,
-.font-inter.text-base .tracking-tighter,
-.font-inter.text-base.tracking-tighter,
-.tracking-tighter .font-inter .text-base,
-.tracking-tighter .font-inter.text-base {
+.font-inter .text-base .tracking-tighter, .font-inter .text-base.tracking-tighter, .font-inter.text-base .tracking-tighter, .font-inter.text-base.tracking-tighter, .tracking-tighter .font-inter .text-base, .tracking-tighter .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: -0.060959779em;
 }
-.font-inter .text-base .tracking-tight,
-.font-inter .text-base.tracking-tight,
-.font-inter.text-base .tracking-tight,
-.font-inter.text-base.tracking-tight,
-.tracking-tight .font-inter .text-base,
-.tracking-tight .font-inter.text-base {
+.font-inter .text-base .tracking-tight, .font-inter .text-base.tracking-tight, .font-inter.text-base .tracking-tight, .font-inter.text-base.tracking-tight, .tracking-tight .font-inter .text-base, .tracking-tight .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: -0.035959779em;
 }
-.font-inter .text-base .tracking-normal,
-.font-inter .text-base.tracking-normal,
-.font-inter.text-base .tracking-normal,
-.font-inter.text-base.tracking-normal,
-.tracking-normal .font-inter .text-base,
-.tracking-normal .font-inter.text-base {
+.font-inter .text-base .tracking-normal, .font-inter .text-base.tracking-normal, .font-inter.text-base .tracking-normal, .font-inter.text-base.tracking-normal, .tracking-normal .font-inter .text-base, .tracking-normal .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: -0.010959779em;
 }
-.font-inter .text-base .tracking-wide,
-.font-inter .text-base.tracking-wide,
-.font-inter.text-base .tracking-wide,
-.font-inter.text-base.tracking-wide,
-.tracking-wide .font-inter .text-base,
-.tracking-wide .font-inter.text-base {
+.font-inter .text-base .tracking-wide, .font-inter .text-base.tracking-wide, .font-inter.text-base .tracking-wide, .font-inter.text-base.tracking-wide, .tracking-wide .font-inter .text-base, .tracking-wide .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: 0.014040221em;
 }
-.font-inter .text-base .tracking-wider,
-.font-inter .text-base.tracking-wider,
-.font-inter.text-base .tracking-wider,
-.font-inter.text-base.tracking-wider,
-.tracking-wider .font-inter .text-base,
-.tracking-wider .font-inter.text-base {
+.font-inter .text-base .tracking-wider, .font-inter .text-base.tracking-wider, .font-inter.text-base .tracking-wider, .font-inter.text-base.tracking-wider, .tracking-wider .font-inter .text-base, .tracking-wider .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: 0.039040221em;
 }
-.font-inter .text-base .tracking-widest,
-.font-inter .text-base.tracking-widest,
-.font-inter.text-base .tracking-widest,
-.font-inter.text-base.tracking-widest,
-.tracking-widest .font-inter .text-base,
-.tracking-widest .font-inter.text-base {
+.font-inter .text-base .tracking-widest, .font-inter .text-base.tracking-widest, .font-inter.text-base .tracking-widest, .font-inter.text-base.tracking-widest, .tracking-widest .font-inter .text-base, .tracking-widest .font-inter.text-base {
   line-height: 1.5rem;
   font-size: 1rem;
   letter-spacing: 0.089040221em;
 }
-.font-inter .text-lg,
-.font-inter.text-lg {
+.font-inter .text-lg, .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: -0.014300686em;
 }
-.font-inter .text-lg .tracking-tighter,
-.font-inter .text-lg.tracking-tighter,
-.font-inter.text-lg .tracking-tighter,
-.font-inter.text-lg.tracking-tighter,
-.tracking-tighter .font-inter .text-lg,
-.tracking-tighter .font-inter.text-lg {
+.font-inter .text-lg .tracking-tighter, .font-inter .text-lg.tracking-tighter, .font-inter.text-lg .tracking-tighter, .font-inter.text-lg.tracking-tighter, .tracking-tighter .font-inter .text-lg, .tracking-tighter .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: -0.064300686em;
 }
-.font-inter .text-lg .tracking-tight,
-.font-inter .text-lg.tracking-tight,
-.font-inter.text-lg .tracking-tight,
-.font-inter.text-lg.tracking-tight,
-.tracking-tight .font-inter .text-lg,
-.tracking-tight .font-inter.text-lg {
+.font-inter .text-lg .tracking-tight, .font-inter .text-lg.tracking-tight, .font-inter.text-lg .tracking-tight, .font-inter.text-lg.tracking-tight, .tracking-tight .font-inter .text-lg, .tracking-tight .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: -0.039300686em;
 }
-.font-inter .text-lg .tracking-normal,
-.font-inter .text-lg.tracking-normal,
-.font-inter.text-lg .tracking-normal,
-.font-inter.text-lg.tracking-normal,
-.tracking-normal .font-inter .text-lg,
-.tracking-normal .font-inter.text-lg {
+.font-inter .text-lg .tracking-normal, .font-inter .text-lg.tracking-normal, .font-inter.text-lg .tracking-normal, .font-inter.text-lg.tracking-normal, .tracking-normal .font-inter .text-lg, .tracking-normal .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: -0.014300686em;
 }
-.font-inter .text-lg .tracking-wide,
-.font-inter .text-lg.tracking-wide,
-.font-inter.text-lg .tracking-wide,
-.font-inter.text-lg.tracking-wide,
-.tracking-wide .font-inter .text-lg,
-.tracking-wide .font-inter.text-lg {
+.font-inter .text-lg .tracking-wide, .font-inter .text-lg.tracking-wide, .font-inter.text-lg .tracking-wide, .font-inter.text-lg.tracking-wide, .tracking-wide .font-inter .text-lg, .tracking-wide .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: 0.010699314em;
 }
-.font-inter .text-lg .tracking-wider,
-.font-inter .text-lg.tracking-wider,
-.font-inter.text-lg .tracking-wider,
-.font-inter.text-lg.tracking-wider,
-.tracking-wider .font-inter .text-lg,
-.tracking-wider .font-inter.text-lg {
+.font-inter .text-lg .tracking-wider, .font-inter .text-lg.tracking-wider, .font-inter.text-lg .tracking-wider, .font-inter.text-lg.tracking-wider, .tracking-wider .font-inter .text-lg, .tracking-wider .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: 0.035699314em;
 }
-.font-inter .text-lg .tracking-widest,
-.font-inter .text-lg.tracking-widest,
-.font-inter.text-lg .tracking-widest,
-.font-inter.text-lg.tracking-widest,
-.tracking-widest .font-inter .text-lg,
-.tracking-widest .font-inter.text-lg {
+.font-inter .text-lg .tracking-widest, .font-inter .text-lg.tracking-widest, .font-inter.text-lg .tracking-widest, .font-inter.text-lg.tracking-widest, .tracking-widest .font-inter .text-lg, .tracking-widest .font-inter.text-lg {
   line-height: 1.75rem;
   font-size: 1.125rem;
   letter-spacing: 0.085699314em;
 }
-.font-inter .text-xl,
-.font-inter.text-xl {
+.font-inter .text-xl, .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: -0.016657339em;
 }
-.font-inter .text-xl .tracking-tighter,
-.font-inter .text-xl.tracking-tighter,
-.font-inter.text-xl .tracking-tighter,
-.font-inter.text-xl.tracking-tighter,
-.tracking-tighter .font-inter .text-xl,
-.tracking-tighter .font-inter.text-xl {
+.font-inter .text-xl .tracking-tighter, .font-inter .text-xl.tracking-tighter, .font-inter.text-xl .tracking-tighter, .font-inter.text-xl.tracking-tighter, .tracking-tighter .font-inter .text-xl, .tracking-tighter .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: -0.066657339em;
 }
-.font-inter .text-xl .tracking-tight,
-.font-inter .text-xl.tracking-tight,
-.font-inter.text-xl .tracking-tight,
-.font-inter.text-xl.tracking-tight,
-.tracking-tight .font-inter .text-xl,
-.tracking-tight .font-inter.text-xl {
+.font-inter .text-xl .tracking-tight, .font-inter .text-xl.tracking-tight, .font-inter.text-xl .tracking-tight, .font-inter.text-xl.tracking-tight, .tracking-tight .font-inter .text-xl, .tracking-tight .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: -0.041657339em;
 }
-.font-inter .text-xl .tracking-normal,
-.font-inter .text-xl.tracking-normal,
-.font-inter.text-xl .tracking-normal,
-.font-inter.text-xl.tracking-normal,
-.tracking-normal .font-inter .text-xl,
-.tracking-normal .font-inter.text-xl {
+.font-inter .text-xl .tracking-normal, .font-inter .text-xl.tracking-normal, .font-inter.text-xl .tracking-normal, .font-inter.text-xl.tracking-normal, .tracking-normal .font-inter .text-xl, .tracking-normal .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: -0.016657339em;
 }
-.font-inter .text-xl .tracking-wide,
-.font-inter .text-xl.tracking-wide,
-.font-inter.text-xl .tracking-wide,
-.font-inter.text-xl.tracking-wide,
-.tracking-wide .font-inter .text-xl,
-.tracking-wide .font-inter.text-xl {
+.font-inter .text-xl .tracking-wide, .font-inter .text-xl.tracking-wide, .font-inter.text-xl .tracking-wide, .font-inter.text-xl.tracking-wide, .tracking-wide .font-inter .text-xl, .tracking-wide .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: 0.008342661em;
 }
-.font-inter .text-xl .tracking-wider,
-.font-inter .text-xl.tracking-wider,
-.font-inter.text-xl .tracking-wider,
-.font-inter.text-xl.tracking-wider,
-.tracking-wider .font-inter .text-xl,
-.tracking-wider .font-inter.text-xl {
+.font-inter .text-xl .tracking-wider, .font-inter .text-xl.tracking-wider, .font-inter.text-xl .tracking-wider, .font-inter.text-xl.tracking-wider, .tracking-wider .font-inter .text-xl, .tracking-wider .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: 0.033342661em;
 }
-.font-inter .text-xl .tracking-widest,
-.font-inter .text-xl.tracking-widest,
-.font-inter.text-xl .tracking-widest,
-.font-inter.text-xl.tracking-widest,
-.tracking-widest .font-inter .text-xl,
-.tracking-widest .font-inter.text-xl {
+.font-inter .text-xl .tracking-widest, .font-inter .text-xl.tracking-widest, .font-inter.text-xl .tracking-widest, .font-inter.text-xl.tracking-widest, .tracking-widest .font-inter .text-xl, .tracking-widest .font-inter.text-xl {
   line-height: 1.75rem;
   font-size: 1.25rem;
   letter-spacing: 0.083342661em;
 }
-.font-inter .text-2xl,
-.font-inter.text-2xl {
+.font-inter .text-2xl, .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: -0.019492328em;
 }
-.font-inter .text-2xl .tracking-tighter,
-.font-inter .text-2xl.tracking-tighter,
-.font-inter.text-2xl .tracking-tighter,
-.font-inter.text-2xl.tracking-tighter,
-.tracking-tighter .font-inter .text-2xl,
-.tracking-tighter .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-tighter, .font-inter .text-2xl.tracking-tighter, .font-inter.text-2xl .tracking-tighter, .font-inter.text-2xl.tracking-tighter, .tracking-tighter .font-inter .text-2xl, .tracking-tighter .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: -0.069492328em;
 }
-.font-inter .text-2xl .tracking-tight,
-.font-inter .text-2xl.tracking-tight,
-.font-inter.text-2xl .tracking-tight,
-.font-inter.text-2xl.tracking-tight,
-.tracking-tight .font-inter .text-2xl,
-.tracking-tight .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-tight, .font-inter .text-2xl.tracking-tight, .font-inter.text-2xl .tracking-tight, .font-inter.text-2xl.tracking-tight, .tracking-tight .font-inter .text-2xl, .tracking-tight .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: -0.044492328em;
 }
-.font-inter .text-2xl .tracking-normal,
-.font-inter .text-2xl.tracking-normal,
-.font-inter.text-2xl .tracking-normal,
-.font-inter.text-2xl.tracking-normal,
-.tracking-normal .font-inter .text-2xl,
-.tracking-normal .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-normal, .font-inter .text-2xl.tracking-normal, .font-inter.text-2xl .tracking-normal, .font-inter.text-2xl.tracking-normal, .tracking-normal .font-inter .text-2xl, .tracking-normal .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: -0.019492328em;
 }
-.font-inter .text-2xl .tracking-wide,
-.font-inter .text-2xl.tracking-wide,
-.font-inter.text-2xl .tracking-wide,
-.font-inter.text-2xl.tracking-wide,
-.tracking-wide .font-inter .text-2xl,
-.tracking-wide .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-wide, .font-inter .text-2xl.tracking-wide, .font-inter.text-2xl .tracking-wide, .font-inter.text-2xl.tracking-wide, .tracking-wide .font-inter .text-2xl, .tracking-wide .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: 0.005507672em;
 }
-.font-inter .text-2xl .tracking-wider,
-.font-inter .text-2xl.tracking-wider,
-.font-inter.text-2xl .tracking-wider,
-.font-inter.text-2xl.tracking-wider,
-.tracking-wider .font-inter .text-2xl,
-.tracking-wider .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-wider, .font-inter .text-2xl.tracking-wider, .font-inter.text-2xl .tracking-wider, .font-inter.text-2xl.tracking-wider, .tracking-wider .font-inter .text-2xl, .tracking-wider .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: 0.030507672em;
 }
-.font-inter .text-2xl .tracking-widest,
-.font-inter .text-2xl.tracking-widest,
-.font-inter.text-2xl .tracking-widest,
-.font-inter.text-2xl.tracking-widest,
-.tracking-widest .font-inter .text-2xl,
-.tracking-widest .font-inter.text-2xl {
+.font-inter .text-2xl .tracking-widest, .font-inter .text-2xl.tracking-widest, .font-inter.text-2xl .tracking-widest, .font-inter.text-2xl.tracking-widest, .tracking-widest .font-inter .text-2xl, .tracking-widest .font-inter.text-2xl {
   line-height: 2rem;
   font-size: 1.5rem;
   letter-spacing: 0.080507672em;
 }
-.font-inter .text-3xl,
-.font-inter.text-3xl {
+.font-inter .text-3xl, .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: -0.021314537em;
 }
-.font-inter .text-3xl .tracking-tighter,
-.font-inter .text-3xl.tracking-tighter,
-.font-inter.text-3xl .tracking-tighter,
-.font-inter.text-3xl.tracking-tighter,
-.tracking-tighter .font-inter .text-3xl,
-.tracking-tighter .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-tighter, .font-inter .text-3xl.tracking-tighter, .font-inter.text-3xl .tracking-tighter, .font-inter.text-3xl.tracking-tighter, .tracking-tighter .font-inter .text-3xl, .tracking-tighter .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: -0.071314537em;
 }
-.font-inter .text-3xl .tracking-tight,
-.font-inter .text-3xl.tracking-tight,
-.font-inter.text-3xl .tracking-tight,
-.font-inter.text-3xl.tracking-tight,
-.tracking-tight .font-inter .text-3xl,
-.tracking-tight .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-tight, .font-inter .text-3xl.tracking-tight, .font-inter.text-3xl .tracking-tight, .font-inter.text-3xl.tracking-tight, .tracking-tight .font-inter .text-3xl, .tracking-tight .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: -0.046314537em;
 }
-.font-inter .text-3xl .tracking-normal,
-.font-inter .text-3xl.tracking-normal,
-.font-inter.text-3xl .tracking-normal,
-.font-inter.text-3xl.tracking-normal,
-.tracking-normal .font-inter .text-3xl,
-.tracking-normal .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-normal, .font-inter .text-3xl.tracking-normal, .font-inter.text-3xl .tracking-normal, .font-inter.text-3xl.tracking-normal, .tracking-normal .font-inter .text-3xl, .tracking-normal .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: -0.021314537em;
 }
-.font-inter .text-3xl .tracking-wide,
-.font-inter .text-3xl.tracking-wide,
-.font-inter.text-3xl .tracking-wide,
-.font-inter.text-3xl.tracking-wide,
-.tracking-wide .font-inter .text-3xl,
-.tracking-wide .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-wide, .font-inter .text-3xl.tracking-wide, .font-inter.text-3xl .tracking-wide, .font-inter.text-3xl.tracking-wide, .tracking-wide .font-inter .text-3xl, .tracking-wide .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: 0.003685463em;
 }
-.font-inter .text-3xl .tracking-wider,
-.font-inter .text-3xl.tracking-wider,
-.font-inter.text-3xl .tracking-wider,
-.font-inter.text-3xl.tracking-wider,
-.tracking-wider .font-inter .text-3xl,
-.tracking-wider .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-wider, .font-inter .text-3xl.tracking-wider, .font-inter.text-3xl .tracking-wider, .font-inter.text-3xl.tracking-wider, .tracking-wider .font-inter .text-3xl, .tracking-wider .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: 0.028685463em;
 }
-.font-inter .text-3xl .tracking-widest,
-.font-inter .text-3xl.tracking-widest,
-.font-inter.text-3xl .tracking-widest,
-.font-inter.text-3xl.tracking-widest,
-.tracking-widest .font-inter .text-3xl,
-.tracking-widest .font-inter.text-3xl {
+.font-inter .text-3xl .tracking-widest, .font-inter .text-3xl.tracking-widest, .font-inter.text-3xl .tracking-widest, .font-inter.text-3xl.tracking-widest, .tracking-widest .font-inter .text-3xl, .tracking-widest .font-inter.text-3xl {
   line-height: 2.25rem;
   font-size: 1.875rem;
   letter-spacing: 0.078685463em;
 }
-.font-inter .text-4xl,
-.font-inter.text-4xl {
+.font-inter .text-4xl, .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: -0.021954113em;
 }
-.font-inter .text-4xl .tracking-tighter,
-.font-inter .text-4xl.tracking-tighter,
-.font-inter.text-4xl .tracking-tighter,
-.font-inter.text-4xl.tracking-tighter,
-.tracking-tighter .font-inter .text-4xl,
-.tracking-tighter .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-tighter, .font-inter .text-4xl.tracking-tighter, .font-inter.text-4xl .tracking-tighter, .font-inter.text-4xl.tracking-tighter, .tracking-tighter .font-inter .text-4xl, .tracking-tighter .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: -0.071954113em;
 }
-.font-inter .text-4xl .tracking-tight,
-.font-inter .text-4xl.tracking-tight,
-.font-inter.text-4xl .tracking-tight,
-.font-inter.text-4xl.tracking-tight,
-.tracking-tight .font-inter .text-4xl,
-.tracking-tight .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-tight, .font-inter .text-4xl.tracking-tight, .font-inter.text-4xl .tracking-tight, .font-inter.text-4xl.tracking-tight, .tracking-tight .font-inter .text-4xl, .tracking-tight .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: -0.046954113em;
 }
-.font-inter .text-4xl .tracking-normal,
-.font-inter .text-4xl.tracking-normal,
-.font-inter.text-4xl .tracking-normal,
-.font-inter.text-4xl.tracking-normal,
-.tracking-normal .font-inter .text-4xl,
-.tracking-normal .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-normal, .font-inter .text-4xl.tracking-normal, .font-inter.text-4xl .tracking-normal, .font-inter.text-4xl.tracking-normal, .tracking-normal .font-inter .text-4xl, .tracking-normal .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: -0.021954113em;
 }
-.font-inter .text-4xl .tracking-wide,
-.font-inter .text-4xl.tracking-wide,
-.font-inter.text-4xl .tracking-wide,
-.font-inter.text-4xl.tracking-wide,
-.tracking-wide .font-inter .text-4xl,
-.tracking-wide .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-wide, .font-inter .text-4xl.tracking-wide, .font-inter.text-4xl .tracking-wide, .font-inter.text-4xl.tracking-wide, .tracking-wide .font-inter .text-4xl, .tracking-wide .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: 0.003045887em;
 }
-.font-inter .text-4xl .tracking-wider,
-.font-inter .text-4xl.tracking-wider,
-.font-inter.text-4xl .tracking-wider,
-.font-inter.text-4xl.tracking-wider,
-.tracking-wider .font-inter .text-4xl,
-.tracking-wider .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-wider, .font-inter .text-4xl.tracking-wider, .font-inter.text-4xl .tracking-wider, .font-inter.text-4xl.tracking-wider, .tracking-wider .font-inter .text-4xl, .tracking-wider .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: 0.028045887em;
 }
-.font-inter .text-4xl .tracking-widest,
-.font-inter .text-4xl.tracking-widest,
-.font-inter.text-4xl .tracking-widest,
-.font-inter.text-4xl.tracking-widest,
-.tracking-widest .font-inter .text-4xl,
-.tracking-widest .font-inter.text-4xl {
+.font-inter .text-4xl .tracking-widest, .font-inter .text-4xl.tracking-widest, .font-inter.text-4xl .tracking-widest, .font-inter.text-4xl.tracking-widest, .tracking-widest .font-inter .text-4xl, .tracking-widest .font-inter.text-4xl {
   line-height: 2.5rem;
   font-size: 2.25rem;
   letter-spacing: 0.078045887em;
 }
-.font-inter .text-5xl,
-.font-inter.text-5xl {
+.font-inter .text-5xl, .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: -0.022257389em;
 }
-.font-inter .text-5xl .tracking-tighter,
-.font-inter .text-5xl.tracking-tighter,
-.font-inter.text-5xl .tracking-tighter,
-.font-inter.text-5xl.tracking-tighter,
-.tracking-tighter .font-inter .text-5xl,
-.tracking-tighter .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-tighter, .font-inter .text-5xl.tracking-tighter, .font-inter.text-5xl .tracking-tighter, .font-inter.text-5xl.tracking-tighter, .tracking-tighter .font-inter .text-5xl, .tracking-tighter .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: -0.072257389em;
 }
-.font-inter .text-5xl .tracking-tight,
-.font-inter .text-5xl.tracking-tight,
-.font-inter.text-5xl .tracking-tight,
-.font-inter.text-5xl.tracking-tight,
-.tracking-tight .font-inter .text-5xl,
-.tracking-tight .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-tight, .font-inter .text-5xl.tracking-tight, .font-inter.text-5xl .tracking-tight, .font-inter.text-5xl.tracking-tight, .tracking-tight .font-inter .text-5xl, .tracking-tight .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: -0.047257389em;
 }
-.font-inter .text-5xl .tracking-normal,
-.font-inter .text-5xl.tracking-normal,
-.font-inter.text-5xl .tracking-normal,
-.font-inter.text-5xl.tracking-normal,
-.tracking-normal .font-inter .text-5xl,
-.tracking-normal .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-normal, .font-inter .text-5xl.tracking-normal, .font-inter.text-5xl .tracking-normal, .font-inter.text-5xl.tracking-normal, .tracking-normal .font-inter .text-5xl, .tracking-normal .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: -0.022257389em;
 }
-.font-inter .text-5xl .tracking-wide,
-.font-inter .text-5xl.tracking-wide,
-.font-inter.text-5xl .tracking-wide,
-.font-inter.text-5xl.tracking-wide,
-.tracking-wide .font-inter .text-5xl,
-.tracking-wide .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-wide, .font-inter .text-5xl.tracking-wide, .font-inter.text-5xl .tracking-wide, .font-inter.text-5xl.tracking-wide, .tracking-wide .font-inter .text-5xl, .tracking-wide .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: 0.002742611em;
 }
-.font-inter .text-5xl .tracking-wider,
-.font-inter .text-5xl.tracking-wider,
-.font-inter.text-5xl .tracking-wider,
-.font-inter.text-5xl.tracking-wider,
-.tracking-wider .font-inter .text-5xl,
-.tracking-wider .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-wider, .font-inter .text-5xl.tracking-wider, .font-inter.text-5xl .tracking-wider, .font-inter.text-5xl.tracking-wider, .tracking-wider .font-inter .text-5xl, .tracking-wider .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: 0.027742611em;
 }
-.font-inter .text-5xl .tracking-widest,
-.font-inter .text-5xl.tracking-widest,
-.font-inter.text-5xl .tracking-widest,
-.font-inter.text-5xl.tracking-widest,
-.tracking-widest .font-inter .text-5xl,
-.tracking-widest .font-inter.text-5xl {
+.font-inter .text-5xl .tracking-widest, .font-inter .text-5xl.tracking-widest, .font-inter.text-5xl .tracking-widest, .font-inter.text-5xl.tracking-widest, .tracking-widest .font-inter .text-5xl, .tracking-widest .font-inter.text-5xl {
   line-height: 1;
   font-size: 3rem;
   letter-spacing: 0.077742611em;
 }
-.font-inter .text-6xl,
-.font-inter.text-6xl {
+.font-inter .text-6xl, .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: -0.022294751em;
 }
-.font-inter .text-6xl .tracking-tighter,
-.font-inter .text-6xl.tracking-tighter,
-.font-inter.text-6xl .tracking-tighter,
-.font-inter.text-6xl.tracking-tighter,
-.tracking-tighter .font-inter .text-6xl,
-.tracking-tighter .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-tighter, .font-inter .text-6xl.tracking-tighter, .font-inter.text-6xl .tracking-tighter, .font-inter.text-6xl.tracking-tighter, .tracking-tighter .font-inter .text-6xl, .tracking-tighter .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: -0.072294751em;
 }
-.font-inter .text-6xl .tracking-tight,
-.font-inter .text-6xl.tracking-tight,
-.font-inter.text-6xl .tracking-tight,
-.font-inter.text-6xl.tracking-tight,
-.tracking-tight .font-inter .text-6xl,
-.tracking-tight .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-tight, .font-inter .text-6xl.tracking-tight, .font-inter.text-6xl .tracking-tight, .font-inter.text-6xl.tracking-tight, .tracking-tight .font-inter .text-6xl, .tracking-tight .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: -0.047294751em;
 }
-.font-inter .text-6xl .tracking-normal,
-.font-inter .text-6xl.tracking-normal,
-.font-inter.text-6xl .tracking-normal,
-.font-inter.text-6xl.tracking-normal,
-.tracking-normal .font-inter .text-6xl,
-.tracking-normal .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-normal, .font-inter .text-6xl.tracking-normal, .font-inter.text-6xl .tracking-normal, .font-inter.text-6xl.tracking-normal, .tracking-normal .font-inter .text-6xl, .tracking-normal .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: -0.022294751em;
 }
-.font-inter .text-6xl .tracking-wide,
-.font-inter .text-6xl.tracking-wide,
-.font-inter.text-6xl .tracking-wide,
-.font-inter.text-6xl.tracking-wide,
-.tracking-wide .font-inter .text-6xl,
-.tracking-wide .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-wide, .font-inter .text-6xl.tracking-wide, .font-inter.text-6xl .tracking-wide, .font-inter.text-6xl.tracking-wide, .tracking-wide .font-inter .text-6xl, .tracking-wide .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: 0.002705249em;
 }
-.font-inter .text-6xl .tracking-wider,
-.font-inter .text-6xl.tracking-wider,
-.font-inter.text-6xl .tracking-wider,
-.font-inter.text-6xl.tracking-wider,
-.tracking-wider .font-inter .text-6xl,
-.tracking-wider .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-wider, .font-inter .text-6xl.tracking-wider, .font-inter.text-6xl .tracking-wider, .font-inter.text-6xl.tracking-wider, .tracking-wider .font-inter .text-6xl, .tracking-wider .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: 0.027705249em;
 }
-.font-inter .text-6xl .tracking-widest,
-.font-inter .text-6xl.tracking-widest,
-.font-inter.text-6xl .tracking-widest,
-.font-inter.text-6xl.tracking-widest,
-.tracking-widest .font-inter .text-6xl,
-.tracking-widest .font-inter.text-6xl {
+.font-inter .text-6xl .tracking-widest, .font-inter .text-6xl.tracking-widest, .font-inter.text-6xl .tracking-widest, .font-inter.text-6xl.tracking-widest, .tracking-widest .font-inter .text-6xl, .tracking-widest .font-inter.text-6xl {
   line-height: 1;
   font-size: 3.75rem;
   letter-spacing: 0.077705249em;
 }
-.font-inter .text-7xl,
-.font-inter.text-7xl {
+.font-inter .text-7xl, .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: -0.022299353em;
 }
-.font-inter .text-7xl .tracking-tighter,
-.font-inter .text-7xl.tracking-tighter,
-.font-inter.text-7xl .tracking-tighter,
-.font-inter.text-7xl.tracking-tighter,
-.tracking-tighter .font-inter .text-7xl,
-.tracking-tighter .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-tighter, .font-inter .text-7xl.tracking-tighter, .font-inter.text-7xl .tracking-tighter, .font-inter.text-7xl.tracking-tighter, .tracking-tighter .font-inter .text-7xl, .tracking-tighter .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: -0.072299353em;
 }
-.font-inter .text-7xl .tracking-tight,
-.font-inter .text-7xl.tracking-tight,
-.font-inter.text-7xl .tracking-tight,
-.font-inter.text-7xl.tracking-tight,
-.tracking-tight .font-inter .text-7xl,
-.tracking-tight .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-tight, .font-inter .text-7xl.tracking-tight, .font-inter.text-7xl .tracking-tight, .font-inter.text-7xl.tracking-tight, .tracking-tight .font-inter .text-7xl, .tracking-tight .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: -0.047299353em;
 }
-.font-inter .text-7xl .tracking-normal,
-.font-inter .text-7xl.tracking-normal,
-.font-inter.text-7xl .tracking-normal,
-.font-inter.text-7xl.tracking-normal,
-.tracking-normal .font-inter .text-7xl,
-.tracking-normal .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-normal, .font-inter .text-7xl.tracking-normal, .font-inter.text-7xl .tracking-normal, .font-inter.text-7xl.tracking-normal, .tracking-normal .font-inter .text-7xl, .tracking-normal .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: -0.022299353em;
 }
-.font-inter .text-7xl .tracking-wide,
-.font-inter .text-7xl.tracking-wide,
-.font-inter.text-7xl .tracking-wide,
-.font-inter.text-7xl.tracking-wide,
-.tracking-wide .font-inter .text-7xl,
-.tracking-wide .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-wide, .font-inter .text-7xl.tracking-wide, .font-inter.text-7xl .tracking-wide, .font-inter.text-7xl.tracking-wide, .tracking-wide .font-inter .text-7xl, .tracking-wide .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: 0.002700647em;
 }
-.font-inter .text-7xl .tracking-wider,
-.font-inter .text-7xl.tracking-wider,
-.font-inter.text-7xl .tracking-wider,
-.font-inter.text-7xl.tracking-wider,
-.tracking-wider .font-inter .text-7xl,
-.tracking-wider .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-wider, .font-inter .text-7xl.tracking-wider, .font-inter.text-7xl .tracking-wider, .font-inter.text-7xl.tracking-wider, .tracking-wider .font-inter .text-7xl, .tracking-wider .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: 0.027700647em;
 }
-.font-inter .text-7xl .tracking-widest,
-.font-inter .text-7xl.tracking-widest,
-.font-inter.text-7xl .tracking-widest,
-.font-inter.text-7xl.tracking-widest,
-.tracking-widest .font-inter .text-7xl,
-.tracking-widest .font-inter.text-7xl {
+.font-inter .text-7xl .tracking-widest, .font-inter .text-7xl.tracking-widest, .font-inter.text-7xl .tracking-widest, .font-inter.text-7xl.tracking-widest, .tracking-widest .font-inter .text-7xl, .tracking-widest .font-inter.text-7xl {
   line-height: 1;
   font-size: 4.5rem;
   letter-spacing: 0.077700647em;
 }
-.font-inter .text-8xl,
-.font-inter.text-8xl {
+.font-inter .text-8xl, .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: -0.02229999em;
 }
-.font-inter .text-8xl .tracking-tighter,
-.font-inter .text-8xl.tracking-tighter,
-.font-inter.text-8xl .tracking-tighter,
-.font-inter.text-8xl.tracking-tighter,
-.tracking-tighter .font-inter .text-8xl,
-.tracking-tighter .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-tighter, .font-inter .text-8xl.tracking-tighter, .font-inter.text-8xl .tracking-tighter, .font-inter.text-8xl.tracking-tighter, .tracking-tighter .font-inter .text-8xl, .tracking-tighter .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: -0.07229999em;
 }
-.font-inter .text-8xl .tracking-tight,
-.font-inter .text-8xl.tracking-tight,
-.font-inter.text-8xl .tracking-tight,
-.font-inter.text-8xl.tracking-tight,
-.tracking-tight .font-inter .text-8xl,
-.tracking-tight .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-tight, .font-inter .text-8xl.tracking-tight, .font-inter.text-8xl .tracking-tight, .font-inter.text-8xl.tracking-tight, .tracking-tight .font-inter .text-8xl, .tracking-tight .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: -0.04729999em;
 }
-.font-inter .text-8xl .tracking-normal,
-.font-inter .text-8xl.tracking-normal,
-.font-inter.text-8xl .tracking-normal,
-.font-inter.text-8xl.tracking-normal,
-.tracking-normal .font-inter .text-8xl,
-.tracking-normal .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-normal, .font-inter .text-8xl.tracking-normal, .font-inter.text-8xl .tracking-normal, .font-inter.text-8xl.tracking-normal, .tracking-normal .font-inter .text-8xl, .tracking-normal .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: -0.02229999em;
 }
-.font-inter .text-8xl .tracking-wide,
-.font-inter .text-8xl.tracking-wide,
-.font-inter.text-8xl .tracking-wide,
-.font-inter.text-8xl.tracking-wide,
-.tracking-wide .font-inter .text-8xl,
-.tracking-wide .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-wide, .font-inter .text-8xl.tracking-wide, .font-inter.text-8xl .tracking-wide, .font-inter.text-8xl.tracking-wide, .tracking-wide .font-inter .text-8xl, .tracking-wide .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: 0.00270001em;
 }
-.font-inter .text-8xl .tracking-wider,
-.font-inter .text-8xl.tracking-wider,
-.font-inter.text-8xl .tracking-wider,
-.font-inter.text-8xl.tracking-wider,
-.tracking-wider .font-inter .text-8xl,
-.tracking-wider .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-wider, .font-inter .text-8xl.tracking-wider, .font-inter.text-8xl .tracking-wider, .font-inter.text-8xl.tracking-wider, .tracking-wider .font-inter .text-8xl, .tracking-wider .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: 0.02770001em;
 }
-.font-inter .text-8xl .tracking-widest,
-.font-inter .text-8xl.tracking-widest,
-.font-inter.text-8xl .tracking-widest,
-.font-inter.text-8xl.tracking-widest,
-.tracking-widest .font-inter .text-8xl,
-.tracking-widest .font-inter.text-8xl {
+.font-inter .text-8xl .tracking-widest, .font-inter .text-8xl.tracking-widest, .font-inter.text-8xl .tracking-widest, .font-inter.text-8xl.tracking-widest, .tracking-widest .font-inter .text-8xl, .tracking-widest .font-inter.text-8xl {
   line-height: 1;
   font-size: 6rem;
   letter-spacing: 0.07770001em;
 }
-.font-inter .text-9xl,
-.font-inter.text-9xl {
+.font-inter .text-9xl, .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: -0.0223em;
 }
-.font-inter .text-9xl .tracking-tighter,
-.font-inter .text-9xl.tracking-tighter,
-.font-inter.text-9xl .tracking-tighter,
-.font-inter.text-9xl.tracking-tighter,
-.tracking-tighter .font-inter .text-9xl,
-.tracking-tighter .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-tighter, .font-inter .text-9xl.tracking-tighter, .font-inter.text-9xl .tracking-tighter, .font-inter.text-9xl.tracking-tighter, .tracking-tighter .font-inter .text-9xl, .tracking-tighter .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: -0.0723em;
 }
-.font-inter .text-9xl .tracking-tight,
-.font-inter .text-9xl.tracking-tight,
-.font-inter.text-9xl .tracking-tight,
-.font-inter.text-9xl.tracking-tight,
-.tracking-tight .font-inter .text-9xl,
-.tracking-tight .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-tight, .font-inter .text-9xl.tracking-tight, .font-inter.text-9xl .tracking-tight, .font-inter.text-9xl.tracking-tight, .tracking-tight .font-inter .text-9xl, .tracking-tight .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: -0.0473em;
 }
-.font-inter .text-9xl .tracking-normal,
-.font-inter .text-9xl.tracking-normal,
-.font-inter.text-9xl .tracking-normal,
-.font-inter.text-9xl.tracking-normal,
-.tracking-normal .font-inter .text-9xl,
-.tracking-normal .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-normal, .font-inter .text-9xl.tracking-normal, .font-inter.text-9xl .tracking-normal, .font-inter.text-9xl.tracking-normal, .tracking-normal .font-inter .text-9xl, .tracking-normal .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: -0.0223em;
 }
-.font-inter .text-9xl .tracking-wide,
-.font-inter .text-9xl.tracking-wide,
-.font-inter.text-9xl .tracking-wide,
-.font-inter.text-9xl.tracking-wide,
-.tracking-wide .font-inter .text-9xl,
-.tracking-wide .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-wide, .font-inter .text-9xl.tracking-wide, .font-inter.text-9xl .tracking-wide, .font-inter.text-9xl.tracking-wide, .tracking-wide .font-inter .text-9xl, .tracking-wide .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: 0.0027em;
 }
-.font-inter .text-9xl .tracking-wider,
-.font-inter .text-9xl.tracking-wider,
-.font-inter.text-9xl .tracking-wider,
-.font-inter.text-9xl.tracking-wider,
-.tracking-wider .font-inter .text-9xl,
-.tracking-wider .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-wider, .font-inter .text-9xl.tracking-wider, .font-inter.text-9xl .tracking-wider, .font-inter.text-9xl.tracking-wider, .tracking-wider .font-inter .text-9xl, .tracking-wider .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: 0.0277em;
 }
-.font-inter .text-9xl .tracking-widest,
-.font-inter .text-9xl.tracking-widest,
-.font-inter.text-9xl .tracking-widest,
-.font-inter.text-9xl.tracking-widest,
-.tracking-widest .font-inter .text-9xl,
-.tracking-widest .font-inter.text-9xl {
+.font-inter .text-9xl .tracking-widest, .font-inter .text-9xl.tracking-widest, .font-inter.text-9xl .tracking-widest, .font-inter.text-9xl.tracking-widest, .tracking-widest .font-inter .text-9xl, .tracking-widest .font-inter.text-9xl {
   line-height: 1;
   font-size: 8rem;
   letter-spacing: 0.0777em;
 }
 .invalid\:ring-1:invalid {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .invalid\:ring-red-500:invalid {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(239 68 68 / var(--tw-ring-opacity));
 }
 .focus-within\:ring-2:focus-within {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .focus-within\:ring-cyan-500:focus-within {
   --tw-ring-opacity: 1;
@@ -3407,9 +2888,7 @@ select {
 .hover\:scale-110:hover {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .hover\:bg-blue-100:hover {
   --tw-bg-opacity: 1;
@@ -3529,9 +3008,7 @@ select {
 .focus\:scale-110:focus {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .focus\:border-b-2:focus {
   border-bottom-width: 2px;
@@ -3570,28 +3047,19 @@ select {
   outline-color: transparent;
 }
 .focus\:ring-0:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .focus\:ring-1:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .focus\:ring-2:focus {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 .focus\:ring-blue-500:focus {
   --tw-ring-opacity: 1;
@@ -3722,6 +3190,7 @@ select {
   opacity: 1;
 }
 @media (prefers-color-scheme: dark) {
+
   .dark\:divide-slate-600 > :not([hidden]) ~ :not([hidden]) {
     --tw-divide-opacity: 1;
     border-color: rgb(71 85 105 / var(--tw-divide-opacity));
@@ -3793,6 +3262,7 @@ select {
   }
 }
 @media (min-width: 640px) {
+
   .sm\:-mx-6 {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
@@ -3949,153 +3419,92 @@ select {
     line-height: 1.25rem;
   }
 
-  .font-inter .sm\:text-sm,
-  .sm\:text-sm .font-inter {
+  .font-inter .sm\:text-sm,.sm\:text-sm .font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: -0.006223544em;
   }
 
-  .font-inter .sm\:text-sm .tracking-tighter,
-  .font-inter .sm\:text-sm.tracking-tighter,
-  .sm\:text-sm .font-inter .tracking-tighter,
-  .sm\:text-sm .font-inter.tracking-tighter,
-  .tracking-tighter .font-inter .sm\:text-sm,
-  .tracking-tighter .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-tighter, .font-inter .sm\:text-sm.tracking-tighter,.sm\:text-sm .font-inter .tracking-tighter,.sm\:text-sm .font-inter.tracking-tighter, .tracking-tighter .font-inter .sm\:text-sm, .tracking-tighter .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: -0.056223544em;
   }
 
-  .font-inter .sm\:text-sm .tracking-tight,
-  .font-inter .sm\:text-sm.tracking-tight,
-  .sm\:text-sm .font-inter .tracking-tight,
-  .sm\:text-sm .font-inter.tracking-tight,
-  .tracking-tight .font-inter .sm\:text-sm,
-  .tracking-tight .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-tight, .font-inter .sm\:text-sm.tracking-tight,.sm\:text-sm .font-inter .tracking-tight,.sm\:text-sm .font-inter.tracking-tight, .tracking-tight .font-inter .sm\:text-sm, .tracking-tight .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: -0.031223544em;
   }
 
-  .font-inter .sm\:text-sm .tracking-normal,
-  .font-inter .sm\:text-sm.tracking-normal,
-  .sm\:text-sm .font-inter .tracking-normal,
-  .sm\:text-sm .font-inter.tracking-normal,
-  .tracking-normal .font-inter .sm\:text-sm,
-  .tracking-normal .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-normal, .font-inter .sm\:text-sm.tracking-normal,.sm\:text-sm .font-inter .tracking-normal,.sm\:text-sm .font-inter.tracking-normal, .tracking-normal .font-inter .sm\:text-sm, .tracking-normal .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: -0.006223544em;
   }
 
-  .font-inter .sm\:text-sm .tracking-wide,
-  .font-inter .sm\:text-sm.tracking-wide,
-  .sm\:text-sm .font-inter .tracking-wide,
-  .sm\:text-sm .font-inter.tracking-wide,
-  .tracking-wide .font-inter .sm\:text-sm,
-  .tracking-wide .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-wide, .font-inter .sm\:text-sm.tracking-wide,.sm\:text-sm .font-inter .tracking-wide,.sm\:text-sm .font-inter.tracking-wide, .tracking-wide .font-inter .sm\:text-sm, .tracking-wide .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: 0.018776456em;
   }
 
-  .font-inter .sm\:text-sm .tracking-wider,
-  .font-inter .sm\:text-sm.tracking-wider,
-  .sm\:text-sm .font-inter .tracking-wider,
-  .sm\:text-sm .font-inter.tracking-wider,
-  .tracking-wider .font-inter .sm\:text-sm,
-  .tracking-wider .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-wider, .font-inter .sm\:text-sm.tracking-wider,.sm\:text-sm .font-inter .tracking-wider,.sm\:text-sm .font-inter.tracking-wider, .tracking-wider .font-inter .sm\:text-sm, .tracking-wider .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: 0.043776456em;
   }
 
-  .font-inter .sm\:text-sm .tracking-widest,
-  .font-inter .sm\:text-sm.tracking-widest,
-  .sm\:text-sm .font-inter .tracking-widest,
-  .sm\:text-sm .font-inter.tracking-widest,
-  .tracking-widest .font-inter .sm\:text-sm,
-  .tracking-widest .sm\:text-sm.font-inter {
+  .font-inter .sm\:text-sm .tracking-widest, .font-inter .sm\:text-sm.tracking-widest,.sm\:text-sm .font-inter .tracking-widest,.sm\:text-sm .font-inter.tracking-widest, .tracking-widest .font-inter .sm\:text-sm, .tracking-widest .sm\:text-sm.font-inter {
     line-height: 1.25rem;
     font-size: 0.875rem;
     letter-spacing: 0.093776456em;
   }
 
-  .font-inter .sm\:text-5xl,
-  .sm\:text-5xl .font-inter {
+  .font-inter .sm\:text-5xl,.sm\:text-5xl .font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: -0.022257389em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-tighter,
-  .font-inter .sm\:text-5xl.tracking-tighter,
-  .sm\:text-5xl .font-inter .tracking-tighter,
-  .sm\:text-5xl .font-inter.tracking-tighter,
-  .tracking-tighter .font-inter .sm\:text-5xl,
-  .tracking-tighter .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-tighter, .font-inter .sm\:text-5xl.tracking-tighter,.sm\:text-5xl .font-inter .tracking-tighter,.sm\:text-5xl .font-inter.tracking-tighter, .tracking-tighter .font-inter .sm\:text-5xl, .tracking-tighter .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: -0.072257389em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-tight,
-  .font-inter .sm\:text-5xl.tracking-tight,
-  .sm\:text-5xl .font-inter .tracking-tight,
-  .sm\:text-5xl .font-inter.tracking-tight,
-  .tracking-tight .font-inter .sm\:text-5xl,
-  .tracking-tight .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-tight, .font-inter .sm\:text-5xl.tracking-tight,.sm\:text-5xl .font-inter .tracking-tight,.sm\:text-5xl .font-inter.tracking-tight, .tracking-tight .font-inter .sm\:text-5xl, .tracking-tight .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: -0.047257389em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-normal,
-  .font-inter .sm\:text-5xl.tracking-normal,
-  .sm\:text-5xl .font-inter .tracking-normal,
-  .sm\:text-5xl .font-inter.tracking-normal,
-  .tracking-normal .font-inter .sm\:text-5xl,
-  .tracking-normal .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-normal, .font-inter .sm\:text-5xl.tracking-normal,.sm\:text-5xl .font-inter .tracking-normal,.sm\:text-5xl .font-inter.tracking-normal, .tracking-normal .font-inter .sm\:text-5xl, .tracking-normal .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: -0.022257389em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-wide,
-  .font-inter .sm\:text-5xl.tracking-wide,
-  .sm\:text-5xl .font-inter .tracking-wide,
-  .sm\:text-5xl .font-inter.tracking-wide,
-  .tracking-wide .font-inter .sm\:text-5xl,
-  .tracking-wide .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-wide, .font-inter .sm\:text-5xl.tracking-wide,.sm\:text-5xl .font-inter .tracking-wide,.sm\:text-5xl .font-inter.tracking-wide, .tracking-wide .font-inter .sm\:text-5xl, .tracking-wide .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: 0.002742611em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-wider,
-  .font-inter .sm\:text-5xl.tracking-wider,
-  .sm\:text-5xl .font-inter .tracking-wider,
-  .sm\:text-5xl .font-inter.tracking-wider,
-  .tracking-wider .font-inter .sm\:text-5xl,
-  .tracking-wider .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-wider, .font-inter .sm\:text-5xl.tracking-wider,.sm\:text-5xl .font-inter .tracking-wider,.sm\:text-5xl .font-inter.tracking-wider, .tracking-wider .font-inter .sm\:text-5xl, .tracking-wider .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: 0.027742611em;
   }
 
-  .font-inter .sm\:text-5xl .tracking-widest,
-  .font-inter .sm\:text-5xl.tracking-widest,
-  .sm\:text-5xl .font-inter .tracking-widest,
-  .sm\:text-5xl .font-inter.tracking-widest,
-  .tracking-widest .font-inter .sm\:text-5xl,
-  .tracking-widest .sm\:text-5xl.font-inter {
+  .font-inter .sm\:text-5xl .tracking-widest, .font-inter .sm\:text-5xl.tracking-widest,.sm\:text-5xl .font-inter .tracking-widest,.sm\:text-5xl .font-inter.tracking-widest, .tracking-widest .font-inter .sm\:text-5xl, .tracking-widest .sm\:text-5xl.font-inter {
     line-height: 1;
     font-size: 3rem;
     letter-spacing: 0.077742611em;
   }
 }
 @media (min-width: 768px) {
+
   .md\:absolute {
     position: absolute;
   }
@@ -4142,7 +3551,7 @@ select {
 
   .md\:gap-x-8 {
     -moz-column-gap: 2rem;
-    column-gap: 2rem;
+         column-gap: 2rem;
   }
 
   .md\:overflow-x-visible {
@@ -4167,6 +3576,7 @@ select {
   }
 }
 @media (min-width: 1024px) {
+
   .lg\:-mx-8 {
     margin-left: -2rem;
     margin-right: -2rem;
@@ -4188,6 +3598,7 @@ select {
   }
 }
 @media (min-width: 1280px) {
+
   .xl\:pr-16 {
     padding-right: 4rem;
   }
