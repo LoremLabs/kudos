@@ -1,5 +1,6 @@
 type Mutation {
 	setPayVia(identifier: String!, type: String!, value: String!): PaymentMethod
+	submitPoolRequest(rid: String!, path: String!, in: String!, signature: String!): PoolResponse
 
 	escrowNotify(
 		escrowId: String!

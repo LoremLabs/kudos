@@ -8,6 +8,7 @@ import MutationSchema from './schema/mutation.gql';
 import Mutations from './mutations';
 // import SortSchema from './schema/sort.gql';
 import PaymentMethodSchema from './schema/payment-method.gql';
+import PoolSchema from './schema/pool.gql';
 // import MoneySchema from './schema/money.gql';
 import QuerySchema from './schema/query.gql';
 import Resolvers from './resolvers';
@@ -24,6 +25,7 @@ const typeDefs = [
 	// UserSchema,
 	// MoneySchema,
 	Base,
+	PoolSchema,
 	KudosSchema,
 	LeaderBoardSchema,
 	PaymentMethodSchema,

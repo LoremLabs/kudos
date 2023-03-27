@@ -1,0 +1,142 @@
+---
+title: 'Your confirmation code'
+preheader: 'Is the code you are looking for?'
+bodyClass: bg-slate-50
+---
+
+<!DOCTYPE {{{ page.doctype || 'html' }}}>
+<html lang="{{ page.language || 'en' }}" xmlns:v="urn:schemas-microsoft-com:vml">
+	<head>
+		<meta charset="{{ page.charset || 'utf-8' }}" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="supported-color-schemes" content="light dark" />
+		<!--[if mso]>
+			<noscript>
+				<xml>
+					<o:OfficeDocumentSettings xmlns:o="urn:schemas-microsoft-com:office:office">
+						<o:PixelsPerInch>96</o:PixelsPerInch>
+					</o:OfficeDocumentSettings>
+				</xml>
+			</noscript>
+			<style>
+				td,
+				th,
+				div,
+				p,
+				a,
+				h1,
+				h2,
+				h3,
+				h4,
+				h5,
+				h6 {
+					font-family: 'Segoe UI', sans-serif;
+					mso-line-height-rule: exactly;
+				}
+			</style>
+		<![endif]-->
+		<if condition="page.title">
+			<title>{{{ page.title }}}</title>
+		</if>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			{{{ page.css }}}
+		</style>
+		<block name="head"></block>
+	</head>
+	<body
+		class="m-0 p-0 w-full font-sans [word-break:break-word] [-webkit-font-smoothing:antialiased] {{ page.bodyClass || '' }}"
+	>
+		<if condition="page.preheader">
+			<div class="hidden">
+				{{{ page.preheader }}}
+				<each loop="item in Array.from(Array(150))">&#847; </each>
+			</div>
+		</if>
+		<div
+			role="article"
+			aria-roledescription="email"
+			aria-label="{{{ page.title || '' }}}"
+			lang="{{ page.language || 'en' }}"
+		>
+			<table class="w-full font-sans">
+				<tr>
+					<td align="center" class="bg-white">
+						<table class="w-150 sm:w-full">
+							<tr>
+								<td class="p-12 text-center sm:py-8 sm:px-6">
+									<img
+										src="email/shared/send-to-social.png"
+										alt="--send-to-social--"
+										class="max-w-full align-middle [border:0]"
+									/>
+								</td>
+							</tr>
+							<tr>
+								<td align="center" class="sm:px-6">
+									<table class="w-full">
+										<tr>
+											<td
+												class="rounded bg-slate-50 p-12 text-left text-base leading-6 text-slate-700 shadow-sm sm:px-6"
+											>
+												<p>Hello,</p>
+												<p class="m-0 mb-6 text-2xl font-semibold text-black sm:leading-8">
+													Is this what you're looking for?
+												</p>
+												<p class="m-0 mb-6">
+													Please enter this code in the app to confirm your email
+												</p>
+												<div class="leading-full">
+													<span class="mso-text-raise-4">Code &rarr;</span>
+													<div
+														class="flex flex-row m-auto font-black text-lg text-black bg-gray-100 mt-4"
+													>
+														<div class="bg-white p-4 m-2">{{ code.slice(0,1) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(1,2) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(2,3) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(3,4) }}</div>
+														<div class="p-4 m-2">-</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(5,6) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(6,7) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(7,8) }}</div>
+														<div class="bg-white p-4 m-2">{{ code.slice(8,9) }}</div>
+													</div>
+												</div>
+												<table class="w-full" role="separator">
+													<tr>
+														<td class="py-8">
+															<div class="leading-px h-px bg-slate-200">&zwnj;</div>
+														</td>
+													</tr>
+												</table>
+												<p class="m-0 mb-4">
+													If you don't know what this is about, you can safely ignore this email.
+												</p>
+												<p class="m-0 mb-4">
+													Thanks, <br /><span class="font-extrabold italic"
+														>--send-to-social--</span
+													>
+												</p>
+											</td>
+										</tr>
+										<tr role="separator">
+											<td class="h-12"></td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</body>
+</html>

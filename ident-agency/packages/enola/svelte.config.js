@@ -11,7 +11,8 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$lib: 'src/lib',
-			$static: 'static'
+			$static: 'static',
+			$templates: 'static/templates' // TODO: Vercel/SvelteKit workaround
 		}
 	}
 };

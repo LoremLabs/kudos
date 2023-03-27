@@ -1,0 +1,15 @@
+type PoolResponse {
+	# status
+	status: Status!
+
+	rid: String!
+
+	response: PoolResponseData
+}
+
+type PoolResponseData {
+	rid: String!
+	path: String!
+	signature: String!
+	out: String!
+}
