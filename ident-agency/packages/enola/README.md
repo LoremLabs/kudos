@@ -4,11 +4,10 @@ Enola is a GraphQL endpoint that provides access to the Kudos data. It is part o
 
 ## Leaderboards
 
-The leaderboards are a public facing web page that shows the top content creators. The leaderboards are updated every 5 minutes and are based on the reputation score of the content creators calculated via the Quadratic Funding algorithm. 
+The leaderboards are a public facing web page that shows the top content creators. The leaderboards are updated every 5 minutes and are based on the reputation score of the content creators calculated via the Quadratic Funding algorithm.
 
 [View the live leaderboards](https://graph.ident.agency/).
 
 - GraphQL endpoint
 - REST endpoint (bloom, calcLeaderboards)
 - Public Leaderboard Web pages
-
