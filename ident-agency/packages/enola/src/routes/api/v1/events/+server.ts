@@ -124,6 +124,28 @@ const ledgerWatcher = async ({ request }) => {
 							lastLedgerIndexProcessed = tx.tx.ledger_index;
 						}
 						switch (tx.tx.TransactionType) {
+							case 'Payment': {
+								if (tx.tx.Destination !== address) {
+									// not for us? should not happen
+									log.warn(
+										`ledgerWatcher: Payment for ${tx.tx.Destination} not for us ${address}`,
+										tx.tx
+									);
+									continue;
+								}
+
+								log.debug(`ledgerWatcher: publishing Payment for ${address} on ${network}`, tx.tx);
+
+								await qstash.publishJSON({
+									topic: `${network.replace(':', '-')}.onPaymentCreate`,
+									deduplicationId: tx.tx.hash,
+									body: {
+										tx: tx.tx
+									}
+								});
+
+								break;
+							}
 							case 'EscrowCreate': {
 								// relay to queue
 								if (tx.tx.Destination !== address) {

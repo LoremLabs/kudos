@@ -170,6 +170,25 @@ export const getMemoData = function ({ memos, memoType, memoFormat }) {
 	return found;
 };
 
+export const getDirectoryDataFromMemos = function ({ memos }) {
+	let matchedMemo = {};
+
+	let data = [];
+	try {
+		data = JSON.parse(getMemoData({ memos, memoType: 's2s', memoFormat: 'application/json' }));
+	} catch (e) {
+		throw new Error('Invalid JSON in s2s memo');
+	}
+
+	if (data.length) {
+		matchedMemo.viaAddress = data[0];
+		matchedMemo.identifier = data[1];
+		matchedMemo.signature = data[2]; // TODO: verify signature
+	}
+
+	return matchedMemo;
+};
+
 export const getEscrowDataFromMemos = function ({ memos }) {
 	let matchedMemo = {
 		identifier: getMemoData({ memos, memoType: 'relayto.identifier', memoFormat: 'text/plain' })
