@@ -180,9 +180,17 @@ export const getDirectoryDataFromMemos = function ({ memos }) {
 		throw new Error('Invalid JSON in s2s memo');
 	}
 
+	if (data[0] !== 's2s') {
+		throw new Error('Invalid s2s memo');
+	}
+
+	// log.debug('data:', data);
+
+	const [viaAddress, identifier] = data[1];
+
 	if (data.length) {
-		matchedMemo.viaAddress = data[0];
-		matchedMemo.identifier = data[1];
+		matchedMemo.viaAddress = viaAddress;
+		matchedMemo.identifier = identifier;
 		matchedMemo.signature = data[2]; // TODO: verify signature
 	}
 
