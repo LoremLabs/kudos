@@ -1,5 +1,6 @@
 import { disconnect, fulfillEscrow, getDirectoryDataFromMemos } from '$lib/xrpl.js';
 
+import { BloomFilter } from 'bloomfilter';
 import { getIngressAddresses } from '$lib/configured.js';
 import { getKycStatus } from '$lib/kyc.js';
 import { getPayViaForNetwork } from '$lib/utils/escrow.js';
