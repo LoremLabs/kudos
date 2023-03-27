@@ -99,7 +99,7 @@ importers:
       '@loremlabs/quadratic-funding': ^0.0.5
       '@maizzle/framework': ^4.4.2
       '@noble/hashes': ^1.3.0
-      '@noble/secp256k1': ^2.0.0
+      '@noble/secp256k1': 1.7.1
       '@sveltejs/adapter-auto': ^1.0.3
       '@sveltejs/kit': ^1.8.3
       '@types/bloomfilter': ^0.0.0
@@ -123,6 +123,7 @@ importers:
       fetch-to-curl: ^0.6.0
       flat: ^5.0.2
       form-data: ^4.0.0
+      glob: ^9.3.2
       graphql: ^16.6.0
       graphql-scalars: ^1.20.1
       graphql-tag: ^2.12.6
@@ -157,9 +158,9 @@ importers:
       graphql: 16.6.0
       graphql-yoga: 3.7.0_3747hjkprpk6cot33bkmfwepnm
     devDependencies:
-      '@maizzle/framework': 4.4.2
+      '@maizzle/framework': 4.4.2_glob@9.3.2
       '@noble/hashes': 1.3.0
-      '@noble/secp256k1': 2.0.0
+      '@noble/secp256k1': 1.7.1
       '@sveltejs/adapter-auto': 1.0.3_@sveltejs+kit@1.8.3
       '@sveltejs/kit': 1.8.3_svelte@3.55.1+vite@4.1.4
       '@types/bloomfilter': 0.0.0
@@ -181,6 +182,7 @@ importers:
       fetch-to-curl: 0.6.0
       flat: 5.0.2
       form-data: 4.0.0
+      glob: 9.3.2
       graphql-scalars: 1.20.1_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
       hash.js: 1.1.7
@@ -1796,7 +1798,7 @@ packages:
       - zenObservable
     dev: true
 
-  /@maizzle/framework/4.4.2:
+  /@maizzle/framework/4.4.2_glob@9.3.2:
     resolution: {integrity: sha512-9B0KuXbKL8Vq/nUtcO5vuS2/R8Zh7Mhtae2RrLZ2ocQmR5jkohGgX7GVhV0UwBp4F2dCh4Cei3lN6R3pJGbu4Q==}
     engines: {node: '>=14.0.0'}
     hasBin: true
@@ -1808,7 +1810,7 @@ packages:
       email-comb: 5.2.1
       front-matter: 4.0.2
       fs-extra: 10.1.0
-      glob-promise: 4.2.2
+      glob-promise: 4.2.2_glob@9.3.2
       html-crush: 4.2.0
       is-url-superb: 5.0.0
       juice: 9.0.0
@@ -1892,8 +1894,8 @@ packages:
     resolution: {integrity: sha512-kbacwGSsH/CTout0ZnZWxnW1B+jH/7r/WAAKLBtrRJ/+CUH7lgmQzl3GTrQua3SGKWNSDsS6lmjnDpIJ5Dxyaw==}
     dev: false
 
-  /@noble/secp256k1/2.0.0:
-    resolution: {integrity: sha512-rUGBd95e2a45rlmFTqQJYEFA4/gdIARFfuTuTqLglz0PZ6AKyzyXsEZZq7UZn8hZsvaBgpCzKKBJizT2cJERXw==}
+  /@noble/secp256k1/1.7.1:
+    resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
     dev: true
 
   /@nodelib/fs.scandir/2.1.5:
@@ -5173,13 +5175,14 @@ packages:
     dependencies:
       is-glob: 4.0.3
 
-  /glob-promise/4.2.2:
+  /glob-promise/4.2.2_glob@9.3.2:
     resolution: {integrity: sha512-xcUzJ8NWN5bktoTIX7eOclO1Npxd/dyVqUJxlLIDasT4C7KZyqlPIwkdJ0Ypiy3p2ZKahTjK4M9uC3sNSfNMzw==}
     engines: {node: '>=12'}
     peerDependencies:
       glob: ^7.1.6
     dependencies:
       '@types/glob': 7.2.0
+      glob: 9.3.2
     dev: true
 
   /glob/7.2.3:
@@ -5201,6 +5204,16 @@ packages:
       inherits: 2.0.4
       minimatch: 5.1.6
       once: 1.4.0
+    dev: true
+
+  /glob/9.3.2:
+    resolution: {integrity: sha512-BTv/JhKXFEHsErMte/AnfiSv8yYOLLiyH2lTg8vn02O21zWFgHPTfxtgn1QRe7NRgggUhC8hacR2Re94svHqeA==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      fs.realpath: 1.0.0
+      minimatch: 7.4.3
+      minipass: 4.2.5
+      path-scurry: 1.6.3
     dev: true
 
   /global-dirs/2.1.0:
@@ -6740,7 +6753,6 @@ packages:
   /lru-cache/7.17.0:
     resolution: {integrity: sha512-zSxlVVwOabhVyTi6E8gYv2cr6bXK+8ifYz5/uyJb9feXX6NACVDwY4p5Ut3WC3Ivo/QhpARHU3iujx2xGAYHbQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /magic-string/0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
@@ -6960,6 +6972,13 @@ packages:
       brace-expansion: 2.0.1
     dev: true
 
+  /minimatch/7.4.3:
+    resolution: {integrity: sha512-5UB4yYusDtkRPbRiy1cqZ1IpGNcJCGlEMG17RKzPddpyiPKoCdwohbED8g4QXT0ewCt8LTkQXuljsUfQ3FKM4A==}
+    engines: {node: '>=10'}
+    dependencies:
+      brace-expansion: 2.0.1
+    dev: true
+
   /minimist-options/4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}
     engines: {node: '>= 6'}
@@ -6974,6 +6993,11 @@ packages:
 
   /minimist/1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+
+  /minipass/4.2.5:
+    resolution: {integrity: sha512-+yQl7SX3bIT83Lhb4BVorMAHVuqsskxRdlmO9kTpyukp8vsm2Sn/fUOV9xlnG8/a5JsypJzap21lz/y3FBMJ8Q==}
+    engines: {node: '>=8'}
+    dev: true
 
   /mitt/1.2.0:
     resolution: {integrity: sha512-r6lj77KlwqLhIUku9UWYes7KJtsczvolZkzp8hbaDPPaE24OmWl5s539Mytlj22siEQKosZ26qCBgda2PKwoJw==}
@@ -7732,6 +7756,14 @@ packages:
 
   /path-parse/1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
+    dev: true
+
+  /path-scurry/1.6.3:
+    resolution: {integrity: sha512-RAmB+n30SlN+HnNx6EbcpoDy9nwdpcGPnEKrJnu6GZoDWBdIjo1UQMVtW2ybtC7LC2oKLcMq8y5g8WnKLiod9g==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    dependencies:
+      lru-cache: 7.17.0
+      minipass: 4.2.5
     dev: true
 
   /path-type/4.0.0:
