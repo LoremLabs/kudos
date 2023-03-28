@@ -1,8 +1,12 @@
+import { format as ago } from "timeago.js";
 import chalk from "chalk";
 // import fetch from "node-fetch";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
-import jsonColorize from "json-colorizer";
+import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import prompts from "prompts";
+// import jsonColorize from "json-colorizer";
+import { stringToColorBlocks } from "../lib/colorize.js";
+import sysOpen from "open";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 
@@ -17,8 +21,38 @@ const exec = async (context) => {
 
       const network = context.flags.network || "xrpl:testnet";
 
+      const keys = await context.vault.keys();
+
+      // convert xrpl:testnet to keys[xrpl][testnet]
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
       let did = context.input[2];
-      if (!did) {
+      let didType;
+      if (did) {
+        // set didType from the first part of the did (email, twitter, phone, etc) from did:kudos:email:
+        const didTopType = did.split(":")[1];
+        if (didTopType === "kudos") {
+          didType = did.split(":")[2];
+        } else {
+          didType = didTopType;
+        }
+
+        if (!didType || did.indexOf("did:") !== 0) {
+          log(chalk.red(`send: invalid did: ${did}`));
+          process.exit(1);
+        }
+      } else {
         // construct a did by asking some questions:
         // 1) email, twitter, phone, etc
         log("");
@@ -92,7 +126,8 @@ const exec = async (context) => {
             },
           },
         ]);
-        const didType = response.didType;
+
+        didType = response.didType;
         if (!didType) {
           process.exit(1);
         }
@@ -109,17 +144,246 @@ const exec = async (context) => {
             process.exit(1);
           }
         }
-
-        // logging in with did message
-        log("");
-        log(`Logging in with ${chalk.blue(did)}...`);
-
-        const authPromise = context.auth.startAuth({ did });
-        const authStart = await waitFor(authPromise, {
-          text: `Initiating authorization...`,
-        });
       }
 
+      // logging in with did message
+      log("");
+      log(`Logging in with ${chalk.blue(did)}...`);
+
+      const authPromise = context.auth.startAuth({ did, network });
+      const authStart = await waitFor(authPromise, {
+        text: `Getting authorization...`,
+      });
+
+      log("");
+      log(
+        `You will receive an email with a code. Enter that code below to complete the login process.`
+      );
+      log("");
+
+      // if we're here, the backend should have sent us an email, so we wait for it, and ask
+      // the user to enter the code they received
+      const authCode = await prompts({
+        type: "text",
+        name: "code",
+        instructions: "Example: ABCD-EFGH",
+        message: "Access code:",
+      });
+
+      if (!authCode.code) {
+        process.exit(1);
+      }
+
+      // log({authStart});
+      let data = {};
+      try {
+        data = JSON.parse(authStart.response?.out);
+      } catch (e) {
+        log(chalk.red("Error parsing response from server."));
+        process.exit(1);
+      }
+
+      // see if our nonce matches
+      if (data.nonce !== authStart.nonce) {
+        log(chalk.red("Nonce mismatch."));
+        process.exit(1);
+      }
+
+      // we have the code, so we can finish the auth process
+      const verifyAuthCodePromise = context.auth.verifyAuthCode({
+        rid: data.rid,
+        code: authCode.code,
+        nonce: authStart.nonce,
+        network,
+      });
+      const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
+        text: `Verifying code...`,
+      });
+
+      log(verifyAuthCode);
+      try {
+        data = JSON.parse(verifyAuthCode.response?.out);
+      } catch (e) {
+        log(chalk.red("Error parsing response from server."));
+        process.exit(1);
+      }
+
+      // if we're here, we've successfully logged in, and have a signature from the server saying so
+      // we now ask if the user wants to publish this DID to the XRPL, with meta data
+
+      log("");
+      log(
+        `You have successfully associated your ${didType} with your XRPL account.`
+      );
+      log(
+        chalk.gray(`\tThis will expire in: \t`) +
+          chalk.cyan(`${ago(new Date(Date.now() + 86400 * 7 * 1000))}`)
+      );
+
+      log("");
+      log(
+        `You can persist this mapping for ` +
+          chalk.cyan(
+            `${ago(new Date(Date.now() + data.mapping.expiration * 1000))}`
+          ) +
+          ` by using a lookup directory.`
+      );
+      if (data.mapping.terms) {
+        log("");
+        log(
+          `The directory lookup service is provided according to the terms at`
+        );
+        log(chalk.grey(data.mapping.terms));
+      }
+      log("");
+      log(
+        "Directory address: " +
+          chalk.yellow(
+            `${data.mapping.address}\n` +
+              " ".repeat("Directory address: ".length) +
+              stringToColorBlocks(data.mapping.address, network)
+          )
+      );
+
+      const amountXrp = data.mapping.costXrp.toFixed(1);
+      log(chalk.bold(`\tDirectory cost : \t${amountXrp} XRP`));
+
+      // convert the amount into drops
+      const drops = parseFloat(amountXrp) * 1000000;
+      log(chalk.gray(`\tAmount in drops: \t${drops.toLocaleString()}`));
+
+      // estimate the fees
+      const estPromise = context.coins.estimatedSendFee({
+        network,
+        sourceAddress, // estimate
+        address: sourceAddress, // estimate
+        amount: amountXrp,
+        amountDrops: drops,
+      });
+
+      const estimatedFees = await waitFor(estPromise, {
+        text: `Getting directory costs`,
+      });
+      log(chalk.gray(`\tTransaction fee: \t${estimatedFees} XRP`));
+
+      // convert the amount into usd
+      const getExchange = getExchangeRate("XRP");
+      const exchangeRate = await waitFor(getExchange, {
+        text: "Fetching current exchange rate",
+      });
+
+      const amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(2);
+      log(chalk.gray(`\tAmount in usd  : \t$${amountUsd}\n`));
+
+      log("");
+
+      const getAcctPromise = context.coins.getAccountInfo({
+        network,
+        sourceAddress,
+      });
+      const accountInfo = await waitFor(getAcctPromise, {
+        text:
+          `Getting account balance for: ` +
+          chalk.yellow(
+            `${sourceAddress}\n` +
+              "                               " +
+              stringToColorBlocks(sourceAddress, network)
+          ),
+      });
+      const balance = accountInfo?.xrpDrops;
+      if (!balance) {
+        log(chalk.red(`send: Could not get balance for ${sourceAddress}`), {
+          balance,
+          accountInfo,
+        });
+        process.exit(1);
+      }
+      const balanceXrp = parseFloat(balance) / 1000000;
+      if (balanceXrp < amountXrp) {
+        log(
+          chalk.red(
+            `send: Not enough funds in ${sourceAddress} to send ${amountXrp} XRP`
+          )
+        );
+        process.exit(1);
+      }
+      log("");
+      log(
+        `Balance after sending ` +
+          chalk.green(`${amountXrp} XRP`) +
+          ` will be ` +
+          chalk.green(`${balanceXrp - amountXrp} XRP`)
+      );
+      log("");
+
+      const { width } = windowSize.get();
+      log(" " + "─".repeat(width - 2));
+      // we should do the direct transfers first, then the escrow transfers
+      // log(JSON.stringify(weightedAddresses, null, 2));
+
+      // last confirmation
+      if (!context.flags.yes) {
+        const confirm2 = await prompts([
+          {
+            type: "text",
+            name: "doit",
+            message:
+              `Type: ` + chalk.red("send it") + ` to initiate transfer: `,
+            initial: false,
+          },
+        ]);
+        if (confirm2.doit !== "send it") {
+          log(chalk.red(`send: aborting`));
+          process.exit(1);
+        }
+      }
+
+      log("");
+
+      // send the transaction
+      const sendPromise = context.coins.sendDirectoryPayment({
+        network,
+        sourceAddress,
+        address: data.mapping.address,
+        amount: amountXrp,
+        amountDrops: drops,
+        tag: data.mapping.tag || 0,
+        credentials: [
+          {
+            type: "s2s", // send-to-social
+            mapping: data["credential-map"],
+            signature: data.signature,
+            issuer: data.mapping["credential-issuer"] || "s2s", // TODO
+          },
+        ],
+      });
+      const send = await waitFor(sendPromise, {
+        text: `Creating directory entry...`,
+      });
+      log(send);
+      log("");
+      log(
+        chalk.green(`🚀 Registered your ${didType} with the directory service.`)
+      );
+      log(`Transaction: ` + chalk.yellow(`${send.result.hash}\n`));
+
+      // see if the user wants to open in the transaction explorer
+      // https://testnet.xrpl.org/transactions/B85E8884B5485B841F7CE65C7C3A6D4E9844E142C3A279DFA50095DF4989EF77/detailed
+      const { open } = await prompts([
+        {
+          type: "confirm",
+          name: "open",
+          message: `Open in explorer?`,
+          initial: true,
+        },
+      ]);
+      if (open) {
+        const xrplNetwork = network === "xrpl:livenet" ? "xrpl" : "testnet";
+        const url = `https://${xrplNetwork}.xrpl.org/transactions/${send.result.hash}/detailed`;
+        sysOpen(url);
+      }
+
+      context.coins.disconnect();
       break;
     }
     default: {

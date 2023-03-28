@@ -23,6 +23,12 @@ const help = () => {
   // log(`send trust: send a trust transaction`);
   log("");
   log(chalk.bold(`send help: show this help`));
+  log("");
+  log(
+    "See also " +
+      chalk.gray("setler wallet help") +
+      " for direct wallet transactions"
+  );
 };
 
 const exec = async (context) => {
@@ -714,7 +720,7 @@ const exec = async (context) => {
       break;
     }
     default: {
-      log(`send: unknown subcommand ${context.input[1] || ""}`);
+      log(chalk.red(`send: unknown subcommand ${context.input[1] || ""}`));
       help();
       break;
     }

@@ -1,6 +1,7 @@
 import { DEFAULTS } from "./config.js";
 import crypto from "node:crypto";
 import cryptoCondition from "five-bells-condition"; // TODO: use crypto-conditions?
+import fetch from "node-fetch";
 import xrpl from "xrpl";
 
 const log = console.log;
@@ -83,6 +84,48 @@ Coins.prototype.cancelEscrow = async function ({
   return result;
 };
 
+Coins.prototype.getClient = async function (network) {
+  let client = this.clients[network];
+  if (!client) {
+    const endpoint = await this.getConfig(network, "endpoint");
+    switch (network) {
+      case "xrpl:testnet":
+        client = new xrpl.Client(endpoint);
+        break;
+      case "xrpl:livenet":
+        client = new xrpl.Client(endpoint);
+        break;
+      case "xrpl:devnet":
+        client = new xrpl.Client(endpoint);
+        break;
+      default:
+        throw new Error("unknown network: " + network);
+    }
+    this.clients[network] = client;
+
+    // auto-connect
+    client.on("error", (err) => {
+      log(`client [${network}] error`, err.message);
+    });
+
+    // client.on('connected', () => {
+    // });
+
+    await client.connect();
+    return client;
+  } else {
+    await client.connect();
+    return client;
+  }
+};
+
+Coins.prototype.disconnect = async function () {
+  for (const network in this.clients) {
+    const client = this.clients[network];
+    await client.disconnect();
+  }
+};
+
 Coins.prototype.getWallet = async function (address) {
   if (this.wallets[address]) {
     return this.wallets[address];
@@ -105,6 +148,123 @@ Coins.prototype.getWallet = async function (address) {
 
   this.wallets[address] = wallet;
   return wallet;
+};
+
+Coins.prototype.fundViaFaucet = async function ({ network, address }) {
+  const client = await this.getClient(network);
+  const wallet = await this.getWallet(address);
+
+  const { balance } = await client.fundWallet(wallet);
+  // console.log({balance});
+  return { balance };
+};
+
+const conversionRate = {};
+const CONVERSION_API =
+  "https://www.binance.com/api/v3/ticker/price?symbol=XRPUSDT";
+const CONVERSION_CACHE_MS = 1000 * 60 * 5; // 5 minutes
+
+Coins.prototype.convertXrpToUsd = async (xrp, noCache) => {
+  // get the conversion rate
+  let rate = conversionRate["xrp-usd"];
+
+  const ts = Date.now();
+  if (!rate || noCache || ts - rate?.ts > CONVERSION_CACHE_MS) {
+    const response = await fetch(CONVERSION_API, {
+      method: "GET",
+      timeout: 30,
+    });
+    const data = await response.json();
+    if (data && data.price) {
+      rate = {
+        rate: data.price,
+        ts,
+      };
+      conversionRate["xrp-usd"] = { ...rate };
+    } else {
+      throw new Error("Invalid conversion data");
+    }
+  }
+
+  // convert the xrp to usd
+  const usd = xrp * rate.rate;
+  // console.log({ xrp, rate: rate.rate, usd });
+  return { usd, xrp, rate: rate.rate };
+};
+
+Coins.prototype.getBalancesXrpl = async function ({ network, address }) {
+  const client = await this.getClient(network);
+
+  //   // get the balance
+  let balance;
+  try {
+    balance = await client.request({
+      command: "account_info",
+      account: address,
+      ledger_index: "validated",
+    });
+  } catch (e) {
+    if (
+      e.message.toLowerCase().includes("disconnected") ||
+      e.message.toLowerCase().includes("reset")
+    ) {
+      // try to reconnect
+      console.log("reconnecting", network, address);
+      await client.connect();
+      balance = await client.request({
+        command: "account_info",
+        account: address,
+        ledger_index: "validated",
+      });
+    } else if (e.message.toLowerCase().includes("not found")) {
+      // return an empty balance
+      return {
+        asset: network,
+        xrp: 0,
+        xrpDrops: 0,
+        usd: 0,
+        address: address,
+        message: "Account not found",
+      };
+    } else if (e.message.toLowerCase().includes("connection failed")) {
+      return {
+        asset: network,
+        xrp: 0,
+        xrpDrops: 0,
+        usd: 0,
+        address: address,
+        message: "Account not found",
+      };
+    } else {
+      // throw e;
+      console.log("errr!", e, e.message);
+      return {
+        asset: network,
+        xrp: 0,
+        xrpDrops: 0,
+        usd: 0,
+        address: address,
+        message: e.message,
+      };
+    }
+  }
+
+  // console.log("balance", balance);
+
+  // convert the xrp to usd
+  const { usd } = await this.convertXrpToUsd(
+    xrpl.dropsToXrp(balance.result.account_data.Balance)
+  );
+
+  // return the balance
+  return {
+    asset: network,
+    xrp: xrpl.dropsToXrp(balance.result.account_data.Balance),
+    xrpDrops: balance.result.account_data.Balance,
+    usd,
+    address: address,
+    message: "",
+  };
 };
 
 Coins.prototype.getConfig = async function (network, type) {
@@ -212,6 +372,82 @@ Coins.prototype.send = async function ({
   return result;
 };
 
+Coins.prototype.sendDirectoryPayment = async function ({
+  network,
+  sourceAddress,
+  address,
+  credentials,
+  amount,
+  amountDrops,
+}) {
+  // create a payment to address, for ammount
+  // we create a memo for each credential
+
+  const client = await this.getClient(network);
+  if (amountDrops != xrpl.xrpToDrops(amount)) {
+    console.log("amountDrops", amountDrops);
+    console.log("xrpl.xrpToDrops(amount)", xrpl.xrpToDrops(amount));
+    throw new Error("Amount Drops calculation error?");
+  }
+
+  const wallet = await this.getWallet(sourceAddress);
+
+  const Memos = [];
+  for (let i = 0; i < credentials.length; i++) {
+    const credential = credentials[i];
+    if (credential.type === "s2s") {
+      // mapping: data.mapping["credential-map"],
+      // signature: data.mapping.signature,
+      // issuer: data.mapping["credential-issuer"] || "send-to-social", // TODO
+
+      // Enter memo data to insert into a transaction
+      const MemoData = xrpl
+        .convertStringToHex(
+          JSON.stringify([
+            credential.issuer,
+            credential.mapping,
+            credential.signature,
+          ])
+        )
+        .toUpperCase();
+      const MemoType = xrpl.convertStringToHex("s2s").toUpperCase();
+      // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+      const MemoFormat = xrpl
+        .convertStringToHex("application/json")
+        .toUpperCase();
+      Memos.push({
+        Memo: {
+          MemoType,
+          MemoFormat,
+          MemoData,
+        },
+      });
+    }
+  }
+
+  const tx = {
+    TransactionType: "Payment",
+    Account: wallet.classicAddress,
+    Amount: xrpl.xrpToDrops(amount),
+    Destination: address,
+    Memos,
+  };
+
+  // Prepare transaction -------------------------------------------------------
+  const prepared = await client.autofill(tx);
+  const signed = wallet.sign(prepared);
+
+  let result;
+  try {
+    result = await client.submitAndWait(signed.tx_blob);
+  } catch (err) {
+    console.log("Error:", err, err.message);
+    throw err;
+  }
+  console.log("send result", result);
+  return result;
+};
+
 Coins.prototype.sendEscrow = async function ({
   network,
   sourceAddress,
@@ -306,48 +542,6 @@ Coins.prototype.sendEscrow = async function ({
   }
   // console.log("send result", result);
   return { result, fulfillmentTicket, escrowTx, condition };
-};
-
-Coins.prototype.getClient = async function (network) {
-  let client = this.clients[network];
-  if (!client) {
-    const endpoint = await this.getConfig(network, "endpoint");
-    switch (network) {
-      case "xrpl:testnet":
-        client = new xrpl.Client(endpoint);
-        break;
-      case "xrpl:livenet":
-        client = new xrpl.Client(endpoint);
-        break;
-      case "xrpl:devnet":
-        client = new xrpl.Client(endpoint);
-        break;
-      default:
-        throw new Error("unknown network: " + network);
-    }
-    this.clients[network] = client;
-
-    // auto-connect
-    client.on("error", (err) => {
-      log(`client [${network}] error`, err.message);
-    });
-
-    // client.on('connected', () => {
-    // });
-
-    await client.connect();
-    return client;
-  } else {
-    await client.connect();
-    return client;
-  }
-};
-
-Coins.prototype.disconnect = async function () {
-  for (const network in this.clients) {
-    const client = this.clients[network];
-    await client.disconnect();
-  }
 };
 
 Coins.prototype.getTransaction = async function ({ network, txHash }) {

@@ -1,52 +1,73 @@
-# Setler CLI
+# Send to Social (CLI)
 
-Identity Wallet command line interface. 
+![image](https://user-images.githubusercontent.com/170588/228046344-7e852b78-b91a-4de6-9e94-9575dc013312.png)
 
-Use Social Media usernames to send money and perform other Kudos actions.
+Use existing usernames (social media, email, etc.) to send money. This is a hackathon project for the [Unlocking the Potential of XRP Ledger Hackathon](https://unlockingxrpl.devpost.com/?utm_campaign=send-to-social).
 
 ## Overview
 
-The Setler Identity Wallet is a non-custodial wallet that allows users to send and receive payments on the XRPL. It also allows users to associate their XRPL account with a DID (Decentralized Identifier) which can be used to send and receive payments.
+This is a simple service that allows you to send money to a user who may not yet have an XRP address. It's implemented as a command line tool that creates a non-custodial wallet as well as a backend service that watches for incoming payments and fulfills escrowed payments.
 
-Setler is part of the Kudos ecosystem which rewards content creators.
+## How it works
 
-## Overview Architecture
+To send money to an email for example, you'd issue a command requesting to send money to Distributed Identifiers (DIDs) which can be associated with a social media account or email address. The tool uses the escrow functionality of the XRPL to set aside funds, notifies our backend of the new user, and later creates a payment when we know the payment account for the user.
 
-![Architecture](./docs/send-to-social-overview.svg)
-
-## CLI Demo
 
 ![Screen-Recording-2023-03-25-at-20 03 15](https://user-images.githubusercontent.com/170588/227736633-93f70b05-56d2-4993-9de2-9a446d19404c.gif)
 
-## Installation
 
-### Install from source
+# Send to Social CLI
 
-```bash
-git clone
-cd setler-cli
-npm install
-npm run build
-npm link
-```
-
-### Install from npm
-
-```bash
-npm install -g setler-cli
-```
+This is a simple cli tool to help us implement the send-to-social idea.
 
 ## Usage
 
-```bash
-$ setler send social did:kudos:email:matt@loremlabs.com ...
+```
+% npx @loremlabs/send-to-social
 ```
 
-## What happens after sending
+```
+% npx @loremlabs/send-to-social help
+```
 
-1. The escrowed payment is received by the XRPL.
-2. The watcher service watches our payment address for new transactions.
-3. When we receive a transaction, we check to see if it is an identifier (DID) we know about. If it is, we check to see if the DID has a payment address associated with it.
-4. If the DID has a payment address in our database, we fulfill the escrowed payment with the pre-image (previously stored). We then send the funds to the DID's payment address after deducting a fee.
-5. If the DID does not have a payment address in our database, the funds can be returned when the escrow expires.
+### Wallet
+
+To use you start by creating a wallet. This is a non-custodial wallet that is used to send and receive payments as well as perform the escrowed payments.
+
+Setup a new wallet with:
+
+```
+% npx @loremlabs/send-to-social wallet init
+```
+
+Then you can fund your wallet with:
+
+```
+% npx @loremlabs/send-to-social wallet fund
+```
+
+Which (for testnet) will fund the wallet with 1000 XRP.
+
+You can also receive payments to your wallet with:
+
+```
+% npx @loremlabs/send-to-social wallet receive
+```
+
+### Social Send
+
+To send a social send you need to have a wallet setup and funded. You can then send a social send with:
+
+```
+% npx @loremlabs/send-to-social send social did:kudos:email:YOUR_EMAIL@YOUR_DOMAIN
+``` 
+
+```
+% npx @loremlabs/send-to-social send social did:kudos:email:mankins+demo1@gmail.com did:kudos:email:matt+demo2@loremlabs.com...
+```
+
+
+## Repo Organization
+
+The main repo for this project is at [loremlabs/sendtosocial](https://github.com/loremlabs/sendtosocial). The command line tool is in the `commands/setler-cli` directory and what is published to `npm`. The backend service is in the `src` directory.
 

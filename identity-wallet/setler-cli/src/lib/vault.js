@@ -12,6 +12,7 @@ import { sha256 } from "@noble/hashes/sha256";
 // await vault.set("mnemonic", "mnemonic phrase");
 
 export const Vault = function ({ context }) {
+  // TODO: share as a package?
   this.context = context;
 
   this.configDir = envPaths("setler", {
@@ -72,16 +73,6 @@ Vault.prototype.sign = async function (params) {
       recovered: true,
     }
   );
-
-  // get the public key from the signature
-  // const publicKey = bytesToHex(
-  //   secp256k1.recoverPublicKey(hashedMessage, sig, recId, true)
-  // );
-
-  // const address = deriveAddressFromBytes(hexToBytes(publicKey));
-  // const a = deriveAddressFromBytes(hexToBytes(params.keys.publicKey));
-
-  // console.log({ publicKey, k: params.keys.publicKey, address, a });
 
   return { signature: bytesToHex(sig), recId }; // not 0x prefixed
 };

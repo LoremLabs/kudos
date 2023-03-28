@@ -1,7 +1,8 @@
+import { bytesToHex, hexToBytes as hexTo } from "@noble/hashes/utils";
+
 import { DEFAULTS } from "./config.js";
 import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
-import { hexToBytes as hexTo } from "@noble/hashes/utils";
 import { shortId } from "./short-id.js";
 
 const log = console.log;
@@ -11,26 +12,30 @@ const log = console.log;
 // wrapper for auth things
 export const AuthAgent = function ({ context }) {
   this.context = context;
-
-  // identResolver is context.
+  let identResolver =
+    context.config.identity?.identResolver || DEFAULTS.IDENTITY.RESOLVER; // error if not set
+  // trim any leading or trailing whitespace
+  identResolver = identResolver.trim();
+  if (identResolver.endsWith("/")) {
+    identResolver = identResolver.slice(0, -1);
+  }
+  this.identResolver = identResolver;
 };
 
-AuthAgent.prototype.startAuth = async function ({ did }) {
+AuthAgent.prototype.startAuth = async function ({ did, network }) {
   // what type of did is this?
   // did:kudos:email:foo => didType = kudos:email
   const didType = did.split(":")[1] + ":" + did.split(":")[2];
 
-  // generate a random state
-  const state =
+  const nonce =
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
-  // log({state});
 
   switch (didType) {
     case "kudos:email": {
       // get email
       const email = did.split(":")[3];
-      return this.startEmailAuth({ email, state });
+      return this.startEmailAuth({ email, nonce, network });
       break;
     }
     default: {
@@ -49,49 +54,217 @@ const hexToBytes = (hex) => {
   return hexTo(hex);
 };
 
-AuthAgent.prototype.startEmailAuth = async function ({ email, state }) {
+AuthAgent.prototype.verifyAuthCode = async function ({
+  rid,
+  code,
+  nonce,
+  network,
+}) {
+  const context = this.context;
+
+  if (!context.keys) {
+    context.keys = await context.vault.keys();
+  }
+
+  // get the key from the network
+  const networkParts = network.split(":");
+  let keys;
+  if (networkParts.length === 1) {
+    keys = context.keys[network];
+  } else {
+    keys = context.keys[networkParts[0]][networkParts[1]];
+  }
+
+  let { privateKey, address } = keys;
+  privateKey = normalizePrivateKey(privateKey);
+
+  const payload = JSON.stringify({
+    nonce,
+    code,
+    rid,
+    address, // keep in the payload
+  });
+
+  // sign the payload
+  const { signature, recId } = await context.vault.sign({
+    keys,
+    message: payload,
+    signingKey: privateKey,
+  });
+
+  const request = {
+    rid: shortId(),
+    path: "/auth/email/verify",
+    in: payload,
+    signature: `${signature}${recId}`, // TODO: is there a standard for this? recId is 0 or 1
+  };
+
+  // log({ request });
+
+  const { response, status } = await this.sendToPool({ request, context });
+  //log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status, nonce };
+};
+
+const normalizePrivateKey = (privateKey) => {
+  if (typeof privateKey === "string") {
+    if (privateKey.length === 66) {
+      // remove 00 prefix
+      privateKey = privateKey.slice(2);
+    }
+  }
+
+  return privateKey;
+};
+
+AuthAgent.prototype.startEmailAuth = async function ({
+  email,
+  nonce,
+  network,
+}) {
   const context = this.context;
   // post to ident agent api which will send a code to the email address
 
   if (!context.keys) {
     context.keys = await context.vault.keys();
   }
-  log(`keys: ${JSON.stringify(context.keys, null, "  ")}`);
 
-  // get our address from the context
-  const a = hexToBytes(context.keys.kudos.publicKey);
-  const address = deriveAddressFromBytes(a);
+  // get the key from the network
+  const networkParts = network.split(":");
+  let keys;
+  if (networkParts.length === 1) {
+    keys = context.keys[network];
+  } else {
+    keys = context.keys[networkParts[0]][networkParts[1]];
+  }
+
+  let { privateKey, address } = keys;
+  privateKey = normalizePrivateKey(privateKey);
 
   const payload = JSON.stringify({
-    state,
+    nonce,
+    email,
+    address, // keep in the payload
   });
 
   // sign the payload
   const { signature, recId } = await context.vault.sign({
-    keys: context.keys.kudos,
+    keys,
     message: payload,
-    signingKey: context.keys.kudos.privateKey,
+    signingKey: privateKey,
   });
 
-  // log ({signature, recId});
-
-  // const verified = await context.vault.verify({
-  //   keys: context.keys.kudos,
-  //   message: payload,
-  //   signature,
-  // });
-
-  // log({verified});
-
   const request = {
-    address,
     rid: shortId(),
     path: "/auth/email/login",
     in: payload,
-    signature: `${signature}${recId}`, // TODO: is there a standard for this?
+    signature: `${signature}${recId}`, // TODO: is there a standard for this? recId is 0 or 1
   };
 
-  log({ request });
+  // log({ request });
+
+  const { response, status } = await this.sendToPool({ request, context });
+  //log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status, nonce };
+};
+
+AuthAgent.prototype.sendToPool = async function ({ request, context }) {
+  const identityResolver = this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
+
+  const gqlQuery = {
+    query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {
+      submitPoolRequest(rid: $requestId, path: $path, in: $in, signature: $signature) {
+        status {
+          code
+          message
+        }
+        response {
+          rid
+          path
+          out
+          signature,
+        }
+      }
+    }`,
+
+    variables: {
+      requestId: request.rid,
+      path: request.path,
+      in: request.in,
+      signature: request.signature,
+    },
+    operationName: "PoolRequest",
+    extensions: {},
+  };
+  // console.log('gqlQuery', gqlQuery);
+  let results = {};
+
+  if (!identityResolver) {
+    throw new Error("identResolver is required");
+  }
+
+  // TODO: it would be better to batch these rather than one at a time...
+  try {
+    const headers = {
+      accept: "application/json",
+      "content-type": "application/json",
+    };
+
+    const options = {
+      headers,
+      method: "POST",
+      body: JSON.stringify(gqlQuery),
+    };
+    // console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    // remove trailing slash if it's on identityResolver
+    results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
+      async (r) => {
+        // check status code
+        if (r.status !== 200) {
+          log(`\nError submitting pool request: ${r.status} ${r.statusText}\n`);
+          const json = await r.json(); // not guaranteed to be json :(
+          if (json) {
+            const errMsg = json.data?.PoolRequest?.status?.message || "";
+            throw new Error(errMsg);
+          }
+          throw new Error("Error submitting pool request");
+        }
+
+        const out = await r.json();
+        // console.log('out', JSON.stringify(out,null,2));
+        return out;
+      }
+    );
+  } catch (e) {
+    console.log("error fetching pool request", e);
+    results.status = {
+      message: "Error fetching pool request: " + e.message,
+      code: 500,
+    };
+
+    return results;
+  }
+
+  // console.log({ results });
+
+  const response = results?.data?.submitPoolRequest?.response || {};
+  const status = results?.data?.submitPoolRequest?.status || {};
+
+  return { response, status };
 };
 
 export const expandDid = async ({ did, network }) => {
