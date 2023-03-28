@@ -34,6 +34,11 @@ export const readConfig = () => {
 
 export const writeConfig = (config) => {
   const contents = toml.stringify(config);
+
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
   fs.writeFileSync(configFile, contents);
 };
 

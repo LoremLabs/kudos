@@ -191,6 +191,11 @@ export const gatekeep = async (context, shouldCreate) => {
     const encrypted = encryptAES(mnemonic, salt);
     fs.writeFileSync(seedFile, encrypted, "utf8");
 
+    const seedDir = `${configDir}/state/`;
+    if (!fs.existsSync(seedDir)) {
+      fs.mkdirSync(seedDir, { recursive: true });
+    }
+
     return mnemonic;
   };
 
