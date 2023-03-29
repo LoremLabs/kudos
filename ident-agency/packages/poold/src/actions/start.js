@@ -56,7 +56,7 @@ const log = (...args) => {
 };
 
 const setupNodeDb = (context, nodeId) => {
-  const paths = envPaths("diditd");
+  const paths = envPaths("poold");
 
   // STEP 1: make sure data directory exists
   const dataDir = `${paths.data}/${nodeId}`;
@@ -424,7 +424,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
       // listenOnly: false
       // }),
       mdns({
-        serviceTag: "diditd.local",
+        serviceTag: "poold.local",
         interval: 5e3,
         enabled: true,
       }),
@@ -487,7 +487,7 @@ const startNode = async (context, nodeSequence, bootstrappers) => {
   const colorPrefix = (text) => nodeColor(`●`) + " " + text;
   log(colorPrefix("Starting Node " + nodeSequence));
 
-  log(colorPrefix(chalk.green("diditd started")));
+  log(colorPrefix(chalk.green("poold started")));
 
   const listenAddrs = node.getMultiaddrs();
   listenAddrs.forEach((addr) => {

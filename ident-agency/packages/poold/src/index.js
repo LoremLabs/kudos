@@ -1,12 +1,13 @@
-import chalk from "chalk";
-
 import * as actions from "./actions/index.js"; // add new top level actions here
-import { setFlagDefaults, setContextFunctions } from "./lib/env.js";
+
+import { setContextFunctions, setFlagDefaults } from "./lib/env.js";
+
+import chalk from "chalk";
 
 const log = console.log;
 
 // call the action with the given name
-const didItD = async (commandInput) => {
+const poold = async (commandInput) => {
   const { action, argv, flags, input } = commandInput;
   flags.debug &&
     log(chalk.green(JSON.stringify({ action, argv, flags, input })));
@@ -23,4 +24,4 @@ const didItD = async (commandInput) => {
   }
 };
 
-export default didItD;
+export default poold;

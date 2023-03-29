@@ -22,12 +22,12 @@ const schema = {
     items: {
       type: "string",
     },
-    default: ["cmd.diditd"],
+    default: ["cmd.poold"],
   },
 };
 
 const config = new Conf({
-  projectName: "diditd",
+  projectName: "poold",
   schema,
   fileExtension: "toml",
   serialize: (store) => {

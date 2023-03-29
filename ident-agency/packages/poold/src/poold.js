@@ -5,11 +5,11 @@
 // import updateNotifier from "update-notifier";
 import { URL } from "url";
 import config from "./config.js";
-import diditd from "./index.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import meow from "meow";
 import path from "path";
+import poold from "./index.js";
 const __dirname = new URL(".", import.meta.url).pathname;
 const personality = __dirname.split("/").slice(-3)[0];
 
@@ -20,12 +20,12 @@ const pkgJson = JSON.parse(
 );
 
 const defaultHelp = `
-  diditd: ${pkgJson.description}
+  poold: ${pkgJson.description}
 
-  $ diditd --help
+  $ poold --help
 
   Usage
-    $ diditd start
+    $ poold start
 
   Options
     --debug=[bool]  [Default: false]
@@ -34,14 +34,14 @@ const defaultHelp = `
     Examples
 
     Config
-    $ diditd config get
-    $ diditd config get cmd.preserve-url --raw 
-    $ diditd config set key.subkey val
-    $ diditd config set arrayKey val1 val2 --array
-    $ diditd config del key
+    $ poold config get
+    $ poold config get cmd.preserve-url --raw 
+    $ poold config set key.subkey val
+    $ poold config set arrayKey val1 val2 --array
+    $ poold config del key
 
     Run Deamon
-    $ diditd start
+    $ poold start
 `;
 
 const cli = meow(defaultHelp, {
@@ -71,7 +71,7 @@ if (cli.input.length === 0 || cli.input[0] === "help") {
   process.stderr.write(`${defaultHelp}\n`);
   process.exit(0);
 }
-diditd({
+poold({
   action: cli.input[0],
   flags: cli.flags,
   input: cli.input,
