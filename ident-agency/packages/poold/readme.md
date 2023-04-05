@@ -1,6 +1,6 @@
 # PoolD
 
-Read and write from your pool of data
+Daemon to read and write from your pool of data
 
 ### Usage
 
