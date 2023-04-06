@@ -1,8 +1,7 @@
 @font-face {
-    font-family: 'ttfirstneu-sample';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url('/fonts/ttfirstneu-sample.woff') format('woff');
-  }
-  
+	font-family: 'ttfirstneu-sample';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/ttfirstneu-sample.woff') format('woff');
+}
