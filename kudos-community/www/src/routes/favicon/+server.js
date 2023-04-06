@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 
 const faviconSourceDirectory = './favicons';
 
-const MAX_FAVICONS = 16; // change this if you add another
+const MAX_FAVICONS = 27; // change this if you add another
 
 export function GET({ url }) {
 	// see if url has a query param for favicon=01

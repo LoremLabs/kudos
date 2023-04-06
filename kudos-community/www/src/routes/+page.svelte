@@ -6,14 +6,16 @@
     let faviconItem;
     let favicon = '/favicon';
 
+    const MAX_FAVICONS = 27;
+
     onMount(() => {
         faviconItem = parseInt(new URLSearchParams(window.location.search).get('favicon'),10);
 
         // add one
         faviconItem = faviconItem ? faviconItem + 1 : 1;
 
-        // if we're over 15, loop back to 1
-        faviconItem = faviconItem > 15 ? 1 : faviconItem;
+        // if we're over MAX_FAVICONS, loop back to 1
+        faviconItem = faviconItem > MAX_FAVICONS ? 1 : faviconItem;
     });
 
 </script>
