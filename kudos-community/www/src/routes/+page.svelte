@@ -58,7 +58,7 @@
 					</g>
 				</svg>
 			</div>
-			<h1 class="text-5xl lg:text-8xl font-bold text-center z-20 pl-12 lg:pl-48 mr-6">
+			<h1 class="text-5xl lg:text-8xl font-bold text-center z-20 pl-12 lg:pl-48 mr-2 lg:mr-6">
 				<span class="text-gray-400">.</span><span class="text-black">community</span>
 			</h1>
 		</a>
