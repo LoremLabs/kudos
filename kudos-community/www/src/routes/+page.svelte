@@ -22,7 +22,7 @@
 	class="flex flex-row absolute top-0 w-full h-screen bg-repeat"
 	style="background-image: url(/patterns/kudos-01.svg)"
 >
-	<div class="w-full m-auto p-4 flex flex-col justify-center items-center h-screen z-10">
+	<div class="w-full p-4 flex flex-col justify-center items-center h-screen z-10 mx-4">
 		<a href={`?favicon=${encodeURIComponent(faviconItem)}`} target="_top">
 			<div class="text-[#389D61]">
 				<svg viewBox="0 0 991 212" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
