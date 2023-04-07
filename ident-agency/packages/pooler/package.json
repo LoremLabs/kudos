@@ -25,6 +25,8 @@
 		"pino": "^8.11.0",
 		"pino-pretty": "^9.4.0",
 		"postcss": "^8.4.21",
+		"pouchdb-adapter-leveldb": "^8.0.1",
+		"pouchdb-core": "^8.0.1",
 		"prettier": "^2.8.0",
 		"prettier-plugin-svelte": "^2.8.1",
 		"svelte": "^3.54.0",
