@@ -5,7 +5,7 @@
 	let faviconItem;
 	let favicon = '/favicon';
 
-	const MAX_FAVICONS = 27;
+	const MAX_FAVICONS = 29;
 
 	onMount(() => {
 		faviconItem = parseInt(new URLSearchParams(window.location.search).get('favicon'), 10);
