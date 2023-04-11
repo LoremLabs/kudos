@@ -8,5 +8,5 @@
 
 # Packages
 
-- `enola` - GraphQL / API for Ident Agency, currently including Fame Leaderboard web front-end
-- `diditd` - LibP2p storage mechanism
+- `enola` - GQL endpoint to store signed data
+- `poold` - LibP2p storage mechanism (WIP)

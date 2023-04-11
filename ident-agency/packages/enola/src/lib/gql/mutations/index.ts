@@ -13,6 +13,15 @@ import { sha256 } from '@noble/hashes/sha256';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
 const SEND_SOCIAL_ADDRESS = process.env.SEND_SOCIAL_ADDRESS || 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3';
+const SEND_SOCIAL_BASE_URL =
+	process.env.SEND_SOCIAL_BASE_URL || 'https://send-to-social.ident.agency';
+const SEND_SOCIAL_BOT_ADDRESS =
+	process.env.SEND_SOCIAL_BOT_ADDRESS || 'r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59';
+const SEND_SOCIAL_BOT_EMAIL = process.env.SEND_SOCIAL_BOT_EMAIL || `no-reply@notify.ident.agency`;
+process.env.SEND_SOCIAL_BOT_EMAIL || `"--send-to-social--" <${SEND_SOCIAL_BOT_EMAIL}>`;
+const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 10) || 10; // xrp
+const SEND_SOCIAL_EXPIRATION =
+	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 90; // 3 months
 
 const hexToBytes = (hex) => {
 	// check if it's a hex string, starting with 0x
@@ -184,10 +193,10 @@ export const submitPoolRequest = async (_, params) => {
 				out.signature = signature;
 
 				const mapping = {};
-				mapping.costXrp = 10; // xrp
+				mapping.costXrp = SEND_SOCIAL_COST_XRP; // xrp
 				mapping.address = SEND_SOCIAL_ADDRESS;
-				mapping.terms = 'https://send-to-social.ident.agency/terms';
-				mapping.expiration = 60 * 60 * 24 * 365;
+				mapping.terms = `${SEND_SOCIAL_BASE_URL}/terms`;
+				mapping.expiration = SEND_SOCIAL_EXPIRATION;
 
 				out.mapping = mapping;
 
@@ -230,16 +239,16 @@ export const submitPoolRequest = async (_, params) => {
 				// TODO	HERE
 				const output = await composeEmail({
 					template: 'auth-link-01',
-					options: { to: email, baseUrl: 'https://send-to-social.ident.agency', locals: { code } }
+					options: { to: email, baseUrl: SEND_SOCIAL_BASE_URL, locals: { code } }
 				});
 
-				const botEmail = `"--send-to-social--" <no-reply@notify.ident.agency>`;
+				const botEmail = SEND_SOCIAL_BOT_EMAIL;
 				const msg = {
 					'h:Sender': botEmail,
-					from: `no-reply@notify.ident.agency`,
+					from: SEND_SOCIAL_BOT_ADDRESS,
 					to: [email],
 					//        bcc: [email],
-					subject: output.subject || '--send-to-social - 🚀 Login Code',
+					subject: output.subject || '👉 Login Code',
 					//text,
 					html: output.html,
 					//        headers, // must have h: prefix, but maybe we don't want them anyway

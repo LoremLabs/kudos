@@ -13,4 +13,3 @@ Or start individually, with debug:
 ```
 DEBUG=libp2p:gossipsub src/poold.js start --nodeId 0  --nodeId 1
 ```
-
