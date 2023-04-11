@@ -1,0 +1,10 @@
+node_modules
+yarn.lock
+*.tmp
+tmp
+*.log
+log
+.env
+.env.local
+kudos-dir
+kudos-dir/*
