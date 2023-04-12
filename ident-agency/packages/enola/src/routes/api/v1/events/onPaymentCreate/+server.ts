@@ -1,9 +1,9 @@
-import { disconnect, fulfillEscrow, getDirectoryDataFromMemos } from '$lib/xrpl.js';
+import { disconnect, getDirectoryDataFromMemos } from '$lib/xrpl.js';
 
 import { BloomFilter } from 'bloomfilter';
 import { getIngressAddresses } from '$lib/configured.js';
-import { getKycStatus } from '$lib/kyc.js';
-import { getPayViaForNetwork } from '$lib/utils/escrow.js';
+// import { getKycStatus } from '$lib/kyc.js';
+// import { getPayViaForNetwork } from '$lib/utils/escrow.js';
 import log from '$lib/logging';
 import { redis } from '$lib/redis.js';
 import { verifyQueueRequest } from '$lib/queue.js';
@@ -20,7 +20,7 @@ const onPaymentCreate = async ({ request }) => {
 
 	const { tx } = params;
 	const { Destination, Account, Amount, Memos, Sequence, TransactionType } = tx;
-	const txId = `${tx.hash}`;
+	// const txId = `${tx.hash}`;
 
 	// get the eligible network from the params
 	const qp = new URL(request.url).searchParams;
@@ -95,7 +95,8 @@ const onPaymentCreate = async ({ request }) => {
 		});
 	}
 
-	let { identifier, viaAddress } = matchedMemo;
+	let { identifier } = matchedMemo;
+	const { viaAddress } = matchedMemo;
 
 	if (!identifier) {
 		log.info('identifier not found in Memo');

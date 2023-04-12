@@ -1,4 +1,3 @@
-import { Redis } from '@upstash/redis';
 import { getIngressAddresses } from '$lib/configured.js';
 import log from '$lib/logging';
 import { redis } from '$lib/redis.js';
@@ -7,7 +6,7 @@ import { verifyQueueRequest } from '$lib/queue.js';
 
 // onNewEscrow fires from the fulfillment creation process, not from ledger events
 const onNewEscrow = async ({ request }) => {
-	const startTs = Date.now();
+	// const startTs = Date.now();
 
 	let params;
 	try {

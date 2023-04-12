@@ -1,5 +1,5 @@
 import { currentCohort } from '$lib/utils/date';
-import { error } from '@sveltejs/kit';
+// import { error } from '@sveltejs/kit';
 // DEBUGGING
 // import { fetchToCurl } from 'fetch-to-curl';
 

@@ -161,7 +161,7 @@ const ledgerWatcher = async ({ request }) => {
 									`ledgerWatcher: publishing EscrowCreate for ${address} on ${network}`,
 									tx.tx
 								);
-								const res = await qstash.publishJSON({
+								await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowCreate`,
 									deduplicationId: tx.tx.hash,
 									body: {
@@ -186,7 +186,7 @@ const ledgerWatcher = async ({ request }) => {
 									tx.tx
 								);
 
-								const res = await qstash.publishJSON({
+								await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowFinish`,
 									deduplicationId: tx.tx.hash,
 									body: {
@@ -210,7 +210,7 @@ const ledgerWatcher = async ({ request }) => {
 									continue;
 								}
 
-								const res = await qstash.publishJSON({
+								await qstash.publishJSON({
 									topic: `${network.replace(':', '-')}.onEscrowCancel`,
 									deduplicationId: tx.tx.hash,
 									body: {
@@ -258,7 +258,7 @@ const ledgerWatcher = async ({ request }) => {
 				if (limitReached) {
 					// sleep for pauseTime
 					const pauseTime = 1000 * 5; // 5s
-					await new Promise((resolve) => setTimeout(resolve, 1000));
+					await new Promise((resolve) => setTimeout(resolve, pauseTime));
 				} else {
 					loop = false; // we read all transactions, no need to loop
 				}

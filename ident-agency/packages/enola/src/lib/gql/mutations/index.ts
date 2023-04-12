@@ -1,12 +1,11 @@
 import * as secp256k1 from '@noble/secp256k1';
 
-import { bytesToHex, hexToBytes as hexTo } from '@noble/hashes/utils';
 import { composeEmail, sendEmail } from '$lib/email/email';
+import { hexToBytes, validate } from '$lib/keys';
 
 import { BloomFilter } from 'bloomfilter';
-import addressCodec from 'ripple-address-codec';
+import { bytesToHex } from '@noble/hashes/utils';
 import { currentCohort } from '$lib/utils/date';
-import hashjs from 'hash.js';
 import log from '$lib/logging';
 import { redis } from '$lib/redis.js';
 import { sha256 } from '@noble/hashes/sha256';
@@ -22,16 +21,6 @@ process.env.SEND_SOCIAL_BOT_EMAIL || `"--send-to-social--" <${SEND_SOCIAL_BOT_EM
 const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 10) || 10; // xrp
 const SEND_SOCIAL_EXPIRATION =
 	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 90; // 3 months
-
-const hexToBytes = (hex) => {
-	// check if it's a hex string, starting with 0x
-	if (typeof hex === 'string' && hex.match(/^0x([0-9a-f][0-9a-f])*$/i)) {
-		// strip off the 0x
-		hex = hex.slice(2);
-	}
-
-	return hexTo(hex);
-};
 
 const normalizePrivateKey = (privateKey) => {
 	if (typeof privateKey === 'string') {
@@ -81,56 +70,11 @@ export const getKeys = async function (address) {
 	return found;
 };
 
-const validate = async (params) => {
-	const { signature, message, input } = params;
+export const submitPoolRequest = async (root, params, context) => {
+	log.debug('---------------------', { params, context });
 
-	// signature = '0x' + signature + recId // recId is last byte of signature
-	const sig = signature.slice(0, -1);
-	const recId = parseInt(signature.slice(-1), 10);
-
-	function deriveAddressFromBytes(publicKeyBytes) {
-		const publicKeyHash = computePublicKeyHash(publicKeyBytes);
-		return addressCodec.encodeAccountID(publicKeyHash);
-	}
-
-	function computePublicKeyHash(publicKeyBytes) {
-		const hash256 = hashjs.sha256().update(publicKeyBytes).digest();
-		const hash160 = hashjs.ripemd160().update(hash256).digest();
-		return hash160; // was Buffer.from(hash160);
-	}
-
-	// log.info(JSON.stringify({ sig, recId, message }));
-	let verified = {};
-	try {
-		const hashedMessage = sha256(message);
-
-		// get the public key from the signature
-		const publicKey = bytesToHex(secp256k1.recoverPublicKey(hashedMessage, sig, recId, true));
-		const sigAddress = deriveAddressFromBytes(hexToBytes(publicKey));
-
-		// check if message.address matches the address derived from the signature
-		if (sigAddress !== input.address) {
-			throw new Error('Invalid address:' + sigAddress + ' != ' + input.address);
-		}
-
-		// verify the signature
-		verified = secp256k1.verify(hexToBytes(sig), hashedMessage, hexToBytes(publicKey));
-
-		if (!verified) {
-			throw new Error('Invalid signature');
-		}
-	} catch (e) {
-		console.log(e.message);
-		throw new Error('Invalid signature');
-	}
-
-	log.debug('verified', verified);
-
-	return verified;
-};
-
-export const submitPoolRequest = async (_, params) => {
-	log.debug('---------------------', params);
+	const currentUser = context.currentUser || {}; // from the auth hook
+	log.debug('--currentUser--', currentUser);
 
 	// TODO: more validation
 
@@ -158,14 +102,97 @@ export const submitPoolRequest = async (_, params) => {
 		// validate the signature
 		// const { keys, signature, message } = params;
 
-		await validate({
-			signature,
-			message: params.in, // original stringified payload
-			input,
-			rid
-		});
+		if (false) {
+			// debug
+			await validate({
+				signature,
+				message: params.in, // original stringified payload
+				input,
+				rid
+			});
+		}
 
+		// at this point we're guaranteed that the request is coming from the correct input.address
 		switch (path) {
+			case '/pool/get/summary': {
+				// get a pool summary
+				const out = {};
+
+				// input = { address, rid, data }
+
+				// data is an array of { scope, object(id), weight, context}
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.rid = input.rid; // not quite a request id, but a transaction id
+				reply.response.signature = signature2;
+
+				break;
+			}
+			case '/pool/get/details': {
+				// get a pool with details
+				const out = {};
+
+				// input = { address, rid, data }
+
+				// data is an array of { scope, object(id), weight, context}
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.rid = input.rid; // not quite a request id, but a transaction id
+				reply.response.signature = signature2;
+
+				break;
+			}
+			case '/pool/list': {
+				// list available pools
+				const out = {};
+
+				// input = { address, rid, data }
+
+				// data is an array of { scope, object(id), weight, context}
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.signature = signature2;
+
+				break;
+			}
+			case '/pool/store': {
+				// write the data to the database
+
+				// see if we have write permissions
+				const { t: entitlements } = currentUser;
+				// TODO: shiro compatible: kudos:write
+				if (!entitlements || !entitlements.includes('kudos:store')) {
+					throw new Error('Not authorized');
+				}
+				const out = {};
+
+				// if we're here, we can read in the input data and store it
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.signature = signature2;
+
+				break;
+			}
 			case '/auth/email/verify': {
 				const out = {};
 
@@ -284,10 +311,20 @@ export const submitPoolRequest = async (_, params) => {
 				reply.status.code = 401;
 				reply.status.message = 'Invalid signature';
 				return reply;
+			} else if (e.message === 'Parameter "key" is required') {
+				reply.status.code = 500;
+				reply.status.message = 'Internal error: missing mail key';
+				return reply;
+			} else if (e.message === 'Not authorized') {
+				reply.status.code = 401;
+				reply.status.message = 'Not authorized';
+				return reply;
 			}
 		}
 		throw e; // other
 	}
+
+	log.debug('reply', reply);
 
 	return reply;
 };
@@ -308,7 +345,7 @@ export const submitKudosForFame = async (_, params) => {
 	type AddressState = {
 		[key: string]: string;
 	};
-	let addressStateChange: AddressState = {}; // used for hmset
+	const addressStateChange: AddressState = {}; // used for hmset
 
 	// check the payload for a valid signature / address
 	try {

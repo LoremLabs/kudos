@@ -15,6 +15,7 @@ importers:
   packages/enola:
     specifiers:
       '@envelop/core': ^3.0.6
+      '@envelop/generic-auth': ^5.0.6
       '@envelop/graphql-jit': ^5.0.6
       '@graphql-yoga/render-graphiql': ^3.7.0
       '@loremlabs/quadratic-funding': ^0.0.5
@@ -50,6 +51,7 @@ importers:
       graphql-tag: ^2.12.6
       graphql-yoga: ^3.7.0
       hash.js: ^1.1.7
+      jose: ^4.13.1
       mailgun.js: ^8.2.1
       pino: ^8.11.0
       pino-pretty: ^9.4.0
@@ -78,6 +80,7 @@ importers:
       graphql: 16.6.0
       graphql-yoga: 3.7.0_3747hjkprpk6cot33bkmfwepnm
     devDependencies:
+      '@envelop/generic-auth': 5.0.6_adj6itjezth6avcd67ktx7eo6a
       '@maizzle/framework': 4.4.2_glob@9.3.2
       '@noble/hashes': 1.3.0
       '@noble/secp256k1': 1.7.1
@@ -106,6 +109,7 @@ importers:
       graphql-scalars: 1.20.1_graphql@16.6.0
       graphql-tag: 2.12.6_graphql@16.6.0
       hash.js: 1.1.7
+      jose: 4.13.1
       mailgun.js: 8.2.1
       pino: 8.11.0
       pino-pretty: 9.4.0
@@ -403,7 +407,30 @@ packages:
     dependencies:
       '@envelop/types': 3.0.2
       tslib: 2.5.0
-    dev: false
+
+  /@envelop/extended-validation/2.0.6_adj6itjezth6avcd67ktx7eo6a:
+    resolution: {integrity: sha512-aXAf1bg5Z71YfEKLCZ8OMUZAOYPGHV/a+7avd5TIMFNDxl5wJTmIonep3T+kdMpwRInDphfNPGFD0GcGdGxpHg==}
+    peerDependencies:
+      '@envelop/core': ^3.0.6
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@envelop/core': 3.0.6
+      '@graphql-tools/utils': 8.13.1_graphql@16.6.0
+      graphql: 16.6.0
+      tslib: 2.5.0
+    dev: true
+
+  /@envelop/generic-auth/5.0.6_adj6itjezth6avcd67ktx7eo6a:
+    resolution: {integrity: sha512-4z4juF7Is0oitymc0kcPK9bBAnB2Anyf9QBqe0Muh0NtkF8PrloUb3E+JzwHlDY8bVSESj0G+MpJOFNU2fjrJg==}
+    peerDependencies:
+      '@envelop/core': ^3.0.6
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@envelop/core': 3.0.6
+      '@envelop/extended-validation': 2.0.6_adj6itjezth6avcd67ktx7eo6a
+      graphql: 16.6.0
+      tslib: 2.5.0
+    dev: true
 
   /@envelop/graphql-jit/5.0.6_adj6itjezth6avcd67ktx7eo6a:
     resolution: {integrity: sha512-noiKH5TuoWbMa4J7Vcj5+RWZBgtA1z6BLjel+aWl18AruBZQO0LdNF7VYmDNl8OjSz/kjQ1PmGdiFbKiepztkQ==}
@@ -422,7 +449,6 @@ packages:
     resolution: {integrity: sha512-pOFea9ha0EkURWxJ/35axoH9fDGP5S2cUu/5Mmo9pb8zUf+TaEot8vB670XXihFEn/92759BMjLJNWBKmNhyng==}
     dependencies:
       tslib: 2.5.0
-    dev: false
 
   /@envelop/validation-cache/5.1.2_adj6itjezth6avcd67ktx7eo6a:
     resolution: {integrity: sha512-APofOvjaHrF+IW71VCXdyG+EbA6EQJXdunUe1EECU9vZzGKYUuQXfVeCOD6IYNF44KKSQArTfU8RhnUlW6VyOQ==}
@@ -1078,6 +1104,15 @@ packages:
       tslib: 2.5.0
       value-or-promise: 1.0.12
     dev: false
+
+  /@graphql-tools/utils/8.13.1_graphql@16.6.0:
+    resolution: {integrity: sha512-qIh9yYpdUFmctVqovwMdheVNJqFh+DQNWIhX87FJStfXYnmweBUDATok9fWPleKeFwxnW8IapKmY8m8toJEkAw==}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      graphql: 16.6.0
+      tslib: 2.5.0
+    dev: true
 
   /@graphql-tools/utils/9.2.1_graphql@16.6.0:
     resolution: {integrity: sha512-WUw506Ql6xzmOORlriNrD6Ugx+HjVgYxt9KCXD9mHAak+eaXSwuGGPyE60hy9xaDEoXKBsG7SkG69ybitaVl6A==}
@@ -6309,6 +6344,10 @@ packages:
   /jiti/1.18.2:
     resolution: {integrity: sha512-QAdOptna2NYiSSpv0O/BwoHBSmz4YhpzJHyi+fnMRTXFjp7B8i/YG5Z8IfusxB1ufjcD2Sre1F3R+nX3fvy7gg==}
     hasBin: true
+    dev: true
+
+  /jose/4.13.1:
+    resolution: {integrity: sha512-MSJQC5vXco5Br38mzaQKiq9mwt7lwj2eXpgpRyQYNHYt2lq1PjkWa7DLXX0WVcQLE9HhMh3jPiufS7fhJf+CLQ==}
     dev: true
 
   /joycon/3.1.1:

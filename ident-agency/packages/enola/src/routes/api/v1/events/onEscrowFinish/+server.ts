@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 
 // onEscrowFinish fires from a ledger event, once the escrow is fulfilled (not cancelled)
 const onEscrowFinish = async ({ request }) => {
-	const startTs = Date.now();
+	// const startTs = Date.now();
 
 	let params;
 	try {
@@ -82,7 +82,7 @@ const onEscrowFinish = async ({ request }) => {
 		// our queue deduplicates at the ingress, so theoretically we should never get a duplicate, but we'll lock
 		// anyway to prevent failure-retries from causing a double-fulfillment. TODO: look into how the redis lock
 		// is implemented to make sure it works with distributed architectures (see Redlock)
-		let lock = await redis.get(lockKey);
+		const lock = await redis.get(lockKey);
 		const lockId = uuid();
 		if (!lock) {
 			await redis.set(
@@ -253,14 +253,13 @@ const onEscrowFinish = async ({ request }) => {
 		} catch (ee) {
 			log.info('disconnect error', ee);
 		}
-
-		// return a response object
-		return new Response(JSON.stringify({ status: { message, code } }), {
-			status: code
-			// headers: {
-			// }
-		});
 	}
+	// return a response object
+	return new Response(JSON.stringify({ status: { message, code } }), {
+		status: code
+		// headers: {
+		// }
+	});
 };
 
 const cors = async () => {

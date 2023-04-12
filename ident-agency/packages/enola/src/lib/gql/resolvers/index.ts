@@ -143,7 +143,7 @@ export const leaderBoard = async (_, params) => {
 		pageSize = DEFAULT_PAGE_SIZE;
 	}
 
-	let end = start + pageSize; // end -1 is all
+	// let end = start + pageSize; // end -1 is all
 
 	// zrange l:202309 0 -1 rev limit 0 100 withscores
 	const data = await redis.zrange(`l:${subject}`, 0, -1, {

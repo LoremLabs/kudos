@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import log from '$lib/logging';
+// import log from '$lib/logging';
 import { redis } from '$lib/redis.js';
 
 const payVia = async () => {
