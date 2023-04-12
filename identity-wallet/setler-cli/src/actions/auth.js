@@ -50,8 +50,22 @@ const exec = async (context) => {
       const payload = {};
       payload.a = sourceAddress;
       payload.n = [network];
-      payload.t = ["kudos:store"];
 
+      // prompt for various access methods: {kudos:store, kudos:read, kudos:summary}
+      const result = await prompts({
+        type: "multiselect",
+        name: "value",
+        message: "What access would you like to delegate?",
+        choices: [
+          { title: "Store Kudos", value: "kudos:store", selected: true },
+          { title: "Read Kudos", value: "kudos:read" },
+          { title: "Read Kudos Summary", value: "kudos:summary" },
+        ],
+        hint: "- Space to select. Return to submit",
+      });
+
+      payload.t = [...result.value];
+      // console.log({payload});
       const message = JSON.stringify(payload);
 
       // sign the payload
