@@ -1,5 +1,5 @@
 {
-  "name": "@loremlabs/send-to-social",
+  "name": "@loremlabs/setler-cli",
   "version": "0.0.5",
   "description": "setler command-line tool",
   "license": "MIT",
@@ -48,6 +48,7 @@
     "get-stdin": "^9.0.0",
     "glob": "^8.0.3",
     "hash.js": "^1.1.7",
+    "jose": "^4.13.1",
     "json-colorizer": "^2.2.2",
     "keytar": "^7.9.0",
     "knex": "^2.3.0",
@@ -83,7 +84,7 @@
   "directories": {
     "doc": "docs"
   },
-  "homepage": "https://github.com/LoremLabs/sendtosocial#readme",
+  "homepage": "https://github.com/LoremLabs/kudos/identity-wallet/setler-cli#readme",
   "author": {
     "name": "matt mankins",
     "email": "mankins@gmail.com"
