@@ -12,9 +12,7 @@ This is a simple service that allows you to send money to a user who may not yet
 
 To send money to an email for example, you'd issue a command requesting to send money to Distributed Identifiers (DIDs) which can be associated with a social media account or email address. The tool uses the escrow functionality of the XRPL to set aside funds, notifies our backend of the new user, and later creates a payment when we know the payment account for the user.
 
-
 ![Screen-Recording-2023-03-25-at-20 03 15](https://user-images.githubusercontent.com/170588/227736633-93f70b05-56d2-4993-9de2-9a446d19404c.gif)
-
 
 # Send to Social CLI
 
@@ -60,14 +58,12 @@ To send a social send you need to have a wallet setup and funded. You can then s
 
 ```
 % npx @loremlabs/send-to-social send social did:kudos:email:YOUR_EMAIL@YOUR_DOMAIN
-``` 
+```
 
 ```
 % npx @loremlabs/send-to-social send social did:kudos:email:mankins+demo1@gmail.com did:kudos:email:matt+demo2@loremlabs.com...
 ```
 
-
 ## Repo Organization
 
 The main repo for this project is at [loremlabs/sendtosocial](https://github.com/loremlabs/sendtosocial). The command line tool is in the `commands/setler-cli` directory and what is published to `npm`. The backend service is in the `src` directory.
-

@@ -1,7 +1,7 @@
-import { bytesToHex, hexToBytes as hexTo } from "@noble/hashes/utils";
+// import { bytesToHex, hexToBytes as hexTo } from "@noble/hashes/utils";
 
 import { DEFAULTS } from "./config.js";
-import { deriveAddressFromBytes } from "./wallet/keys.js";
+// import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
 import { shortId } from "./short-id.js";
 
@@ -36,7 +36,6 @@ AuthAgent.prototype.startAuth = async function ({ did, network }) {
       // get email
       const email = did.split(":")[3];
       return this.startEmailAuth({ email, nonce, network });
-      break;
     }
     default: {
       throw new Error("Unknown Did Type");
@@ -44,15 +43,15 @@ AuthAgent.prototype.startAuth = async function ({ did, network }) {
   }
 };
 
-const hexToBytes = (hex) => {
-  // check if it's a hex string, starting with 0x
-  if (typeof hex === "string" && hex.match(/^0x([0-9a-f][0-9a-f])*$/i)) {
-    // strip off the 0x
-    hex = hex.slice(2);
-  }
+// const hexToBytes = (hex) => {
+//   // check if it's a hex string, starting with 0x
+//   if (typeof hex === "string" && hex.match(/^0x([0-9a-f][0-9a-f])*$/i)) {
+//     // strip off the 0x
+//     hex = hex.slice(2);
+//   }
 
-  return hexTo(hex);
-};
+//   return hexTo(hex);
+// };
 
 AuthAgent.prototype.verifyAuthCode = async function ({
   rid,
@@ -182,7 +181,7 @@ AuthAgent.prototype.startEmailAuth = async function ({
   return { response, status, nonce };
 };
 
-AuthAgent.prototype.sendToPool = async function ({ request, context }) {
+AuthAgent.prototype.sendToPool = async function ({ request }) {
   const identityResolver = this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
 
   const gqlQuery = {
@@ -267,7 +266,7 @@ AuthAgent.prototype.sendToPool = async function ({ request, context }) {
   return { response, status };
 };
 
-export const expandDid = async ({ did, network }) => {
+export const expandDid = async ({ did, network, identResolver }) => {
   // TODO: use a general purpose did resolver, this is hard-coded to kudos dids
 
   const identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;

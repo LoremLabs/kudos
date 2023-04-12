@@ -1,3 +1,4 @@
+import { UnsecuredJWT } from "jose";
 import { format as ago } from "timeago.js";
 import chalk from "chalk";
 // import fetch from "node-fetch";
@@ -14,6 +15,101 @@ const log = console.log;
 
 const exec = async (context) => {
   switch (context.input[1]) {
+    case "delegate": {
+      // generate a jwt token for api access
+      // TODO: this is a mess because the jose eddsa would not verify properly?? The signature is embedded in the payload and an empty signature jwt part because alg=none...
+      // TODO: fixme
+
+      await gatekeep(context);
+      const network = context.flags.network || "xrpl:testnet";
+
+      const keys = await context.vault.keys();
+
+      // convert xrpl:testnet to keys[xrpl][testnet]
+      let sourceAddress;
+      let privateKey, publicKey;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+        privateKey = keys[network].privateKey;
+        publicKey = keys[network].publicKey;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+        privateKey = keys[networkParts[0]][networkParts[1]].privateKey;
+        publicKey = keys[networkParts[0]][networkParts[1]].publicKey;
+      }
+      // remove 00 from privateKey
+      privateKey = privateKey.slice(2);
+      // console.log({ privateKey, publicKey });
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
+      const payload = {};
+      payload.a = sourceAddress;
+      payload.n = [network];
+      payload.t = ["kudos:store"];
+
+      const message = JSON.stringify(payload);
+
+      // sign the payload
+      const { signature } = await context.vault.sign({
+        message,
+        signingKey: privateKey,
+      });
+      // console.log({signature, recId});
+
+      // create a base64 token from the payload
+      // const token = Buffer.from(JSON.stringify(payload)).toString("base64");
+      // console.log({token});
+
+      // ask user how long they want the keys to be valid for (in days)
+      let days = parseInt(context.flags.days, 10);
+
+      if (!days) {
+        const result = await prompts({
+          type: "number",
+          name: "days",
+          message: "How many days should the token be valid for?",
+          initial: 180,
+        });
+        days = result.days;
+      }
+
+      const unsecuredJwt = new UnsecuredJWT({ p: message, s: signature })
+        .setIssuedAt()
+        .setIssuer("setler-cli")
+        .setExpirationTime(`${days}d`)
+        .encode();
+
+      // console.log({unsecuredJwt});
+      const payload2 = UnsecuredJWT.decode(unsecuredJwt, {});
+
+      // console.log(payload2);
+
+      // verify the payload
+      const verified = await context.vault.verifyMessage({
+        message: payload2.payload.p,
+        signature: payload2.payload.s,
+        keys: { publicKey },
+      });
+      if (!verified) {
+        log(chalk.red(`send: unable to verify signature`));
+        process.exit(1);
+      }
+
+      // console.log({verified});
+      if (!context.flags.quiet) {
+        log("");
+        log(chalk.green(`Access Token:`));
+        log("");
+      }
+      log(`KUDOS_STORAGE_TOKEN="${unsecuredJwt}"`);
+
+      break;
+    }
     case "login": {
       await gatekeep(context);
 
@@ -393,7 +489,7 @@ const exec = async (context) => {
       log("");
       log("Usage: setler auth [command]");
       log("");
-      log("commands: { login }");
+      log("commands: { login, delegate }");
 
       break;
     }

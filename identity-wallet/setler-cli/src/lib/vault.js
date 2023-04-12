@@ -58,6 +58,34 @@ Vault.prototype.verify = async function (params) {
   return verified;
 };
 
+Vault.prototype.verifyMessage = async function (params) {
+  const { keys, signature, message } = params;
+
+  const hashedMessage = sha256(message);
+
+  // verify the signature
+  const verified = secp256k1.verify(
+    hexToBytes(signature),
+    hashedMessage,
+    hexToBytes(keys.publicKey)
+  );
+  if (verified) {
+    // check that the message.address matches the publicKey
+    try {
+      const msg = JSON.parse(message);
+      const address = deriveAddressFromBytes(hexToBytes(keys.publicKey));
+      if (address !== msg.a) {
+        // console.log({address, msg});
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  return verified;
+};
+
 Vault.prototype.sign = async function (params) {
   // sign the message with signingKey
   // uses Generates low-s deterministic ECDSA signature as per RFC6979
