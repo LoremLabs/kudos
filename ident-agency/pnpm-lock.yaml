@@ -24,6 +24,7 @@ importers:
       '@noble/secp256k1': 1.7.1
       '@sveltejs/adapter-auto': ^1.0.3
       '@sveltejs/kit': ^1.8.3
+      '@tailwindcss/line-clamp': ^0.4.4
       '@types/bloomfilter': ^0.0.0
       '@types/node': ^18.14.1
       '@types/uuid': ^9.0.1
@@ -86,6 +87,7 @@ importers:
       '@noble/secp256k1': 1.7.1
       '@sveltejs/adapter-auto': 1.0.3_@sveltejs+kit@1.8.3
       '@sveltejs/kit': 1.8.3_svelte@3.55.1+vite@4.1.4
+      '@tailwindcss/line-clamp': 0.4.4_tailwindcss@3.2.7
       '@types/bloomfilter': 0.0.0
       '@types/uuid': 9.0.1
       '@typescript-eslint/eslint-plugin': 5.53.0_ny4s7qc6yg74faf3d6xty2ofzy
@@ -2273,6 +2275,14 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       defer-to-connect: 2.0.1
+    dev: true
+
+  /@tailwindcss/line-clamp/0.4.4_tailwindcss@3.2.7:
+    resolution: {integrity: sha512-5U6SY5z8N42VtrCrKlsTAA35gy2VSyYtHWCsg1H87NU1SXnEfekTVlrga9fzUDrrHcGi2Lb5KenUWb4lRQT5/g==}
+    peerDependencies:
+      tailwindcss: '>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1'
+    dependencies:
+      tailwindcss: 3.2.7_postcss@8.4.21
     dev: true
 
   /@types/bloomfilter/0.0.0:
