@@ -130,12 +130,22 @@ Vault.prototype.keys = async function () {
     return this.context.keys;
   }
 
-  this.context.keys = await deriveKeys({
-    mnemonic: this.context.mnemonic,
-    passPhrase: this.context.passPhrase,
-    id: this.context.profile,
-  });
+  // see if we have an env var or do we need to derive the keys
+  if (this.context.mnemonic) {
+    this.context.keys = await deriveKeys({
+      mnemonic: this.context.mnemonic,
+      passPhrase: this.context.passPhrase,
+      id: this.context.profile,
+    });
+  } else {
+    // seed from env variable, base64decoded
+    const envKey = `SETLER_KEYS_${parseInt(this.context.profile, 10)}`;
 
+    let encodedKeys = process.env[envKey];
+    encodedKeys = Buffer.from(encodedKeys, "base64url").toString("utf8");
+
+    this.context.keys = JSON.parse(encodedKeys);
+  }
   // flatten tree to one level, keyed off address
   const addressKeys = {};
   for (const [, value] of Object.entries(this.context.keys)) {

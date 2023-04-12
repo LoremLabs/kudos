@@ -74,7 +74,7 @@ const exec = async (context) => {
         signingKey: privateKey,
       });
       // console.log({signature, recId});
-      
+
       // create a base64 token from the payload
       // const token = Buffer.from(JSON.stringify(payload)).toString("base64");
       // console.log({token});
@@ -92,7 +92,10 @@ const exec = async (context) => {
         days = result.days;
       }
 
-      const unsecuredJwt = new UnsecuredJWT({ p: message, s: `${signature}${recId}` })
+      const unsecuredJwt = new UnsecuredJWT({
+        p: message,
+        s: `${signature}${recId}`,
+      })
         .setIssuedAt()
         .setIssuer("setler-cli")
         .setExpirationTime(`${days}d`)
@@ -103,8 +106,8 @@ const exec = async (context) => {
 
       // console.log(payload2);
 
-	// const sig = signature.slice(0, -1);
-	// const recId = parseInt(signature.slice(-1), 10);
+      // const sig = signature.slice(0, -1);
+      // const recId = parseInt(signature.slice(-1), 10);
 
       // verify the payload
       const verified = await context.vault.verifyMessage({
