@@ -1,6 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
 
+	import Footer from '$lib/components/Footer.svelte';
+
+	//    import { page } from '$app/stores';
+	import { addToast } from '$lib/stores/toasts';
+
+	import HoneyPot from '$lib/components/HoneyPot.svelte';
+	// import Icon from '$lib/components/Icon.svelte';
+
+	let email = '';
+	let honeypot = '';
+
 	// see if the query params contained a favicon
 	let faviconItem;
 	let favicon = '/favicon';
@@ -16,51 +27,213 @@
 		// if we're over MAX_FAVICONS, loop back to 1
 		faviconItem = faviconItem > MAX_FAVICONS ? 1 : faviconItem;
 	});
+
+	const handleNewEmail = async () => {
+		let subResult;
+		let subData;
+		try {
+			subResult = await fetch(`/api/v1/newsletter/announce`, {
+				method: 'POST',
+				referrerPolicy: 'origin-when-cross-origin',
+				headers: {
+					'content-type': 'application/json'
+				},
+				body: JSON.stringify({ email, hp: honeypot })
+			});
+			subData = await subResult.json();
+			console.log({ subData });
+		} catch (e) {
+			console.log('error', e);
+			addToast({ msg: `Error: ${e?.message || 'not valid'}`, type: 'alert', duration: 5000 });
+			return false;
+		}
+
+		if (!subResult.ok) {
+			console.log('error', subData);
+			addToast({ msg: `Error: ${subData?.message || 'not valid'}`, type: 'alert', duration: 5000 });
+		} else {
+			addToast({ msg: `Ok, subscribed.`, type: 'success', duration: 5000 });
+			email = '';
+		}
+
+		return false;
+	};
 </script>
 
-<div
-	class="flex flex-row absolute top-0 w-full h-screen bg-repeat"
-	style="background-image: url(/patterns/kudos-01.svg)"
->
-	<div class="w-full p-4 flex flex-col justify-center items-center h-screen z-10">
-		<a href={`?favicon=${encodeURIComponent(faviconItem)}`} target="_top">
-			<div class="text-[#389D61] px-4">
-				<svg viewBox="0 0 991 212" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-					<g fill="currentColor" stroke="currentColor">
-						<rect y="6" width="40" height="40" />
-						<rect y="46" width="40" height="40" />
-						<rect x="40" y="86" width="40" height="40" />
-						<rect x="120" y="6" width="40" height="40" />
-						<rect x="80" y="46" width="40" height="40" />
-						<rect x="80" y="126" width="40" height="40" />
-						<rect x="120" y="166" width="40" height="40" />
-						<rect y="86" width="40" height="40" />
-						<rect y="126" width="40" height="40" />
-						<rect y="166" width="40" height="40" />
-						<rect x="390" y="166" width="40" height="40" />
-						<rect x="390" y="126" width="40" height="40" />
-						<rect x="390" y="86" width="40" height="40" />
-						<rect x="390" y="46" width="40" height="40" />
-						<rect x="390" y="6" width="40" height="40" />
-						<rect x="430" y="6" width="40" height="40" />
-						<rect x="470" y="6" width="40" height="40" />
-						<rect x="510" y="46" width="40" height="40" />
-						<rect x="510" y="86" width="40" height="40" />
-						<rect x="470" y="166" width="40" height="40" />
-						<rect x="510" y="126" width="40" height="40" />
-						<rect x="430" y="166" width="40" height="40" />
-						<path
-							d="M189.16 127.35V5.79999H232.06V127.35C232.06 141.078 235.873 151.946 243.5 159.954C251.317 167.771 261.804 171.68 274.96 171.68C288.116 171.68 298.507 167.771 306.134 159.954C313.951 151.946 317.86 141.078 317.86 127.35V5.79999H360.76V127.35C360.76 153.09 353.038 173.587 337.594 188.84C322.15 204.093 301.272 211.72 274.96 211.72C248.648 211.72 227.77 204.093 212.326 188.84C196.882 173.587 189.16 153.09 189.16 127.35Z"
-						/>
-						<path
-							d="M603.47 181.118C582.497 160.526 572.01 135.453 572.01 105.9C572.01 76.3467 582.497 51.3693 603.47 30.968C624.634 10.376 650.851 0.0799918 682.12 0.0799918C713.389 0.0799918 739.511 10.376 760.484 30.968C781.648 51.3693 792.23 76.3467 792.23 105.9C792.23 135.453 781.648 160.526 760.484 181.118C739.511 201.519 713.389 211.72 682.12 211.72C650.851 211.72 624.634 201.519 603.47 181.118ZM635.788 58.71C623.776 70.9127 617.77 86.6427 617.77 105.9C617.77 125.157 623.776 140.983 635.788 153.376C647.991 165.579 663.435 171.68 682.12 171.68C700.805 171.68 716.154 165.579 728.166 153.376C740.369 140.983 746.47 125.157 746.47 105.9C746.47 86.6427 740.369 70.9127 728.166 58.71C716.154 46.3167 700.805 40.12 682.12 40.12C663.435 40.12 647.991 46.3167 635.788 58.71ZM809.345 143.08H853.675C855.391 148.8 858.156 153.853 861.969 158.238C870.359 168.153 882.847 173.11 899.435 173.11C924.222 173.11 936.615 165.483 936.615 150.23C936.615 146.417 935.281 142.985 932.611 139.934C930.133 136.883 926.129 134.214 920.599 131.926C915.261 129.638 910.017 127.827 904.869 126.492C899.912 124.967 893.429 123.155 885.421 121.058C884.277 120.867 883.324 120.677 882.561 120.486C881.989 120.295 881.131 120.105 879.987 119.914C879.034 119.533 878.176 119.247 877.413 119.056C837.755 109.523 817.925 90.3607 817.925 61.57C817.925 44.41 824.885 29.9193 838.803 18.098C852.913 6.08599 871.693 0.0799918 895.145 0.0799918C925.652 0.0799918 948.723 10.376 964.357 30.968C970.84 40.12 975.416 50.3207 978.085 61.57H933.755C932.611 57.566 930.419 53.7527 927.177 50.13C919.932 42.5033 909.255 38.69 895.145 38.69C884.277 38.69 876.079 40.7873 870.549 44.982C865.02 48.986 862.255 54.0387 862.255 60.14C862.255 71.1987 874.839 79.588 900.007 85.308C906.49 86.8333 910.494 87.7867 912.019 88.168C913.735 88.5493 917.644 89.598 923.745 91.314C930.037 93.03 934.232 94.46 936.329 95.604C938.617 96.5573 942.335 98.178 947.483 100.466C952.822 102.563 956.54 104.565 958.637 106.472C960.925 108.379 963.785 110.953 967.217 114.194C970.84 117.245 973.414 120.391 974.939 123.632C976.465 126.873 977.799 130.687 978.943 135.072C980.278 139.267 980.945 143.843 980.945 148.8C980.945 166.532 973.795 181.499 959.495 193.702C945.195 205.714 925.175 211.72 899.435 211.72C865.497 211.72 840.615 200.28 824.789 177.4C817.353 167.485 812.205 156.045 809.345 143.08Z"
-						/>
-					</g>
-				</svg>
+<div class="w-full md:p-4 flex flex-col justify-start md:justify-center items-center h-screen z-10">
+	<div class="rounded-2xl bg-white">
+		<div
+			class="relative isolate overflow-hidden bg-gradient-to-b from-cyan-100/20 rounded-2xlz shadow-2xl bg-repeat"
+			style="background-image: url(/patterns/kudos-03.svg)"
+		>
+			<div
+				class="mx-auto max-w-7xl pb-24 pt-10 sm:pb-32 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:pb-40 rounded-2xlz"
+			>
+				<div class="px-6 lg:px-0 lg:pt-4 h-screen sm:h-full">
+					<div class="mx-auto max-w-2x">
+						<div class="max-w-lg p-4">
+							<img class="h-12 md:h-14" src="/svg/kudos-logo-04.svg" alt="Kudos" />
+							<div class="mt-24 sm:mt-32 lg:mt-16">
+								<a
+									href="https://www.github.com/loremlabs/kudos"
+									target="_blank"
+									class="inline-flex space-x-6"
+								>
+									<span
+										class="rounded-fullz bg-cyan-600/10 px-3 py-1 text-sm font-semibold leading-6 text-cyan-600 ring-1 ring-inset ring-cyan-600/10"
+										>A new way to reward creators and coders</span
+									>
+									<span
+										class="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-600"
+									>
+										<span>Roadmap to 1.0.0</span>
+										<svg
+											class="h-5 w-5 text-gray-400"
+											viewBox="0 0 20 20"
+											fill="currentColor"
+											aria-hidden="true"
+										>
+											<path
+												fill-rule="evenodd"
+												d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</span>
+								</a>
+							</div>
+							<h1 class="mt-10 text-4xl font-extrabold tracking-tight text-gray-900 sm:text-6xl">
+								Reward your community
+							</h1>
+							<p class="mt-6 text-lg leading-8 text-gray-600">
+								Kudos is an open protocol that recognizes those that help you. Take the kudos
+								concept for your own projects or build on top of our community code.
+							</p>
+							<div class="mt-10 flex items-center gap-x-6">
+								<a
+									href="https://github.com/LoremLabs/kudos/raw/main/rfcs/000-kudos-sketch/000-kudos-sketch.pdf"
+									class="rounded-full bg-black px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600"
+									>Read the Overview</a
+								>
+								<a
+									href="https://github.com/LoremLabs/kudos"
+									target="_blank"
+									class="text-sm font-semibold leading-6 text-gray-900"
+									>Star on GitHub <span aria-hidden="true">→</span></a
+								>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 lg:w-screen">
+					<div
+						class="absolute inset-y-0 right-1/2 -z-10 -mr-10 w-[200%] skew-x-[-40deg] bg-white shadow-xl shadow-cyan-600/10 ring-1 ring-cyan-50 md:-mr-20 lg:-mr-36"
+						aria-hidden="true"
+					/>
+					<div class="shadow-lg md:rounded-2xl hidden md:block m-8">
+						<div
+							class="bg-primary [clip-path:inset(0)] md:[clip-path:inset(0_round_theme(borderRadius.3xl))]"
+						>
+							<div
+								class="absolute -inset-y-px left-1/2 -z-10 ml-10 w-[200%] skew-x-[-30deg] bg-secondary opacity-20 ring-1 ring-inset ring-white md:ml-20 lg:ml-36"
+								aria-hidden="true"
+							/>
+							<div class="relative px-6 pt-8 sm:pt-16 md:pl-16 md:pr-0">
+								<div class="mx-auto max-w-2xl md:mx-0 md:max-w-none">
+									<div class="w-screen overflow-hidden rounded-tl-2xl bg-secondary">
+										<div class="flex bg-gray-800/40 ring-1 ring-white/5">
+											<div class="-mb-px flex text-sm font-medium leading-6 text-gray-700">
+												<div
+													class="border-b border-r border-b-white/20 border-r-white/10 bg-white/5 px-4 py-2 text-gray-500"
+												>
+													Kudos for Content
+												</div>
+												<div class="border-r border-gray-600/10 px-4 py-2">Kudos for Code</div>
+											</div>
+										</div>
+										<div class="px-6 pb-14 pt-6">
+											<!-- Your code example -->
+											<img
+												src="/imgs/kudos-code-01.png"
+												alt="Kudos Code Example"
+												class="overflow-hidden h-96"
+											/>
+										</div>
+									</div>
+								</div>
+								<div
+									class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/10 md:rounded-3xl"
+									aria-hidden="true"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-			<h1 class="text-5xl lg:text-8xl font-bold text-center z-20 pl-12 lg:pl-48 mr-2 lg:mr-6">
-				<span class="text-gray-400">.</span><span class="text-black">community</span>
-			</h1>
-		</a>
+			<div
+				class="hidden md:block absolute inset-x-0 bottom-0 -z-10 h-6 bg-gradient-to-t from-white sm:h-12"
+			/>
+		</div>
 	</div>
 </div>
+<div class="mx-auto mt-16 max-w-7xl pb-24">
+	<div
+		class="relative isolate overflow-hidden bg-quint px-6 py-24 shadow-2xl sm:rounded-b-2xl sm:px-24 xl:py-32"
+	>
+		<h2
+			class="mx-auto max-w-2xl text-center text-3xl font-bold tracking-tight text-gray-800 sm:text-4xl"
+		>
+			Be the first to know about our progress
+		</h2>
+		<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-gray-700">
+			Join our low volume email list.
+		</p>
+		<form class="mx-auto mt-10 flex max-w-md gap-x-4">
+			<label for="email-address" class="sr-only">Email address</label>
+			<HoneyPot bind:value={honeypot} />
+			<input
+				type="email"
+				name="email-address"
+				id="email-address"
+				autocomplete="email"
+				bind:value={email}
+				required
+				class="min-w-0 flex-auto rounded-md border-0 bg-white px-3.5 py-2 text-black shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6"
+				placeholder="Enter your email"
+			/>
+			<button
+				on:click|preventDefault={handleNewEmail}
+				class="flex-none rounded-full bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+				>Notify me</button
+			>
+		</form>
+		<svg
+			viewBox="0 0 1024 1024"
+			class="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2"
+			aria-hidden="true"
+		>
+			<circle
+				cx="512"
+				cy="512"
+				r="512"
+				fill="url(#759c1415-0410-454c-8f7c-9a820de03641)"
+				fill-opacity="0.7"
+			/>
+			<defs>
+				<radialGradient
+					id="759c1415-0410-454c-8f7c-9a820de03641"
+					cx="0"
+					cy="0"
+					r="1"
+					gradientUnits="userSpaceOnUse"
+					gradientTransform="translate(512 512) rotate(90) scale(512)"
+				>
+					<stop stop-color="#D2E6DA" />
+					<stop offset="1" stop-color="#EEEEEE" stop-opacity="0" />
+				</radialGradient>
+			</defs>
+		</svg>
+	</div>
+</div>
+
+<Footer />

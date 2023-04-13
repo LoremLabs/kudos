@@ -7,7 +7,11 @@ export default {
 		extend: {
 			colors: {
 				...colors,
-				primary: '#ff0099'
+				primary: '#389D61',
+				secondary: '#D2E6DA',
+				tertiary: '#EEEEEE',
+				quad: '#F4F3ED',
+				quint: '#A7DDD8'
 			},
 			fontFamily: {
 				heading: ['ttfirstneu-sample', 'sans-serif']

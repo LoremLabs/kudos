@@ -1,5 +1,6 @@
 <script>
 	import '$lib/styles/app.css';
+	import Toasts from '$lib/components/Toasts.svelte';
 
 	import { onMount } from 'svelte';
 
@@ -20,6 +21,7 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
-<div class="min-h-screen bg-[#F4F3ED] w-full">
+<div class="min-h-screen bg-quad w-full">
 	<slot />
 </div>
+<Toasts />
