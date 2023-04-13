@@ -20,6 +20,12 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<script
+		src="https://cdn.usefathom.com/script.js"
+		data-spa="auto"
+		data-site="TOJPNXQF"
+		defer
+	></script>
 </svelte:head>
 <div class="min-h-screen bg-quad w-full">
 	<slot />
