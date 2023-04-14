@@ -1,5 +1,7 @@
 <script>
 	import '$lib/styles/app.css';
+	import '$lib/styles/twemoji.scss';
+
 	import Toasts from '$lib/components/Toasts.svelte';
 
 	import { onMount } from 'svelte';
