@@ -81,7 +81,9 @@
 		{/if}
 		<div class="border-t border-gray-900/0 pt-8 flex items-center justify-between">
 			<div>
-				<img class="h-12" src="/svg/kudos-logo-05.svg" alt="Kudos" />
+				<a href="/">
+					<img class="h-12" src="/svg/kudos-logo-05.svg" alt="Kudos" />
+				</a>
 			</div>
 			<div>
 				<p class="px-6 py-2 text-center font-secondary text-xs text-black">
