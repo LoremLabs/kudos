@@ -111,9 +111,9 @@
 	<div
 		class="-mt-12 mb-12 lg:hidden relative h-96 overflow-hidden mx-8 flex flex-col items-end justify-end"
 	>
-		<div class="h-36 w-96" style="background-image: url(/patterns/kudos-06.svg)" />
+		<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
 		<div class="overflow-hidden max-h-[40vh] h-full z-10 shadow-2xl">
-			<img src="/imgs/kudos-code-01.png" alt="Kudos Code Example" />
+			<img src="/imgs/kudos-code-01.png" alt="Kudos Code Example" class="overflow-hidden mx-4" />
 		</div>
 		<div class="w-full flex flex-row items-start -ml-4 -mt-8">
 			<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
