@@ -92,7 +92,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative">
+		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative isolate">
 			<div
 				class="w-[70%] ml-24 -mr-24 h-36 z-0 hidden lg:block absolute"
 				style="background-image: url(/patterns/kudos-06.svg)"
@@ -104,16 +104,20 @@
 			<img
 				src="/imgs/kudos-code-01.png"
 				alt="Kudos Code Example"
-				class="overflow-hidden z-10z absolute md:mt-16 max-h-96 h-full shadow-2xl"
+				class="overflow-hidden z-10 absolute md:mt-16 max-h-96 h-full shadow-2xl rounded-2xl"
 			/>
 		</div>
 	</div>
 	<div
-		class="-mt-12 mb-12 lg:hidden relative h-96 overflow-hidden mx-8 flex flex-col items-end justify-end"
+		class="-mt-12 mb-12 lg:hidden relative h-96 overflow-hidden mx-8 flex flex-col items-end justify-end isolate"
 	>
 		<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
-		<div class="overflow-hidden max-h-[40vh] h-full z-10 shadow-2xl">
-			<img src="/imgs/kudos-code-01.png" alt="Kudos Code Example" class="overflow-hidden mx-4" />
+		<div class="overflow-hidden max-h-[40vh] h-full z-10 rounded-2xl">
+			<img
+				src="/imgs/kudos-code-01.png"
+				alt="Kudos Code Example"
+				class="overflow-hidden mx-4 rounded-2xl"
+			/>
 		</div>
 		<div class="w-full flex flex-row items-start -ml-4 -mt-8">
 			<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
