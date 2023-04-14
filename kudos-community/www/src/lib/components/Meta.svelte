@@ -86,6 +86,9 @@
 	{#if shareImage}
 		<meta property="og:image" content={shareImage} />
 		<meta name="twitter:image" content={shareImage} />
+	{:else if OPENGRAPH.shareImage}
+		<meta property="og:image" content={OPENGRAPH.shareImage} />
+		<meta name="twitter:image" content={OPENGRAPH.shareImage} />
 	{/if}
 
 	{#if page.meta?.ogImageWidth}
