@@ -75,7 +75,7 @@
 							<img class="h-12 md:h-14" src="/svg/kudos-logo-04.svg" alt="Kudos" />
 							<div class="mt-24 sm:mt-32 lg:mt-16">
 								<a
-									href="https://www.github.com/loremlabs/kudos"
+									href="https://github.com/orgs/LoremLabs/projects/3/views/3"
 									target="_blank"
 									class="inline-flex space-x-6"
 								>
