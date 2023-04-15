@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
+import { stringToColorBlocks } from "../lib/colorize.js";
 // import { waitFor } from "../lib/wait.js";
 
 const log = console.log;
@@ -32,6 +33,8 @@ const help = () => {
 
 // run sub command
 const exec = async (context) => {
+  const network = context.flags.network || "kudos";
+
   switch (context.input[1]) {
     case "top": {
       await gatekeep(context, true);
@@ -53,6 +56,7 @@ const exec = async (context) => {
         log(JSON.stringify({ address: context.keys.kudos.address }));
       } else {
         log(`${context.keys.kudos.address}`);
+        log(stringToColorBlocks(context.keys.kudos.address, network));
       }
       break;
     }

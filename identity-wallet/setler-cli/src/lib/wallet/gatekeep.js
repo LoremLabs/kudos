@@ -227,6 +227,7 @@ export const gatekeep = async (context, shouldCreate) => {
     // if we have a mneumonic, we should continue
     context.mnemonic = mnemonic;
   }
+
   // setup helpers
   context.vault = new Vault({ context });
   context.coins = new Coins({ context });
