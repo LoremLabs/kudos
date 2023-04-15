@@ -145,7 +145,7 @@
 					autocomplete="email"
 					bind:value={email}
 					required
-					class="min-w-0 flex-auto rounded-md border-1 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6"
+					class="min-w-0 flex-auto rounded-md border-1 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/0 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
 					placeholder="Enter your email"
 				/>
 				<button
