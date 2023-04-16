@@ -11,7 +11,7 @@ const help = () => {
   log("");
   log("Commands:");
   log("  create");
-  log("  list");
+  log("  list [matching]");
   log("");
   log("Options:");
   log(
@@ -25,6 +25,7 @@ const help = () => {
   log("");
   log("Examples:");
   log("  setler pool list --profile 0");
+  log("  setler pool list 'my pool'");
   log("");
 
   process.exit(1);

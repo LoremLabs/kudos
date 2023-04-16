@@ -30,7 +30,7 @@ AuthAgent.prototype.listPools = async function ({ matching, network }) {
     path: "/pool/list",
   });
   const { response, status } = await this.sendToPool({ request });
-  log({ response, status });
+  // log({ response, status });
   if (status.code !== 200) {
     const e = new Error(status.message);
     e._status = status;
