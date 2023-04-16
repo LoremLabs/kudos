@@ -79,7 +79,7 @@ const exec = async (context) => {
       if (context.input[2] === "resolver") {
         let action = context.input[3];
         if (action === "get") {
-          log(config.identity?.identityResolver || DEFAULTS.IDENTITY.RESOLVER);
+          log(config.identity?.identResolver || DEFAULTS.IDENTITY.RESOLVER);
         } else if (action === "set") {
           let resolver = context.input[4];
           if (!resolver) {
@@ -97,7 +97,7 @@ const exec = async (context) => {
                 name: "resolver",
                 message: `Enter the resolver: `,
                 initial:
-                  config.identity?.identityResolver ||
+                  config.identity?.identResolver ||
                   DEFAULTS.IDENTITY.RESOLVER,
               },
             ]);
