@@ -9,6 +9,7 @@ import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
 import { redis } from '$lib/redis.js';
 import { sha256 } from '@noble/hashes/sha256';
+import { shortId } from '$lib/utils/short-id';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
 const SEND_SOCIAL_ADDRESS = process.env.SEND_SOCIAL_ADDRESS || 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3';
@@ -114,6 +115,50 @@ export const submitPoolRequest = async (root, params, context) => {
 
 		// at this point we're guaranteed that the request is coming from the correct input.address
 		switch (path) {
+			case '/pool/create': {
+				// create a pool
+				const out = {};
+
+				// input = { address, poolName }
+				// data is an array of { scope, object(id), weight, context}
+				let {address, poolName} = input;
+				poolName = poolName.trim().toLowerCase();
+
+				// throw error if no address or poolName
+				if (!address || !poolName) {
+					throw new Error('Missing parameters');
+				}
+
+				let poolId = shortId();
+
+				const ok = await redis.hsetnx(`pools:${address}`, `n:${poolName}`, poolId);
+
+				if (!ok) {
+					// get the poolId
+					const existingId = await redis.hget(`pools:${address}`, `n:${poolName}`);
+					if (existingId) {
+						poolId = existingId;
+					} else {
+						throw new Error('Could not create pool');
+					}
+				} else {
+					// store the name by id
+					await redis.hsetnx(`pools:${address}`, `i:${poolId}`, poolName);
+				}
+
+				out.pool = {id: poolId, name: poolName};
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.rid = input.rid || shortId(); // not quite a request id, but a transaction id
+				reply.response.signature = signature2;
+
+				break;
+			}
 			case '/pool/get/summary': {
 				// get a pool summary
 				const out = {};
@@ -157,8 +202,30 @@ export const submitPoolRequest = async (root, params, context) => {
 				const out = {};
 
 				// input = { address, rid, data }
-
+				let {matching } = input;
 				// data is an array of { scope, object(id), weight, context}
+
+				// get the list of pools from redis
+				const poolIds = await redis.hgetall(`pools:${input.address}`);
+				
+				const pools = [];
+				for (const key in poolIds) {
+					if (matching) {
+						if (key.startsWith('n:') && key.substring(2).includes(matching)) {
+							const poolId = poolIds[key];
+							const poolName = key.substring(2);
+							pools.push({id: poolId, name: poolName});
+						}
+					} else {
+						if (key.startsWith('n:')) {
+							const poolId = poolIds[key];
+							const poolName = key.substring(2);
+							pools.push({id: poolId, name: poolName});
+						}
+					}
+				}
+
+				out.pools = pools;
 
 				const signature2 = await signMessage({
 					message: out,
@@ -318,6 +385,10 @@ export const submitPoolRequest = async (root, params, context) => {
 			} else if (e.message === 'Not authorized') {
 				reply.status.code = 401;
 				reply.status.message = 'Not authorized';
+				return reply;
+			} else if (e.message === 'Missing parameters') {
+				reply.status.code = 400;
+				reply.status.message = 'Missing parameters';
 				return reply;
 			}
 		}
