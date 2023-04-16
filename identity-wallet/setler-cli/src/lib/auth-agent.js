@@ -3,11 +3,11 @@
 import { DEFAULTS } from "./config.js";
 // import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
+import { fetchToCurl } from "fetch-to-curl";
 import { shortId } from "./short-id.js";
 
 const log = console.log;
 
-// import { fetchToCurl } from "fetch-to-curl";
 
 // wrapper for auth things
 export const AuthAgent = function ({ context }) {
@@ -20,6 +20,44 @@ export const AuthAgent = function ({ context }) {
     identResolver = identResolver.slice(0, -1);
   }
   this.identResolver = identResolver;
+};
+
+AuthAgent.prototype.listPools = async function ({
+  matching,
+  network,  
+}) {
+  const request = await this.createPoolRequest({ network, payload: {
+    matching
+  }, path: "/pool/list" });
+    const { response, status } = await this.sendToPool({ request });
+    log({ response, status });
+    if (status.code !== 200) {
+      const e = new Error(status.message);
+      e._status = status;
+      e._response = response;
+      throw e;
+    }
+  
+    return { response, status };
+  };  
+
+AuthAgent.prototype.createPool = async function ({ network, poolName }) {
+
+  const payload = {
+    poolName,
+  };
+
+  const request = await this.createPoolRequest({ network, payload, path: "/pool/create" });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
 };
 
 AuthAgent.prototype.startAuth = async function ({ did, network }) {
@@ -100,7 +138,7 @@ AuthAgent.prototype.verifyAuthCode = async function ({
 
   // log({ request });
 
-  const { response, status } = await this.sendToPool({ request, context });
+  const { response, status } = await this.sendToPool({ request });
   //log({ response, status });
   if (status.code !== 200) {
     const e = new Error(status.message);
@@ -121,6 +159,48 @@ const normalizePrivateKey = (privateKey) => {
   }
 
   return privateKey;
+};
+
+AuthAgent.prototype.createPoolRequest = async function ({
+  network,
+  path,
+  payload,
+  rid,
+}) {
+  const context = this.context;
+  if (!context.keys) {
+    context.keys = await context.vault.keys();
+  }
+
+  // get the key from the network
+  const networkParts = network.split(":");
+  let keys;
+  if (networkParts.length === 1) {
+    keys = context.keys[network];
+  } else {
+    keys = context.keys[networkParts[0]][networkParts[1]];
+  }
+
+  let { privateKey: signingKey, address } = keys;
+  signingKey = normalizePrivateKey(signingKey);
+
+  const message = JSON.stringify({ ...payload, address });
+
+  // sign the payload
+  const { signature, recId } = await context.vault.sign({
+    keys,
+    message,
+    signingKey,
+  });
+
+  const request = {
+    rid: rid || shortId(),
+    path,
+    in: message,
+    signature: `${signature}${recId}`, // TODO: is there a standard for this? recId is 0 or 1
+  };
+
+  return request;
 };
 
 AuthAgent.prototype.startEmailAuth = async function ({
@@ -169,7 +249,7 @@ AuthAgent.prototype.startEmailAuth = async function ({
 
   // log({ request });
 
-  const { response, status } = await this.sendToPool({ request, context });
+  const { response, status } = await this.sendToPool({ request });
   //log({ response, status });
   if (status.code !== 200) {
     const e = new Error(status.message);
@@ -181,9 +261,9 @@ AuthAgent.prototype.startEmailAuth = async function ({
   return { response, status, nonce };
 };
 
-AuthAgent.prototype.sendToPool = async function ({ request }) {
-  const identityResolver = this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
-
+AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
+  const identityResolver =
+    identResolver || this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
   const gqlQuery = {
     query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {
       submitPoolRequest(rid: $requestId, path: $path, in: $in, signature: $signature) {
@@ -228,7 +308,11 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
       method: "POST",
       body: JSON.stringify(gqlQuery),
     };
-    // console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    if (this.context.debug) {
+      console.log("---------------sending to pool----------", request);
+      console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    }
+
     // remove trailing slash if it's on identityResolver
     results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
       async (r) => {
