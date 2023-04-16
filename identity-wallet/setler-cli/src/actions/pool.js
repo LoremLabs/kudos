@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import prompts from "prompts";
-import { stringToColorBlocks } from "../lib/colorize.js";
+// import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 
 const log = console.log;
@@ -42,18 +42,18 @@ const exec = async (context) => {
 
       let listResults = {};
       try {
-      const listPromise = context.auth.listPools({ network, matching });
-      listResults = await waitFor(listPromise, {
-        text: `Fetching pools...`,
-      });
-    } catch (error) {
-      log(chalk.red(`Error listing pools: ${error.message}`));
-      process.exit(1);
-    }
+        const listPromise = context.auth.listPools({ network, matching });
+        listResults = await waitFor(listPromise, {
+          text: `Fetching pools...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error listing pools: ${error.message}`));
+        process.exit(1);
+      }
 
-  const out = JSON.parse(listResults.response.out);    
+      const out = JSON.parse(listResults.response.out);
 
-    log(`${JSON.stringify(out, null, 2)}`);
+      log(`${JSON.stringify(out, null, 2)}`);
 
       break;
     }
@@ -79,21 +79,20 @@ const exec = async (context) => {
       // do a gql request to create a pool
       let createResults = {};
       try {
-      const createPromise = context.auth.createPool({ network, poolName });
-      createResults = await waitFor(createPromise, {
-        text: `Creating pool...`,
-      });
-    } catch (error) {
-      log(chalk.red(`Error creating pool: ${error.message}`));
-      process.exit(1);
-    }
+        const createPromise = context.auth.createPool({ network, poolName });
+        createResults = await waitFor(createPromise, {
+          text: `Creating pool...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error creating pool: ${error.message}`));
+        process.exit(1);
+      }
 
-  const out = JSON.parse(createResults.response.out);    
+      const out = JSON.parse(createResults.response.out);
 
+      log(chalk.green(`✅ Pool created`));
 
-  log(chalk.green(`✅ Pool created`));
-
-    log(`${JSON.stringify(out, null, 2)}`);
+      log(`${JSON.stringify(out, null, 2)}`);
 
       break;
     }

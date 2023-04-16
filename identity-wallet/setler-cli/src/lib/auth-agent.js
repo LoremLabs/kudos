@@ -8,7 +8,6 @@ import { shortId } from "./short-id.js";
 
 const log = console.log;
 
-
 // wrapper for auth things
 export const AuthAgent = function ({ context }) {
   this.context = context;
@@ -22,32 +21,36 @@ export const AuthAgent = function ({ context }) {
   this.identResolver = identResolver;
 };
 
-AuthAgent.prototype.listPools = async function ({
-  matching,
-  network,  
-}) {
-  const request = await this.createPoolRequest({ network, payload: {
-    matching
-  }, path: "/pool/list" });
-    const { response, status } = await this.sendToPool({ request });
-    log({ response, status });
-    if (status.code !== 200) {
-      const e = new Error(status.message);
-      e._status = status;
-      e._response = response;
-      throw e;
-    }
-  
-    return { response, status };
-  };  
+AuthAgent.prototype.listPools = async function ({ matching, network }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      matching,
+    },
+    path: "/pool/list",
+  });
+  const { response, status } = await this.sendToPool({ request });
+  log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
 
 AuthAgent.prototype.createPool = async function ({ network, poolName }) {
-
   const payload = {
     poolName,
   };
 
-  const request = await this.createPoolRequest({ network, payload, path: "/pool/create" });
+  const request = await this.createPoolRequest({
+    network,
+    payload,
+    path: "/pool/create",
+  });
   const { response, status } = await this.sendToPool({ request });
   // log({ response, status });
   if (status.code !== 200) {

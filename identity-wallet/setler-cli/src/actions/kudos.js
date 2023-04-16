@@ -68,7 +68,7 @@ const exec = async (context) => {
       }
 
       if (context.flags.json) {
-        log(JSON.stringify({kudos: context.keys.kudos}));
+        log(JSON.stringify({ kudos: context.keys.kudos }));
       } else {
         // output: export KUDOS_1=Base64EncodedJSON
         // base64Url encode
