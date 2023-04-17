@@ -59,9 +59,8 @@ const exec = async (context) => {
 
       // setup flag defaults
       const kudosFile = flags.kudosFile || `kudos.yml`;
-      const checks = new Set(
-        (flags.checks || "kudos,contributors,lang").split(",")
-      );
+      const DEFAULT_CHECKS = "kudos,contributors,lang"; // TODO: add github?
+      const checks = new Set((flags.checks || DEFAULT_CHECKS).split(","));
       const langs = new Set((flags.lang || "nodejs").split(","));
 
       if (flags.help || !rootDir) {
@@ -199,6 +198,10 @@ const exec = async (context) => {
         creators.push(creator);
       };
 
+      if (checks.has("github")) {
+        // TODO: move github identify here.
+        // setler kudos identify . --checks=github ...
+      }
       if (checks.has("kudos")) {
         // look for kudos.yml files
         if (flags.debug) {
@@ -515,7 +518,12 @@ const exec = async (context) => {
       }
 
       if (flags.outFile) {
-        fs.writeFileSync(flags.outFile, outData);
+        let flag = "a"; // default append
+        if (flags.gzip || flags.overwrite) {
+          // if we're gzipping, we're overwriting TODO: should we warn?
+          flag = "w"; // overwrite
+        }
+        fs.writeFileSync(flags.outFile, outData, { flag });
       } else {
         log(outData);
       }
