@@ -542,7 +542,7 @@ const exec = async (context) => {
       break;
     }
     default: {
-      if (context.input[1]) {
+      if (context.input[1] && context.input[1] !== "help") {
         log(chalk.red(`Unknown command: ${context.input[1]}`));
       }
       log("");

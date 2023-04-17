@@ -61,7 +61,26 @@ const defaultHelp = `
     $ ${personality} wallet mnemonic set
     $ ${personality} wallet mnemonic get
 
-`;
+    $ ${personality} kudos
+    $ ${personality} kudos help
+    $ ${personality} kudos identify
+
+    $ ${personality} auth    
+
+    $ ${personality} pool
+    $ ${personality} pool help
+    $ ${personality} pool create
+    $ ${personality} pool list
+    $ ${personality} pool list [matching]
+    $ ${personality} pool list --poolName [poolName]
+    $ ${personality} pool list --poolId [poolId]
+    $ ${personality} pool list --profile [profile]
+
+    $ ${personality} send
+    $ ${personality} send help
+    
+
+    `;
 
 const cli = meow(defaultHelp, {
   importMeta: import.meta,
