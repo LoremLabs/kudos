@@ -12,6 +12,12 @@ const log = console.log;
 const setlerCli = async (commandInput) => {
   // read from STDIN. stdin = '' if no input
   // const stdin = await getStdin();
+
+  // set blocking to true so that on process exit we're sure that all output has been written
+  for (const stream of [process.stdout, process.stderr]) {
+    stream?._handle?.setBlocking?.(true);
+  }
+
   const stdin = process.stdin;
   const { action, flags, input } = commandInput;
   flags.debug &&
@@ -24,7 +30,7 @@ const setlerCli = async (commandInput) => {
     setFlagDefaults(context); // allow flag defaults to be set from ENV
     actions[action].exec(context);
   } else {
-    log(chalk.red(`ACtion ${action} not found`));
+    log(chalk.red(`Action ${action} not found`));
     process.exit(1);
   }
 };
