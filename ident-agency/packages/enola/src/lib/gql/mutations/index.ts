@@ -111,6 +111,11 @@ export const submitPoolRequest = async (root, params, context) => {
 				input,
 				rid
 			});
+			// payload: {
+			// 	a: 'rEJuUnspz71p4Zmg5VNeWcHvhsyQTBW2o6', // address (should match signature)
+			// 	n: [ 'kudos' ], (networks)
+			// 	t: [ 'kudos:store', 'kudos:read', 'kudos:summary' ], // types
+			// 	s: [ 'p:*' ] } // scope
 		}
 
 		// at this point we're guaranteed that the request is coming from the correct input.address
@@ -121,7 +126,7 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				// input = { address, poolName }
 				// data is an array of { scope, object(id), weight, context}
-				let {address, poolName} = input;
+				let { address, poolName } = input;
 				poolName = poolName.trim().toLowerCase();
 
 				// throw error if no address or poolName
@@ -146,7 +151,7 @@ export const submitPoolRequest = async (root, params, context) => {
 					await redis.hsetnx(`pools:${address}`, `i:${poolId}`, poolName);
 				}
 
-				out.pool = {id: poolId, name: poolName};
+				out.pool = { id: poolId, name: poolName };
 
 				const signature2 = await signMessage({
 					message: out,
@@ -202,25 +207,36 @@ export const submitPoolRequest = async (root, params, context) => {
 				const out = {};
 
 				// input = { address, rid, data }
-				let {matching } = input;
+				let { matching } = input;
 				// data is an array of { scope, object(id), weight, context}
 
 				// get the list of pools from redis
 				const poolIds = await redis.hgetall(`pools:${input.address}`);
-				
+
 				const pools = [];
 				for (const key in poolIds) {
 					if (matching) {
-						if (key.startsWith('n:') && key.substring(2).includes(matching)) {
+						// matching can be i: for id, or n: for name (default)
+
+						if (matching.startsWith('i:') && key.startsWith('i:') && key === matching) {
+							const poolId = key.substring(2);
+							const poolName = poolIds[key];
+							pools.push({ id: poolId, name: poolName });
+						} else if (key.startsWith('n:') && key.substring(2).includes(matching.substring(2))) {
 							const poolId = poolIds[key];
 							const poolName = key.substring(2);
-							pools.push({id: poolId, name: poolName});
+							pools.push({ id: poolId, name: poolName });
+						} else if (key.startsWith('n:') && key.substring(2).includes(matching)) {
+							// no prefix
+							const poolId = poolIds[key];
+							const poolName = key.substring(2);
+							pools.push({ id: poolId, name: poolName });
 						}
 					} else {
 						if (key.startsWith('n:')) {
 							const poolId = poolIds[key];
 							const poolName = key.substring(2);
-							pools.push({id: poolId, name: poolName});
+							pools.push({ id: poolId, name: poolName });
 						}
 					}
 				}
