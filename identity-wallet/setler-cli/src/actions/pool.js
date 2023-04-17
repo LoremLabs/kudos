@@ -26,6 +26,8 @@ const help = () => {
   log("Examples:");
   log("  setler pool list --profile 0");
   log("  setler pool list 'my pool'");
+  log("  setler pool list --poolName 'my pool'");
+  log("  setler pool list --poolId abcDef");
   log("");
 
   process.exit(1);
@@ -40,6 +42,32 @@ const exec = async (context) => {
       await gatekeep(context, true);
 
       let matching = context.input[2] || "";
+
+      if (context.flags.poolName) {
+        matching = context.flags.poolName;
+
+        if (Array.isArray(matching)) {
+          log(chalk.red(`Can only specify one pool name`));
+          process.exit(1);
+        }
+
+        // add n: prefix if it's not already there
+        if (!matching.startsWith("n:")) {
+          matching = "n:" + matching;
+        }
+      } else if (context.flags.poolId) {
+        matching = context.flags.poolId;
+
+        if (Array.isArray(matching)) {
+          log(chalk.red(`Can only specify one pool id`));
+          process.exit(1);
+        }
+
+        // add i: prefix if it's not already there
+        if (!matching.startsWith("i:")) {
+          matching = "i:" + matching;
+        }
+      }
 
       let listResults = {};
       try {
