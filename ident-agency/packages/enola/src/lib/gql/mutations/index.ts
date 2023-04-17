@@ -253,11 +253,12 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				break;
 			}
-			case '/pool/store': {
+			case '/pool/ink': {
 				// write the data to the database
 
 				// see if we have write permissions
 				const { t: entitlements } = currentUser;
+				console.log({ currentUser });
 				// TODO: shiro compatible: kudos:write
 				if (!entitlements || !entitlements.includes('kudos:store')) {
 					throw new Error('Not authorized');
