@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import prompts from "prompts";
+import { readFileSync } from "fs";
 // import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 
@@ -83,6 +84,65 @@ const exec = async (context) => {
       const out = JSON.parse(listResults.response.out);
 
       log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
+    case "ink": {
+      // save ("ink") to a pool
+
+      await gatekeep(context, true);
+
+      // input can be stdin or a file
+      let input = "";
+      if (context.flags.inFile) {
+        // read from file
+        input = readFileSync(context.flags.inFile, "utf8");
+      } else {
+        input = context.stdin;
+      }
+
+      //  setler kudos identify . | setler pool ink | jq
+      // log(`${input}`);
+
+      let poolId = context.input[2];
+      if (!poolId) {
+        // prompt for poolId
+        const response = await prompts({
+          type: "text",
+          name: "poolId",
+          message: "What poolId do you want to store these in?",
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+
+      // do a gql request to send this to the pool
+      let inkResults = {};
+      try {
+        const inkPromise = context.auth.inkKudos({
+          network,
+          poolId,
+          kudos: input,
+        });
+        inkResults = await waitFor(inkPromise, {
+          text: `Inking pool...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error inking pool: ${error.message}`));
+        process.exit(1);
+      }
+
+      if (!context.flags.quiet) {
+        const out = JSON.parse(inkResults.response.out);
+
+        log(chalk.green(`✅ Pool inked`));
+
+        log(`${JSON.stringify(out, null, 2)}`);
+      }
 
       break;
     }

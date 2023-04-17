@@ -21,6 +21,28 @@ export const AuthAgent = function ({ context }) {
   this.identResolver = identResolver;
 };
 
+AuthAgent.prototype.inkKudos = async function ({ kudos, poolName, network }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      kudos,
+      poolName
+    },
+    path: "/pool/ink",
+  });
+
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
 AuthAgent.prototype.listPools = async function ({ matching, network }) {
   const request = await this.createPoolRequest({
     network,
