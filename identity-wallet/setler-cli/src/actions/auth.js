@@ -101,8 +101,22 @@ const exec = async (context) => {
       if (poolIds) {
         // split with , and remove whitespace
         poolIds = poolIds.split(",").map((id) => id.trim());
-        poolIds = [...new Set(poolIds)];
       }
+
+      // add a p: prefix to each poolId to indicate it is a poolId
+      // make sure it doesn't already have the prefix
+
+      poolIds = poolIds.map((id) => {
+        if (id && !id.startsWith("p:")) {
+          return "p:" + id;
+        }
+        return id;
+      });
+
+      // filter out any empty strings
+      poolIds = poolIds.filter((id) => id);
+
+      poolIds = [...new Set(poolIds)];
 
       payload.s = poolIds; // s = scope
       if (context.debug) {
