@@ -12,7 +12,9 @@ const help = () => {
   log("");
   log("Commands:");
   log("  create");
+  log("  ink [poolId] [--inFile]");
   log("  list [matching]");
+  log("  get [poolId]");
   log("");
   log("Options:");
   log(
@@ -29,6 +31,8 @@ const help = () => {
   log("  setler pool list 'my pool'");
   log("  setler pool list --poolName 'my pool'");
   log("  setler pool list --poolId abcDef");
+  log("  setler pool ink --poolId abcDef --inFile=pool.ndjson");
+  log("  setler pool ink abcDef");
   log("");
 
   process.exit(1);
@@ -39,6 +43,117 @@ const exec = async (context) => {
   const network = context.flags.network || "kudos";
 
   switch (context.input[1]) {
+    case "get": {
+      await gatekeep(context, true);
+
+      const keys = await context.vault.keys();
+
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
+      let poolId = context.flags.poolId || context.input[2];
+      if (!poolId) {
+        // prompt for poolId
+        const response = await prompts({
+          type: "text",
+          name: "poolId",
+          message: "What poolId do you want to retrieve?",
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+
+      let getResults = {};
+      try {
+        const getPromise = context.auth.getPool({
+          network,
+          address: sourceAddress,
+          poolId,
+        });
+        getResults = await waitFor(getPromise, {
+          text: `Retrieving pool...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error getting pool: ${error.message}`));
+        process.exit(1);
+      }
+
+      const out = JSON.parse(getResults.response.out);
+      log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
+    case "summary": {
+      await gatekeep(context, true);
+
+      const keys = await context.vault.keys();
+
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
+
+      let poolId = context.flags.poolId || context.input[2];
+      if (!poolId) {
+        // prompt for poolId
+        const response = await prompts({
+          type: "text",
+          name: "poolId",
+          message: "What poolId do you want to retrieve?",
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+
+      let amount = parseFloat(context.flags.amount).toFixed(6).toString();
+
+      let getResults = {};
+      try {
+        const getPromise = context.auth.getPoolSummary({
+          network,
+          address: sourceAddress,
+          poolId,
+          amount,
+        });
+        getResults = await waitFor(getPromise, {
+          text: `Retrieving pool...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error getting pool: ${error.message}`));
+        process.exit(1);
+      }
+
+      const out = JSON.parse(getResults.response.out);
+      log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
     case "list": {
       await gatekeep(context, true);
 

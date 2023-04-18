@@ -25,7 +25,8 @@ const help = () => {
   log("");
   log("Commands:");
   log("  keys");
-  log("  top");
+  log("  create");
+  log("  identify [path]");
   log("");
   log("Options:");
   log(
@@ -40,7 +41,8 @@ const help = () => {
   log("Examples:");
   log("  setler kudos keys --json --profile 0");
   log("  setler kudos address");
-  log("  setler kudos top 5 --profile 0");
+  log("  setler kudos create");
+  log("  setler kudos identify .");
   log("");
 
   process.exit(1);
@@ -149,6 +151,18 @@ const exec = async (context) => {
         if (attribution.company) {
           return `name:${attribution.company}`;
         }
+
+        // TODO:
+        // "funding": [
+        //   {
+        //     "type": "individual",
+        //     "url": "https://gitcoin.co/grants/13/ethersjs-complete-simple-and-tiny-2"
+        //   },
+        //   {
+        //     "type": "individual",
+        //     "url": "https://www.buymeacoffee.com/ricmoo"
+        //   }
+        // ],
 
         return;
       };
@@ -530,11 +544,9 @@ const exec = async (context) => {
       }
       break;
     }
-    case "top": {
+    case "create": {
       await gatekeep(context, true);
 
-      // this would do a gql request to get the top N kudos and list them here
-      log("top kudos tk");
 
       break;
     }

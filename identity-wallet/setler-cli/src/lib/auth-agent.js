@@ -61,6 +61,56 @@ AuthAgent.prototype.inkKudos = async function ({
   return { response, status };
 };
 
+AuthAgent.prototype.getPool = async function ({ address, network, poolId }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      address,
+    },
+    path: "/pool/get/details",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.getPoolSummary = async function ({
+  address,
+  amount,
+  network,
+  poolId,
+}) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      address,
+      amount,
+    },
+    path: "/pool/get/summary",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
 AuthAgent.prototype.listPools = async function ({ matching, network }) {
   const request = await this.createPoolRequest({
     network,
@@ -210,6 +260,7 @@ AuthAgent.prototype.createPoolRequest = async function ({
   payload,
   rid,
   signIt = true,
+  includeAuth = false,
 }) {
   const context = this.context;
   if (!context.keys) {
@@ -257,6 +308,13 @@ AuthAgent.prototype.createPoolRequest = async function ({
     request.signature = signature;
   } else {
     request.authorization = authorization;
+  }
+
+  if (includeAuth) {
+    // is optional
+    if (process.env.KUDOS_STORAGE_TOKEN) {
+      request.authorization = process.env.KUDOS_STORAGE_TOKEN;
+    }
   }
 
   return request;
