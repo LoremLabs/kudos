@@ -82,16 +82,17 @@
 		<div class="border-t border-gray-900/0 pt-8 flex items-center justify-between">
 			<div>
 				<a href="/">
-					<div class="flex flex-row">
-						<span class="font-heading font-black"> K + </span>
-						<span class="ml-1 mr-2"><i class="twe twe-purple-heart" /></span>
-						<span class="font-heading font-black"> = </span>
-						<img class="mx-2 h-6" src="/svg/kudos-logo-09.svg" alt="Kudos" />
+					<div class="flex flex-row text-xs md:text-sm flex-nowrap">
+						<div class="font-heading font-black">K</div>
+						<div class="font-heading font-black pl-1.5">+</div>
+						<div class="ml-1 mr-2"><i class="twe twe-purple-heart" /></div>
+						<div class="font-heading font-black">=</div>
+						<img class="mx-2 h-4 md:h-6" src="/svg/kudos-logo-09.svg" alt="Kudos" />
 					</div>
 				</a>
 			</div>
 			<div>
-				<p class="px-6 py-2 text-center font-secondary text-xs text-black">
+				<p class="px-6 py-2 text-center font-secondary text-xxxs text-black">
 					Kudos is made with <i class="twe twe-purple-heart" /> from a global community of
 					<a href="https://www.LoremLabs.com" class="underline underline-offset-2">creators </a>
 				</p>
