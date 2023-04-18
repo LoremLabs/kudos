@@ -45,7 +45,7 @@ const signMessage = async ({ message, address }) => {
 	return `${bytesToHex(sig)}${recId}`;
 };
 
-const checkPoolId = async ({address, currentUser, poolId}) => {
+const checkPoolId = async ({ address, currentUser, poolId }) => {
 	// currentUser: {
 	// 	a: 'rEJuUnspz71p4Zmg5VNeWcHvhsyQTBW2o6', // address (should match signature)
 	// 	n: [ 'kudos' ], (networks)
@@ -64,7 +64,11 @@ const checkPoolId = async ({address, currentUser, poolId}) => {
 		throw new Error('Invalid poolId');
 	}
 
-	if (!currentUser.s.includes('i:*') && !currentUser.s.includes(`n:${poolName}`) && !currentUser.s.includes(`i:${poolId}`)) {
+	if (
+		!currentUser.s.includes('i:*') &&
+		!currentUser.s.includes(`n:${poolName}`) &&
+		!currentUser.s.includes(`i:${poolId}`)
+	) {
 		// NB: poolName scope is more permissive, allowing any prefix match
 		throw new Error('Invalid poolId');
 	}
@@ -109,6 +113,7 @@ export const submitPoolRequest = async (root, params, context) => {
 	// check the signature to see if it came from this request and rid
 	const { rid, path, signature } = params;
 	let input;
+	let authed = false;
 
 	const reply = {
 		status: {
@@ -137,7 +142,9 @@ export const submitPoolRequest = async (root, params, context) => {
 				input,
 				rid
 			});
+			authed = true;
 		} else {
+			// the request auth should happen in the path function, if !authed
 			// currentUser: {
 			// 	a: 'rEJuUnspz71p4Zmg5VNeWcHvhsyQTBW2o6', // address (should match signature)
 			// 	n: [ 'kudos' ], (networks)
@@ -154,8 +161,9 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				// input = { address, poolName }
 				// data is an array of { scope, object(id), weight, context}
-				let { address, poolName } = input;
+				let { poolName } = input;
 				poolName = poolName.trim().toLowerCase();
+				const { address } = input;
 
 				// throw error if no address or poolName
 				if (!address || !poolName) {
@@ -193,12 +201,106 @@ export const submitPoolRequest = async (root, params, context) => {
 				break;
 			}
 			case '/pool/get/summary': {
-				// get a pool summary
+				// get a pool with details
 				const out = {};
 
-				// input = { address, rid, data }
+				const { address, poolId, top, amount, opts } = input;
 
-				// data is an array of { scope, object(id), weight, context}
+				if (!authed) {
+					const { t: entitlements } = currentUser;
+					// console.log({ currentUser });
+					// TODO: shiro compatible: kudos:write
+					if (!entitlements || !entitlements.includes('kudos:summary')) {
+						throw new Error('Not authorized');
+					}
+
+					// check if address is in the list of addresses
+					const { a: addr } = currentUser;
+					if (address && address !== addr) {
+						throw new Error('Not authorized');
+					}
+				}
+
+				out.poolName = await checkPoolId({ address, poolId, currentUser });
+
+				// retrieve the pool details
+				const pool = await redis.hgetall(`pool:${address}:${poolId}`);
+
+				// convert weight back into string
+				for (const key in pool) {
+					const kudo = pool[key];
+					if (kudo.weight) {
+						kudo.weight = kudo.weight.toString();
+					} else {
+						delete pool[key];
+					}
+				}
+
+				// calculate the total weight
+				const totalWeight = Object.values(pool).reduce((acc, kudo) => {
+					return acc + parseFloat(kudo.weight);
+				}, 0);
+
+				// get the weight by Identifier
+				const weightByIdentifier = Object.values(pool).reduce((acc, kudo) => {
+					const { identifier, weight } = kudo;
+					if (acc[identifier]) {
+						acc[identifier] += parseFloat(weight);
+					} else {
+						acc[identifier] = parseFloat(weight);
+					}
+
+					return acc;
+				}, {});
+				// convert weight back into string
+				for (const key in weightByIdentifier) {
+					weightByIdentifier[key] = weightByIdentifier[key].toFixed(6).toString();
+				}
+
+				// top 10
+				// const top10 = Object.entries(weightByIdentifier).sort((a, b) => {
+				// 	return b[1] - a[1];
+				// }).slice(0, 10);
+
+				out.totalWeight = totalWeight.toFixed(6);
+				// out.top = top10;
+				// out.identifiers = weightByIdentifier;
+
+				// out.top is an array of { identifier, weight }, ordered to top 10
+				if (top) {
+					out.top = Object.entries(weightByIdentifier)
+						.sort((a, b) => {
+							return b[1] - a[1];
+						})
+						.slice(0, top)
+						.map(([identifier, weight]) => {
+							return { identifier, weight };
+						});
+				}
+				let slivers = 0;
+
+				out.identities = Object.entries(weightByIdentifier)
+					.sort((a, b) => {
+						return b[1] - a[1];
+					})
+					.map(([identifier, weight]) => {
+						const share = parseFloat(weight) / parseFloat(totalWeight);
+						if (share && share > 0 && amount) {
+							const sliver = (share * parseFloat(amount)).toFixed(6).toString();
+							slivers += share * parseFloat(amount);
+							return { identifier, weight, sliver };
+						} else {
+							return { identifier, weight };
+						}
+					});
+
+				if (amount) {
+					out.amount = amount;
+				}
+
+				if (opts && opts.showSlivers) {
+					out.slivers = slivers.toFixed(6).toString();
+				}
 
 				const signature2 = await signMessage({
 					message: out,
@@ -206,7 +308,6 @@ export const submitPoolRequest = async (root, params, context) => {
 				});
 
 				reply.response.out = JSON.stringify(out);
-				reply.response.rid = input.rid; // not quite a request id, but a transaction id
 				reply.response.signature = signature2;
 
 				break;
@@ -215,9 +316,39 @@ export const submitPoolRequest = async (root, params, context) => {
 				// get a pool with details
 				const out = {};
 
-				// input = { address, rid, data }
+				const { address, poolId } = input;
 
-				// data is an array of { scope, object(id), weight, context}
+				if (!authed) {
+					const { t: entitlements } = currentUser;
+					// console.log({ currentUser });
+					// TODO: shiro compatible: kudos:write
+					if (!entitlements || !entitlements.includes('kudos:read')) {
+						throw new Error('Not authorized');
+					}
+
+					// check if address is in the list of addresses
+					const { a: addr } = currentUser;
+					if (address && address !== addr) {
+						throw new Error('Not authorized');
+					}
+				}
+
+				out.poolName = await checkPoolId({ address, poolId, currentUser });
+
+				// retrieve the pool details
+				const pool = await redis.hgetall(`pool:${address}:${poolId}`);
+
+				// convert weight back into string
+				for (const key in pool) {
+					const kudo = pool[key];
+					if (kudo.weight) {
+						kudo.weight = kudo.weight.toString();
+					} else {
+						delete pool[key];
+					}
+				}
+
+				out.pool = pool;
 
 				const signature2 = await signMessage({
 					message: out,
@@ -225,7 +356,6 @@ export const submitPoolRequest = async (root, params, context) => {
 				});
 
 				reply.response.out = JSON.stringify(out);
-				reply.response.rid = input.rid; // not quite a request id, but a transaction id
 				reply.response.signature = signature2;
 
 				break;
@@ -235,7 +365,7 @@ export const submitPoolRequest = async (root, params, context) => {
 				const out = {};
 
 				// input = { address, rid, data }
-				let { matching } = input;
+				const { matching } = input;
 				// data is an array of { scope, object(id), weight, context}
 
 				// get the list of pools from redis
@@ -286,7 +416,7 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				// see if we have write permissions
 				const { t: entitlements } = currentUser;
-				console.log({ currentUser });
+				// console.log({ currentUser });
 				// TODO: shiro compatible: kudos:write
 				if (!entitlements || !entitlements.includes('kudos:store')) {
 					throw new Error('Not authorized');
@@ -295,7 +425,7 @@ export const submitPoolRequest = async (root, params, context) => {
 				const { address, poolId, kudos } = input;
 
 				// see if the poolId matches our auth
-				const poolName = await checkPoolId({address, poolId, currentUser});
+				const poolName = await checkPoolId({ address, poolId, currentUser });
 
 				// only allow batches of 10000
 				if (kudos.length > 10_000) {
@@ -338,17 +468,17 @@ export const submitPoolRequest = async (root, params, context) => {
 					if (!kudo.ts) {
 						throw new Error('Missing ts');
 					}
-					
+
 					if (kudo.weight > 0) {
 						keyvals[kudo.id] = kudo;
 					}
 				}
 
-				pipeline.hset(`pool:${address}:${poolId}`, keyvals);								
-				await pipeline.exec(); // TODO: batch in groups 
+				pipeline.hset(`pool:${address}:${poolId}`, keyvals);
+				await pipeline.exec(); // TODO: batch in groups
 
 				const out = {
-					poolName,
+					poolName
 				};
 
 				// if we're here, we can read in the input data and store it
