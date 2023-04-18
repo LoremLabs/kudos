@@ -45,6 +45,33 @@ const signMessage = async ({ message, address }) => {
 	return `${bytesToHex(sig)}${recId}`;
 };
 
+const checkPoolId = async ({address, currentUser, poolId}) => {
+	// currentUser: {
+	// 	a: 'rEJuUnspz71p4Zmg5VNeWcHvhsyQTBW2o6', // address (should match signature)
+	// 	n: [ 'kudos' ], (networks)
+	// 	t: [ 'kudos:store', 'kudos:read', 'kudos:summary' ], // types
+	// 	s: [ 'i:*' ] } // scope
+
+	// address should === currentUser.a;
+	if (address !== currentUser.a) {
+		throw new Error('Invalid address');
+	}
+
+	// check the poolId against the currentUser
+	const poolName = await redis.hget(`pools:${address}`, `i:${poolId}`);
+	log.debug('poolName', { poolName, poolId, address });
+	if (!poolName) {
+		throw new Error('Invalid poolId');
+	}
+
+	if (!currentUser.s.includes('i:*') && !currentUser.s.includes(`n:${poolName}`) && !currentUser.s.includes(`i:${poolId}`)) {
+		// NB: poolName scope is more permissive, allowing any prefix match
+		throw new Error('Invalid poolId');
+	}
+
+	return poolName;
+};
+
 export const getKeys = async function (address) {
 	// TODO: get seed from vault directly
 
@@ -103,19 +130,20 @@ export const submitPoolRequest = async (root, params, context) => {
 		// validate the signature
 		// const { keys, signature, message } = params;
 
-		if (false) {
-			// debug
+		if (signature !== 'auth') {
 			await validate({
 				signature,
 				message: params.in, // original stringified payload
 				input,
 				rid
 			});
-			// payload: {
+		} else {
+			// currentUser: {
 			// 	a: 'rEJuUnspz71p4Zmg5VNeWcHvhsyQTBW2o6', // address (should match signature)
 			// 	n: [ 'kudos' ], (networks)
 			// 	t: [ 'kudos:store', 'kudos:read', 'kudos:summary' ], // types
-			// 	s: [ 'p:*' ] } // scope
+			// 	s: [ 'i:*' ] } // scope
+			// should validate within path function
 		}
 
 		// at this point we're guaranteed that the request is coming from the correct input.address
@@ -263,7 +291,65 @@ export const submitPoolRequest = async (root, params, context) => {
 				if (!entitlements || !entitlements.includes('kudos:store')) {
 					throw new Error('Not authorized');
 				}
-				const out = {};
+
+				const { address, poolId, kudos } = input;
+
+				// see if the poolId matches our auth
+				const poolName = await checkPoolId({address, poolId, currentUser});
+
+				// only allow batches of 10000
+				if (kudos.length > 10_000) {
+					throw new Error('Use batches, over limit: ' + kudos.length);
+				}
+
+				// if we're here, we can read in the input data and store it
+				const pipeline = redis.pipeline();
+
+				const keyvals = {};
+				for (const kudo of kudos) {
+					// {
+					// 	"identifier": "did:kudos:email:b...",
+					// 	"weight": "0.001748",
+					// 	"id": "Lvun4tpqS9BC7ajoXLscVW",
+					// 	"traceId": "LqmAyCHoyRSAJetXNbKMDA",
+					// 	"ts": "2023-04-18T14:38:05Z",
+					// 	"description": "code.lib.nodejs.yargs-parser"
+					//   }
+
+					// normalize weight, using 0 to skip
+					kudo.weight = parseFloat(kudo.weight);
+					if (kudo.weight > 1) {
+						kudo.weight = 1;
+					}
+					if (kudo.weight < 0) {
+						kudo.weight = 0;
+					}
+					if (!kudo.weight) {
+						kudo.weight = 1;
+					}
+
+					// check for required params: id, identifier, ts
+					if (!kudo.id) {
+						throw new Error('Missing id');
+					}
+					if (!kudo.identifier) {
+						throw new Error('Missing identifier');
+					}
+					if (!kudo.ts) {
+						throw new Error('Missing ts');
+					}
+					
+					if (kudo.weight > 0) {
+						keyvals[kudo.id] = kudo;
+					}
+				}
+
+				pipeline.hset(`pool:${address}:${poolId}`, keyvals);								
+				await pipeline.exec(); // TODO: batch in groups 
+
+				const out = {
+					poolName,
+				};
 
 				// if we're here, we can read in the input data and store it
 
@@ -406,6 +492,22 @@ export const submitPoolRequest = async (root, params, context) => {
 			} else if (e.message === 'Missing parameters') {
 				reply.status.code = 400;
 				reply.status.message = 'Missing parameters';
+				return reply;
+			} else if (e.message === 'Invalid poolId') {
+				reply.status.code = 400;
+				reply.status.message = 'Invalid poolId';
+				return reply;
+			} else if (e.message === 'Invalid address') {
+				reply.status.code = 400;
+				reply.status.message = 'Invalid address';
+				return reply;
+			} else if (e.message === 'Invalid code') {
+				reply.status.code = 401;
+				reply.status.message = 'Invalid code';
+				return reply;
+			} else if (e.message.includes('Use batches, over limit')) {
+				reply.status.code = 400;
+				reply.status.message = e.message;
 				return reply;
 			}
 		}
