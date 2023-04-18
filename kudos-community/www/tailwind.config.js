@@ -18,6 +18,10 @@ export default {
 			fontFamily: {
 				heading: ['tt-firs-neu', 'sans-serif'],
 				action: ['tt-firs-neu', 'sans-serif']
+			},
+			fontSize: {
+				xxxs: '.5rem',
+				xxs: '.6rem'
 			}
 		}
 	},
