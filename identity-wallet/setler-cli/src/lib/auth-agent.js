@@ -21,22 +21,37 @@ export const AuthAgent = function ({ context }) {
   this.identResolver = identResolver;
 };
 
-AuthAgent.prototype.inkKudos = async function ({ kudos, poolName, network }) {
+AuthAgent.prototype.inkKudos = async function ({
+  address,
+  kudos,
+  network,
+  poolId,
+}) {
+  if (!poolId) {
+    throw new Error("Pool ID is required");
+  }
+
   const request = await this.createPoolRequest({
     network,
     payload: {
+      address,
       kudos,
-      poolName
+      poolId,
     },
     path: "/pool/ink",
+    signIt: false,
   });
 
-// TODO: send along the auth header that the gql expects
-// should get from process.env?
+  // TODO: send along the auth header that the gql expects
+  // should get from process.env?
 
   const { response, status } = await this.sendToPool({ request });
-  // log({ response, status });
+  if (this.context.debug) {
+    log({ response, status });
+  }
+
   if (status.code !== 200) {
+    // log({ response, status });
     const e = new Error(status.message);
     e._status = status;
     e._response = response;
@@ -194,6 +209,7 @@ AuthAgent.prototype.createPoolRequest = async function ({
   path,
   payload,
   rid,
+  signIt = true,
 }) {
   const context = this.context;
   if (!context.keys) {
@@ -214,19 +230,34 @@ AuthAgent.prototype.createPoolRequest = async function ({
 
   const message = JSON.stringify({ ...payload, address });
 
-  // sign the payload
-  const { signature, recId } = await context.vault.sign({
-    keys,
-    message,
-    signingKey,
-  });
+  let signature, authorization;
 
+  if (signIt) {
+    // sign the payload
+    const signed = await context.vault.sign({
+      keys,
+      message,
+      signingKey,
+    });
+    signature = `${signed.signature}${signed.recId}`; // TODO: is there a standard for this? recId is 0 or 1
+  } else {
+    // use authorization
+    authorization = process.env.KUDOS_STORAGE_TOKEN;
+    if (!authorization) {
+      throw new Error("Missing KUDOS_STORAGE_TOKEN");
+    }
+  }
   const request = {
     rid: rid || shortId(),
     path,
     in: message,
-    signature: `${signature}${recId}`, // TODO: is there a standard for this? recId is 0 or 1
   };
+
+  if (signIt) {
+    request.signature = signature;
+  } else {
+    request.authorization = authorization;
+  }
 
   return request;
 };
@@ -312,7 +343,7 @@ AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
       requestId: request.rid,
       path: request.path,
       in: request.in,
-      signature: request.signature,
+      signature: request.signature || "auth",
     },
     operationName: "PoolRequest",
     extensions: {},
@@ -330,6 +361,10 @@ AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
       accept: "application/json",
       "content-type": "application/json",
     };
+
+    if (request.authorization) {
+      headers.authorization = request.authorization;
+    }
 
     const options = {
       headers,
@@ -356,7 +391,7 @@ AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
         }
 
         const out = await r.json();
-        // console.log('out', JSON.stringify(out,null,2));
+        //        console.log('out', r.status, JSON.stringify(out,null,2));
         return out;
       }
     );

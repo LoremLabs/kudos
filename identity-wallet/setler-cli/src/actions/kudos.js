@@ -75,7 +75,7 @@ const exec = async (context) => {
       let outData = "";
       let rootDirPath = "";
       let traceId = flags.traceId || shortId();
-      const creatorContext = { traceId };
+      const creatorContext = {};
       if (flags.contextType) {
         creatorContext.type = flags.contextType;
       }
@@ -174,28 +174,29 @@ const exec = async (context) => {
         // remove ms
         ts = ts.replace(/\.\d{3}Z$/, "Z");
 
-        let creator = {
+        let kudo = {
           identifier,
           weight: weight.toFixed(6),
           id: shortId(),
+          traceId,
           ts,
         };
         if (flags.useContext) {
           // extra debugging info
-          creator.context = {
+          kudo.context = {
             attribution,
             ...context,
           };
         }
 
-        if (!creator.description && (context.description || context.thing)) {
-          creator.description = context.description || context.thing;
-          if (creator.context?.description) {
-            delete creator.context.description;
+        if (!kudo.description && (context.description || context.thing)) {
+          kudo.description = context.description || context.thing;
+          if (kudo.context?.description) {
+            delete kudo.context.description;
           }
         }
 
-        creators.push(creator);
+        creators.push(kudo);
       };
 
       if (checks.has("github")) {
@@ -409,7 +410,7 @@ const exec = async (context) => {
                 let context = {
                   package: pkg.name,
                   repository: pkg.repository,
-                  traceId,
+                  //                  traceId,
                   type: flags.type || "code.lib.nodejs",
                 };
                 context.thing = `${context.type}.${context.package}`;
@@ -436,7 +437,7 @@ const exec = async (context) => {
                 let context = {
                   package: pkg.name,
                   repository: pkg.repository,
-                  traceId,
+                  //                  traceId,
                   type: flags.type || "code.lib.nodejs",
                 };
                 context.thing = `${context.type}.${context.package}`;
@@ -462,7 +463,7 @@ const exec = async (context) => {
                 let context = {
                   package: pkg.name,
                   repository: pkg.repository,
-                  traceId,
+                  //                  traceId,
                   type: flags.type || "code.lib.nodejs",
                 };
                 context.thing = `${context.type}.${context.package}`;
@@ -485,7 +486,7 @@ const exec = async (context) => {
                 let context = {
                   package: pkg.name,
                   repository: pkg.repository,
-                  traceId,
+                  //                  traceId,
                   type: flags.type || "code.lib.nodejs",
                 };
                 context.thing = `${context.type}.${context.package}`;

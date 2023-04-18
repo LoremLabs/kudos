@@ -89,8 +89,22 @@ const exec = async (context) => {
     }
     case "ink": {
       // save ("ink") to a pool
-
       await gatekeep(context, true);
+
+      const keys = await context.vault.keys();
+
+      let sourceAddress;
+      const networkParts = network.split(":");
+      if (networkParts.length === 1) {
+        sourceAddress = keys[network].address;
+      } else {
+        sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+      }
+
+      if (!sourceAddress) {
+        log(chalk.red(`send: no account found for network ${network}`));
+        process.exit(1);
+      }
 
       // input can be stdin or a file
       let input = "";
@@ -101,10 +115,21 @@ const exec = async (context) => {
         input = context.stdin;
       }
 
+      // convert input (ndjson) into an array of kudos
+      const kudos = [];
+      const lines = input.split("\n");
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line) {
+          const kudo = JSON.parse(line);
+          kudos.push(kudo);
+        }
+      }
+
       //  setler kudos identify . | setler pool ink | jq
       // log(`${input}`);
 
-      let poolId = context.input[2];
+      let poolId = context.flags.poolId || context.input[2];
       if (!poolId) {
         // prompt for poolId
         const response = await prompts({
@@ -124,15 +149,16 @@ const exec = async (context) => {
       let inkResults = {};
       try {
         const inkPromise = context.auth.inkKudos({
+          address: sourceAddress,
           network,
           poolId,
-          kudos: input,
+          kudos,
         });
         inkResults = await waitFor(inkPromise, {
           text: `Inking pool...`,
         });
       } catch (error) {
-        log(chalk.red(`Error inking pool: ${error.message}`));
+        log(chalk.red(`Error inking pool ${error.message}`));
         process.exit(1);
       }
 

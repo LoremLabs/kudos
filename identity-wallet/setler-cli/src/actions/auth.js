@@ -107,8 +107,8 @@ const exec = async (context) => {
       // make sure it doesn't already have the prefix
 
       poolIds = poolIds.map((id) => {
-        if (id && !id.startsWith("p:")) {
-          return "p:" + id;
+        if (id && !id.startsWith("i:")) {
+          return "i:" + id;
         }
         return id;
       });
