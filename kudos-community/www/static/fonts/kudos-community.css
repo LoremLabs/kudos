@@ -1,7 +1,15 @@
 @font-face {
-	font-family: 'ttfirstneu-sample';
+	font-family: 'tt-firs-neu';
 	font-style: normal;
-	font-weight: 400;
+	font-weight: 100-900;
 	font-display: swap;
-	src: url('/fonts/ttfirstneu-sample.woff') format('woff');
+	src: url('/fonts/tt-firs-neue-gx.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'tt-firs-neu';
+	font-style: italic;
+	font-weight: 100-900;
+	font-display: swap;
+	src: url('/fonts/tt-firs-neue-italic-gx.woff2') format('woff2');
 }

@@ -7,8 +7,8 @@ export default {
 		extend: {
 			colors: {
 				...colors,
-				primaryb: '#389D61',
-				primary: '#5AB06C',
+				primary: '#389D61',
+				primarya: '#5AB06C',
 				secondary: '#D2E6DA',
 				tertiary: '#EEEEEE',
 				quad: '#F4F3ED',
@@ -16,7 +16,8 @@ export default {
 				sept: '#D6EAD7'
 			},
 			fontFamily: {
-				heading: ['ttfirstneu-sample', 'sans-serif']
+				heading: ['tt-firs-neu', 'sans-serif'],
+				action: ['tt-firs-neu', 'sans-serif']
 			}
 		}
 	},

@@ -69,7 +69,7 @@
 		<div class="h-full">
 			<div class="mx-auto max-w-2x">
 				<div class="max-w-lg p-8 sm:p-0 h-full bg-red-100z m-auto">
-					<h1 class="mt-10 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+					<h1 class="mt-10 text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
 						A new way to reward creators and coders
 					</h1>
 					<p class="mt-6 text-lg leading-8 text-gray-600">
@@ -79,7 +79,7 @@
 					<div class="mt-10 grid md:flex items-center justify-start gap-6 h-full">
 						<a
 							href="https://github.com/LoremLabs/kudos/raw/main/rfcs/000-kudos-sketch/000-kudos-sketch.pdf"
-							class="text-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
+							class="text-center rounded-full bg-primary px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
 							>Read the Overview</a
 						>
 						<a
@@ -128,7 +128,7 @@
 	<div class="mx-auto max-w-7xl">
 		<div class="relative isolate overflow-hidden px-6 py-24 sm:px-24 xl:py-32">
 			<h2
-				class="mx-auto text-center text-3xl font-bold tracking-tight text-gray-800 md:text-5xl max-w-md"
+				class="mx-auto text-center text-3xl font-semibold tracking-tight text-gray-800 md:text-5xl max-w-md"
 			>
 				Be the first to know about our progress
 			</h2>
@@ -150,7 +150,7 @@
 				/>
 				<button
 					on:click|preventDefault={handleNewEmail}
-					class="flex-none rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+					class="flex-none rounded-full bg-primary px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
 					><span class="m-auto flex justify-center items-center"> Notify me </span></button
 				>
 			</form>

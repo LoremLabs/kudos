@@ -21,9 +21,9 @@
 			text: '',
 			url: '/',
 			screenReader: `${brand} Home`,
-			img: '/svg/kudos-logo-06.svg',
+			img: '/svg/kudos-logo-07.svg',
 			imgAlt: `${brand} Logo`,
-			imgClass: 'h-7 mt-2'
+			imgClass: 'h-16 mt-3'
 		}
 	];
 </script>
