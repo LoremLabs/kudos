@@ -31,6 +31,9 @@ AuthAgent.prototype.inkKudos = async function ({ kudos, poolName, network }) {
     path: "/pool/ink",
   });
 
+// TODO: send along the auth header that the gql expects
+// should get from process.env?
+
   const { response, status } = await this.sendToPool({ request });
   // log({ response, status });
   if (status.code !== 200) {
