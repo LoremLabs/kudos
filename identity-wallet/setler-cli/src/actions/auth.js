@@ -21,7 +21,7 @@ const exec = async (context) => {
       // TODO: fixme
 
       await gatekeep(context);
-      const network = context.flags.network || "xrpl:testnet";
+      const network = context.flags.network || "kudos";
 
       const keys = await context.vault.keys();
 
@@ -65,14 +65,7 @@ const exec = async (context) => {
       });
 
       payload.t = [...result.value];
-      // console.log({payload});
-      const message = JSON.stringify(payload);
 
-      // sign the payload
-      const { signature, recId } = await context.vault.sign({
-        message,
-        signingKey: privateKey,
-      });
       // console.log({signature, recId});
 
       // create a base64 token from the payload
@@ -91,6 +84,51 @@ const exec = async (context) => {
         });
         days = result.days;
       }
+
+      // pin to list of poolIds
+      let poolIds = context.flags.poolIds || "";
+
+      if (!(poolIds && poolIds.length)) {
+        const result = await prompts({
+          type: "text",
+          name: "poolMatch",
+          message:
+            "Which pool match (name or id) should the token be valid for? (comma separated list). Use * for wildcard name match.",
+          initial: "*",
+        });
+        poolIds = result.poolMatch;
+      }
+      if (poolIds) {
+        // split with , and remove whitespace
+        poolIds = poolIds.split(",").map((id) => id.trim());
+      }
+
+      // add a p: prefix to each poolId to indicate it is a poolId
+      // make sure it doesn't already have the prefix
+
+      poolIds = poolIds.map((id) => {
+        if (id && !id.startsWith("i:")) {
+          return "i:" + id;
+        }
+        return id;
+      });
+
+      // filter out any empty strings
+      poolIds = poolIds.filter((id) => id);
+
+      poolIds = [...new Set(poolIds)];
+
+      payload.s = poolIds; // s = scope
+      if (context.debug) {
+        log({ payload });
+      }
+      const message = JSON.stringify(payload);
+
+      // sign the payload
+      const { signature, recId } = await context.vault.sign({
+        message,
+        signingKey: privateKey,
+      });
 
       const unsecuredJwt = new UnsecuredJWT({
         p: message,
@@ -123,7 +161,8 @@ const exec = async (context) => {
       // console.log({verified});
       if (!context.flags.quiet) {
         log("");
-        log(chalk.green(`Access Token:`));
+        log("Address     : " + sourceAddress);
+        log(" ".repeat(14) + stringToColorBlocks(sourceAddress, network));
         log("");
       }
       log(`KUDOS_STORAGE_TOKEN="${unsecuredJwt}"`);
@@ -503,7 +542,7 @@ const exec = async (context) => {
       break;
     }
     default: {
-      if (context.input[1]) {
+      if (context.input[1] && context.input[1] !== "help") {
         log(chalk.red(`Unknown command: ${context.input[1]}`));
       }
       log("");

@@ -24,6 +24,11 @@ export const gatekeep = async (context, shouldCreate) => {
   context.passPhrase =
     context.flags.passPhrase || process.env.SETLER_PASSPHRASE || "";
 
+  context.debug = context.flags.debug || process.env.SETLER_DEBUG || false;
+  if (context.debug) {
+    log(chalk.magenta(`Debug: ${context.debug}`));
+  }
+
   let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
   scope = parseInt(scope, 10);
   context.scope = `${scope}`;

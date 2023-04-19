@@ -70,6 +70,7 @@ importers:
       tslib: ^2.5.0
       typescript: ^4.9.5
       uuid: ^9.0.0
+      uuid-encoder: ^1.2.0
       vite: ^4.1.4
       xrpl: ^2.7.0
     dependencies:
@@ -130,6 +131,7 @@ importers:
       tslib: 2.5.0
       typescript: 4.9.5
       uuid: 9.0.0
+      uuid-encoder: 1.2.0
       vite: 4.1.4_@types+node@18.14.1
       xrpl: 2.7.0
 
@@ -10393,6 +10395,12 @@ packages:
   /utils-merge/1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
+    dev: true
+
+  /uuid-encoder/1.2.0:
+    resolution: {integrity: sha512-uL/aXk+EFP0wxDjOuPulXo5LV8y6jqFX3yCGxm0qN041bJZ1jfOgqagkkOzZ4h5atYdezhyQuw6CWt6+og0pmQ==}
+    dependencies:
+      big-integer: 1.6.51
     dev: true
 
   /uuid/7.0.3:

@@ -3,11 +3,10 @@
 import { DEFAULTS } from "./config.js";
 // import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
+import { fetchToCurl } from "fetch-to-curl";
 import { shortId } from "./short-id.js";
 
 const log = console.log;
-
-// import { fetchToCurl } from "fetch-to-curl";
 
 // wrapper for auth things
 export const AuthAgent = function ({ context }) {
@@ -20,6 +19,138 @@ export const AuthAgent = function ({ context }) {
     identResolver = identResolver.slice(0, -1);
   }
   this.identResolver = identResolver;
+};
+
+AuthAgent.prototype.inkKudos = async function ({
+  address,
+  kudos,
+  network,
+  poolId,
+}) {
+  if (!poolId) {
+    throw new Error("Pool ID is required");
+  }
+
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      address,
+      kudos,
+      poolId,
+    },
+    path: "/pool/ink",
+    signIt: false,
+  });
+
+  // TODO: send along the auth header that the gql expects
+  // should get from process.env?
+
+  const { response, status } = await this.sendToPool({ request });
+  if (this.context.debug) {
+    log({ response, status });
+  }
+
+  if (status.code !== 200) {
+    // log({ response, status });
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.getPool = async function ({ address, network, poolId }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      address,
+    },
+    path: "/pool/get/details",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.getPoolSummary = async function ({
+  address,
+  amount,
+  network,
+  poolId,
+}) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      address,
+      amount,
+    },
+    path: "/pool/get/summary",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.listPools = async function ({ matching, network }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      matching,
+    },
+    path: "/pool/list",
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.createPool = async function ({ network, poolName }) {
+  const payload = {
+    poolName,
+  };
+
+  const request = await this.createPoolRequest({
+    network,
+    payload,
+    path: "/pool/create",
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
 };
 
 AuthAgent.prototype.startAuth = async function ({ did, network }) {
@@ -100,7 +231,7 @@ AuthAgent.prototype.verifyAuthCode = async function ({
 
   // log({ request });
 
-  const { response, status } = await this.sendToPool({ request, context });
+  const { response, status } = await this.sendToPool({ request });
   //log({ response, status });
   if (status.code !== 200) {
     const e = new Error(status.message);
@@ -121,6 +252,72 @@ const normalizePrivateKey = (privateKey) => {
   }
 
   return privateKey;
+};
+
+AuthAgent.prototype.createPoolRequest = async function ({
+  network,
+  path,
+  payload,
+  rid,
+  signIt = true,
+  includeAuth = false,
+}) {
+  const context = this.context;
+  if (!context.keys) {
+    context.keys = await context.vault.keys();
+  }
+
+  // get the key from the network
+  const networkParts = network.split(":");
+  let keys;
+  if (networkParts.length === 1) {
+    keys = context.keys[network];
+  } else {
+    keys = context.keys[networkParts[0]][networkParts[1]];
+  }
+
+  let { privateKey: signingKey, address } = keys;
+  signingKey = normalizePrivateKey(signingKey);
+
+  const message = JSON.stringify({ ...payload, address });
+
+  let signature, authorization;
+
+  if (signIt) {
+    // sign the payload
+    const signed = await context.vault.sign({
+      keys,
+      message,
+      signingKey,
+    });
+    signature = `${signed.signature}${signed.recId}`; // TODO: is there a standard for this? recId is 0 or 1
+  } else {
+    // use authorization
+    authorization = process.env.KUDOS_STORAGE_TOKEN;
+    if (!authorization) {
+      throw new Error("Missing KUDOS_STORAGE_TOKEN");
+    }
+  }
+  const request = {
+    rid: rid || shortId(),
+    path,
+    in: message,
+  };
+
+  if (signIt) {
+    request.signature = signature;
+  } else {
+    request.authorization = authorization;
+  }
+
+  if (includeAuth) {
+    // is optional
+    if (process.env.KUDOS_STORAGE_TOKEN) {
+      request.authorization = process.env.KUDOS_STORAGE_TOKEN;
+    }
+  }
+
+  return request;
 };
 
 AuthAgent.prototype.startEmailAuth = async function ({
@@ -169,7 +366,7 @@ AuthAgent.prototype.startEmailAuth = async function ({
 
   // log({ request });
 
-  const { response, status } = await this.sendToPool({ request, context });
+  const { response, status } = await this.sendToPool({ request });
   //log({ response, status });
   if (status.code !== 200) {
     const e = new Error(status.message);
@@ -181,9 +378,9 @@ AuthAgent.prototype.startEmailAuth = async function ({
   return { response, status, nonce };
 };
 
-AuthAgent.prototype.sendToPool = async function ({ request }) {
-  const identityResolver = this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
-
+AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
+  const identityResolver =
+    identResolver || this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
   const gqlQuery = {
     query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {
       submitPoolRequest(rid: $requestId, path: $path, in: $in, signature: $signature) {
@@ -204,7 +401,7 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
       requestId: request.rid,
       path: request.path,
       in: request.in,
-      signature: request.signature,
+      signature: request.signature || "auth",
     },
     operationName: "PoolRequest",
     extensions: {},
@@ -223,12 +420,20 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
       "content-type": "application/json",
     };
 
+    if (request.authorization) {
+      headers.authorization = request.authorization;
+    }
+
     const options = {
       headers,
       method: "POST",
       body: JSON.stringify(gqlQuery),
     };
-    // console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    if (this.context.debug) {
+      console.log("---------------sending to pool----------", request);
+      console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    }
+
     // remove trailing slash if it's on identityResolver
     results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
       async (r) => {
@@ -244,7 +449,7 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
         }
 
         const out = await r.json();
-        // console.log('out', JSON.stringify(out,null,2));
+        //        console.log('out', r.status, JSON.stringify(out,null,2));
         return out;
       }
     );

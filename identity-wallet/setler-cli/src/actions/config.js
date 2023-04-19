@@ -97,8 +97,7 @@ const exec = async (context) => {
                 name: "resolver",
                 message: `Enter the resolver: `,
                 initial:
-                  config.identity?.identResolver ||
-                  DEFAULTS.IDENTITY.RESOLVER,
+                  config.identity?.identResolver || DEFAULTS.IDENTITY.RESOLVER,
               },
             ]);
             if (!response.ok) {

@@ -76,7 +76,13 @@ export async function deriveKudosKeys({ mnemonic, passPhrase, id = 0 }) {
   }
   // 0x500 = 1280
   // seems available? https://github.com/satoshilabs/slips/blob/ef6d7700cc/slip-0044.md TODO: publish on our publish
-  return await deriveAddress({ coinId: 1280, mnemonic, passPhrase, id });
+  return await deriveAddress({
+    coinId: 1280,
+    mnemonic,
+    passPhrase,
+    id,
+    isXrpl: true,
+  });
 }
 
 export async function deriveXrplKeys({ mnemonic, passPhrase, id = 0 }) {
