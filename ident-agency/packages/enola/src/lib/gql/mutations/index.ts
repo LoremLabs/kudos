@@ -204,7 +204,11 @@ export const submitPoolRequest = async (root, params, context) => {
 				// get a pool with details
 				const out = {};
 
-				const { address, poolId, top, amount, opts } = input;
+				const { address, poolId, top, opts } = input;
+				let { amount } = input;
+				if (!amount || (amount === "NaN")) {
+					amount = 0;
+				}
 
 				if (!authed) {
 					const { t: entitlements } = currentUser;
@@ -286,9 +290,13 @@ export const submitPoolRequest = async (root, params, context) => {
 					.map(([identifier, weight]) => {
 						const share = parseFloat(weight) / parseFloat(totalWeight);
 						if (share && share > 0 && amount) {
-							const sliver = (share * parseFloat(amount)).toFixed(6).toString();
-							slivers += share * parseFloat(amount);
-							return { identifier, weight, sliver };
+							const sliver = (share * parseFloat(amount || 0)).toFixed(6).toString();
+							slivers += share * parseFloat(amount || 0);
+							if (sliver !== "NaN") {
+								return { identifier, weight, sliver };
+							} else {
+								return { identifier, weight };
+							}
 						} else {
 							return { identifier, weight };
 						}
