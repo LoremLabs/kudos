@@ -9,6 +9,7 @@ import { gzipSync } from "node:zlib";
 import parseAuthor from "parse-author";
 // import path from "path";
 import { promisify } from "util";
+import prompts from "prompts";
 // import { v4 as uuidv4 } from "uuid";
 import { shortId } from "../lib/short-id.js";
 import { stringToColorBlocks } from "../lib/colorize.js";
@@ -547,6 +548,261 @@ const exec = async (context) => {
     case "create": {
       await gatekeep(context, true);
 
+      let outData = "";
+      let creators = [];
+      let traceId = flags.traceId || shortId();
+      // ts = iso date no ms
+      const ts = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+
+      let askForMore = true;
+      if (flags.identifier && flags.now) {
+        askForMore = false;
+
+        if (!Array.isArray(flags.identifier)) {
+          flags.identifier = [flags.identifier];
+        }
+        for (let i = 0; i < flags.identifier.length; i += 1) {
+          const identifier = flags.identifier[i];
+          const weight = flags.weight || 1.0;
+          const description = flags.description || undefined;
+          const kudos = {
+            identifier,
+            id: shortId(),
+            ts,
+            weight,
+            description,
+            traceId,
+          };
+          creators.push(kudos);
+        }
+      }
+
+      while (askForMore) {
+        const response = await prompts([
+          {
+            message: "Identifier type?",
+            type: "select",
+            name: "didType",
+            choices: [
+              {
+                title: "email",
+                description: "Email address",
+                value: "email",
+              },
+              {
+                title: "twitter",
+                value: "twitter",
+                disabled: true,
+                description: "Twitter username.",
+              },
+              {
+                title: "github",
+                value: "github",
+                disabled: true,
+                description: "GitHub handle.",
+              },
+              {
+                title: "did",
+                value: "did",
+                disabled: true,
+                description: "DID (decentralized identifier).",
+              },
+            ],
+            initial: 0,
+          },
+          {
+            type: (prev) => {
+              const type = prev === "email" ? "text" : null;
+              return type;
+            },
+            name: "email",
+            message:
+              "Email address? " +
+              chalk.grey(`(example: email@domain.com)`) +
+              " ?",
+            initial: context.flags.email || "",
+            validate: (maybeEmail) => {
+              // allow empty to skip
+              if (maybeEmail === "") {
+                return true;
+              }
+
+              // does this seem like an email?
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return emailRegex.test(maybeEmail);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "twitter" ? "text" : null;
+              return type;
+            },
+            name: "twitter",
+            message:
+              "Twitter handle? " + chalk.grey(`(example: @handle)`) + " ?",
+            initial: context.flags.twitter || "",
+            validate: (maybeTwitter) => {
+              // allow empty to skip
+              if (maybeTwitter === "") {
+                return true;
+              }
+
+              // does this seem like an email?
+              const twitterRegex = /^@?(\w){1,15}$/;
+              return twitterRegex.test(maybeTwitter);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "github" ? "text" : null;
+              return type;
+            },
+            name: "github",
+            message:
+              "GitHub handle? " + chalk.grey(`(example: @handle)`) + " ?",
+            initial: context.flags.github || "",
+            validate: (maybeGithub) => {
+              // allow empty to skip
+              if (maybeGithub === "") {
+                return true;
+              }
+
+              // does this seem like an email?
+              const githubRegex = /^@?(\w){1,39}$/;
+              return githubRegex.test(maybeGithub);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "did" ? "text" : null;
+              return type;
+            },
+            name: "did",
+            message:
+              "DID? " + chalk.grey(`(example: did:web:example.com)`) + " ?",
+            initial: context.flags.did || "",
+            validate: (maybeDid) => {
+              // allow empty to skip
+              if (maybeDid === "") {
+                return true;
+              }
+
+              // does this seem like a did?
+              const didRegex = /^did:(\w+):(\w+)$/;
+              return didRegex.test(maybeDid);
+            },
+          },
+          {
+            type: "number",
+            name: "weight",
+            message: "Weight? " + chalk.grey(`(default: 1.0)`) + " ?",
+            initial: 1.0,
+            validate: (maybeWeight) => {
+              // allow empty to skip
+              if (maybeWeight === "") {
+                return true;
+              }
+
+              if (typeof maybeWeight !== "number") {
+                return false;
+              }
+
+              return maybeWeight > 0 && maybeWeight <= 1;
+            },
+          },
+          {
+            type: "text",
+            name: "description",
+            message: "Description? " + chalk.grey(`(optional)`) + " ?",
+            initial: "",
+          },
+          {
+            type: "confirm",
+            name: "ok",
+            message: "Another? ",
+            initial: true,
+          },
+        ]);
+
+        let identifier = "";
+        switch (response.didType) {
+          case "email":
+            identifier = `did:kudos:email:${response.email
+              .trim()
+              .toLowerCase()}`;
+            break;
+          case "twitter": {
+            let twitter = response.twitter.trim().toLowerCase();
+            if (twitter.startsWith("@")) {
+              twitter = twitter.slice(1);
+            }
+
+            identifier = `did:kudos:twitter:${twitter}`;
+            break;
+          }
+          case "github": {
+            let github = response.github.trim().toLowerCase();
+            if (github.startsWith("@")) {
+              github = github.slice(1);
+            }
+
+            identifier = `did:kudos:github:${github}`;
+            break;
+          }
+          case "did": {
+            identifier = response.did.trim();
+            break;
+          }
+          default:
+            throw new Error(`Unknown identifier type: ${response.didType}`);
+        }
+
+        let description = response.description.trim();
+        if (description === "") {
+          description = undefined;
+        }
+
+        const weight = parseFloat(response.weight).toFixed(6);
+
+        const kudos = {
+          ts,
+          traceId,
+          id: shortId(),
+          identifier,
+          description,
+          weight,
+        };
+
+        creators.push(kudos);
+
+        if (!response.ok) {
+          askForMore = false;
+          break;
+        }
+        log("");
+      }
+
+      try {
+        // serialize creators as ndjson
+        // loop through creators, emit ndjson
+        for (let i = 0; i < creators.length; i += 1) {
+          const creator = creators[i];
+          outData += JSON.stringify(creator) + "\n";
+        }
+      } catch (e) {
+        log(e, "error serializing creators");
+      }
+
+      if (flags.outFile) {
+        let flag = "a"; // default append
+        if (flags.gzip || flags.overwrite) {
+          // if we're gzipping, we're overwriting TODO: should we warn?
+          flag = "w"; // overwrite
+        }
+        fs.writeFileSync(flags.outFile, outData, { flag });
+      } else {
+        log(outData);
+      }
 
       break;
     }
