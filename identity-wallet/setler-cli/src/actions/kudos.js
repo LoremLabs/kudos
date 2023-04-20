@@ -882,7 +882,7 @@ const exec = async (context) => {
         const response = await prompts({
           type: "text",
           name: "poolId",
-          message: "What poolId do you want to retrieve?",
+          message: "What poolId do you want to send to?",
         });
         poolId = response.poolId;
       }
