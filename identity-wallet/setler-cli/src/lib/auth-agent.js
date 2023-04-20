@@ -254,6 +254,34 @@ const normalizePrivateKey = (privateKey) => {
   return privateKey;
 };
 
+AuthAgent.prototype.sendReceipts = async function ({
+  address,
+  network,
+  poolId,
+  receipts,
+}) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      address,
+      receipts,
+    },
+    path: "/pool/ink/receipts",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
 AuthAgent.prototype.createPoolRequest = async function ({
   network,
   path,

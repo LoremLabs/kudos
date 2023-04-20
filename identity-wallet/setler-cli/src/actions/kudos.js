@@ -950,6 +950,9 @@ const exec = async (context) => {
         const identity = out.identities[i];
         const address = identity.identifier;
         const weight = identity.weight;
+        if (parseFloat(weight) === 0) {
+          continue; // skip already processed / zero weight
+        }
         addresses.push(address);
         weights.push(weight);
       }
@@ -1040,6 +1043,7 @@ const exec = async (context) => {
 
         if (totalWeight === 0) {
           log(chalk.red(`send: total weight is 0`));
+          log("Empty pool?");
           process.exit(1);
         }
 
@@ -1306,7 +1310,7 @@ const exec = async (context) => {
                     { title: "Yes to all", value: "all" },
                     { title: "Skip escrow", value: "skip" },
                   ],
-                  initial: 1,
+                  initial: 0,
                 },
                 // {
                 //   type: "confirm",
@@ -1509,6 +1513,9 @@ const exec = async (context) => {
         }
       }
 
+      let receipts = [];
+      const setleId = shortId();
+
       log("");
       // send direct payments
       let directSent = 0;
@@ -1563,6 +1570,25 @@ const exec = async (context) => {
           )
         );
 
+        // create a kudosReceipt
+        let ts = new Date().toISOString();
+        // remove ms
+        ts = ts.replace(/\.\d{3}Z$/, "Z");
+        let weight = parseFloat(weightedAddresses[i].weight) * -1; // negate
+        let kudosReceipt = {
+          identifier: currentAddress.address,
+          weight: weight.toFixed(6),
+          id: shortId(),
+          traceId: setleId,
+          ts,
+          receipt: {
+            type: "direct",
+            amount: currentAddress.amount,
+            address: currentAddress.expandedAddress,
+            tx: directPayment.result.hash,
+          },
+        };
+        receipts.push(kudosReceipt);
         directSent++;
       }
 
@@ -1574,6 +1600,35 @@ const exec = async (context) => {
           )
         );
         log("");
+      }
+
+      // checkpoint: send receipts
+      if (receipts.length) {
+        let receiptsResults = {};
+        try {
+          const receiptsPromise = context.auth.sendReceipts({
+            network: kudosNetwork,
+            address: kudosAddress,
+            poolId,
+            receipts,
+          });
+          receiptsResults = await waitFor(receiptsPromise, {
+            text: `Sending receipts...`,
+          });
+          receipts = []; // reset
+          if (context.debug) {
+            log(chalk.bold(`send: receiptsResults:`));
+            log(JSON.stringify(receiptsResults, null, 2));
+          }
+        } catch (error) {
+          log(
+            chalk.red(
+              `Be careful of double processing! Check transaction history, edit pool before trying again.`
+            )
+          );
+          log(chalk.red(`Error saving receipts: ${error.message}`));
+          process.exit(1);
+        }
       }
 
       // log(chalk.bold(`send: Sending escrow payments`));
@@ -1679,6 +1734,55 @@ const exec = async (context) => {
         };
 
         await sendToEscrowAgent();
+
+        // create a kudosReceipt
+        let ts = new Date().toISOString();
+        // remove ms
+        ts = ts.replace(/\.\d{3}Z$/, "Z");
+        let weight = parseFloat(currentAddress.weight) * -1; // negate
+        let kudosReceipt = {
+          identifier: currentAddress.escrow.identifier,
+          weight: weight.toFixed(6),
+          id: shortId(),
+          traceId: setleId,
+          ts,
+          receipt: {
+            type: "escrow",
+            amount: toNotify.amount,
+            viaAddress: toNotify.viaAddress,
+            tx: toNotify.escrowId,
+          },
+        };
+        receipts.push(kudosReceipt);
+      }
+
+      // checkpoint: send receipts
+      if (receipts.length) {
+        let receiptsResults = {};
+        try {
+          const receiptsPromise = context.auth.sendReceipts({
+            network: kudosNetwork,
+            address: kudosAddress,
+            poolId,
+            receipts,
+          });
+          receiptsResults = await waitFor(receiptsPromise, {
+            text: `Sending receipts...`,
+          });
+          if (context.debug) {
+            log(chalk.bold(`send: receiptsResults:`));
+            log(JSON.stringify(receiptsResults, null, 2));
+          }
+          receipts = []; // reset
+        } catch (error) {
+          log(
+            chalk.red(
+              `Be careful of double processing! Check transaction history, edit pool before trying again.`
+            )
+          );
+          log(chalk.red(`Error saving receipts: ${error.message}`));
+          process.exit(1);
+        }
       }
 
       context.coins.disconnect();
