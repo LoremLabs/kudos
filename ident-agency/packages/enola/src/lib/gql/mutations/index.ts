@@ -207,7 +207,7 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				const { address, poolId, top, opts } = input;
 				let { amount } = input;
-				if (!amount || (amount === "NaN")) {
+				if (!amount || amount === 'NaN') {
 					amount = 0;
 				}
 
@@ -293,7 +293,7 @@ export const submitPoolRequest = async (root, params, context) => {
 						if (share && share > 0 && amount) {
 							const sliver = (share * parseFloat(amount || 0)).toFixed(6).toString();
 							slivers += share * parseFloat(amount || 0);
-							if (sliver !== "NaN") {
+							if (sliver !== 'NaN') {
 								return { identifier, weight, sliver };
 							} else {
 								return { identifier, weight };
