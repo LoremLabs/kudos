@@ -379,8 +379,15 @@ AuthAgent.prototype.startEmailAuth = async function ({
 };
 
 AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
-  const identityResolver =
-    identResolver || this.identResolver || DEFAULTS.IDENTITY.RESOLVER;
+  // NB: param is identResolver, not identityResolver
+  let identityResolver =
+    identResolver || this.identResolver || DEFAULTS.IDENTITY?.RESOLVER;
+
+  identityResolver = identityResolver.trim();
+  if (identityResolver.endsWith("/")) {
+    identityResolver = identityResolver.slice(0, -1);
+  }
+
   const gqlQuery = {
     query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {
       submitPoolRequest(rid: $requestId, path: $path, in: $in, signature: $signature) {
@@ -523,7 +530,11 @@ export const expandDid = async ({ did, network, identResolver }) => {
       method: "POST",
       body: JSON.stringify(gqlQuery),
     };
-    // console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+
+    if (this.context.debug) {
+      console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    }
+
     results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
       async (r) => {
         // check status code
