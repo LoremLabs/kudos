@@ -54,6 +54,7 @@ const checkPoolId = async ({ address, currentUser, poolId }) => {
 
 	// address should === currentUser.a;
 	if (address !== currentUser.a) {
+		log.debug('address !== currentUser.a', { address, currentUser });
 		throw new Error('Invalid address');
 	}
 
