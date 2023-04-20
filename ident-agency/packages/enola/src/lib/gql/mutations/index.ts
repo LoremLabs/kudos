@@ -669,7 +669,7 @@ export const submitPoolRequest = async (root, params, context) => {
 				const botEmail = SEND_SOCIAL_BOT_EMAIL;
 				const msg = {
 					'h:Sender': botEmail,
-					from: SEND_SOCIAL_BOT_ADDRESS,
+					from: botEmail,
 					to: [email],
 					//        bcc: [email],
 					subject: output.subject || '👉 Login Code',
