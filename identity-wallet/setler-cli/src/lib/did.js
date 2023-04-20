@@ -1,13 +1,17 @@
 import { DEFAULTS } from "./config.js";
 import fetch from "node-fetch";
-// import { fetchToCurl } from "fetch-to-curl";
+import { fetchToCurl } from "fetch-to-curl";
 
 const log = console.log;
 
-export const expandDid = async ({ did, identResolver, network }) => {
+export const expandDid = async ({ did, identResolver, network, debug }) => {
   // TODO: use a general purpose did resolver, this is hard-coded to kudos dids
 
-  const identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
+  let identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
+  identResolver = identResolver.trim();
+  if (identResolver.endsWith("/")) {
+    identResolver = identResolver.slice(0, -1);
+  }
 
   const gqlQuery = {
     query: `query SocialPay($identifier: String!) {
@@ -56,7 +60,9 @@ export const expandDid = async ({ did, identResolver, network }) => {
       method: "POST",
       body: JSON.stringify(gqlQuery),
     };
-    // console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    if (debug) {
+      console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+    }
     results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
       async (r) => {
         // check status code

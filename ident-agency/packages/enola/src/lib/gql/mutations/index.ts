@@ -54,6 +54,7 @@ const checkPoolId = async ({ address, currentUser, poolId }) => {
 
 	// address should === currentUser.a;
 	if (address !== currentUser.a) {
+		log.debug('address !== currentUser.a', { address, currentUser });
 		throw new Error('Invalid address');
 	}
 
@@ -206,7 +207,7 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				const { address, poolId, top, opts } = input;
 				let { amount } = input;
-				if (!amount || (amount === "NaN")) {
+				if (!amount || amount === 'NaN') {
 					amount = 0;
 				}
 
@@ -292,7 +293,7 @@ export const submitPoolRequest = async (root, params, context) => {
 						if (share && share > 0 && amount) {
 							const sliver = (share * parseFloat(amount || 0)).toFixed(6).toString();
 							slivers += share * parseFloat(amount || 0);
-							if (sliver !== "NaN") {
+							if (sliver !== 'NaN') {
 								return { identifier, weight, sliver };
 							} else {
 								return { identifier, weight };
@@ -478,6 +479,94 @@ export const submitPoolRequest = async (root, params, context) => {
 					}
 
 					if (kudo.weight > 0) {
+						keyvals[kudo.id] = kudo;
+					}
+				}
+
+				pipeline.hset(`pool:${address}:${poolId}`, keyvals);
+				await pipeline.exec(); // TODO: batch in groups
+
+				const out = {
+					poolName
+				};
+
+				// if we're here, we can read in the input data and store it
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.signature = signature2;
+
+				break;
+			}
+			case '/pool/ink/receipts': {
+				// write receipt data to the database
+
+				// see if we have write permissions
+				const { t: entitlements } = currentUser;
+				// console.log({ currentUser });
+				// TODO: shiro compatible: kudos:write
+				if (!entitlements || !entitlements.includes('kudos:store')) {
+					throw new Error('Not authorized');
+				}
+
+				const { address, poolId, receipts } = input;
+
+				// see if the poolId matches our auth
+				const poolName = await checkPoolId({ address, poolId, currentUser });
+
+				// only allow batches of 10000
+				if (receipts.length > 10_000) {
+					throw new Error('Use batches, over limit: ' + receipts.length);
+				}
+
+				// if we're here, we can read in the input data and store it
+				const pipeline = redis.pipeline();
+
+				const keyvals = {};
+				for (const kudo of receipts) {
+					// {
+					// 	"identifier": "did:kudos:email:b...",
+					// 	"weight": "-0.001748",
+					// 	"id": "Lvun4tpqS9BC7ajoXLscVW",
+					// 	"traceId": "LqmAyCHoyRSAJetXNbKMDA",
+					// 	"ts": "2023-04-18T14:38:05Z",
+					// 	"receipt": {"tx":"abcd","amount": "30.004","type":"escrow"}
+					//   }
+
+					// normalize weight, using 0 to skip
+					kudo.weight = parseFloat(kudo.weight);
+
+					// weights here can be any value.
+					// if (kudo.weight < -1) {
+					// 	kudo.weight = -1;
+					// }
+					if (kudo.weight > 0) {
+						kudo.weight = 0;
+					}
+					if (!kudo.weight) {
+						kudo.weight = -1;
+					}
+
+					// check for required params: id, identifier, ts
+					if (!kudo.id) {
+						throw new Error('Missing id');
+					}
+					if (!kudo.identifier) {
+						throw new Error('Missing identifier');
+					}
+					if (!kudo.ts) {
+						throw new Error('Missing ts');
+					}
+					if (!kudo.receipt) {
+						throw new Error('Missing receipt');
+					}
+
+					// receipts must have a negative weight
+					if (kudo.weight < 0) {
 						keyvals[kudo.id] = kudo;
 					}
 				}

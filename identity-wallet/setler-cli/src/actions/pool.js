@@ -15,6 +15,7 @@ const help = () => {
   log("  ink [poolId] [--inFile]");
   log("  list [matching]");
   log("  get [poolId]");
+  log("  summary [poolId]");
   log("");
   log("Options:");
   log(
@@ -33,6 +34,7 @@ const help = () => {
   log("  setler pool list --poolId abcDef");
   log("  setler pool ink --poolId abcDef --inFile=pool.ndjson");
   log("  setler pool ink abcDef");
+  log("  setler pool summary abcDef");
   log("");
 
   process.exit(1);
