@@ -21,7 +21,7 @@ const SEND_SOCIAL_BOT_EMAIL = process.env.SEND_SOCIAL_BOT_EMAIL || `no-reply@not
 process.env.SEND_SOCIAL_BOT_EMAIL || `"--send-to-social--" <${SEND_SOCIAL_BOT_EMAIL}>`;
 const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 10) || 10; // xrp
 const SEND_SOCIAL_EXPIRATION =
-	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 90; // 3 months
+	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60; // 1 hr
 
 const normalizePrivateKey = (privateKey) => {
 	if (typeof privateKey === 'string') {
