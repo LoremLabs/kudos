@@ -211,6 +211,15 @@ const exec = async (context) => {
         // construct a did by asking some questions:
         // 1) email, twitter, phone, etc
         log("");
+        let initial = 0;
+        if (context.flags.email) {
+          initial = 0;
+        } else if (context.flags.twitter) {
+          initial = 1;
+        } else if (context.flags.github) {
+          initial = 2;
+        }
+
         const response = await prompts([
           {
             message: "What type of identifier do you want to login with?",
@@ -225,17 +234,17 @@ const exec = async (context) => {
               {
                 title: "twitter",
                 value: "twitter",
-                disabled: true,
+                disabled: false,
                 description: "Your Twitter username.",
               },
               {
-                title: "phone",
-                value: "phone",
+                title: "github",
+                value: "github",
                 disabled: true,
-                description: "Your phone number.",
+                description: "Your GitHub handle.",
               },
             ],
-            initial: 0,
+            initial,
           },
           {
             type: (prev) => {
@@ -265,8 +274,9 @@ const exec = async (context) => {
               return type;
             },
             name: "twitter",
+            initial: context.flags.twitter || "",
             message:
-              "Twitter Screen name? " +
+              "Twitter Handle? " +
               chalk.grey(`(example: @loremlabs)`) +
               " ?",
             validate: (maybeHandle) => {
@@ -292,7 +302,8 @@ const exec = async (context) => {
             break;
           }
           case "twitter": {
-            did = `did:kudos:twitter:${response.twitter}`;
+            const twitterHandle = response.twitter.replace("@", "").trim();
+            did = `did:kudos:twitter:${twitterHandle}`;
             break;
           }
           default: {
@@ -301,9 +312,12 @@ const exec = async (context) => {
         }
       }
 
+      switch (didType) {
+        case "email": {
       // logging in with did message
       log("");
       log(`Logging in with ${chalk.blue(did)}...`);
+
 
       const authPromise = context.auth.startAuth({ did, network });
       const authStart = await waitFor(authPromise, {
@@ -362,6 +376,51 @@ const exec = async (context) => {
         log(chalk.red("Error parsing response from server."));
         process.exit(1);
       }
+          break;
+        }
+        case "twitter": {
+      log("");
+      log(`Starting authorization for ${chalk.blue(did)}...`);
+
+      const authPromise = context.auth.startAuth({ did, network });
+      const authStart = await waitFor(authPromise, {
+        text: `Getting authorization...`,
+      });
+      
+      log({authStart});
+
+      if (authStart.status.code !== 200) {
+        if (context.debug) {
+          log({authStart});
+        }
+        log(chalk.red("Error starting authorization."));
+        process.exit(1);
+      }
+
+      log("");
+      if (authStart.out.open) {
+        log(`Opening ${chalk.blue(authStart.out.open)}...`);
+      sysOpen(authStart.out.open);
+      } else {
+      log(chalk.red("Error starting authorization."));
+      process.exit(1);
+      }
+
+      await waitFor(authStart.oAuthDone, {
+        text: `Confirming authentication...`,
+      });
+
+
+      log("ok!");
+
+          break;
+        }
+        default: {
+          process.exit(1);
+        }
+      }
+    
+
 
       // if we're here, we've successfully logged in, and have a signature from the server saying so
       // we now ask if the user wants to publish this DID to the XRPL, with meta data

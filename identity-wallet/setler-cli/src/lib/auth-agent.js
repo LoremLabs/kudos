@@ -1,5 +1,7 @@
 // import { bytesToHex, hexToBytes as hexTo } from "@noble/hashes/utils";
 
+import * as http from 'http';
+
 import { DEFAULTS } from "./config.js";
 // import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
@@ -167,6 +169,11 @@ AuthAgent.prototype.startAuth = async function ({ did, network }) {
       // get email
       const email = did.split(":")[3];
       return this.startEmailAuth({ email, nonce, network });
+    }
+    case "kudos:twitter": {
+      // get email
+      const twitterHandle = did.split(":")[3];
+      return this.startOAuth({ params: {twitterHandle}, type: 'twitter', nonce, network });
     }
     default: {
       throw new Error("Unknown Did Type");
@@ -347,6 +354,122 @@ AuthAgent.prototype.createPoolRequest = async function ({
 
   return request;
 };
+
+AuthAgent.prototype.startOAuth = async function ({
+  params,
+  nonce,
+  type,
+  network,
+}) {
+  const context = this.context;
+
+  if (!context.keys) {
+    context.keys = await context.vault.keys();
+  }
+
+  // get the key from the network
+  const networkParts = network.split(":");
+  let keys;
+  if (networkParts.length === 1) {
+    keys = context.keys[network];
+  } else {
+    keys = context.keys[networkParts[0]][networkParts[1]];
+  }
+
+  let { privateKey, address } = keys;
+  privateKey = normalizePrivateKey(privateKey);
+
+  // start a web server to listen for the callback
+  let server;
+  const oAuthDone  = new Promise((resolve, reject) => {
+  server = http.createServer(async (req, res) => {
+    const { url } = req;
+
+    const { pathname, searchParams } = new URL(url, `http://localhost`);
+
+    if (pathname === '/') {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(`<html><title>Setler CLI</title><body>You found an ephemeral server.</body></html>`);
+      return;
+    } else if (pathname === '/oauth') {
+      // this is the oauth callback
+      const state = searchParams.get('state');
+
+      //log({ oauth_token, oauth_verifier });
+      
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+
+      if (state === nonce) {
+        res.end(`<html><title>Close me</title><body>Ok, you can close this window now.</body></html>`);
+        resolve();
+      } else {
+        res.end(`<html><title>Close me</title><body>Something went wrong. Please try again.</body></html>`);
+        reject();
+      }
+
+      setTimeout(() => {
+        server.close();
+      }, 1000);
+
+      return;
+    } else if (pathname === '/favicon.ico') {
+      res.writeHead(204);
+      res.end();
+      return;
+    } else {
+      res.writeHead(404);
+      res.end(`Not found`);
+      return;
+    }
+  });
+});
+  await server.listen();
+  const srv = server.address();
+  let callbackUrl = `http://localhost:${srv.port}/oauth`;
+
+  const payload = JSON.stringify({
+    nonce,
+    params, // the params for the oauth provider
+    type, // twitter, etc.
+    address, // keep in the payload
+    callbackUrl,
+  });
+
+  // sign the payload
+  const { signature, recId } = await context.vault.sign({
+    keys,
+    message: payload,
+    signingKey: privateKey,
+  });
+
+  const request = {
+    rid: shortId(),
+    path: "/auth/start",
+    in: payload,
+    signature: `${signature}${recId}`, // TODO: is there a standard for this? recId is 0 or 1
+  };
+
+  // log({ request });
+
+  // this starts the oauth process
+  const { response, status } = await this.sendToPool({ request });
+  //log({ response, status });
+  let out;
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  } else {
+    try {
+    out = JSON.parse(response.out);
+    } catch (e) {
+      throw new Error(`Invalid response: ${response.out}`);
+    }
+  }
+
+  return { response, status, nonce, out, oAuthDone };
+}
 
 AuthAgent.prototype.startEmailAuth = async function ({
   email,
