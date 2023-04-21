@@ -55,6 +55,8 @@ importers:
       hash.js: ^1.1.7
       jose: ^4.13.1
       mailgun.js: ^8.2.1
+      oauth: ^0.10.0
+      openid-client: ^5.4.0
       pino: ^8.11.0
       pino-pretty: ^9.4.0
       postcss: ^8.4.21
@@ -116,6 +118,8 @@ importers:
       hash.js: 1.1.7
       jose: 4.13.1
       mailgun.js: 8.2.1
+      oauth: 0.10.0
+      openid-client: 5.4.0
       pino: 8.11.0
       pino-pretty: 9.4.0
       postcss: 8.4.21
@@ -7568,6 +7572,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /oauth/0.10.0:
+    resolution: {integrity: sha512-1orQ9MT1vHFGQxhuy7E/0gECD3fd2fCC+PIX+/jgmU/gI3EpRocXtmtvxCO5x3WZ443FLTLFWNDjl5MPJf9u+Q==}
+    dev: true
+
   /object-assign/4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
     engines: {node: '>=0.10.0'}
@@ -7581,6 +7589,11 @@ packages:
       lodash.intersection: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.pull: 4.1.0
+    dev: true
+
+  /object-hash/2.2.0:
+    resolution: {integrity: sha512-gScRMn0bS5fH+IuwyIFgnh9zBdo4DV+6GhygmWM9HyNJSgS0hScp1f5vjtm7oIIOiT9trXrShAkLFSc2IqKNgw==}
+    engines: {node: '>= 6'}
     dev: true
 
   /object-hash/3.0.0:
@@ -7609,6 +7622,11 @@ packages:
     resolution: {integrity: sha512-JI1vB0u3pZjoQKOK1ROWzp0ygxSi7Yb0iR+7UNsw4/Zn4cQ0P3R7XL38zac/Dy2tEA7Lg88/wIJTjF8vYXZ0uw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dev: false
+
+  /oidc-token-hash/5.0.2:
+    resolution: {integrity: sha512-U91Ba78GtVBxcExLI7U+hC2AwJQqXQEW/D3fjmJC4hhSVIgdl954KO4Gu95WqAlgDKJdLATxkmuxraWLT0fVRQ==}
+    engines: {node: ^10.13.0 || >=12.0.0}
+    dev: true
 
   /on-exit-leak-free/2.1.0:
     resolution: {integrity: sha512-VuCaZZAjReZ3vUwgOB8LxAosIurDiAW0s13rI1YwmaP++jvcxP77AWoQvenZebpCA2m8WC1/EosPYPMjnRAp/w==}
@@ -7655,6 +7673,15 @@ packages:
       is-docker: 2.2.1
       is-wsl: 2.2.0
     dev: false
+
+  /openid-client/5.4.0:
+    resolution: {integrity: sha512-hgJa2aQKcM2hn3eyVtN12tEA45ECjTJPXCgUh5YzTzy9qwapCvmDTVPWOcWVL0d34zeQoQ/hbG9lJhl3AYxJlQ==}
+    dependencies:
+      jose: 4.13.1
+      lru-cache: 6.0.0
+      object-hash: 2.2.0
+      oidc-token-hash: 5.0.2
+    dev: true
 
   /openurl/1.1.1:
     resolution: {integrity: sha512-d/gTkTb1i1GKz5k3XE3XFV/PxQ1k45zDqGP2OA7YhgsaLoqm6qRvARAZOFer1fcXritWlGBRCu/UgeS4HAnXAA==}

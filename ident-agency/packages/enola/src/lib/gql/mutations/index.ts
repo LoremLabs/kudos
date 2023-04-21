@@ -1,5 +1,6 @@
 import * as secp256k1 from '@noble/secp256k1';
 
+import { Issuer, generators } from 'openid-client';
 import { composeEmail, sendEmail } from '$lib/email/email';
 import { hexToBytes, validate } from '$lib/keys';
 
@@ -635,7 +636,79 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				break;
 			}
-			case '/auth/email/login': {
+			case '/auth/start': {
+				// start oauth flows
+
+				const out = {};
+
+				const { address, params, callbackUrl: cbUrl, type, nonce } = input;
+
+				if (!authed) {
+						throw new Error('Not authorized');
+				}
+
+				const config = {
+					client: {
+					  id: process.env.AUTH_TWITTER_CONSUMER_KEY,
+					  secret: process.env.AUTH_TWITTER_CONSUMER_SECRET,
+					}
+				  };
+
+				const issuer = new Issuer({
+					issuer: 'https://twitter.com',
+					authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
+					token_endpoint: 'https://api.twitter.com/2/oauth2/token'
+				  });
+
+				  const confidentialClient = new issuer.Client({
+					client_id: config.client.id,
+					client_secret: config.client.secret,
+				  });
+
+				//   const publicClient = new issuer.Client({
+				// 	client_id: config.client.id,
+				// 	token_endpoint_auth_method: 'none'
+				//   });
+
+				  const client = confidentialClient;
+
+				//   const state = generators.state();
+				  const codeVerifier = generators.codeVerifier();
+				  const codeChallenge = generators.codeChallenge(codeVerifier);
+	
+				  const callbackUrl =
+				  process.env.NODE_ENV === "production"
+					? "https://graph.ident.agency/api/v1/auth/twitter/callback"
+					: "http://localhost:5173/api/v1/auth/twitter/callback";
+
+				  const redirectUri = `${callbackUrl}`; // no qp allowed?
+
+				  // store codeVerify in redis for this address
+				  const cacheKey = `auth-twitter-login-${address}`;
+				  await redis.set(cacheKey, { nonce, codeVerifier, codeChallenge, redirectUri }, { ex: 60 * 15 }); // 15 minutes
+
+				  out.open = client.authorizationUrl({
+					redirect_uri: redirectUri,
+					response_type: 'code',
+					scope: 'tweet.read users.read offline.access', // tweet.read users.read 
+					state: Buffer.from(JSON.stringify({ nonce, address, redir: cbUrl })).toString('base64'), // add=${encodeURIComponent(address)}&red=${encodeURIComponent(cbUrl)
+					code_challenge: codeChallenge,
+					code_challenge_method: 'plain', //'S256', // 'plain', 
+				  });
+				  
+				out.input = {...input};
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.signature = signature2;
+
+				break;
+			}
+				case '/auth/email/login': {
 				// start email stuff
 
 				// generate a 6 character code from the alphabet: BCDFGHJKLMNPQRSTVWXZ
@@ -891,6 +964,11 @@ export const submitKudosForFame = async (_, params) => {
 
 export const setPayVia = async (_, params) => {
 	log.debug('---------------------', params);
+
+	// this should only be active for development
+	if (process.env.NODE_ENV !== 'development') {
+		throw new Error('Not allowed');
+	}
 
 	// TODO: more validation
 
