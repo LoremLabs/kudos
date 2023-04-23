@@ -404,10 +404,19 @@ const exec = async (context) => {
             process.exit(1);
           }
 
-          const authMsgRaw = await waitFor(authStart.oAuthDone, {
-            text: `Confirming authentication...`,
-          });
-          data = JSON.parse(authMsgRaw.msg);
+          try {
+            const authMsgRaw = await waitFor(authStart.oAuthDone, {
+              text: `Confirming authentication...`,
+            });
+            if (authMsgRaw.msg) {
+              data = JSON.parse(authMsgRaw.msg);
+            }
+          } catch (e) {
+            if (e.error) {
+              log(chalk.red(e.error));
+              process.exit(1);
+            }
+          }
 
           log("");
           log(`You have successfully authenticated with ${chalk.blue(did)}.`);
@@ -434,7 +443,7 @@ const exec = async (context) => {
 
       log("");
       log(
-        `You can persist this mapping for ` +
+        `You can extend this mapping for ` +
           chalk.cyan(
             `${ago(new Date(Date.now() + data.mapping.expiration * 1000))}`
           ) +
