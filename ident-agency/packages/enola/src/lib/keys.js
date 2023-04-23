@@ -64,3 +64,51 @@ export const validate = async (params) => {
 
 	return verified;
 };
+
+export const normalizePrivateKey = (privateKey) => {
+	if (typeof privateKey === 'string') {
+		if (privateKey.length === 66) {
+			// remove 00 prefix
+			privateKey = privateKey.slice(2);
+		}
+	}
+
+	return privateKey;
+};
+
+export const getKeys = async function (address) {
+	// used by processes that only have access to env vars to get keys
+
+	// we iterate through process.env.WALLET_SEED_* and find the one that matches the address. Values are address:data:data2
+	// where data is the public key and data2 is the private key
+
+	let found = null;
+	for (const key in process.env) {
+		if (key.startsWith('WALLET_SEED_')) {
+			const keyString = process.env[key];
+			const [walletAddress, publicKey, privateKey] = keyString.split(':');
+
+			if (walletAddress === address) {
+				found = { walletAddress, publicKey, privateKey: normalizePrivateKey(privateKey) };
+				break;
+			}
+		}
+	}
+
+	if (!found) {
+		throw new Error(`Wallet seed not found for address: ${address}`);
+	}
+
+	return found;
+};
+
+export const signMessage = async ({ message, address }) => {
+	const hashedMessage = sha256(JSON.stringify(message));
+	const { privateKey } = await getKeys(address);
+
+	const [sig, recId] = await secp256k1.sign(hashedMessage, hexToBytes(privateKey), {
+		recovered: true
+	});
+
+	return `${bytesToHex(sig)}${recId}`;
+};
