@@ -1,6 +1,6 @@
 // import { bytesToHex, hexToBytes as hexTo } from "@noble/hashes/utils";
 
-import * as http from 'http';
+import * as http from "http";
 
 import { DEFAULTS } from "./config.js";
 // import { deriveAddressFromBytes } from "./wallet/keys.js";
@@ -173,7 +173,12 @@ AuthAgent.prototype.startAuth = async function ({ did, network }) {
     case "kudos:twitter": {
       // get email
       const twitterHandle = did.split(":")[3];
-      return this.startOAuth({ params: {twitterHandle}, type: 'twitter', nonce, network });
+      return this.startOAuth({
+        params: { twitterHandle },
+        type: "twitter",
+        nonce,
+        network,
+      });
     }
     default: {
       throw new Error("Unknown Did Type");
@@ -381,48 +386,54 @@ AuthAgent.prototype.startOAuth = async function ({
 
   // start a web server to listen for the callback
   let server;
-  const oAuthDone  = new Promise((resolve, reject) => {
-  server = http.createServer(async (req, res) => {
-    const { url } = req;
+  const oAuthDone = new Promise((resolve, reject) => {
+    server = http.createServer(async (req, res) => {
+      const { url } = req;
 
-    const { pathname, searchParams } = new URL(url, `http://localhost`);
+      const { pathname, searchParams } = new URL(url, `http://localhost`);
 
-    if (pathname === '/') {
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      res.end(`<html><title>Setler CLI</title><body>You found an ephemeral server.</body></html>`);
-      return;
-    } else if (pathname === '/oauth') {
-      // this is the oauth callback
-      const state = searchParams.get('state');
+      if (pathname === "/") {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end(
+          `<html><title>Setler CLI</title><body>You found an ephemeral server.</body></html>`
+        );
+        return;
+      } else if (pathname === "/oauth") {
+        // this is the oauth callback
+        const state = searchParams.get("state");
 
-      //log({ oauth_token, oauth_verifier });
-      
-      res.writeHead(200, { 'Content-Type': 'text/html' });
+        //log({ oauth_token, oauth_verifier });
 
-      if (state === nonce) {
-        res.end(`<html><title>Close me</title><body>Ok, you can close this window now.</body></html>`);
-        resolve();
+        res.writeHead(200, { "Content-Type": "text/html" });
+
+        if (state === nonce) {
+          res.end(
+            `<html><title>Close me</title><body>Ok, you can close this window now.</body></html>`
+          );
+          resolve();
+        } else {
+          res.end(
+            `<html><title>Close me</title><body>Something went wrong. Please try again.</body></html>`
+          );
+          reject();
+        }
+
+        setTimeout(() => {
+          server.close();
+        }, 1000);
+
+        return;
+      } else if (pathname === "/favicon.ico") {
+        res.writeHead(204);
+        res.end();
+        return;
       } else {
-        res.end(`<html><title>Close me</title><body>Something went wrong. Please try again.</body></html>`);
-        reject();
+        res.writeHead(404);
+        res.end(`Not found`);
+        return;
       }
-
-      setTimeout(() => {
-        server.close();
-      }, 1000);
-
-      return;
-    } else if (pathname === '/favicon.ico') {
-      res.writeHead(204);
-      res.end();
-      return;
-    } else {
-      res.writeHead(404);
-      res.end(`Not found`);
-      return;
-    }
+    });
   });
-});
   await server.listen();
   const srv = server.address();
   let callbackUrl = `http://localhost:${srv.port}/oauth`;
@@ -462,14 +473,14 @@ AuthAgent.prototype.startOAuth = async function ({
     throw e;
   } else {
     try {
-    out = JSON.parse(response.out);
+      out = JSON.parse(response.out);
     } catch (e) {
       throw new Error(`Invalid response: ${response.out}`);
     }
   }
 
   return { response, status, nonce, out, oAuthDone };
-}
+};
 
 AuthAgent.prototype.startEmailAuth = async function ({
   email,

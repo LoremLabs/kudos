@@ -276,9 +276,7 @@ const exec = async (context) => {
             name: "twitter",
             initial: context.flags.twitter || "",
             message:
-              "Twitter Handle? " +
-              chalk.grey(`(example: @loremlabs)`) +
-              " ?",
+              "Twitter Handle? " + chalk.grey(`(example: @loremlabs)`) + " ?",
             validate: (maybeHandle) => {
               // allow empty to skip
               if (maybeHandle === "") {
@@ -312,106 +310,105 @@ const exec = async (context) => {
         }
       }
 
+      let data = {};
+
       switch (didType) {
         case "email": {
-      // logging in with did message
-      log("");
-      log(`Logging in with ${chalk.blue(did)}...`);
+          // logging in with did message
+          log("");
+          log(`Logging in with ${chalk.blue(did)}...`);
 
+          const authPromise = context.auth.startAuth({ did, network });
+          const authStart = await waitFor(authPromise, {
+            text: `Getting authorization...`,
+          });
 
-      const authPromise = context.auth.startAuth({ did, network });
-      const authStart = await waitFor(authPromise, {
-        text: `Getting authorization...`,
-      });
+          log("");
+          log(
+            `You will receive an email with a code. Enter that code below to complete the login process.`
+          );
+          log("");
 
-      log("");
-      log(
-        `You will receive an email with a code. Enter that code below to complete the login process.`
-      );
-      log("");
+          // if we're here, the backend should have sent us an email, so we wait for it, and ask
+          // the user to enter the code they received
+          const authCode = await prompts({
+            type: "text",
+            name: "code",
+            instructions: "Example: ABCD-EFGH",
+            message: "Access code:",
+          });
 
-      // if we're here, the backend should have sent us an email, so we wait for it, and ask
-      // the user to enter the code they received
-      const authCode = await prompts({
-        type: "text",
-        name: "code",
-        instructions: "Example: ABCD-EFGH",
-        message: "Access code:",
-      });
+          if (!authCode.code) {
+            process.exit(1);
+          }
 
-      if (!authCode.code) {
-        process.exit(1);
-      }
+          // log({authStart});
+          try {
+            data = JSON.parse(authStart.response?.out);
+          } catch (e) {
+            log(chalk.red("Error parsing response from server."));
+            process.exit(1);
+          }
 
-      // log({authStart});
-      let data = {};
-      try {
-        data = JSON.parse(authStart.response?.out);
-      } catch (e) {
-        log(chalk.red("Error parsing response from server."));
-        process.exit(1);
-      }
+          // see if our nonce matches
+          if (data.nonce !== authStart.nonce) {
+            log(chalk.red("Nonce mismatch."));
+            process.exit(1);
+          }
 
-      // see if our nonce matches
-      if (data.nonce !== authStart.nonce) {
-        log(chalk.red("Nonce mismatch."));
-        process.exit(1);
-      }
+          // we have the code, so we can finish the auth process
+          const verifyAuthCodePromise = context.auth.verifyAuthCode({
+            rid: data.rid,
+            code: authCode.code,
+            nonce: authStart.nonce,
+            network,
+          });
+          const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
+            text: `Verifying code...`,
+          });
 
-      // we have the code, so we can finish the auth process
-      const verifyAuthCodePromise = context.auth.verifyAuthCode({
-        rid: data.rid,
-        code: authCode.code,
-        nonce: authStart.nonce,
-        network,
-      });
-      const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
-        text: `Verifying code...`,
-      });
-
-      log(verifyAuthCode);
-      try {
-        data = JSON.parse(verifyAuthCode.response?.out);
-      } catch (e) {
-        log(chalk.red("Error parsing response from server."));
-        process.exit(1);
-      }
+          log(verifyAuthCode);
+          try {
+            data = JSON.parse(verifyAuthCode.response?.out);
+          } catch (e) {
+            log(chalk.red("Error parsing response from server."));
+            process.exit(1);
+          }
           break;
         }
         case "twitter": {
-      log("");
-      log(`Starting authorization for ${chalk.blue(did)}...`);
+          log("");
+          log(`Starting authorization for ${chalk.blue(did)}...`);
 
-      const authPromise = context.auth.startAuth({ did, network });
-      const authStart = await waitFor(authPromise, {
-        text: `Getting authorization...`,
-      });
-      
-      log({authStart});
+          const authPromise = context.auth.startAuth({ did, network });
+          const authStart = await waitFor(authPromise, {
+            text: `Getting authorization...`,
+          });
 
-      if (authStart.status.code !== 200) {
-        if (context.debug) {
-          log({authStart});
-        }
-        log(chalk.red("Error starting authorization."));
-        process.exit(1);
-      }
+          log({ authStart });
 
-      log("");
-      if (authStart.out.open) {
-        log(`Opening ${chalk.blue(authStart.out.open)}...`);
-      sysOpen(authStart.out.open);
-      } else {
-      log(chalk.red("Error starting authorization."));
-      process.exit(1);
-      }
+          if (authStart.status.code !== 200) {
+            if (context.debug) {
+              log({ authStart });
+            }
+            log(chalk.red("Error starting authorization."));
+            process.exit(1);
+          }
 
-      await waitFor(authStart.oAuthDone, {
-        text: `Confirming authentication...`,
-      });
+          log("");
+          if (authStart.out.open) {
+            log(`Opening ${chalk.blue(authStart.out.open)}...`);
+            sysOpen(authStart.out.open);
+          } else {
+            log(chalk.red("Error starting authorization."));
+            process.exit(1);
+          }
 
+          await waitFor(authStart.oAuthDone, {
+            text: `Confirming authentication...`,
+          });
 
-      log("ok!");
+          log("ok!");
 
           break;
         }
@@ -419,8 +416,6 @@ const exec = async (context) => {
           process.exit(1);
         }
       }
-    
-
 
       // if we're here, we've successfully logged in, and have a signature from the server saying so
       // we now ask if the user wants to publish this DID to the XRPL, with meta data
