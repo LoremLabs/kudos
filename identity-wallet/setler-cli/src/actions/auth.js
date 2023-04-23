@@ -404,11 +404,14 @@ const exec = async (context) => {
             process.exit(1);
           }
 
-          await waitFor(authStart.oAuthDone, {
+          const authMsgRaw = await waitFor(authStart.oAuthDone, {
             text: `Confirming authentication...`,
           });
+          data = JSON.parse(authMsgRaw.msg);
 
-          log("ok!");
+          log("");
+          log(`You have successfully authenticated with ${chalk.blue(did)}.`);
+          // log(data);
 
           break;
         }
@@ -435,7 +438,7 @@ const exec = async (context) => {
           chalk.cyan(
             `${ago(new Date(Date.now() + data.mapping.expiration * 1000))}`
           ) +
-          ` by using a lookup directory.`
+          ` by using a lookup directory service.`
       );
       if (data.mapping.terms) {
         log("");

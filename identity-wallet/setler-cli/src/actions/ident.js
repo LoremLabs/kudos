@@ -82,6 +82,17 @@ const exec = async (context) => {
         // construct a did by asking some questions:
         // 1) email, twitter, phone, etc
         log("");
+        let initial = 0;
+        if (context.flags.email) {
+          initial = 0;
+        }
+        if (context.flags.twitter) {
+          initial = 1;
+        }
+        if (context.flags.github) {
+          initial = 2;
+        }
+
         const response = await prompts([
           {
             message: "What type of identifier do you want to lookup?",
@@ -96,7 +107,6 @@ const exec = async (context) => {
               {
                 title: "twitter",
                 value: "twitter",
-                disabled: true,
                 description: "Twitter username.",
               },
               {
@@ -106,7 +116,7 @@ const exec = async (context) => {
                 description: "Github handle.",
               },
             ],
-            initial: 0,
+            initial,
           },
           {
             type: (prev) => {
@@ -140,6 +150,7 @@ const exec = async (context) => {
               "Twitter Screen name? " +
               chalk.grey(`(example: @loremlabs)`) +
               " ?",
+            initial: context.flags.twitter || "",
             validate: (maybeHandle) => {
               // allow empty to skip
               if (maybeHandle === "") {
@@ -147,7 +158,7 @@ const exec = async (context) => {
               }
 
               // does this seem like a twitter handle?
-              const checkRegex = /^@[a-zA-Z0-9_]{1,15}$/;
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,15}$/;
               return checkRegex.test(maybeHandle);
             },
           },
@@ -182,7 +193,11 @@ const exec = async (context) => {
             break;
           }
           case "twitter": {
-            did = `did:kudos:twitter:${response.twitter}`;
+            let handle = response.twitter.toLowerCase().trim();
+            if (handle.startsWith("@")) {
+              handle = handle.slice(1);
+            }
+            did = `did:kudos:twitter:${handle}`;
             break;
           }
           case "github": {

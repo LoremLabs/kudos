@@ -400,22 +400,26 @@ AuthAgent.prototype.startOAuth = async function ({
         return;
       } else if (pathname === "/oauth") {
         // this is the oauth callback
-        const state = searchParams.get("state");
+        const passedNonce = searchParams.get("nonce");
 
         //log({ oauth_token, oauth_verifier });
 
         res.writeHead(200, { "Content-Type": "text/html" });
 
-        if (state === nonce) {
+        if (passedNonce === nonce) {
           res.end(
             `<html><title>Close me</title><body>Ok, you can close this window now.</body></html>`
           );
-          resolve();
+          resolve({
+            msg: searchParams.get("msg"),
+          });
         } else {
           res.end(
             `<html><title>Close me</title><body>Something went wrong. Please try again.</body></html>`
           );
-          reject();
+          reject({
+            error: "Nonce mismatch",
+          });
         }
 
         setTimeout(() => {
