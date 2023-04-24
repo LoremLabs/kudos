@@ -106,9 +106,6 @@ dependencies:
   ripple-address-codec:
     specifier: ^4.2.5
     version: 4.2.5
-  timeago.js:
-    specifier: ^4.0.2
-    version: 4.0.2
   update-notifier:
     specifier: ^5.1.0
     version: 5.1.0
@@ -156,6 +153,9 @@ devDependencies:
   prettier:
     specifier: 2.4.1
     version: 2.4.1
+  randomstring:
+    specifier: ^1.2.3
+    version: 1.2.3
 
 packages:
   /@babel/code-frame@7.18.6:
@@ -1333,6 +1333,14 @@ packages:
         integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==,
       }
     engines: { node: ">=8" }
+    dev: true
+
+  /array-uniq@1.0.2:
+    resolution:
+      {
+        integrity: sha512-GVYjmpL05al4dNlKJm53mKE4w9OOLiuVHWorsIA3YVz+Hu0hcn6PtE3Ydl0EqU7v+7ABC4mjjWsnLUxbpno+CA==,
+      }
+    engines: { node: ">=0.10.0" }
     dev: true
 
   /arrify@1.0.1:
@@ -5583,6 +5591,24 @@ packages:
       }
     engines: { node: ">=8" }
 
+  /randombytes@2.0.3:
+    resolution:
+      {
+        integrity: sha512-lDVjxQQFoCG1jcrP06LNo2lbWp4QTShEXnhActFBwYuHprllQV6VUpwreApsYqCgD+N1mHoqJ/BI/4eV4R2GYg==,
+      }
+    dev: true
+
+  /randomstring@1.2.3:
+    resolution:
+      {
+        integrity: sha512-3dEFySepTzp2CvH6W/ASYGguPPveBuz5MpZ7MuoUkoVehmyNl9+F9c9GFVrz2QPbM9NXTIHGcmJDY/3j4677kQ==,
+      }
+    hasBin: true
+    dependencies:
+      array-uniq: 1.0.2
+      randombytes: 2.0.3
+    dev: true
+
   /rc@1.2.8:
     resolution:
       {
@@ -6318,13 +6344,6 @@ packages:
         integrity: sha512-Cc+OraorugtXNfs50hU9KS369rFXCfgGLpfCfvlc+Ud5u6VWmUQsOAa9HbTvheQdYnrdJqqv1e5oIqXppMYnSw==,
       }
     engines: { node: ">=8" }
-    dev: false
-
-  /timeago.js@4.0.2:
-    resolution:
-      {
-        integrity: sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==,
-      }
     dev: false
 
   /tiny-secp256k1@1.1.6:

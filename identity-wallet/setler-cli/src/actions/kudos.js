@@ -2,7 +2,6 @@ import * as child_process from "child_process";
 
 import YAML from "yaml";
 import _glob from "glob";
-import { format as ago } from "timeago.js";
 import chalk from "chalk";
 import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
@@ -1249,7 +1248,15 @@ const exec = async (context) => {
                 log(
                   chalk.gray(`=> Escrow payment expires: `) +
                     chalk.cyan(
-                      `${ago(new Date(Date.now() + escrowMethod.time * 1000))}`
+                      `${new Date(
+                        Date.now() + escrowMethod.time * 1000
+                      ).toLocaleString("default", {
+                        month: "long",
+                        year: "numeric",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                      })}`
                     )
                 );
                 if (escrowMethod.onExpiration === "snowball") {

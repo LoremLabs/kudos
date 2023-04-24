@@ -1,5 +1,4 @@
 import { UnsecuredJWT } from "jose";
-import { format as ago } from "timeago.js";
 import chalk from "chalk";
 // import fetch from "node-fetch";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
@@ -437,15 +436,34 @@ const exec = async (context) => {
         `You have successfully associated your ${didType} with your XRPL account.`
       );
       log(
-        chalk.gray(`\tThis will expire in: \t`) +
-          chalk.cyan(`${ago(new Date(Date.now() + 86400 * 7 * 1000))}`)
+        chalk.gray(`\tThis will expire at: \t`) +
+          chalk.cyan(
+            `${new Date(Date.now() + 86400 * 7 * 1000).toLocaleString(
+              "default",
+              {
+                month: "long",
+                year: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              }
+            )}`
+          )
       );
 
       log("");
       log(
-        `You can extend this mapping for ` +
+        `You can extend this mapping until ` +
           chalk.cyan(
-            `${ago(new Date(Date.now() + data.mapping.expiration * 1000))}`
+            `${new Date(
+              Date.now() + data.mapping.expiration * 1000
+            ).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+            })}`
           ) +
           ` by using a lookup directory service.`
       );

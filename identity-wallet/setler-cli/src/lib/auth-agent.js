@@ -170,6 +170,7 @@ AuthAgent.prototype.startAuth = async function ({ did, network }) {
       const email = did.split(":")[3];
       return this.startEmailAuth({ email, nonce, network });
     }
+    // TODO: add kudos:github oauth flow
     case "kudos:twitter": {
       // get email
       const twitterHandle = did.split(":")[3];
