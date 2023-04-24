@@ -1,11 +1,12 @@
-import { Issuer, generators } from 'openid-client';
 import { composeEmail, sendEmail } from '$lib/email/email';
 import { signMessage, validate } from '$lib/keys';
 
 import { BloomFilter } from 'bloomfilter';
 import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
+import randomstring from 'randomstring';
 import { redis } from '$lib/redis.js';
+import { sha256 } from '@noble/hashes/sha256';
 import { shortId } from '$lib/utils/short-id';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
@@ -18,7 +19,7 @@ const SEND_SOCIAL_BOT_EMAIL = process.env.SEND_SOCIAL_BOT_EMAIL || `no-reply@not
 process.env.SEND_SOCIAL_BOT_EMAIL || `"--send-to-social--" <${SEND_SOCIAL_BOT_EMAIL}>`;
 const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 10) || 10; // xrp
 const SEND_SOCIAL_EXPIRATION =
-	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 30 * 3; // 3 months
+	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 7 * 12; // valid for 12 weeks
 
 const checkPoolId = async ({ address, currentUser, poolId }) => {
 	// currentUser: {
@@ -599,30 +600,17 @@ export const submitPoolRequest = async (root, params, context) => {
 					client: {
 						id: process.env.AUTH_TWITTER_CONSUMER_KEY,
 						secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
+					},
+					endpoint: {
+						issuer: 'https://twitter.com',
+						authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
+						token_endpoint: 'https://api.twitter.com/2/oauth2/token'
 					}
 				};
 
-				const issuer = new Issuer({
-					issuer: 'https://twitter.com',
-					authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
-					token_endpoint: 'https://api.twitter.com/2/oauth2/token'
-				});
-
-				const confidentialClient = new issuer.Client({
-					client_id: config.client.id,
-					client_secret: config.client.secret
-				});
-
-				//   const publicClient = new issuer.Client({
-				// 	client_id: config.client.id,
-				// 	token_endpoint_auth_method: 'none'
-				//   });
-
-				const client = confidentialClient;
-
-				//   const state = generators.state();
-				const codeVerifier = generators.codeVerifier();
-				const codeChallenge = generators.codeChallenge(codeVerifier);
+				// generate a code verifier and challenge
+				const codeVerifier = randomstring.generate(128);
+				const codeChallenge = Buffer.from(sha256(codeVerifier)).toString('base64url');
 
 				const callbackUrl =
 					process.env.NODE_ENV === 'production'
@@ -639,14 +627,20 @@ export const submitPoolRequest = async (root, params, context) => {
 					{ ex: 60 * 15 }
 				); // 15 minutes
 
-				out.open = client.authorizationUrl({
-					redirect_uri: redirectUri,
-					response_type: 'code',
-					scope: 'tweet.read users.read offline.access', // tweet.read users.read
-					state: Buffer.from(JSON.stringify({ nonce, address, redir: cbUrl })).toString('base64'), // add=${encodeURIComponent(address)}&red=${encodeURIComponent(cbUrl)
-					code_challenge: codeChallenge,
-					code_challenge_method: 'S256' //'plain' = use codeChallenge to verify, 'S256' = use codeVerifier to verify. s256 preferred
-				});
+				// create oauth URL
+				const oauthUrl = new URL(config.endpoint.authorization_endpoint);
+				oauthUrl.searchParams.set('client_id', config.client.id);
+				oauthUrl.searchParams.set('scope', 'tweet.read users.read offline.access');
+				oauthUrl.searchParams.set('response_type', 'code');
+				oauthUrl.searchParams.set('redirect_uri', redirectUri);
+				oauthUrl.searchParams.set(
+					'state',
+					Buffer.from(JSON.stringify({ nonce, address, redir: cbUrl })).toString('base64')
+				);
+				oauthUrl.searchParams.set('code_challenge', codeChallenge);
+				oauthUrl.searchParams.set('code_challenge_method', 'S256');
+
+				out.open = oauthUrl.toString();
 
 				out.input = { ...input };
 
