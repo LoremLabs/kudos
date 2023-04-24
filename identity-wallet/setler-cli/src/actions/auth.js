@@ -239,7 +239,6 @@ const exec = async (context) => {
               {
                 title: "github",
                 value: "github",
-                disabled: true,
                 description: "Your GitHub handle.",
               },
             ],
@@ -255,7 +254,10 @@ const exec = async (context) => {
               "Email address? " +
               chalk.grey(`(example: email@domain.com)`) +
               " ?",
-            initial: context.flags.email || "",
+            initial:
+              context.flags.email && context.flags.email !== true
+                ? context.flags.email
+                : "",
             validate: (maybeEmail) => {
               // allow empty to skip
               if (maybeEmail === "") {
@@ -273,7 +275,10 @@ const exec = async (context) => {
               return type;
             },
             name: "twitter",
-            initial: context.flags.twitter || "",
+            initial:
+              context.flags.twitter && context.flags.twitter !== true
+                ? context.flags.twitter
+                : "",
             message:
               "Twitter Handle? " + chalk.grey(`(example: @loremlabs)`) + " ?",
             validate: (maybeHandle) => {
@@ -283,7 +288,30 @@ const exec = async (context) => {
               }
 
               // does this seem like a twitter handle?
-              const checkRegex = /^@[a-zA-Z0-9_]{1,15}$/;
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,15}$/;
+              return checkRegex.test(maybeHandle);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "github" ? "text" : null;
+              return type;
+            },
+            name: "github",
+            initial:
+              context.flags.github && context.flags.github !== true
+                ? context.flags.github
+                : "",
+            message:
+              "Github Handle? " + chalk.grey(`(example: @loremlabs)`) + " ?",
+            validate: (maybeHandle) => {
+              // allow empty to skip
+              if (maybeHandle === "") {
+                return true;
+              }
+
+              // does this seem like a github handle?
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,39}$/;
               return checkRegex.test(maybeHandle);
             },
           },
@@ -299,8 +327,19 @@ const exec = async (context) => {
             break;
           }
           case "twitter": {
-            const twitterHandle = response.twitter.replace("@", "").trim();
+            const twitterHandle = response.twitter
+              .replace("@", "")
+              .toLowerCase()
+              .trim();
             did = `did:kudos:twitter:${twitterHandle}`;
+            break;
+          }
+          case "github": {
+            const githubHandle = response.github
+              .replace("@", "")
+              .toLowerCase()
+              .trim();
+            did = `did:kudos:github:${githubHandle}`;
             break;
           }
           default: {
@@ -375,6 +414,7 @@ const exec = async (context) => {
           }
           break;
         }
+        case "github":
         case "twitter": {
           log("");
           log(`Starting authorization for ${chalk.blue(did)}...`);
@@ -403,7 +443,15 @@ const exec = async (context) => {
             process.exit(1);
           }
 
+          let timeout;
           try {
+            if (!context.flags.noTimeout) {
+              timeout = setTimeout(() => {
+                log(chalk.red("Timed out waiting for authorization."));
+                throw new Error("timed out");
+              }, 1000 * 60 * 5);
+            }
+
             const authMsgRaw = await waitFor(authStart.oAuthDone, {
               text: `Confirming authentication...`,
             });
@@ -416,6 +464,7 @@ const exec = async (context) => {
               process.exit(1);
             }
           }
+          clearTimeout(timeout);
 
           log("");
           log(`You have successfully authenticated with ${chalk.blue(did)}.`);
