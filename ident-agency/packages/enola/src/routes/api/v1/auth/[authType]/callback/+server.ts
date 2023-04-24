@@ -14,7 +14,7 @@ const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 1
 const SEND_SOCIAL_EXPIRATION =
 	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 30 * 3; // 3 months
 
-const onTwitterAuthCallback = async ({ url }) => {
+const onAuthCallback = async ({ url, params: svelteParams }) => {
 	// get all query params as a hash from searchParams
 	const qp = Object.fromEntries(url.searchParams.entries());
 	// log.info({ qp });
@@ -31,14 +31,44 @@ const onTwitterAuthCallback = async ({ url }) => {
 	const redir = state.redir;
 	const address = state.address;
 
-	const config = {
-		client: {
-			id: process.env.AUTH_TWITTER_CONSUMER_KEY,
-			secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
-		}
-	};
+	const { authType } = svelteParams;
+	log.debug({ authType, qp, state });
 
-	const cacheKey = `auth-twitter-login-${address}`;
+	let config = {};
+
+	switch (authType) {
+		case 'twitter': {
+			config = {
+				client: {
+					id: process.env.AUTH_TWITTER_CONSUMER_KEY,
+					secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
+				},
+				endpoint: {
+					auth: 'https://api.twitter.com/oauth/authenticate',
+					token: 'https://api.twitter.com/2/oauth2/token'
+				}
+			};
+			break;
+		}
+		case 'github': {
+			config = {
+				client: {
+					id: process.env.AUTH_GITHUB_CLIENT_ID,
+					secret: process.env.AUTH_GITHUB_CLIENT_SECRET
+				},
+				endpoint: {
+					token: 'https://github.com/login/oauth/access_token',
+					user: 'https://api.github.com/user'
+				}
+			};
+			break;
+		}
+		default: {
+			throw new Error('unknown auth type');
+		}
+	}
+
+	const cacheKey = `auth-${authType}-login-${address}`;
 	const session = await redis.get(cacheKey);
 
 	try {
@@ -52,11 +82,16 @@ const onTwitterAuthCallback = async ({ url }) => {
 		params.append('code_verifier', session.codeVerifier); // for plain, use session.codeChallenge
 		params.append('code', qp.code);
 
-		const response = await fetch(`https://api.twitter.com/2/oauth2/token`, {
+		log.debug('--????????----');
+		log.debug({ config, params: params.toString() });
+		const response = await fetch(config.endpoint.token, {
 			method: 'POST',
-			// headers: {
-			//     'authorization': `Basic ${Buffer.from(`${config.client.id}:${config.client.secret}`).toString('base64')}`,
-			// },
+			headers: {
+				accept: 'application/json',
+				authorization: `Basic ${Buffer.from(`${config.client.id}:${config.client.secret}`).toString(
+					'base64'
+				)}`
+			},
 			body: params
 		});
 
@@ -74,41 +109,85 @@ const onTwitterAuthCallback = async ({ url }) => {
 			//     },
 
 			json = await response.json();
+			log.debug('-----------------???');
+			log.info({ json });
 		} catch (e) {
 			log.error(e);
 		}
 
 		// 2. get user details
-		const me = await fetch(`https://api.twitter.com/2/users/me`, {
-			method: 'GET',
-			headers: {
-				'content-type': 'application/json',
-				Authorization: `Bearer ${json.access_token}`
+		let identifier;
+		let data = {};
+		const credentialMap = [];
+
+		switch (authType) {
+			case 'twitter': {
+				const me = await fetch(`https://api.twitter.com/2/users/me`, {
+					method: 'GET',
+					headers: {
+						'content-type': 'application/json',
+						Authorization: `Bearer ${json.access_token}`
+					}
+				});
+
+				const twitterUser = await me.json();
+
+				if (twitterUser.data && twitterUser.data.username) {
+					// we should sign the user data to prove we verified it
+					data = {
+						user: twitterUser.data,
+						tokens: {
+							access_token: json.access_token,
+							refresh_token: json.refresh_token
+						}
+					};
+
+					identifier = `did:kudos:twitter:${data.user.username.toLowerCase()}`;
+
+					credentialMap.push(address);
+					credentialMap.push(`did:kudos:${authType}:${data.user.username.toLowerCase()}`);
+				} else {
+					throw new Error(`unable to get user`);
+				}
+				break;
 			}
-		});
+			case 'github': {
+				const me = await fetch(config.endpoint.user, {
+					method: 'GET',
+					headers: {
+						'content-type': 'application/json',
+						accept: 'application/json',
+						Authorization: `Bearer ${json.access_token}`
+					}
+				});
 
-		const twitterUser = await me.json();
-
-		// 3. save the twitter user to redis
-		if (twitterUser.data && twitterUser.data.username) {
-			// we should sign the user data to prove we verified it
-			const data = {
-				user: twitterUser.data,
-				tokens: {
+				const user = await me.json();
+				// log.info('user: ', user);
+				// log.info('me ', me);
+				data.user = user;
+				data.tokens = {
 					access_token: json.access_token,
 					refresh_token: json.refresh_token
-				}
-			};
+				};
+				// log.debug({data},'?!');
 
-			const identifier = `did:kudos:twitter:${twitterUser.data.username.toLowerCase()}`;
+				identifier = `did:kudos:${authType}:${data.user.login.toLowerCase()}`;
 
-			await logAuthAction({ method: 'twitter', identifier, data, address, ts });
+				credentialMap.push(address);
+				credentialMap.push(`did:kudos:${authType}:${data.user.login.toLowerCase()}`);
 
-			const cacheKey = `auth:${identifier}`;
-			await redis.set(cacheKey, data); // last write wins
-		} else {
-			throw new Error('unable to get twitter user');
+				break;
+			}
+			default: {
+				throw new Error('unknown auth type');
+			}
 		}
+
+		await logAuthAction({ method: authType, identifier, data, address, ts });
+
+		const cacheKey = `auth:${identifier}`;
+		await redis.set(cacheKey, data); // last write wins
+
 		// const ex = {
 		// 	out: '{"credential-map":["r4bqzg7iZFBGmLyYRa3o6vgtCMDzvVoRCh","did:kudos:email:mankins@gmail.com"],"signature":"3045022100c3d4756e943db74a4b8e848364f1cd88528824b2e3a290295968aa31197ebdd402207f7f6d52496e43ec2a1e8b2f23e6d48d7414630439c0df98fbc5f79018e2f62f1","mapping":{"costXrp":10,"address":"rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3","terms":"https://send-to-social.ident.agency/terms","expiration":3600}}',
 		// 	signature:
@@ -116,9 +195,6 @@ const onTwitterAuthCallback = async ({ url }) => {
 		// };
 
 		const out = {};
-		const credentialMap = [];
-		credentialMap.push(address);
-		credentialMap.push(`did:kudos:twitter:${twitterUser.data.username.toLowerCase()}`);
 
 		// we will sign this credential map with our private key
 
@@ -184,4 +260,4 @@ const cors = async () => {
 	});
 };
 
-export { onTwitterAuthCallback as GET, cors as OPTIONS };
+export { onAuthCallback as GET, cors as OPTIONS };

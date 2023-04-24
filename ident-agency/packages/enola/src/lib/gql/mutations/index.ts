@@ -589,24 +589,52 @@ export const submitPoolRequest = async (root, params, context) => {
 				// start oauth flows
 				const out = {};
 
-				//				const { address, params, callbackUrl: cbUrl, type, nonce } = input;
-				const { address, callbackUrl: cbUrl, nonce } = input;
+				const { address, callbackUrl: cbUrl, nonce, params, type } = input;
 
 				if (!authed) {
 					throw new Error('Not authorized');
 				}
 
-				const config = {
-					client: {
-						id: process.env.AUTH_TWITTER_CONSUMER_KEY,
-						secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
-					},
-					endpoint: {
-						issuer: 'https://twitter.com',
-						authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
-						token_endpoint: 'https://api.twitter.com/2/oauth2/token'
+				let config = {};
+
+				switch (type) {
+					case 'twitter': {
+						config = {
+							client: {
+								id: process.env.AUTH_TWITTER_CONSUMER_KEY,
+								secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
+							},
+							endpoint: {
+								authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
+								issuer: 'https://twitter.com',
+								scope: 'tweet.read users.read offline.access',
+								token_endpoint: 'https://api.twitter.com/2/oauth2/token'
+							}
+						};
+						break;
 					}
-				};
+					case 'github': {
+						config = {
+							client: {
+								id: process.env.AUTH_GITHUB_CLIENT_ID,
+								secret: process.env.AUTH_GITHUB_CLIENT_SECRET
+							},
+							endpoint: {
+								authorization_endpoint: 'https://github.com/login/oauth/authorize',
+								issuer: 'https://github.com',
+								scope: 'user:email',
+								token_endpoint: 'https://github.com',
+								params: {
+									login: params.githubHandle
+								}
+							}
+						};
+						break;
+					}
+					default: {
+						throw new Error('Invalid type');
+					}
+				}
 
 				// generate a code verifier and challenge
 				const codeVerifier = randomstring.generate(128);
@@ -614,13 +642,13 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				const callbackUrl =
 					process.env.NODE_ENV === 'production'
-						? 'https://graph.ident.agency/api/v1/auth/twitter/callback'
-						: 'http://localhost:5173/api/v1/auth/twitter/callback';
+						? `https://graph.ident.agency/api/v1/auth/${type}/callback`
+						: `http://localhost:5173/api/v1/auth/${type}/callback`;
 
 				const redirectUri = `${callbackUrl}`; // no qp allowed?
 
 				// store codeVerify in redis for this address
-				const cacheKey = `auth-twitter-login-${address}`;
+				const cacheKey = `auth-${type}-login-${address}`;
 				await redis.set(
 					cacheKey,
 					{ nonce, codeVerifier, codeChallenge, redirectUri },
@@ -630,7 +658,7 @@ export const submitPoolRequest = async (root, params, context) => {
 				// create oauth URL
 				const oauthUrl = new URL(config.endpoint.authorization_endpoint);
 				oauthUrl.searchParams.set('client_id', config.client.id);
-				oauthUrl.searchParams.set('scope', 'tweet.read users.read offline.access');
+				oauthUrl.searchParams.set('scope', config.endpoint.scope);
 				oauthUrl.searchParams.set('response_type', 'code');
 				oauthUrl.searchParams.set('redirect_uri', redirectUri);
 				oauthUrl.searchParams.set(
@@ -639,6 +667,11 @@ export const submitPoolRequest = async (root, params, context) => {
 				);
 				oauthUrl.searchParams.set('code_challenge', codeChallenge);
 				oauthUrl.searchParams.set('code_challenge_method', 'S256');
+				if (config.endpoint.params) {
+					Object.keys(config.endpoint.params).forEach((key) => {
+						oauthUrl.searchParams.set(key, config.endpoint.params[key]);
+					});
+				}
 
 				out.open = oauthUrl.toString();
 
