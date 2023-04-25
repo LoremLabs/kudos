@@ -16,7 +16,8 @@ const exec = async (context) => {
     case "receive": {
       await gatekeep(context);
 
-      let network = context.flags.network || "xrpl:testnet";
+      let network =
+        context.flags.network || context.config.network || "xrpl:testnet";
       if (network === "testnet") {
         network = "xrpl:testnet";
       }
@@ -88,7 +89,8 @@ const exec = async (context) => {
     case "balance": {
       await gatekeep(context);
 
-      let network = context.flags.network || "xrpl:testnet";
+      let network =
+        context.flags.network || context.config.network || "xrpl:testnet";
       if (network === "testnet") {
         network = "xrpl:testnet";
       } else if (network === "livenet") {
@@ -153,7 +155,8 @@ const exec = async (context) => {
     case "fund": {
       await gatekeep(context);
 
-      let network = context.flags.network || "xrpl:testnet";
+      let network =
+        context.flags.network || context.config.network || "xrpl:testnet";
       if (network === "testnet") {
         network = "xrpl:testnet";
       } else if (network === "livenet") {

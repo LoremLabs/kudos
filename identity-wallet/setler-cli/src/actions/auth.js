@@ -172,9 +172,8 @@ const exec = async (context) => {
       await gatekeep(context);
 
       // are we currently logged in? that would be in the config?
-
-      const network = context.flags.network || "xrpl:testnet";
-
+      const network =
+        context.flags.network || context.config.network || "xrpl:testnet";
       const keys = await context.vault.keys();
 
       // convert xrpl:testnet to keys[xrpl][testnet]

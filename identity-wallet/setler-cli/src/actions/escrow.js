@@ -152,7 +152,8 @@ const exec = async (context) => {
       break;
     }
     case "fulfill": {
-      const network = context.flags.network || "xrpl:testnet";
+      const network =
+        context.flags.network || context.config.network || "xrpl:testnet";
 
       let address = context.flags.address || context.vault.address;
       if (!address) {

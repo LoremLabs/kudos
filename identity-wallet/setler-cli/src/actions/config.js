@@ -124,7 +124,44 @@ const exec = async (context) => {
       }
       break;
     }
+    case "network": {
+      if (context.input[2] === "get") {
+        log(config.network || DEFAULTS.NETWORK);
+      } else if (context.input[2] === "set") {
+        let network = context.input[3] || context.flags.network || "";
+        network = network.trim().toLowerCase();
+        if (!network) {
+          // prompt for network
+          const response = await prompts([
+            {
+              type: "text",
+              name: "network",
+              message: `Enter the network: `,
+              initial: config.network || DEFAULTS.NETWORK,
+            },
+          ]);
 
+          network = response.network || config.network || DEFAULTS.NETWORK;
+        }
+
+        const response = await prompts([
+          {
+            // confirm should we do this
+            type: "confirm",
+            name: "ok",
+            message: `Update the default network to ${chalk.cyan(network)} ?`,
+            initial: false,
+          },
+        ]);
+        if (!response.ok) {
+          process.exit(1);
+        }
+        config.network = network;
+        await writeConfig(config);
+      }
+
+      break;
+    }
     default: {
       // usage
       log(chalk.bold(`Usage: setler config [get|endpoint|ident]`));
