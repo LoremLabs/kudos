@@ -6,6 +6,23 @@ import { waitFor } from "../lib/wait.js";
 
 const log = console.log;
 
+export const help = () => {
+  // give help with available subcommands and flags
+  // TODO: escrow interface not completely implemented
+  log("Usage: setler escrow [command] [options]");
+  log("");
+  log("Commands:");
+  log("  cancel");
+  log("  fulfill");
+  log("");
+  log("Examples:");
+  log("  setler escrow cancel");
+  log("  setler escrow fulfill");
+  log("");
+
+  process.exit(1);
+};
+
 const exec = async (context) => {
   await gatekeep(context);
 
@@ -297,6 +314,14 @@ const exec = async (context) => {
       break;
     }
     default: {
+      if (
+        !context.input[1] ||
+        context.flags.help ||
+        context.input[1] === "help"
+      ) {
+        help();
+      }
+
       log(chalk.red(`Unknown command: ${context.input[1]}`));
       break;
     }

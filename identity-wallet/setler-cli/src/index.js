@@ -18,9 +18,15 @@ const setlerCli = async (commandInput) => {
   }
 
   // const stdin = process.stdin;
-  const { action, flags, input } = commandInput;
+  const { action, flags, input, version } = commandInput;
   flags.debug &&
     log(chalk.green(JSON.stringify({ action, flags, stdin, input })));
+
+  if (flags.version) {
+    // show the version and exit
+    log(`setler-cli version: ${version}`);
+    process.exit(0);
+  }
 
   if (Object.prototype.hasOwnProperty.call(actions, action)) {
     const context = { ...commandInput, stdin };

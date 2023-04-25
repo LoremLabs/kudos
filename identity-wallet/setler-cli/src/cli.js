@@ -9,7 +9,8 @@ import meow from "meow";
 import path from "path";
 import setler from "./index.js";
 const __dirname = new URL(".", import.meta.url).pathname;
-const personality = __dirname.split("/").slice(-3)[0];
+let personality = __dirname.split("/").slice(-3)[0];
+personality = personality.replace("-cli", "");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -48,6 +49,9 @@ const defaultHelp = `
 
     Examples
     $ ${personality}
+
+    Check Version
+    $ ${personality} --version
 
     Run Commands
     $ ${personality} help

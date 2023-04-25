@@ -14,9 +14,9 @@ const log = console.log;
 
 const help = () => {
   log("");
-  log(chalk.bold(`send social: send an escrow transaction`));
+  log(chalk.bold(`setler: send an escrow transaction`));
   log(
-    `send social <address[:weight]> <address[:weight]> ...: send an escrow transaction to the given addresses`
+    `setler <address[:weight]> <address[:weight]> ...: send an escrow transaction to the given addresses`
   );
   // log(`send payment: send a payment transaction`);
   // log(`send trust: send a trust transaction`);
