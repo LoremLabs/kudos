@@ -7,6 +7,39 @@ import { waitFor } from "../lib/wait.js";
 
 const log = console.log;
 
+export const help = () => {
+  // give help with available subcommands and flags
+  log("Usage: setler wallet [command] [options]");
+  log("");
+  log("Commands:");
+  log("  init");
+  log("  keys");
+  log("  mnemonic {get,set}");
+  log("  fund");
+  log("  receive");
+  log("  balance");
+  log("");
+  log("Options:");
+  log(
+    "  --profile <profile> - default: 0, 1, 2, ... Same mnemonic, different keys"
+  );
+  log(
+    "  --scope <scope> - default: 0, 1, 2, ... Different mnemonic, different keys"
+  );
+  log("  --passPhrase <passPhrase> - default: ''");
+  log("  --yes - default: false");
+  log("");
+  log("Examples:");
+  log("  setler wallet init --profile 0 --scope 5");
+  log("  setler wallet keys --profile 1 --scope 5");
+  log("  setler wallet mnemonic --yes --scope 0");
+  log("  setler wallet mnemonic set --scope 1");
+  log("  setler wallet balance --network xrpl:testnet --profile 0");
+  log("");
+
+  process.exit(1);
+};
+
 const exec = async (context) => {
   // switch based on the subcommand
   switch (context.input[1]) {
@@ -273,42 +306,17 @@ const exec = async (context) => {
         log(chalk.bold(context.mnemonic));
       }
       break;
+    case "help": {
+      help();
+      break;
+    }
     default:
       if (
         !context.input[1] ||
         context.flags.help ||
         context.input[1] === "help"
       ) {
-        // give help with available subcommands and flags
-        log("Usage: setler wallet [command] [options]");
-        log("");
-        log("Commands:");
-        log("  init");
-        log("  keys");
-        log("  mnemonic {get,set}");
-        log("  fund");
-        log("  receive");
-        log("  balance");
-        log("");
-        log("Options:");
-        log(
-          "  --profile <profile> - default: 0, 1, 2, ... Same mnemonic, different keys"
-        );
-        log(
-          "  --scope <scope> - default: 0, 1, 2, ... Different mnemonic, different keys"
-        );
-        log("  --passPhrase <passPhrase> - default: ''");
-        log("  --yes - default: false");
-        log("");
-        log("Examples:");
-        log("  setler wallet init --profile 0 --scope 5");
-        log("  setler wallet keys --profile 1 --scope 5");
-        log("  setler wallet mnemonic --yes --scope 0");
-        log("  setler wallet mnemonic set --scope 1");
-        log("  setler wallet balance --network xrpl:testnet --profile 0");
-        log("");
-
-        process.exit(1);
+        help();
       }
 
       log(chalk.red(`Unknown command: ${context.input[1]}`));
