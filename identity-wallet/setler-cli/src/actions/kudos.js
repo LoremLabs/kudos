@@ -3,6 +3,7 @@ import * as child_process from "child_process";
 import YAML from "yaml";
 import _glob from "glob";
 import chalk from "chalk";
+import { creatorPool } from "../kudos.js";
 import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
 import fs from "fs";
@@ -32,6 +33,7 @@ const help = () => {
   log("Commands:");
   log("  keys");
   log("  create");
+  log("  send");
   log("  identify [path]");
   log("");
   log("Options:");
@@ -49,6 +51,12 @@ const help = () => {
   log("  setler kudos address");
   log("  setler kudos create");
   log("  setler kudos identify .");
+  log("  setler kudos send --poolId abcd123");
+  log("");
+  log("Kudos to kudos:");
+  log("");
+  log("  Remove kudos sent to setler team with");
+  log("  setler kudos send --dontSendKudosToSetlerTeam"); // by why would you want to, ha
   log("");
 
   process.exit(1);
@@ -1011,10 +1019,13 @@ const exec = async (context) => {
       if (context.debug) {
         log(`${JSON.stringify(out, null, 2)}`);
       }
+      let kudosCreatorsAdded = false;
+      let shouldAddKudosCreators =
+        context.flags.dontSendKudosToSetlerTeam !== true; // defaults to send kudos to setler team
 
       const addresses = [];
       const weights = [];
-      // const totalWeightServer = out.totalWeight; // TODO: compare server weight to local and error if different
+      const totalWeightServer = parseFloat(out.totalWeight); // TODO: compare server weight to local and error if different
 
       // loop through out.identities, setup weights
       for (let i = 0; i < out.identities.length; i++) {
@@ -1026,6 +1037,47 @@ const exec = async (context) => {
         }
         addresses.push(address);
         weights.push(weight);
+      }
+
+      if (shouldAddKudosCreators && !kudosCreatorsAdded) {
+        // push our own id onto the list to pay ourselves via kudos
+
+        // scale based on addresses.length, approaching the average weight. scale = 0 for only 1 address
+        let scaleFactor = Math.log(addresses.length) / 3;
+        if (scaleFactor > 1) {
+          scaleFactor = 1;
+        }
+        if (context.debug) {
+          log(`scaleFactor: ${scaleFactor}`);
+        }
+
+        let setlerWeight = (totalWeightServer / addresses.length) * scaleFactor;
+        // add the setler team found in creatorPool
+        for (let i = 0; i < creatorPool.length; i++) {
+          let setlerCreator = creatorPool[i].id;
+          let setlerCreatorWeight = creatorPool[i].weight;
+          if (setlerCreatorWeight === 0) {
+            continue;
+          }
+          if (!setlerCreatorWeight) {
+            setlerCreatorWeight = 1;
+          }
+          if (setlerCreatorWeight > 1) {
+            setlerCreatorWeight = 1;
+          }
+
+          let thisWeight = setlerCreatorWeight * setlerWeight;
+          if (thisWeight > 1) {
+            thisWeight = 1;
+          }
+
+          if (thisWeight > 0) {
+            addresses.push(setlerCreator);
+            weights.push(thisWeight.toFixed(6));
+          }
+        }
+
+        kudosCreatorsAdded = true;
       }
 
       if (context.debug) {
@@ -1047,7 +1099,9 @@ const exec = async (context) => {
       });
       log(
         chalk.gray(
-          `\tEstimated fees : \t${estimatedFees * addresses.length} XRP`
+          `\tEstimated fees : \t${(estimatedFees * addresses.length).toFixed(
+            6
+          )} XRP`
         )
       );
 
@@ -1095,7 +1149,9 @@ const exec = async (context) => {
       let longestPercentLength = 0;
       let changedWeights = false;
 
-      let totalFeeEstimate = estimatedFees * weightedAddresses.length; // total fee estimate for all addresses
+      let totalFeeEstimate = (estimatedFees * weightedAddresses.length).toFixed(
+        6
+      ); // total fee estimate for all addresses
       let totalFeeEstimateDrops = xrpToDrops(totalFeeEstimate); // bignumber?
 
       let totalDropsBeforeFees = drops - totalFeeEstimateDrops;
@@ -1173,31 +1229,42 @@ const exec = async (context) => {
       const confirmWeights = async () => {
         // confirm the addresses and weights
         weightedAddresses.forEach((address) => {
-          log(
-            chalk.blue(
+          // see if this address is in creatorPool
+          const isSetlerCreator = creatorPool.find(
+            (creator) => creator.id === address.address
+          );
+          let output =
+            chalk.blueBright(
               `${address.address}${" ".repeat(
                 longestLength - address.address.length
               )}  `
             ) +
-              `${" ".repeat(
-                longestPercentLength -
-                  parseFloat((address.weight / totalWeight) * 100).toFixed(4)
-                    .length
-              )}` +
-              chalk.bold(
-                `${parseFloat((address.weight / totalWeight) * 100).toFixed(
-                  4
-                )}%  `
-              ) +
-              `${" ".repeat(
-                longestAmountLength - address.amount.toString().length
-              )}  ` +
-              chalk.greenBright(`${address.amount} XRP`) +
-              "  ~  " +
-              chalk.cyanBright(
-                `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
-              )
-          );
+            `${" ".repeat(
+              longestPercentLength -
+                parseFloat((address.weight / totalWeight) * 100).toFixed(4)
+                  .length
+            )}` +
+            chalk.bold(
+              `${parseFloat((address.weight / totalWeight) * 100).toFixed(
+                4
+              )}%  `
+            ) +
+            `${" ".repeat(
+              longestAmountLength - address.amount.toString().length
+            )}  ` +
+            chalk.greenBright(`${address.amount} XRP`) +
+            "  ~  " +
+            chalk.cyanBright(
+              `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
+            ) +
+            (isSetlerCreator ? chalk.yellow("  (setler fee)") : "");
+
+          if (isSetlerCreator) {
+            // dim output
+            log(chalk.dim(output));
+          } else {
+            log(output);
+          }
         });
 
         // ask for confirmation
