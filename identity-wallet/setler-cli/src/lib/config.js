@@ -14,6 +14,7 @@ export const defaultConfig = {
     "xrpl:testnet": true,
     "xrpl:devnet": false,
   },
+  network: "xrpl:testnet",
   personas: [{ id: 0, name: "Persona 1" }],
 };
 
@@ -62,6 +63,7 @@ export const DEFAULTS = {
   IDENTITY: {
     RESOLVER: "https://graph.ident.agency",
   },
+  NETWORK: "xrpl:testnet",
 };
 
 // given a network type, return an endpoint we can connect to

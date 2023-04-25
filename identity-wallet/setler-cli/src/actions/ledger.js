@@ -13,7 +13,8 @@ const exec = async (context) => {
     case "tx": {
       await gatekeep(context);
 
-      const network = context.flags.network || "xrpl:testnet";
+      const network =
+        context.flags.network || context.config.network || "xrpl:testnet";
 
       let txHash = context.input[2];
       if (!txHash) {

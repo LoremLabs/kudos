@@ -41,7 +41,8 @@ const exec = async (context) => {
         process.exit(1);
       }
 
-      const network = context.flags.network || "xrpl:testnet";
+      const network =
+        context.flags.network || context.config.network || "xrpl:testnet";
       const keys = await context.vault.keys();
 
       // convert xrpl:testnet to keys[xrpl][testnet]
