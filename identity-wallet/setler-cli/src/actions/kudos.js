@@ -878,11 +878,82 @@ const exec = async (context) => {
 
       let poolId = context.flags.poolId || context.input[2];
       if (!poolId) {
+        let matching = context.flags.poolMatch || "";
+
+        if (context.flags.poolName) {
+          matching = context.flags.poolName;
+
+          if (Array.isArray(matching)) {
+            log(chalk.red(`Can only specify one pool name`));
+            process.exit(1);
+          }
+
+          // add n: prefix if it's not already there
+          if (!matching.startsWith("n:")) {
+            matching = "n:" + matching;
+          }
+        } else if (context.flags.poolId) {
+          matching = context.flags.poolId;
+
+          if (Array.isArray(matching)) {
+            log(chalk.red(`Can only specify one pool id`));
+            process.exit(1);
+          }
+
+          // add i: prefix if it's not already there
+          if (!matching.startsWith("i:")) {
+            matching = "i:" + matching;
+          }
+        }
+
+        let listResults = {};
+        try {
+          const listPromise = context.auth.listPools({
+            network: kudosNetwork,
+            matching,
+          });
+          listResults = await waitFor(listPromise, {
+            text: `Fetching pools...`,
+          });
+        } catch (error) {
+          log(chalk.red(`Error listing pools: ${error.message}`));
+          process.exit(1);
+        }
+
+        const out = JSON.parse(listResults.response.out);
+        // log(`${JSON.stringify(out, null, 2)}`);
+        // out.pools is an array of {id,name}
+        // use that to construct a prompt
+
+        let choices = out.pools.map((pool) => {
+          return {
+            title: `${pool.name}`,
+            description: `[${pool.id}]`,
+            value: pool.id,
+          };
+        });
+        // sort choices by title alphabetically
+        choices = choices.sort((a, b) => {
+          if (a.title < b.title) {
+            return -1;
+          }
+          if (a.title > b.title) {
+            return 1;
+          }
+          return 0;
+        });
+
+        if (choices.length === 0) {
+          log(chalk.red(`No pools found`));
+          process.exit(1);
+        }
+
         // prompt for poolId
         const response = await prompts({
-          type: "text",
+          type: "select",
           name: "poolId",
           message: "What poolId do you want to send to?",
+          choices,
         });
         poolId = response.poolId;
       }
