@@ -1,4 +1,3 @@
-import { format as ago } from "timeago.js";
 import chalk from "chalk";
 import { detectStringTypes } from "../lib/detect.js";
 import { expandDid } from "../lib/did.js";
@@ -294,8 +293,18 @@ const exec = async (context) => {
       // addresses can be an xrpl address, or a did (did:kudos:...) if they're not, we should error
       log("");
 
-      const identResolver =
+      let identResolver =
         context.flags.identResolver || context.config.identity?.identResolver;
+      // TODO: fix this hack
+      identResolver = identResolver.trim();
+      if (identResolver.endsWith("/")) {
+        identResolver = identResolver.slice(0, -1);
+      }
+
+      if (!identResolver) {
+        log(chalk.red("ident: no identResolver configured"));
+        process.exit(1);
+      }
 
       // loop through addresses and expand if needed
       for (let i = 0; i < weightedAddresses.length; i++) {
@@ -360,7 +369,15 @@ const exec = async (context) => {
               log(
                 chalk.gray(`=> Escrow payment expires: `) +
                   chalk.cyan(
-                    `${ago(new Date(Date.now() + escrowMethod.time * 1000))}`
+                    `${new Date(
+                      Date.now() + escrowMethod.time * 1000
+                    ).toLocaleString("default", {
+                      month: "long",
+                      year: "numeric",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                    })}`
                   )
               );
               if (escrowMethod.onExpiration === "snowball") {

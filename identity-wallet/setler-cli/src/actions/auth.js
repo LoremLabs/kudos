@@ -1,5 +1,4 @@
 import { UnsecuredJWT } from "jose";
-import { format as ago } from "timeago.js";
 import chalk from "chalk";
 // import fetch from "node-fetch";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
@@ -211,6 +210,15 @@ const exec = async (context) => {
         // construct a did by asking some questions:
         // 1) email, twitter, phone, etc
         log("");
+        let initial = 0;
+        if (context.flags.email) {
+          initial = 0;
+        } else if (context.flags.twitter) {
+          initial = 1;
+        } else if (context.flags.github) {
+          initial = 2;
+        }
+
         const response = await prompts([
           {
             message: "What type of identifier do you want to login with?",
@@ -225,17 +233,16 @@ const exec = async (context) => {
               {
                 title: "twitter",
                 value: "twitter",
-                disabled: true,
+                disabled: false,
                 description: "Your Twitter username.",
               },
               {
-                title: "phone",
-                value: "phone",
-                disabled: true,
-                description: "Your phone number.",
+                title: "github",
+                value: "github",
+                description: "Your GitHub handle.",
               },
             ],
-            initial: 0,
+            initial,
           },
           {
             type: (prev) => {
@@ -247,7 +254,10 @@ const exec = async (context) => {
               "Email address? " +
               chalk.grey(`(example: email@domain.com)`) +
               " ?",
-            initial: context.flags.email || "",
+            initial:
+              context.flags.email && context.flags.email !== true
+                ? context.flags.email
+                : "",
             validate: (maybeEmail) => {
               // allow empty to skip
               if (maybeEmail === "") {
@@ -265,10 +275,12 @@ const exec = async (context) => {
               return type;
             },
             name: "twitter",
+            initial:
+              context.flags.twitter && context.flags.twitter !== true
+                ? context.flags.twitter
+                : "",
             message:
-              "Twitter Screen name? " +
-              chalk.grey(`(example: @loremlabs)`) +
-              " ?",
+              "Twitter Handle? " + chalk.grey(`(example: @loremlabs)`) + " ?",
             validate: (maybeHandle) => {
               // allow empty to skip
               if (maybeHandle === "") {
@@ -276,7 +288,30 @@ const exec = async (context) => {
               }
 
               // does this seem like a twitter handle?
-              const checkRegex = /^@[a-zA-Z0-9_]{1,15}$/;
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,15}$/;
+              return checkRegex.test(maybeHandle);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "github" ? "text" : null;
+              return type;
+            },
+            name: "github",
+            initial:
+              context.flags.github && context.flags.github !== true
+                ? context.flags.github
+                : "",
+            message:
+              "Github Handle? " + chalk.grey(`(example: @loremlabs)`) + " ?",
+            validate: (maybeHandle) => {
+              // allow empty to skip
+              if (maybeHandle === "") {
+                return true;
+              }
+
+              // does this seem like a github handle?
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,39}$/;
               return checkRegex.test(maybeHandle);
             },
           },
@@ -292,7 +327,19 @@ const exec = async (context) => {
             break;
           }
           case "twitter": {
-            did = `did:kudos:twitter:${response.twitter}`;
+            const twitterHandle = response.twitter
+              .replace("@", "")
+              .toLowerCase()
+              .trim();
+            did = `did:kudos:twitter:${twitterHandle}`;
+            break;
+          }
+          case "github": {
+            const githubHandle = response.github
+              .replace("@", "")
+              .toLowerCase()
+              .trim();
+            did = `did:kudos:github:${githubHandle}`;
             break;
           }
           default: {
@@ -301,66 +348,133 @@ const exec = async (context) => {
         }
       }
 
-      // logging in with did message
-      log("");
-      log(`Logging in with ${chalk.blue(did)}...`);
-
-      const authPromise = context.auth.startAuth({ did, network });
-      const authStart = await waitFor(authPromise, {
-        text: `Getting authorization...`,
-      });
-
-      log("");
-      log(
-        `You will receive an email with a code. Enter that code below to complete the login process.`
-      );
-      log("");
-
-      // if we're here, the backend should have sent us an email, so we wait for it, and ask
-      // the user to enter the code they received
-      const authCode = await prompts({
-        type: "text",
-        name: "code",
-        instructions: "Example: ABCD-EFGH",
-        message: "Access code:",
-      });
-
-      if (!authCode.code) {
-        process.exit(1);
-      }
-
-      // log({authStart});
       let data = {};
-      try {
-        data = JSON.parse(authStart.response?.out);
-      } catch (e) {
-        log(chalk.red("Error parsing response from server."));
-        process.exit(1);
-      }
 
-      // see if our nonce matches
-      if (data.nonce !== authStart.nonce) {
-        log(chalk.red("Nonce mismatch."));
-        process.exit(1);
-      }
+      switch (didType) {
+        case "email": {
+          // logging in with did message
+          log("");
+          log(`Logging in with ${chalk.blue(did)}...`);
 
-      // we have the code, so we can finish the auth process
-      const verifyAuthCodePromise = context.auth.verifyAuthCode({
-        rid: data.rid,
-        code: authCode.code,
-        nonce: authStart.nonce,
-        network,
-      });
-      const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
-        text: `Verifying code...`,
-      });
+          const authPromise = context.auth.startAuth({ did, network });
+          const authStart = await waitFor(authPromise, {
+            text: `Getting authorization...`,
+          });
 
-      log(verifyAuthCode);
-      try {
-        data = JSON.parse(verifyAuthCode.response?.out);
-      } catch (e) {
-        log(chalk.red("Error parsing response from server."));
-        process.exit(1);
+          log("");
+          log(
+            `You will receive an email with a code. Enter that code below to complete the login process.`
+          );
+          log("");
+
+          // if we're here, the backend should have sent us an email, so we wait for it, and ask
+          // the user to enter the code they received
+          const authCode = await prompts({
+            type: "text",
+            name: "code",
+            instructions: "Example: ABCD-EFGH",
+            message: "Access code:",
+          });
+
+          if (!authCode.code) {
+            process.exit(1);
+          }
+
+          // log({authStart});
+          try {
+            data = JSON.parse(authStart.response?.out);
+          } catch (e) {
+            log(chalk.red("Error parsing response from server."));
+            process.exit(1);
+          }
+
+          // see if our nonce matches
+          if (data.nonce !== authStart.nonce) {
+            log(chalk.red("Nonce mismatch."));
+            process.exit(1);
+          }
+
+          // we have the code, so we can finish the auth process
+          const verifyAuthCodePromise = context.auth.verifyAuthCode({
+            rid: data.rid,
+            code: authCode.code,
+            nonce: authStart.nonce,
+            network,
+          });
+          const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
+            text: `Verifying code...`,
+          });
+
+          log(verifyAuthCode);
+          try {
+            data = JSON.parse(verifyAuthCode.response?.out);
+          } catch (e) {
+            log(chalk.red("Error parsing response from server."));
+            process.exit(1);
+          }
+          break;
+        }
+        case "github":
+        case "twitter": {
+          log("");
+          log(`Starting authorization for ${chalk.blue(did)}...`);
+
+          const authPromise = context.auth.startAuth({ did, network });
+          const authStart = await waitFor(authPromise, {
+            text: `Getting authorization...`,
+          });
+
+          log({ authStart });
+
+          if (authStart.status.code !== 200) {
+            if (context.debug) {
+              log({ authStart });
+            }
+            log(chalk.red("Error starting authorization."));
+            process.exit(1);
+          }
+
+          log("");
+          if (authStart.out.open) {
+            log(`Opening ${chalk.blue(authStart.out.open)}...`);
+            sysOpen(authStart.out.open);
+          } else {
+            log(chalk.red("Error starting authorization."));
+            process.exit(1);
+          }
+
+          let timeout;
+          try {
+            if (!context.flags.noTimeout) {
+              timeout = setTimeout(() => {
+                log(chalk.red("Timed out waiting for authorization."));
+                throw new Error("timed out");
+              }, 1000 * 60 * 5);
+            }
+
+            const authMsgRaw = await waitFor(authStart.oAuthDone, {
+              text: `Confirming authentication...`,
+            });
+            if (authMsgRaw.msg) {
+              data = JSON.parse(authMsgRaw.msg);
+            }
+          } catch (e) {
+            if (e.error) {
+              log(chalk.red(e.error));
+              process.exit(1);
+            }
+          }
+          clearTimeout(timeout);
+
+          log("");
+          log(`You have successfully authenticated with ${chalk.blue(did)}.`);
+          // log(data);
+
+          break;
+        }
+        default: {
+          process.exit(1);
+        }
       }
 
       // if we're here, we've successfully logged in, and have a signature from the server saying so
@@ -371,17 +485,36 @@ const exec = async (context) => {
         `You have successfully associated your ${didType} with your XRPL account.`
       );
       log(
-        chalk.gray(`\tThis will expire in: \t`) +
-          chalk.cyan(`${ago(new Date(Date.now() + 86400 * 7 * 1000))}`)
+        chalk.gray(`\tThis will expire at: \t`) +
+          chalk.cyan(
+            `${new Date(Date.now() + 86400 * 7 * 1000).toLocaleString(
+              "default",
+              {
+                month: "long",
+                year: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              }
+            )}`
+          )
       );
 
       log("");
       log(
-        `You can persist this mapping for ` +
+        `You can extend this mapping until ` +
           chalk.cyan(
-            `${ago(new Date(Date.now() + data.mapping.expiration * 1000))}`
+            `${new Date(
+              Date.now() + data.mapping.expiration * 1000
+            ).toLocaleString("default", {
+              month: "long",
+              year: "numeric",
+              day: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+            })}`
           ) +
-          ` by using a lookup directory.`
+          ` by using a lookup directory service.`
       );
       if (data.mapping.terms) {
         log("");

@@ -1,12 +1,10 @@
-import * as secp256k1 from '@noble/secp256k1';
-
 import { composeEmail, sendEmail } from '$lib/email/email';
-import { hexToBytes, validate } from '$lib/keys';
+import { signMessage, validate } from '$lib/keys';
 
 import { BloomFilter } from 'bloomfilter';
-import { bytesToHex } from '@noble/hashes/utils';
 import { currentCohort } from '$lib/utils/date';
 import log from '$lib/logging';
+import randomstring from 'randomstring';
 import { redis } from '$lib/redis.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { shortId } from '$lib/utils/short-id';
@@ -15,35 +13,13 @@ import { utils } from 'ethers'; // TODO: must be a better way, also this is pegg
 const SEND_SOCIAL_ADDRESS = process.env.SEND_SOCIAL_ADDRESS || 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3';
 const SEND_SOCIAL_BASE_URL =
 	process.env.SEND_SOCIAL_BASE_URL || 'https://send-to-social.ident.agency';
-const SEND_SOCIAL_BOT_ADDRESS =
-	process.env.SEND_SOCIAL_BOT_ADDRESS || 'r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59';
+// const SEND_SOCIAL_BOT_ADDRESS =
+// 	process.env.SEND_SOCIAL_BOT_ADDRESS || 'r9cZA1mLK5R5Am25ArfXFmqgNwjZgnfk59';
 const SEND_SOCIAL_BOT_EMAIL = process.env.SEND_SOCIAL_BOT_EMAIL || `no-reply@notify.ident.agency`;
 process.env.SEND_SOCIAL_BOT_EMAIL || `"--send-to-social--" <${SEND_SOCIAL_BOT_EMAIL}>`;
 const SEND_SOCIAL_COST_XRP = parseInt(process.env.SEND_SOCIAL_COST_XRP || '0', 10) || 10; // xrp
 const SEND_SOCIAL_EXPIRATION =
-	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 90; // 3 months
-
-const normalizePrivateKey = (privateKey) => {
-	if (typeof privateKey === 'string') {
-		if (privateKey.length === 66) {
-			// remove 00 prefix
-			privateKey = privateKey.slice(2);
-		}
-	}
-
-	return privateKey;
-};
-
-const signMessage = async ({ message, address }) => {
-	const hashedMessage = sha256(JSON.stringify(message));
-	const { privateKey } = await getKeys(address);
-
-	const [sig, recId] = await secp256k1.sign(hashedMessage, hexToBytes(privateKey), {
-		recovered: true
-	});
-
-	return `${bytesToHex(sig)}${recId}`;
-};
+	parseInt(process.env.SEND_SOCIAL_EXPIRATION || '0', 10) || 60 * 60 * 24 * 7 * 12; // valid for 12 weeks
 
 const checkPoolId = async ({ address, currentUser, poolId }) => {
 	// currentUser: {
@@ -75,32 +51,6 @@ const checkPoolId = async ({ address, currentUser, poolId }) => {
 	}
 
 	return poolName;
-};
-
-export const getKeys = async function (address) {
-	// TODO: get seed from vault directly
-
-	// we iterate through process.env.WALLET_SEED_* and find the one that matches the address. Values are address:data:data2
-	// where data is the public key and data2 is the private key
-
-	let found = null;
-	for (const key in process.env) {
-		if (key.startsWith('WALLET_SEED_')) {
-			const keyString = process.env[key] as string;
-			const [walletAddress, publicKey, privateKey] = keyString.split(':');
-
-			if (walletAddress === address) {
-				found = { walletAddress, publicKey, privateKey: normalizePrivateKey(privateKey) };
-				break;
-			}
-		}
-	}
-
-	if (!found) {
-		throw new Error(`Wallet seed not found for address: ${address}`);
-	}
-
-	return found;
 };
 
 export const submitPoolRequest = async (root, params, context) => {
@@ -635,6 +585,108 @@ export const submitPoolRequest = async (root, params, context) => {
 
 				break;
 			}
+			case '/auth/start': {
+				// start oauth flows
+				const out = {};
+
+				const { address, callbackUrl: cbUrl, nonce, params, type } = input;
+
+				if (!authed) {
+					throw new Error('Not authorized');
+				}
+
+				let config = {};
+
+				switch (type) {
+					case 'twitter': {
+						config = {
+							client: {
+								id: process.env.AUTH_TWITTER_CONSUMER_KEY,
+								secret: process.env.AUTH_TWITTER_CONSUMER_SECRET
+							},
+							endpoint: {
+								authorization_endpoint: 'https://twitter.com/i/oauth2/authorize',
+								issuer: 'https://twitter.com',
+								scope: 'tweet.read users.read offline.access',
+								token_endpoint: 'https://api.twitter.com/2/oauth2/token'
+							}
+						};
+						break;
+					}
+					case 'github': {
+						config = {
+							client: {
+								id: process.env.AUTH_GITHUB_CLIENT_ID,
+								secret: process.env.AUTH_GITHUB_CLIENT_SECRET
+							},
+							endpoint: {
+								authorization_endpoint: 'https://github.com/login/oauth/authorize',
+								issuer: 'https://github.com',
+								scope: 'user:email',
+								token_endpoint: 'https://github.com',
+								params: {
+									login: params.githubHandle
+								}
+							}
+						};
+						break;
+					}
+					default: {
+						throw new Error('Invalid type');
+					}
+				}
+
+				// generate a code verifier and challenge
+				const codeVerifier = randomstring.generate(128);
+				const codeChallenge = Buffer.from(sha256(codeVerifier)).toString('base64url');
+
+				const callbackUrl =
+					process.env.NODE_ENV === 'production'
+						? `https://graph.ident.agency/api/v1/auth/${type}/callback`
+						: `http://localhost:5173/api/v1/auth/${type}/callback`;
+
+				const redirectUri = `${callbackUrl}`; // no qp allowed?
+
+				// store codeVerify in redis for this address
+				const cacheKey = `auth-${type}-login-${address}`;
+				await redis.set(
+					cacheKey,
+					{ nonce, codeVerifier, codeChallenge, redirectUri },
+					{ ex: 60 * 15 }
+				); // 15 minutes
+
+				// create oauth URL
+				const oauthUrl = new URL(config.endpoint.authorization_endpoint);
+				oauthUrl.searchParams.set('client_id', config.client.id);
+				oauthUrl.searchParams.set('scope', config.endpoint.scope);
+				oauthUrl.searchParams.set('response_type', 'code');
+				oauthUrl.searchParams.set('redirect_uri', redirectUri);
+				oauthUrl.searchParams.set(
+					'state',
+					Buffer.from(JSON.stringify({ nonce, address, redir: cbUrl })).toString('base64')
+				);
+				oauthUrl.searchParams.set('code_challenge', codeChallenge);
+				oauthUrl.searchParams.set('code_challenge_method', 'S256');
+				if (config.endpoint.params) {
+					Object.keys(config.endpoint.params).forEach((key) => {
+						oauthUrl.searchParams.set(key, config.endpoint.params[key]);
+					});
+				}
+
+				out.open = oauthUrl.toString();
+
+				out.input = { ...input };
+
+				const signature2 = await signMessage({
+					message: out,
+					address: SEND_SOCIAL_ADDRESS
+				});
+
+				reply.response.out = JSON.stringify(out);
+				reply.response.signature = signature2;
+
+				break;
+			}
 			case '/auth/email/login': {
 				// start email stuff
 
@@ -669,7 +721,7 @@ export const submitPoolRequest = async (root, params, context) => {
 				const botEmail = SEND_SOCIAL_BOT_EMAIL;
 				const msg = {
 					'h:Sender': botEmail,
-					from: SEND_SOCIAL_BOT_ADDRESS,
+					from: botEmail,
 					to: [email],
 					//        bcc: [email],
 					subject: output.subject || '👉 Login Code',
@@ -741,7 +793,7 @@ export const submitPoolRequest = async (root, params, context) => {
 		throw e; // other
 	}
 
-	log.debug('reply', reply);
+	//	log.debug('reply', reply);
 
 	return reply;
 };
@@ -891,6 +943,11 @@ export const submitKudosForFame = async (_, params) => {
 
 export const setPayVia = async (_, params) => {
 	log.debug('---------------------', params);
+
+	// this should only be active for development
+	if (process.env.NODE_ENV !== 'development') {
+		throw new Error('Not allowed');
+	}
 
 	// TODO: more validation
 
