@@ -55,7 +55,6 @@ importers:
       hash.js: ^1.1.7
       jose: ^4.13.1
       mailgun.js: ^8.2.1
-      oauth: ^0.10.0
       pino: ^8.11.0
       pino-pretty: ^9.4.0
       postcss: ^8.4.21
@@ -118,7 +117,6 @@ importers:
       hash.js: 1.1.7
       jose: 4.13.1
       mailgun.js: 8.2.1
-      oauth: 0.10.0
       pino: 8.11.0
       pino-pretty: 9.4.0
       postcss: 8.4.21
@@ -7575,10 +7573,6 @@ packages:
   /number-is-nan/1.0.1:
     resolution: {integrity: sha512-4jbtZXNAsfZbAHiiqjLPBiCl16dES1zI4Hpzzxw61Tk+loF+sBDBKx1ICKKKwIqQ7M0mFn1TmkN7euSncWgHiQ==}
     engines: {node: '>=0.10.0'}
-    dev: true
-
-  /oauth/0.10.0:
-    resolution: {integrity: sha512-1orQ9MT1vHFGQxhuy7E/0gECD3fd2fCC+PIX+/jgmU/gI3EpRocXtmtvxCO5x3WZ443FLTLFWNDjl5MPJf9u+Q==}
     dev: true
 
   /object-assign/4.1.1:
