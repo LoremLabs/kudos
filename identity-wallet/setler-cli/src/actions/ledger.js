@@ -8,6 +8,22 @@ import windowSize from "window-size";
 
 const log = console.log;
 
+export const help = () => {
+  // give help with available subcommands and flags
+  log("Usage: setler ledger [command] [options]");
+  log("");
+  log("Sub commands:");
+  log("  tx");
+  log("");
+  log("Examples:");
+  log(
+    "  setler ledger tx 1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef --network xrpl:testnet"
+  );
+  log("");
+
+  process.exit(1);
+};
+
 const exec = async (context) => {
   switch (context.input[1]) {
     case "tx": {
@@ -75,7 +91,15 @@ const exec = async (context) => {
 
       break;
     }
+    case "help": {
+      help();
+      break;
+    }
     default: {
+      if (context.flags.help) {
+        help();
+        break;
+      }
       log(chalk.red(`Unknown command: ${context.input[1]}`));
       break;
     }

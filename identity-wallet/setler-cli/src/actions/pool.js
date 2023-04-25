@@ -262,6 +262,12 @@ const exec = async (context) => {
         process.exit(1);
       }
 
+      // see if we have any kudos to ink
+      if (kudos.length === 0) {
+        log(chalk.red(`No kudos to ink`));
+        process.exit(1);
+      }
+
       // do a gql request to send this to the pool
       let inkResults = {};
       try {

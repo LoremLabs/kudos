@@ -24,10 +24,11 @@ const help = () => {
   log(chalk.bold(`send help: show this help`));
   log("");
   log(
-    "See also " +
+    "See also: " +
       chalk.gray("setler wallet help") +
       " for direct wallet transactions"
   );
+  log("          " + chalk.gray("setler kudos send") + " to settle kudos");
 };
 
 const exec = async (context) => {
