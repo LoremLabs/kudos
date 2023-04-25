@@ -12,17 +12,11 @@ const log = console.log;
 const help = () => {
   log("Usage: setler ident [subcommand] [options]");
   log("");
-  log("Options:");
-  log(
-    "  --profile <profile> - default: 0, 1, 2, ... Same mnemonic, different keys"
-  );
-  log(
-    "  --scope <scope> - default: 0, 1, 2, ... Different mnemonic, different keys"
-  );
-  log("  --passPhrase <passPhrase> - default: ''");
-  log("  --yes - default: false");
+  log("Subcommands:");
+  log("  lookup");
   log("");
   log("Examples:");
+  log("  setler ident lookup [did:kudos:email:...]");
   log("  setler ident lookup");
   log("");
 
@@ -112,8 +106,12 @@ const exec = async (context) => {
               {
                 title: "github",
                 value: "github",
-                disabled: true,
                 description: "Github handle.",
+              },
+              {
+                title: "did",
+                value: "did",
+                description: "DID (decentralized identifier).",
               },
             ],
             initial,
@@ -177,7 +175,23 @@ const exec = async (context) => {
               }
 
               // does this seem like a github handle?
-              const checkRegex = /^@[a-zA-Z0-9_]{1,39}$/;
+              const checkRegex = /^@?[a-zA-Z0-9_]{1,39}$/;
+              return checkRegex.test(maybeHandle);
+            },
+          },
+          {
+            type: (prev) => {
+              const type = prev === "did" ? "text" : null;
+              return type;
+            },
+            name: "did",
+            message:
+              "DID ? " +
+              chalk.grey(`(example: did:kudos:email:matt@example.com)`) +
+              " ?",
+            validate: (maybeHandle) => {
+              // does this seem like a did?
+              const checkRegex = /^did:/;
               return checkRegex.test(maybeHandle);
             },
           },
@@ -201,7 +215,15 @@ const exec = async (context) => {
             break;
           }
           case "github": {
-            did = `did:kudos:github:${response.github}`;
+            let handle = response.github.toLowerCase().trim();
+            if (handle.startsWith("@")) {
+              handle = handle.slice(1);
+            }
+            did = `did:kudos:github:${handle}`;
+            break;
+          }
+          case "did": {
+            did = response.did.toLowerCase().trim();
             break;
           }
           default: {
