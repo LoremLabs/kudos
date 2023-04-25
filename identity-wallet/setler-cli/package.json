@@ -1,7 +1,7 @@
 {
-  "name": "@loremlabs/setler-cli",
-  "version": "0.0.5",
-  "description": "setler command-line tool",
+  "name": "@loremlabs/setler",
+  "version": "0.0.0",
+  "description": "setler command-line tool, a non-custodial identity wallet with kudos support",
   "license": "MIT",
   "type": "module",
   "bin": {
