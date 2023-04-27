@@ -10,9 +10,6 @@ Identity wallets are part of the Kudos ecosystem which rewards content creators 
 
 ### Setler
 
-Setler is a GUI desktop application.
+Setler is the reference Identity wallet with Kudos support, coming in both a GUI and CLI version. It is a non-custodial wallet that allows users to send and receive payments on the XRPL. It also allows users to associate their XRPL account with a DID (Decentralized Identifier) which can be used to send and receive payments.
 
-#### Setler CLI
-
-Setler CLI is a command line interface which works with the same configuration and key data as the Setler GUI application.
-
+More information about Setler can be found at the [Setler](https://www.setler.app) website.
