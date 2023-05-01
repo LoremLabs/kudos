@@ -15,6 +15,8 @@
 	},
 	"devDependencies": {
 		"@envelop/generic-auth": "^5.0.6",
+		"@kudos-protocol/keys": "^0.0.1",
+		"@kudos-protocol/logging": "0.0.2",
 		"@kudos-protocol/short-id": "^0.0.1",
 		"@maizzle/framework": "^4.4.2",
 		"@noble/hashes": "^1.3.0",
@@ -73,7 +75,6 @@
 		"@envelop/core": "^3.0.6",
 		"@envelop/graphql-jit": "^5.0.6",
 		"@graphql-yoga/render-graphiql": "^3.7.0",
-		"@kudos-protocol/logging": "0.0.2",
 		"@loremlabs/quadratic-funding": "^0.0.5",
 		"@types/node": "^18.14.1",
 		"ethers": "5.7.2",
