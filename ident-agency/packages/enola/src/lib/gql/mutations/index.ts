@@ -7,7 +7,7 @@ import log from '@kudos-protocol/logging';
 import randomstring from 'randomstring';
 import { redis } from '$lib/redis.js';
 import { sha256 } from '@noble/hashes/sha256';
-import { shortId } from '$lib/utils/short-id';
+import { shortId } from '@kudos-protocol/short-id';
 import { utils } from 'ethers'; // TODO: must be a better way, also this is pegged to v5
 
 const SEND_SOCIAL_ADDRESS = process.env.SEND_SOCIAL_ADDRESS || 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3';
