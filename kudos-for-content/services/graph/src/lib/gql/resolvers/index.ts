@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis';
 import casual from 'casual';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 
 let redis = {};
 try {

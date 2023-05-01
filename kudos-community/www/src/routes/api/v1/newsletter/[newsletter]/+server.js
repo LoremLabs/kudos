@@ -1,6 +1,6 @@
 import { addEmailToList } from '$lib/email/newsletter';
 import { error } from '@sveltejs/kit';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ params, request }) {
