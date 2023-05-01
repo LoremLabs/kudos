@@ -1,0 +1,38 @@
+{
+	"name": "@kudos-protocol/logging",
+	"version": "0.0.1",
+	"description": "logging standardization used in kudos",
+	"main": "index.js",
+	"scripts": {
+		"pretty": "prettier --check .",
+		"format": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+		"pretty:fix": "prettier --write .",
+		"lint": "eslint --ignore-path .gitignore .",
+		"lint:fix": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+		"release": "npm publish --access public",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LoremLabs/kudos.git#main"
+	},
+	"keywords": [
+		"kudos",
+		"keys"
+	],
+	"author": "@loremlabs",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/LoremLabs/kudos/issues"
+	},
+	"homepage": "https://github.com/LoremLabs/kudos/tree/main#readme",
+	"dependencies": {
+		"pino": "^8.11.0"
+	},
+	"devDependencies": {
+		"eslint": "^8.39.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"prettier": "^2.8.8"
+	}
+}
