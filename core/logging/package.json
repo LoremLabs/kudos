@@ -3,7 +3,7 @@
 	"version": "0.0.2",
 	"description": "logging standardization used in kudos",
 	"main": "index.js",
-  "type": "module",
+	"type": "module",
 	"scripts": {
 		"pretty": "prettier --check .",
 		"format": "prettier --write . && eslint --fix --ignore-path .gitignore .",
@@ -28,7 +28,8 @@
 	},
 	"homepage": "https://github.com/LoremLabs/kudos/tree/main#readme",
 	"dependencies": {
-		"pino": "^8.11.0"
+		"pino": "^8.11.0",
+		"pino-pretty": "^10.0.0"
 	},
 	"devDependencies": {
 		"eslint": "^8.39.0",
