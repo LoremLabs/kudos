@@ -1,5 +1,5 @@
 import { composeEmail, sendEmail } from '$lib/email/email';
-import { signMessage, validate } from '$lib/keys';
+import { signMessage, validate } from '@kudos-protocol/keys';
 
 import { BloomFilter } from 'bloomfilter';
 import { currentCohort } from '$lib/utils/date';

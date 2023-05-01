@@ -1,7 +1,7 @@
 import log from '@kudos-protocol/logging';
 import { logAuthAction } from '$lib/kyc.js';
 import { redis } from '$lib/redis.js';
-import { signMessage } from '$lib/keys';
+import { signMessage } from '@kudos-protocol/keys';
 
 const SEND_SOCIAL_ADDRESS = process.env.SEND_SOCIAL_ADDRESS || 'rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3';
 const SEND_SOCIAL_BASE_URL =

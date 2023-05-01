@@ -7,7 +7,7 @@ import { dev } from '$app/environment';
 import { renderGraphiQL } from '@graphql-yoga/render-graphiql';
 import { useGenericAuth } from '@envelop/generic-auth';
 import { useGraphQlJit } from '@envelop/graphql-jit';
-import { validate } from '$lib/keys';
+import { validate } from '@kudos-protocol/keys';
 
 const resolveUserFn = async (context) => {
 	// Here you can implement any custom sync/async code, and use the context built so far in Envelop and the HTTP request
