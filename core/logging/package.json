@@ -1,8 +1,9 @@
 {
 	"name": "@kudos-protocol/logging",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "logging standardization used in kudos",
 	"main": "index.js",
+  "type": "module",
 	"scripts": {
 		"pretty": "prettier --check .",
 		"format": "prettier --write . && eslint --fix --ignore-path .gitignore .",
