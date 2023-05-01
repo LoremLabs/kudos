@@ -3,7 +3,7 @@
   import { browser } from '$app/environment';
   //   import { goto } from '$app/navigation';
 
-  import { shortId } from '$lib/utils/short-id';
+  import { shortId } from '@kudos-protocol/short-id';
   import { fly } from 'svelte/transition';
 
   import { setConfig } from '$lib/utils/config';

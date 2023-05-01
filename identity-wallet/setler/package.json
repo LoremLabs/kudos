@@ -27,6 +27,7 @@
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@iarna/toml": "^2.2.5",
+    "@kudos-protocol/short-id": "^0.0.1",
     "@metamask/jazzicon": "^2.0.0",
     "@noble/hashes": "^1.2.0",
     "@popperjs/core": "^2.11.6",

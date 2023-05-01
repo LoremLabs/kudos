@@ -14,7 +14,7 @@ import { notifyEscrow } from "../lib/escrow.js";
 import parseAuthor from "parse-author";
 import { promisify } from "util";
 import prompts from "prompts";
-import { shortId } from "../lib/short-id.js";
+import { shortId } from "@kudos-protocol/short-id";
 import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";

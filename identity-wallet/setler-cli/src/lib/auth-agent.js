@@ -6,7 +6,7 @@ import { DEFAULTS } from "./config.js";
 // import { deriveAddressFromBytes } from "./wallet/keys.js";
 import fetch from "node-fetch";
 import { fetchToCurl } from "fetch-to-curl";
-import { shortId } from "./short-id.js";
+import { shortId } from "@kudos-protocol/short-id";
 
 const log = console.log;
 

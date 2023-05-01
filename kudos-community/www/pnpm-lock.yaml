@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 devDependencies:
+  '@kudos-protocol/short-id':
+    specifier: ^0.0.1
+    version: 0.0.1
   '@sveltejs/adapter-auto':
     specifier: ^2.0.0
     version: 2.0.0(@sveltejs/kit@1.15.0)
@@ -341,6 +344,14 @@ packages:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
     dev: true
 
+  /@kudos-protocol/short-id@0.0.1:
+    resolution: {integrity: sha512-gYpDhvQaupHW0R/LgcLDZ+QB+i77ceo2D4yZ7E4XgwowINh+LFeMlV572ghEA4fps9xHW9MrF1lQaN1AlpCXOA==}
+    dependencies:
+      base58: 2.0.1
+      uuid: 9.0.0
+      uuid-encoder: 1.2.0
+    dev: true
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -571,6 +582,11 @@ packages:
 
   /base-64@1.0.0:
     resolution: {integrity: sha512-kwDPIFCGx0NZHog36dj+tHiwP4QMzsZ3AgMViUBKI0+V5n4U0ufTCUMhnQ04diaRI8EX/QcPfql7zlhZ7j4zgg==}
+    dev: true
+
+  /base58@2.0.1:
+    resolution: {integrity: sha512-qK6gt2fMSxN2xGOi+btI5oAnXL+vEq0AsHWHhf5jfm2hE6MwmW+2414qF96utV3Xfg3En8hEA9Q4lif4lbXcgw==}
+    engines: {node: '>= 6'}
     dev: true
 
   /base64-js@1.5.1:

@@ -21,7 +21,7 @@
   import ModalStartFameDistribution from '$lib/components/ModalStartFameDistribution.svelte';
   import Sankey from '$lib/components/Sankey.svelte';
 
-  import { shortId } from '$lib/utils/short-id';
+  import { shortId } from '@kudos-protocol/short-id';
   import { decorateDistList } from '$lib/distList/payVia.js';
 
   import {

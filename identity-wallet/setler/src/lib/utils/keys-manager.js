@@ -22,7 +22,7 @@ import { encryptAES } from './wallet/encryptSeedAES';
 import { ethWallet } from './wallet/ethWallet';
 import { generateMnemonic } from './wallet/generateMnemonic';
 import { noop } from '$lib/utils/noop';
-import { shortId } from '$lib/utils/short-id';
+import { shortId } from '@kudos-protocol/short-id';
 
 const seedCache = {};
 

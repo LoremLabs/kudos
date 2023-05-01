@@ -4,7 +4,7 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { browser } from '$app/environment';
 
-  import { shortId } from '$lib/utils/short-id';
+  import { shortId } from '@kudos-protocol/short-id';
   import LedgerPane from '$lib/components/LedgerPane.svelte';
   import Waiting from '$lib/components/Waiting.svelte';
 

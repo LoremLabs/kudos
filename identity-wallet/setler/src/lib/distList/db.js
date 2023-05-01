@@ -1,4 +1,4 @@
-import { shortId, uuidV1 } from '$lib/utils/short-id';
+import { shortId, uuidV1 } from '@kudos-protocol/short-id';
 
 import SQLite from 'tauri-plugin-sqlite-api';
 import { appLocalDataDir } from '@tauri-apps/api/path';

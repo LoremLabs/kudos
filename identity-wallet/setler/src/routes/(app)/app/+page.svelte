@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { shortId } from '$lib/utils/short-id';
+  import { shortId } from '@kudos-protocol/short-id';
 
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
