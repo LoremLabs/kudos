@@ -1,4 +1,4 @@
-import log from './logging';
+import log from '@kudos-protocol/logging';
 import xrpl from 'xrpl';
 
 const clients = {};

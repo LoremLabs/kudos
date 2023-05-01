@@ -11,6 +11,7 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
+		"@kudos-protocol/logging": "^0.0.2",
 		"@kudos-protocol/short-id": "^0.0.1",
 		"@sveltejs/adapter-vercel": "^2.4.2",
 		"@sveltejs/kit": "^1.5.0",

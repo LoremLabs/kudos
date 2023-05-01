@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 devDependencies:
+  '@kudos-protocol/logging':
+    specifier: ^0.0.2
+    version: 0.0.2
   '@kudos-protocol/short-id':
     specifier: ^0.0.1
     version: 0.0.1
@@ -540,6 +543,12 @@ packages:
 
   /@jridgewell/sourcemap-codec@1.4.14:
     resolution: {integrity: sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==}
+    dev: true
+
+  /@kudos-protocol/logging@0.0.2:
+    resolution: {integrity: sha512-4HFbS08MmPM6K0o0V4xh5DKSROrDfgzZc3bcYNeqLyCYCJ1PIrMGRRtYiIBjvyNvt9ePwc2gGLYOYs8U4bJMHw==}
+    dependencies:
+      pino: 8.11.0
     dev: true
 
   /@kudos-protocol/short-id@0.0.1:
