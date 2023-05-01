@@ -3,7 +3,7 @@ import { signMessage, validate } from '$lib/keys';
 
 import { BloomFilter } from 'bloomfilter';
 import { currentCohort } from '$lib/utils/date';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import randomstring from 'randomstring';
 import { redis } from '$lib/redis.js';
 import { sha256 } from '@noble/hashes/sha256';

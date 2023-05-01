@@ -3,7 +3,7 @@ import Maizzle from '@maizzle/framework';
 // TODO: Vercel/SvelteKit workaround https://github.com/sveltejs/kit/issues/5999
 import authLink01 from '$templates/auth-link-01.tmpl?raw';
 import formData from 'form-data';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import tailwindConfig from './tailwind.config.js';
 
 // import welcome01 from '$templates/welcome-01.tmpl?raw';

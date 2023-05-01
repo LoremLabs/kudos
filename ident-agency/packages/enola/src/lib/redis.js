@@ -1,5 +1,5 @@
 import { Redis } from '@upstash/redis';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 
 let redisClient = {};
 try {

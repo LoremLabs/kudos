@@ -4,7 +4,7 @@ import { bytesToHex, hexToBytes as hexTo } from '@noble/hashes/utils';
 
 import addressCodec from 'ripple-address-codec';
 import hashjs from 'hash.js';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import { sha256 } from '@noble/hashes/sha256';
 
 export const hexToBytes = (hex) => {

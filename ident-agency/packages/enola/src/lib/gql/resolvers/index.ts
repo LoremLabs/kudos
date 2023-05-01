@@ -1,5 +1,5 @@
 import { currentCohort } from '$lib/utils/date';
-// import log from '$lib/logging';
+// import log from '@kudos-protocol/logging';
 import { redis } from '$lib/redis.js';
 
 // socialPay is like payVia, but it returns escrow information if available

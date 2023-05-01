@@ -1,9 +1,8 @@
+import flatten from 'flat';
 // import { sequence } from '@sveltejs/kit/hooks';
 // import auth from '$lib/server/auth';
-import log from '$lib/logging';
-
+import log from '@kudos-protocol/logging';
 import { v4 as uuid } from 'uuid';
-import flatten from 'flat';
 
 const logger = async ({ event, resolve }) => {
 	// create request id

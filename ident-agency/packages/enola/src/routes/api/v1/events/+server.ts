@@ -2,7 +2,7 @@ import { Client as Qstash } from '@upstash/qstash';
 import { Redis } from '@upstash/redis';
 import { getClient } from '$lib/xrpl.js';
 import { getIngressAddresses } from '$lib/configured.js';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 
 let redis = {};
 try {

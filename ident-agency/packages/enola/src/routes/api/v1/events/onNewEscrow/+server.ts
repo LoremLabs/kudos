@@ -1,5 +1,5 @@
 import { getIngressAddresses } from '$lib/configured.js';
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import { redis } from '$lib/redis.js';
 // import { shortAddress } from '$lib/utils/escrow.js';
 import { verifyQueueRequest } from '$lib/queue.js';

@@ -1,6 +1,6 @@
 import { Client as QstashPublish, Receiver as QstashReceive } from '@upstash/qstash';
 
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 
 const qstashReceive = new QstashReceive({
 	currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,

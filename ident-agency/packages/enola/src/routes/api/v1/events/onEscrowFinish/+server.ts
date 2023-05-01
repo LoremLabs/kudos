@@ -2,7 +2,7 @@ import { MINIMUM_PAYMENT_AMOUNT, calculateFeeForEscrow } from '$lib/businessLogi
 import { currentLedger, disconnect, getEscrowIdFromMemos, sendEscrowedPayment } from '$lib/xrpl.js';
 import { queuePublish, verifyQueueRequest } from '$lib/queue.js';
 
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import { redis } from '$lib/redis.js';
 import { v4 as uuid } from 'uuid';
 

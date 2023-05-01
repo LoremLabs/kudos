@@ -1,4 +1,4 @@
-import log from '$lib/logging';
+import log from '@kudos-protocol/logging';
 import { logAuthAction } from '$lib/kyc.js';
 import { redis } from '$lib/redis.js';
 import { signMessage } from '$lib/keys';
