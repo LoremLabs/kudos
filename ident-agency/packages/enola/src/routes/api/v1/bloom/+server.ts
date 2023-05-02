@@ -5,6 +5,17 @@ import { redis } from '$lib/redis.js';
 const payVia = async () => {
 	const bloomFilterData = await redis.get('bloom:payVia');
 
+	if (!bloomFilterData) {
+		return new Response(JSON.stringify({ error: 'Not Found' }), {
+			status: 404,
+			headers: {
+				'access-control-allow-origin': '*',
+				'cache-control': 'max-age=3; public',
+				'content-type': 'application/json'
+			}
+		});
+	}
+
 	const etag = createHmac('sha256', 'etag').update(bloomFilterData).digest('base64');
 
 	// return a response object
