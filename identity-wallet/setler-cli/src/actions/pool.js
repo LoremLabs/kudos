@@ -206,7 +206,7 @@ const exec = async (context) => {
     }
     case "ink": {
       // save ("ink") to a pool
-      await gatekeep(context, true);
+      await gatekeep(context, true, { storageMode: true });
 
       const keys = await context.vault.keys();
 

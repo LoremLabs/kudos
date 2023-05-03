@@ -141,10 +141,16 @@ Vault.prototype.keys = async function () {
     // seed from env variable, base64decoded
     const envKey = `SETLER_KEYS_${parseInt(this.context.profile, 10)}`;
 
-    let encodedKeys = process.env[envKey];
-    encodedKeys = Buffer.from(encodedKeys, "base64url").toString("utf8");
+    try {
+      let encodedKeys = process.env[envKey];
+      encodedKeys = Buffer.from(encodedKeys, "base64url").toString("utf8");
 
-    this.context.keys = JSON.parse(encodedKeys);
+      this.context.keys = JSON.parse(encodedKeys);
+    } catch (e) {
+      throw new Error(
+        `Could not find keys for profile SETLER_KEYS_${this.context.profile}`
+      );
+    }
   }
   // flatten tree to one level, keyed off address
   const addressKeys = {};

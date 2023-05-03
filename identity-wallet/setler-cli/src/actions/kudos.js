@@ -78,7 +78,6 @@ const exec = async (context) => {
       const DEFAULT_CHECKS = "kudos,contributors,lang"; // TODO: add github?
       const checks = new Set((flags.checks || DEFAULT_CHECKS).split(","));
       const langs = new Set((flags.lang || "nodejs").split(","));
-
       if (flags.help || !rootDir) {
         console.error(
           `Usage:
@@ -400,7 +399,6 @@ const exec = async (context) => {
               debugLog(chalk.red("no main package"));
             }
           }
-
           // now go through each cached package.json file in packages and search for creators
           for (const pkgName in packages) {
             const pkg = packages[pkgName];

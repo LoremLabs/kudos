@@ -26,6 +26,7 @@
   "keywords": [
     "cli",
     "kudos",
+    "setler",
     "xrpl"
   ],
   "dependencies": {

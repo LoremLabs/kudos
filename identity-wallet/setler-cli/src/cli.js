@@ -69,7 +69,10 @@ const defaultHelp = `
     $ ${personality} kudos help
     $ ${personality} kudos identify
 
-    $ ${personality} auth    
+    $ ${personality} auth
+    $ ${personality} auth help
+    $ ${personality} auth login
+    $ ${personality} auth delegate    
 
     $ ${personality} pool
     $ ${personality} pool help

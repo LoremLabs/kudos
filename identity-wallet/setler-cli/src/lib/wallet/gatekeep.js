@@ -15,7 +15,17 @@ import prompts from "prompts";
 
 const log = console.log;
 
-export const gatekeep = async (context, shouldCreate) => {
+export const setupContext = async (context) => {
+  context.config = context.config || initConfig();
+
+  context.vault = new Vault({ context });
+  context.coins = new Coins({ context });
+  context.auth = new AuthAgent({ context });
+};
+
+export const gatekeep = async (context, shouldCreate, options) => {
+  const storageMode = options && options.storageMode ? true : false;
+
   // check to see if we have a config file and load it
   context.config = initConfig();
 
@@ -45,7 +55,8 @@ export const gatekeep = async (context, shouldCreate) => {
   let userPw = context.flags.password || process.env.SETLER_PASSWORD; // TODO: not a good idea?
   const envKey = `SETLER_KEYS_${parseInt(context.profile, 10)}`;
 
-  if (!process.env[envKey]) {
+  // if we don't have a key in the env, check the vault, but only if we're not just checking the context
+  if (!process.env[envKey] && storageMode && !process.env.KUDOS_STORAGE_TOKEN) {
     // unlock the vault
     let hash = await keytar.getPassword("Setler", `${scope ? scope : ""}pass`);
     if (!hash) {
@@ -233,8 +244,5 @@ export const gatekeep = async (context, shouldCreate) => {
     context.mnemonic = mnemonic;
   }
 
-  // setup helpers
-  context.vault = new Vault({ context });
-  context.coins = new Coins({ context });
-  context.auth = new AuthAgent({ context });
+  setupContext(context);
 };
