@@ -13,7 +13,7 @@ export const help = () => {
   log("");
   log("Commands:");
   log("  init");
-  log("  keys");
+  log("  keys [env] [--filter]");
   log("  mnemonic {get,set}");
   log("  fund");
   log("  receive");
@@ -32,6 +32,7 @@ export const help = () => {
   log("Examples:");
   log("  setler wallet init --profile 0 --scope 5");
   log("  setler wallet keys --profile 1 --scope 5");
+  log("  setler wallet keys env --filter kudos --profile 1 --scope 5");
   log("  setler wallet mnemonic --yes --scope 0");
   log("  setler wallet mnemonic set --scope 1");
   log("  setler wallet balance --network xrpl:testnet --profile 0");
