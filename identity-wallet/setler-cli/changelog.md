@@ -9,11 +9,26 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.6] - 2023-05-03
+
+### Added
+
+- `setler kudos identify` supports --skipMainPackage to not give weight to the main package
+- `setler kudos identifiy` documentation
+- `setler kudos identify` no longer creates kudos for zero weights
+- `setler kudos identify` automatically creates twitter, github, reddit ids for contributors from urls
+- `setler kudos identify` parses package.author as an object
+
+### Fixed
+
+- `setler kudos identify` no longer doubles the weight between dev and regular dependencies
+- formatting on changelog
+
 ## [0.0.5] - 2023-05-03
 
 ### Added
 
-- setler wallet keys env --filter=kudos command
+- `setler wallet keys env --filter=kudos` command
 
 ## Fixed
 

@@ -34,7 +34,9 @@ const help = () => {
   log("  keys");
   log("  create");
   log("  send");
-  log("  identify [path]");
+  log(
+    "  identify [path] [--skipMainPackage] [--checks] [--lang] [--outFile] [--nodeDevDependencies]"
+  );
   log("");
   log("Options:");
   log(
@@ -129,7 +131,31 @@ const exec = async (context) => {
           return `email:${attribution.email}`;
         }
         if (attribution.url) {
-          return `url:${attribution.url}`;
+          // see if it's a url we know about
+          // if it's twitter, convert to twitter:username
+          // if it's github, convert to github:username, etc
+
+          if (attribution.url && attribution.url.match(/twitter.com/)) {
+            const username = attribution.url.replace(
+              /^https?:\/\/(www.)?twitter.com\//,
+              ""
+            );
+            return `twitter:${username}`;
+          } else if (attribution.url && attribution.url.match(/github.com/)) {
+            const username = attribution.url.replace(
+              /^https?:\/\/(www.)?github.com\//,
+              ""
+            );
+            return `github:${username}`;
+          } else if (attribution.url && attribution.url.match(/reddit.com/)) {
+            const username = attribution.url.replace(
+              /^https?:\/\/(www.)?reddit.com\/user\//,
+              ""
+            );
+            return `reddit:${username}`;
+          } else {
+            return `url:${attribution.url}`;
+          }
         }
         if (attribution.web) {
           return `url:${attribution.web}`;
@@ -201,6 +227,7 @@ const exec = async (context) => {
         // remove ms
         ts = ts.replace(/\.\d{3}Z$/, "Z");
 
+        // actually create the kudo
         let kudo = {
           identifier,
           weight: weight.toFixed(6),
@@ -218,6 +245,7 @@ const exec = async (context) => {
 
         if (!kudo.description && (context.description || context.thing)) {
           kudo.description = context.description || context.thing;
+
           if (kudo.context?.description) {
             delete kudo.context.description;
           }
@@ -270,10 +298,6 @@ const exec = async (context) => {
         }
 
         if (checks.has("contributors")) {
-          if (flags.debug) {
-            debugLog(chalk.green("Checking for contributors..."));
-          }
-
           // look for contributors in package.json files
           if (flags.debug) {
             debugLog(
@@ -292,7 +316,9 @@ const exec = async (context) => {
               const file = files[i];
               const data = fs.readFileSync(file);
               const pkg = JSON.parse(data.toString());
-              pkg._dosku_file = file;
+              if (flags.debug) {
+                pkg._kudos_file = file;
+              }
               packages[pkg.name] = pkg;
               if (flags.debug) {
                 console.error("file", file, pkg.name);
@@ -313,7 +339,6 @@ const exec = async (context) => {
               }
             }
           }
-
           // build package weights from dependencies
           if (mainPackage && mainPackage.name) {
             const out = child_process.execFileSync(
@@ -341,14 +366,38 @@ const exec = async (context) => {
                 debugLog(chalk.blue("getWeight", pkg.name, weight));
               }
 
-              if (pkg.name && !weights[pkg.name]) {
-                weights[pkg.name] = weight;
+              if (
+                pkg.name &&
+                (!weights[pkg.name] || weights[pkg.name] < weight)
+              ) {
+                if (flags.skipMainPackage && pkg.name === mainPackage.name) {
+                  if (flags.debug) {
+                    debugLog(chalk.yellow("skipping main package", pkg.name));
+                  }
+                  weights[pkg.name] = 0;
+                } else {
+                  weights[pkg.name] = weight;
+                }
                 if (flags.debug) {
                   debugLog(chalk.blueBright("weight", weights[pkg.name]));
                 }
+                let totalDependencies = 0;
                 if (pkg.dependencies) {
-                  const splitWeight =
-                    weight / (Object.keys(pkg?.dependencies).length + 1);
+                  totalDependencies += Object.keys(pkg?.dependencies).length;
+                }
+                if (flags.nodeDevDependencies && pkg.devDependencies) {
+                  totalDependencies += Object.keys(pkg?.devDependencies).length;
+                }
+                if (flags.debug) {
+                  debugLog(chalk.cyan("totalDependencies", totalDependencies));
+                  // process.exit();
+                }
+                let splitWeight = 1;
+                if (totalDependencies > 0) {
+                  splitWeight = weight / totalDependencies;
+                }
+
+                if (pkg.dependencies) {
                   if (flags.debug) {
                     debugLog(chalk.cyan("splitWeight", splitWeight));
                   }
@@ -368,8 +417,6 @@ const exec = async (context) => {
                 }
                 if (flags.nodeDevDependencies && pkg.devDependencies) {
                   // opt in with --nodeDevDependencies
-                  const splitWeight =
-                    weight / (Object.keys(pkg?.devDependencies).length + 1);
                   if (flags.debug) {
                     debugLog(chalk.cyan("splitWeight", splitWeight));
                   }
@@ -391,7 +438,27 @@ const exec = async (context) => {
             };
             getWeight(ls, 1.0);
             if (flags.debug) {
+              debugLog("ls", ls);
               debugLog("weights", weights);
+            }
+            // weights is now a map of package names to weights as values
+            const totalWeights = Object.values(weights).reduce(
+              (a, b) => a + b,
+              0
+            );
+            debugLog(weights, totalWeights);
+            if (flags.debug) {
+              debugLog("totalWeights", totalWeights);
+            }
+            if (totalWeights <= 0) {
+              log(
+                chalk.red(
+                  `no kudos identified. verify you've run\n ${
+                    flags.packageManager || "pnpm"
+                  } i\n`
+                )
+              );
+              process.exit(1);
             }
           } else {
             // no main package?
@@ -403,7 +470,7 @@ const exec = async (context) => {
           for (const pkgName in packages) {
             const pkg = packages[pkgName];
             if (flags.debug) {
-              debugLog(chalk.cyan("Checking", pkgName));
+              debugLog(chalk.cyan("Checking a", pkgName));
             }
             // see if there's no weight
             if (!weights[pkg.name]) {
@@ -414,8 +481,8 @@ const exec = async (context) => {
               continue;
             }
             if (flags.debug) {
-              debugLog(chalk.green(`Checking ${pkgName}`));
-              debugLog(chalk.yellow(`file: ${pkg._dosku_file}`));
+              debugLog(chalk.green(`Checking b ${pkgName}`));
+              debugLog(chalk.yellow(`file: ${pkg._kudos_file}`));
             }
 
             if (pkg.contributors && Array.isArray(pkg.contributors)) {
@@ -516,11 +583,29 @@ const exec = async (context) => {
                   type: flags.type || "code.lib.nodejs",
                 };
                 context.thing = `${context.type}.${context.package}`;
+                context.description = `author of ${pkg.name} used in ${mainPackage.name}`;
                 addCreator({
                   attribution,
                   context,
                   weight: weights[pkg.name] || 1.0,
                 });
+              } else if (typeof pkg.author === "object") {
+                if (pkg.author?.email) {
+                  let attribution = pkg.author;
+                  let context = {
+                    package: pkg.name,
+                    repository: pkg.repository,
+                    //                    traceId,
+                    type: flags.type || "code.lib.nodejs",
+                  };
+                  context.thing = `${context.type}.${context.package}`;
+                  context.description = `author of ${pkg.name} used in ${mainPackage.name}`;
+                  addCreator({
+                    attribution,
+                    context,
+                    weight: weights[pkg.name] || 1.0,
+                  });
+                }
               }
             }
           }
@@ -533,7 +618,15 @@ const exec = async (context) => {
         // loop through creators, emit ndjson
         for (let i = 0; i < creators.length; i += 1) {
           const creator = creators[i];
-          outData += JSON.stringify(creator) + "\n";
+          if (creator.weight > 0) {
+            outData += JSON.stringify(creator) + "\n";
+          } else {
+            if (flags.debug) {
+              debugLog(
+                chalk.red("skipping, weight <= 0", JSON.stringify(creator))
+              );
+            }
+          }
         }
       } catch (e) {
         log(e, "error serializing creators");
