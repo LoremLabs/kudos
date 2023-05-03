@@ -246,6 +246,7 @@ const exec = async (context) => {
       //  setler kudos identify . | setler pool ink | jq
       // log(`${input}`);
 
+      // allow identResolver to be specified
       let poolId = context.flags.poolId || context.input[2];
       if (!poolId) {
         // prompt for poolId

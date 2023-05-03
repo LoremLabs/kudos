@@ -9,6 +9,13 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.7] - 2023-05-03
+
+### Added
+
+- `setler kudos identify` supports `--quiet` to silence output
+- `--poolEndpoint` flag to set the pool endpoint on a command by command basis
+
 ## [0.0.6] - 2023-05-03
 
 ### Added

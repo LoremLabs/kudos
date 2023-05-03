@@ -560,14 +560,13 @@ AuthAgent.prototype.startEmailAuth = async function ({
   return { response, status, nonce };
 };
 
-AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
+AuthAgent.prototype.sendToPool = async function ({ request }) {
   // NB: param is identResolver, not identityResolver
-  let identityResolver =
-    identResolver || this.identResolver || DEFAULTS.IDENTITY?.RESOLVER;
+  let poolEndpoint = this.context.poolEndpoint || DEFAULTS.POOL_ENDPOINT;
 
-  identityResolver = identityResolver.trim();
-  if (identityResolver.endsWith("/")) {
-    identityResolver = identityResolver.slice(0, -1);
+  poolEndpoint = poolEndpoint.trim();
+  if (poolEndpoint.endsWith("/")) {
+    poolEndpoint = poolEndpoint.slice(0, -1);
   }
 
   const gqlQuery = {
@@ -598,8 +597,8 @@ AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
   // console.log('gqlQuery', gqlQuery);
   let results = {};
 
-  if (!identityResolver) {
-    throw new Error("identResolver is required");
+  if (!poolEndpoint) {
+    throw new Error("poolEndpoint is required");
   }
 
   // TODO: it would be better to batch these rather than one at a time...
@@ -620,11 +619,11 @@ AuthAgent.prototype.sendToPool = async function ({ request, identResolver }) {
     };
     if (this.context.debug) {
       console.log("---------------sending to pool----------", request);
-      console.log(fetchToCurl(`${identityResolver}/api/v1/gql`, options));
+      console.log(fetchToCurl(`${poolEndpoint}/api/v1/gql`, options));
     }
 
     // remove trailing slash if it's on identityResolver
-    results = await fetch(`${identityResolver}/api/v1/gql`, options).then(
+    results = await fetch(`${poolEndpoint}/api/v1/gql`, options).then(
       async (r) => {
         // check status code
         if (r.status !== 200) {

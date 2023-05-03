@@ -35,7 +35,7 @@ const help = () => {
   log("  create");
   log("  send");
   log(
-    "  identify [path] [--skipMainPackage] [--checks] [--lang] [--outFile] [--nodeDevDependencies]"
+    "  identify [path] [--skipMainPackage] [--checks] [--lang] [--outFile] [--nodeDevDependencies] [--quiet]"
   );
   log("");
   log("Options:");
@@ -446,7 +446,9 @@ const exec = async (context) => {
               (a, b) => a + b,
               0
             );
-            debugLog(weights, totalWeights);
+            if (!flags.quiet) {
+              log(weights);
+            }
             if (flags.debug) {
               debugLog("totalWeights", totalWeights);
             }

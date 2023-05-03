@@ -1,3 +1,5 @@
+import { DEFAULTS, initConfig } from "../config.js";
+
 import { AuthAgent } from "../auth-agent.js";
 import { Coins } from "../coins.js";
 import { Vault } from "../vault.js";
@@ -9,7 +11,6 @@ import { encryptAES } from "./encryptSeedAES.js";
 import envPaths from "env-paths";
 import fs from "fs";
 import { generateMnemonic } from "./generateMnemonic.js";
-import { initConfig } from "../config.js";
 import keytar from "keytar";
 import prompts from "prompts";
 
@@ -40,6 +41,11 @@ export const gatekeep = async (context, shouldCreate) => {
   let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
   scope = parseInt(scope, 10);
   context.scope = `${scope}`;
+
+  context.poolEndpoint =
+    context.flags.poolEndpoint ||
+    process.env.SETLER_POOL_ENDPOINT ||
+    DEFAULTS.POOL_ENDPOINT;
 
   if (context.flags.verbose) {
     log(chalk.green(`Scope: ${scope}`));

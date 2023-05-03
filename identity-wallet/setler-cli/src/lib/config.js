@@ -63,6 +63,7 @@ export const DEFAULTS = {
   IDENTITY: {
     RESOLVER: "https://graph.ident.agency",
   },
+  POOL_ENDPOINT: "https://api.semicolons.com",
   NETWORK: "xrpl:testnet",
 };
 
