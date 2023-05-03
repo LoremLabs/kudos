@@ -140,19 +140,19 @@ const exec = async (context) => {
               /^https?:\/\/(www.)?twitter.com\//,
               ""
             );
-            return `twitter:${username}`;
+            return `twitter:${username.toLowerCase()}`;
           } else if (attribution.url && attribution.url.match(/github.com/)) {
             const username = attribution.url.replace(
               /^https?:\/\/(www.)?github.com\//,
               ""
             );
-            return `github:${username}`;
+            return `github:${username.toLowerCase()}`;
           } else if (attribution.url && attribution.url.match(/reddit.com/)) {
             const username = attribution.url.replace(
               /^https?:\/\/(www.)?reddit.com\/user\//,
               ""
             );
-            return `reddit:${username}`;
+            return `reddit:${username.toLowerCase()}`;
           } else {
             return `url:${attribution.url}`;
           }
