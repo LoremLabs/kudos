@@ -23,9 +23,7 @@ export const setupContext = async (context) => {
   context.auth = new AuthAgent({ context });
 };
 
-export const gatekeep = async (context, shouldCreate, options) => {
-  const storageMode = options && options.storageMode ? true : false;
-
+export const gatekeep = async (context, shouldCreate) => {
   // check to see if we have a config file and load it
   context.config = initConfig();
 
@@ -56,7 +54,7 @@ export const gatekeep = async (context, shouldCreate, options) => {
   const envKey = `SETLER_KEYS_${parseInt(context.profile, 10)}`;
 
   // if we don't have a key in the env, check the vault, but only if we're not just checking the context
-  if (!process.env[envKey] && storageMode && !process.env.KUDOS_STORAGE_TOKEN) {
+  if (!process.env[envKey]) {
     // unlock the vault
     let hash = await keytar.getPassword("Setler", `${scope ? scope : ""}pass`);
     if (!hash) {

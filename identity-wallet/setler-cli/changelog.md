@@ -9,6 +9,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.5] - 2023-05-03
+
+### Added
+
+- setler wallet keys env --filter=kudos command
+
+## Fixed
+
+- 0.0.4 env mode did not work
+
 ## [0.0.4] - 2023-05-03
 
 ### Added

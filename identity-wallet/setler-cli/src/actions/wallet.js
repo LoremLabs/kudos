@@ -254,14 +254,45 @@ const exec = async (context) => {
 
       break;
     }
-    case "keys":
+    case "keys": {
       await gatekeep(context);
 
       if (!context.keys) {
         context.keys = await context.vault.keys();
       }
-      log(`keys: ${JSON.stringify(context.keys, null, "  ")}`);
+
+      const filter = context.flags.filter;
+
+      let filteredKeys = {};
+      // filteredKeys should only be the matching object if filter is set.
+      if (filter) {
+        if (filter.indexOf(":") !== -1) {
+          // support xrpl:testnet style filter
+          const [type, subtype] = filter.split(":");
+          filteredKeys[type] = {};
+          filteredKeys[type][subtype] = context.keys[type][subtype];
+        } else {
+          filteredKeys[filter] = context.keys[filter];
+        }
+
+        filteredKeys.id = context.keys.id;
+      } else {
+        filteredKeys = context.keys;
+      }
+
+      if (context.input[2] === "env") {
+        // display env var version of key
+        const envKey = `SETLER_KEYS_${parseInt(context.profile, 10)}`;
+        // encodedKeys should be Base64Url encoded JSON of filteredKeys
+        const encodedKeys = JSON.stringify(filteredKeys);
+        const encodedKeysBase64 =
+          Buffer.from(encodedKeys).toString("base64url");
+        log(`${envKey}=${encodedKeysBase64}`);
+      } else {
+        log(`keys: ${JSON.stringify(filteredKeys, null, "  ")}`);
+      }
       break;
+    }
     case "mnemonic":
       await gatekeep(context);
 
