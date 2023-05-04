@@ -89,12 +89,15 @@
 		</div>
 		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative isolate">
 			<div class="hidden lg:block mask w-full aspect-[1/1]">
-				<img
-					class="w-full h-full object-cover"
-					style="filter: grayscale(10);"
-					alt=""
-					src="/imgs/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
-				/>
+				<picture>
+					<source type="image/webp" srcset="/imgs/joao-guimaraes-9b4jtcBEP4A-unsplash.webp" />
+					<img
+						class="w-full h-full object-cover"
+						style="filter: grayscale(10);"
+						alt=""
+						src="/imgs/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
+					/>
+				</picture>
 			</div>
 			<style>
 				.mask {
