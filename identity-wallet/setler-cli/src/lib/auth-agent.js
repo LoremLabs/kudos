@@ -28,6 +28,7 @@ AuthAgent.prototype.inkKudos = async function ({
   kudos,
   network,
   poolId,
+  signIt = true,
 }) {
   if (!poolId) {
     throw new Error("Pool ID is required");
@@ -41,7 +42,7 @@ AuthAgent.prototype.inkKudos = async function ({
       poolId,
     },
     path: "/pool/ink",
-    signIt: false,
+    signIt,
   });
 
   // TODO: send along the auth header that the gql expects
