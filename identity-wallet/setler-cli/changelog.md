@@ -9,9 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.8] - 2023-05-25
+
 ### Fixed
 
 - `setler kudos identify` lowercases github, twitter usernames
+- update auth to include signature for inking
 
 ## [0.0.7] - 2023-05-03
 
