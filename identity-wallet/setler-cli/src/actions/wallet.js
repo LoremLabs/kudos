@@ -335,6 +335,11 @@ const exec = async (context) => {
             process.exit(1);
           }
         }
+        if (!context.mnemonic) {
+          log(chalk.red(`No mnemonic found.`));
+          process.exit(1);
+        }
+
         log(chalk.bold(context.mnemonic));
       }
       break;
