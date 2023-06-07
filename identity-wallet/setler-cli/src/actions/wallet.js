@@ -46,6 +46,9 @@ const exec = async (context) => {
   switch (context.input[1]) {
     case "init":
       await gatekeep(context, true);
+      if (!context.flags.quiet) {
+        log(chalk.green(`Wallet initialized`));
+      }
       break;
     case "receive": {
       await gatekeep(context);
@@ -257,7 +260,6 @@ const exec = async (context) => {
     }
     case "keys": {
       await gatekeep(context);
-
       if (!context.keys) {
         context.keys = await context.vault.keys();
       }

@@ -24,9 +24,14 @@ export const setupContext = async (context) => {
   context.auth = new AuthAgent({ context });
 };
 
-export const gatekeep = async (context, shouldCreate) => {
+export const gatekeep = async (
+  context,
+  shouldCreate,
+  opts = { networks: ["xrpl:testnet", "xrpl:livenet"] }
+) => {
   // check to see if we have a config file and load it
   context.config = initConfig();
+  context.config.auth = context.config.auth || {};
 
   let profile = context.flags.profile || process.env.SETLER_PROFILE || 0; // this is the branch in the HD wallet, default to 0
   context.profile = profile;
@@ -36,6 +41,24 @@ export const gatekeep = async (context, shouldCreate) => {
   context.debug = context.flags.debug || process.env.SETLER_DEBUG || false;
   if (context.debug) {
     log(chalk.magenta(`Debug: ${context.debug}`));
+  }
+
+  // see if the networks chosen require stricter security
+  // if networks in only "kudos" then we can use a less secure method
+  // if networks in "xrpl" then we need to use a more secure method
+  const secureMode = opts.networks.some((n) => n.includes("xrpl"));
+
+  // set the context.config.auth if there's an env var
+  if (process.env.KUDOS_STORAGE_TOKEN) {
+    context.config.auth[`KUDOS_STORAGE_TOKEN`] =
+      process.env.KUDOS_STORAGE_TOKEN;
+  }
+
+  // set the auth keys if there's an env var
+  // this lets us get the auth keys from context.config.auth[`SETLER_KEYS_${profile}`] or process.env[`KUDOS_STORAGE_TOKEN`]
+  if (process.env[`SETLER_KEYS_${profile}`]) {
+    context.config.auth[`SETLER_KEYS_${profile}`] =
+      process.env[`SETLER_KEYS_${profile}`];
   }
 
   let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
@@ -57,10 +80,11 @@ export const gatekeep = async (context, shouldCreate) => {
 
   // see if we have a pw as a flag or process.env
   let userPw = context.flags.password || process.env.SETLER_PASSWORD; // TODO: not a good idea?
-  const envKey = `SETLER_KEYS_${parseInt(context.profile, 10)}`;
+  const envKey = context.config.auth[`SETLER_KEYS_${profile}`];
 
-  // if we don't have a key in the env, check the vault, but only if we're not just checking the context
-  if (!process.env[envKey]) {
+  const hasEnvKey = envKey ? true : false;
+
+  const checkConfig = async () => {
     // unlock the vault
     let hash = await keytar.getPassword("Setler", `${scope ? scope : ""}pass`);
     if (!hash) {
@@ -246,6 +270,42 @@ export const gatekeep = async (context, shouldCreate) => {
 
     // if we have a mneumonic, we should continue
     context.mnemonic = mnemonic;
+  };
+
+  if (secureMode) {
+    if (!hasEnvKey) {
+      await checkConfig();
+    } else if (!context.flags.skipLocalConfig) {
+      // read in salt without user input
+      let salt = await keytar.getPassword(
+        "Setler",
+        `${scope ? scope : ""}salt`
+      );
+      if (salt) {
+        // read in mneumonic, but without user input
+        const configDir = envPaths("setler", {
+          suffix: "",
+        }).data;
+        const seedFile = `${configDir}/state/setlr-${scope}.seed`;
+        if (fs.existsSync(seedFile)) {
+          const data = fs.readFileSync(seedFile, "utf8");
+          if (data) {
+            // we'll read it in and decrypt it.
+            const mnemonic = decryptAES(data, salt);
+            if (!mnemonic) {
+              log(chalk.red(`Unable to decrypt seed for Profile ${profile}`));
+              process.exit(1);
+            }
+            // log(`Seed found for ${profile}: ${mnemonic}`);
+            context.mnemonic = mnemonic;
+          }
+        }
+      }
+    }
+  } else {
+    if (context.debug) {
+      log(chalk.yellow(`--non-secure mode--`));
+    }
   }
 
   setupContext(context);

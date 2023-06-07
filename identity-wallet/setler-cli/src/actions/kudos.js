@@ -33,6 +33,7 @@ const help = () => {
   log("Commands:");
   log("  keys");
   log("  create");
+  log("  list");
   log("  send");
   log(
     "  identify [path] [--skipMainPackage] [--checks] [--lang] [--outFile] [--nodeDevDependencies] [--quiet]"
@@ -53,7 +54,8 @@ const help = () => {
   log("  setler kudos address");
   log("  setler kudos create");
   log("  setler kudos identify .");
-  log("  setler kudos send --poolId abcd123");
+  log("  setler kudos send --poolId abcd123 [--frozenPoolId abcd123]");
+  log("  setler kudos list --poolId abcd123");
   log("");
   log("Kudos to kudos:");
   log("");
@@ -652,7 +654,7 @@ const exec = async (context) => {
       break;
     }
     case "create": {
-      await gatekeep(context, true);
+      await gatekeep(context, true, { networks: ["kudos"] });
 
       let outData = "";
       let creators = [];
@@ -948,6 +950,128 @@ const exec = async (context) => {
       }
       break;
     }
+    case "list": {
+      await gatekeep(context, false, { networks: ["kudos"] });
+
+      const kudosNetwork = context.flags.kudosNetwork || "kudos";
+      const keys = await context.vault.keys();
+
+      let kudosAddress = flags.kudosAddress || keys[kudosNetwork].address;
+
+      if (!kudosAddress) {
+        log(chalk.red(`send: no account found for kudos network`));
+        process.exit(1);
+      }
+
+      let poolId = context.flags.poolId || context.input[2];
+      if (!poolId) {
+        let matching = context.flags.poolMatch || "";
+
+        if (context.flags.poolName) {
+          matching = context.flags.poolName;
+
+          if (Array.isArray(matching)) {
+            log(chalk.red(`Can only specify one pool name`));
+            process.exit(1);
+          }
+
+          // add n: prefix if it's not already there
+          if (!matching.startsWith("n:")) {
+            matching = "n:" + matching;
+          }
+        } else if (context.flags.poolId) {
+          matching = context.flags.poolId;
+
+          if (Array.isArray(matching)) {
+            log(chalk.red(`Can only specify one pool id`));
+            process.exit(1);
+          }
+
+          // add i: prefix if it's not already there
+          if (!matching.startsWith("i:")) {
+            matching = "i:" + matching;
+          }
+        }
+
+        let listResults = {};
+        try {
+          const listPromise = context.auth.listPools({
+            network: kudosNetwork,
+            matching,
+          });
+          listResults = await waitFor(listPromise, {
+            text: `Fetching pools...`,
+          });
+        } catch (error) {
+          log(chalk.red(`Error listing pools: ${error.message}`));
+          process.exit(1);
+        }
+
+        const out = JSON.parse(listResults.response.out);
+        // log(`${JSON.stringify(out, null, 2)}`);
+        // out.pools is an array of {id,name}
+        // use that to construct a prompt
+
+        let choices = out.pools.map((pool) => {
+          return {
+            title: `${pool.name}`,
+            description: `[${pool.id}]`,
+            value: pool.id,
+          };
+        });
+        // sort choices by title alphabetically
+        choices = choices.sort((a, b) => {
+          if (a.title < b.title) {
+            return -1;
+          }
+          if (a.title > b.title) {
+            return 1;
+          }
+          return 0;
+        });
+
+        if (choices.length === 0) {
+          log(chalk.red(`No pools found`));
+          process.exit(1);
+        }
+
+        // prompt for poolId
+        const response = await prompts({
+          type: "select",
+          name: "poolId",
+          message: "What poolId do you want to send to?",
+          choices,
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+
+      // get the pool
+      let getResults = {};
+      try {
+        const getPromise = context.auth.getPoolSummary({
+          network: kudosNetwork,
+          address: kudosAddress,
+          poolId,
+          frozenPoolId: context.flags.frozenPoolId || "",
+        });
+        getResults = await waitFor(getPromise, {
+          text: `Retrieving pool...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error getting pool: ${error.message}`));
+        process.exit(1);
+      }
+
+      const out = JSON.parse(getResults.response.out);
+      log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
     case "send": {
       await gatekeep(context);
 
@@ -1097,6 +1221,7 @@ const exec = async (context) => {
           network: kudosNetwork,
           address: kudosAddress,
           poolId,
+          frozenPoolId: context.flags.frozenPoolId || "",
           // amount,
         });
         getResults = await waitFor(getPromise, {
@@ -1849,6 +1974,7 @@ const exec = async (context) => {
             network: kudosNetwork,
             address: kudosAddress,
             poolId,
+            frozenPoolId: context.flags.frozenPoolId || "",
             receipts,
           });
           receiptsResults = await waitFor(receiptsPromise, {
@@ -1867,6 +1993,14 @@ const exec = async (context) => {
           );
           log(chalk.red(`Error saving receipts: ${error.message}`));
           process.exit(1);
+        }
+      } else {
+        // output as ndjson
+        if (!context.flags.quiet) {
+          for (let i = 0; i < receipts.length; i++) {
+            let receipt = receipts[i];
+            log(JSON.stringify(receipt));
+          }
         }
       }
 
@@ -2003,6 +2137,7 @@ const exec = async (context) => {
             network: kudosNetwork,
             address: kudosAddress,
             poolId,
+            frozenPoolId: context.flags.frozenPoolId || "",
             receipts,
           });
           receiptsResults = await waitFor(receiptsPromise, {
@@ -2021,6 +2156,14 @@ const exec = async (context) => {
           );
           log(chalk.red(`Error saving receipts: ${error.message}`));
           process.exit(1);
+        }
+      } else {
+        // output as ndjson
+        if (!context.flags.quiet) {
+          for (let i = 0; i < receipts.length; i++) {
+            let receipt = receipts[i];
+            log(JSON.stringify(receipt));
+          }
         }
       }
 

@@ -75,6 +75,96 @@ const exec = async (context) => {
       }
       break;
     }
+    case "auth": {
+      // setler config auth set
+      // KUDOS_STORAGE_TOKEN="e..."
+      // SETLER_KEYS_0="e..."
+      config.auth = config.auth || {};
+
+      if (context.input[2] === "get") {
+        const profile = context.profile || 0;
+        const keys =
+          config.auth?.[`SETLER_KEYS_${profile}`] ||
+          process.env[`SETLER_KEYS_${profile}`];
+
+        log(`SETLER_KEYS_${profile}="${keys}"`);
+
+        const token =
+          config.auth?.[`KUDOS_STORAGE_TOKEN`] ||
+          process.env[`KUDOS_STORAGE_TOKEN`];
+
+        log(`KUDOS_STORAGE_TOKEN="${token}"`);
+      } else if (context.input[2] === "set") {
+        // we can set either keys or token
+        if (context.input[3] === "keys") {
+          const profile = context.profile || 0;
+          const token = context.input[4] || context.flags.token;
+
+          if (!token) {
+            // prompt for token
+            const response = await prompts([
+              {
+                type: "text",
+                name: "token",
+                message: `Enter SETLER_KEYS_${profile}: `,
+                initial:
+                  process.env[`SETLER_KEYS_${profile}`] ||
+                  config.auth?.[`SETLER_KEYS_${profile}`],
+              },
+            ]);
+            if (!response.token) {
+              process.exit(1);
+            }
+            config.auth[`SETLER_KEYS_${profile}`] = response.token;
+          } else {
+            config.auth[`SETLER_KEYS_${profile}`] = token;
+          }
+
+          // write
+          writeConfig(config);
+
+          log(chalk.green(`token for profile ${profile} set`));
+        } else if (context.input[3] === "token") {
+          const profile = context.profile || 0;
+          const token = context.input[4] || context.flags.token;
+
+          if (!token) {
+            // prompt for token
+            const response = await prompts([
+              {
+                type: "text",
+                name: "token",
+                message: `Enter the token: `,
+                initial:
+                  process.env[`KUDOS_STORAGE_TOKEN`] ||
+                  config.auth?.[`KUDOS_STORAGE_TOKEN`],
+              },
+            ]);
+            if (!response.token) {
+              process.exit(1);
+            }
+            config.auth[`KUDOS_STORAGE_TOKEN`] = response.token;
+          } else {
+            config.auth[`KUDOS_STORAGE_TOKEN`] = token;
+          }
+
+          // write
+          writeConfig(config);
+
+          log(chalk.green(`token for profile ${profile} set`));
+        } else {
+          // usage
+          log(
+            chalk.bold(`Usage: setler config auth set [keys|token] --profile 0`)
+          );
+        }
+      } else {
+        // usage
+        log(chalk.bold(`Usage: setler config auth [get|set] --profile 0`));
+      }
+
+      break;
+    }
     case "ident": {
       if (context.input[2] === "resolver") {
         let action = context.input[3];
@@ -164,7 +254,7 @@ const exec = async (context) => {
     }
     default: {
       // usage
-      log(chalk.bold(`Usage: setler config [get|endpoint|ident]`));
+      log(chalk.bold(`Usage: setler config [get|endpoint|ident|auth]`));
       break;
     }
   }

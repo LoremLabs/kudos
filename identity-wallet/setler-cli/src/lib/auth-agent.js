@@ -64,12 +64,71 @@ AuthAgent.prototype.inkKudos = async function ({
   return { response, status };
 };
 
-AuthAgent.prototype.getPool = async function ({ address, network, poolId }) {
+AuthAgent.prototype.getEvents = async function ({
+  network,
+  poolId,
+  startTs,
+  endTs,
+  limit,
+  limitOffset,
+}) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+      startTs,
+      endTs,
+      limit,
+      limitOffset,
+    },
+    path: "/pool/events",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.listFrozenPools = async function ({ network, poolId }) {
+  const request = await this.createPoolRequest({
+    network,
+    payload: {
+      poolId,
+    },
+    path: "/pool/list/frozen",
+    includeAuth: true,
+  });
+  const { response, status } = await this.sendToPool({ request });
+  // log({ response, status });
+  if (status.code !== 200) {
+    const e = new Error(status.message);
+    e._status = status;
+    e._response = response;
+    throw e;
+  }
+
+  return { response, status };
+};
+
+AuthAgent.prototype.getPool = async function ({
+  address,
+  network,
+  poolId,
+  frozenPoolId,
+}) {
   const request = await this.createPoolRequest({
     network,
     payload: {
       poolId,
       address,
+      frozenPoolId,
     },
     path: "/pool/get/details",
     includeAuth: true,
@@ -91,6 +150,8 @@ AuthAgent.prototype.getPoolSummary = async function ({
   amount,
   network,
   poolId,
+  frozenPoolId,
+  opts,
 }) {
   const request = await this.createPoolRequest({
     network,
@@ -98,6 +159,8 @@ AuthAgent.prototype.getPoolSummary = async function ({
       poolId,
       address,
       amount,
+      frozenPoolId,
+      opts,
     },
     path: "/pool/get/summary",
     includeAuth: true,
@@ -289,7 +352,8 @@ AuthAgent.prototype.sendReceipts = async function ({
       receipts,
     },
     path: "/pool/ink/receipts",
-    includeAuth: true,
+    signIt: true,
+    //    includeAuth: true,
   });
   const { response, status } = await this.sendToPool({ request });
   // log({ response, status });
@@ -342,7 +406,10 @@ AuthAgent.prototype.createPoolRequest = async function ({
     signature = `${signed.signature}${signed.recId}`; // TODO: is there a standard for this? recId is 0 or 1
   } else {
     // use authorization
-    authorization = process.env.KUDOS_STORAGE_TOKEN;
+    if (context.config.auth[`KUDOS_STORAGE_TOKEN`]) {
+      authorization = context.config.auth[`KUDOS_STORAGE_TOKEN`];
+    }
+
     if (!authorization) {
       throw new Error("Missing KUDOS_STORAGE_TOKEN");
     }
@@ -361,8 +428,8 @@ AuthAgent.prototype.createPoolRequest = async function ({
 
   if (includeAuth) {
     // is optional
-    if (process.env.KUDOS_STORAGE_TOKEN) {
-      request.authorization = process.env.KUDOS_STORAGE_TOKEN;
+    if (context.config.auth[`KUDOS_STORAGE_TOKEN`]) {
+      request.authorization = context.config.auth[`KUDOS_STORAGE_TOKEN`];
     }
   }
 
@@ -569,6 +636,8 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
   if (poolEndpoint.endsWith("/")) {
     poolEndpoint = poolEndpoint.slice(0, -1);
   }
+
+  console.log({ poolEndpoint });
 
   const gqlQuery = {
     query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {

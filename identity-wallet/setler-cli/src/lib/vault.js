@@ -129,7 +129,6 @@ Vault.prototype.keys = async function () {
   if (this.context.keys) {
     return this.context.keys;
   }
-
   // see if we have an env var or do we need to derive the keys
   if (this.context.mnemonic) {
     this.context.keys = await deriveKeys({
@@ -137,21 +136,34 @@ Vault.prototype.keys = async function () {
       passPhrase: this.context.passPhrase,
       id: this.context.profile,
     });
-  } else {
-    // seed from env variable, base64decoded
-    const envKey = `SETLER_KEYS_${parseInt(this.context.profile, 10)}`;
+  }
 
+  // seed from env variable, base64decoded
+  const envKey =
+    this.context.config.auth[
+      `SETLER_KEYS_${parseInt(this.context.profile, 10)}`
+    ];
+  this.context.keysEnv = this.context.keysEnv || {};
+  this.context.keys = this.context.keys || {};
+
+  if (envKey) {
     try {
-      let encodedKeys = process.env[envKey];
+      let encodedKeys = envKey;
       encodedKeys = Buffer.from(encodedKeys, "base64url").toString("utf8");
 
-      this.context.keys = JSON.parse(encodedKeys);
+      this.context.keysEnv = JSON.parse(encodedKeys);
     } catch (e) {
       throw new Error(
         `Could not find keys for profile SETLER_KEYS_${this.context.profile}`
       );
     }
   }
+
+  // override with keys from env
+  if (this.context.keysEnv) {
+    this.context.keys = { ...this.context.keys, ...this.context.keysEnv };
+  }
+
   // flatten tree to one level, keyed off address
   const addressKeys = {};
   for (const [, value] of Object.entries(this.context.keys)) {
@@ -166,6 +178,14 @@ Vault.prototype.keys = async function () {
     }
   }
   this.context.addressKeys = addressKeys;
+
+  // keys: {
+  //   "kudos": {
+  //     "address": "rsMbD7dEMq92ZWfbBorEPNdDaiZypKs8D6",
+  //     "privateKey": "00D4625AF1D2F84E9ED577216F90F9D61C9644E792374726171A7B0369B5151D38",
+  //     "publicKey": "02284096B7A9462E9B59E225B09346CA645FD67E856DA4A4ADC94AA18A8E8FCDF0"
+  //   }
+  // }
 
   return this.context.keys;
 };

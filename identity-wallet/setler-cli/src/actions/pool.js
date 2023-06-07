@@ -85,6 +85,7 @@ const exec = async (context) => {
           network,
           address: sourceAddress,
           poolId,
+          frozenPoolId: context.flags.frozenPoolId || "",
         });
         getResults = await waitFor(getPromise, {
           text: `Retrieving pool...`,
@@ -142,6 +143,7 @@ const exec = async (context) => {
           address: sourceAddress,
           poolId,
           amount,
+          frozenPoolId: context.flags.frozenPoolId || "",
         });
         getResults = await waitFor(getPromise, {
           text: `Retrieving pool...`,
@@ -152,6 +154,110 @@ const exec = async (context) => {
       }
 
       const out = JSON.parse(getResults.response.out);
+      log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
+    case "events": {
+      await gatekeep(context, true);
+
+      let poolId = context.flags.poolId || context.input[2];
+      if (!poolId) {
+        // prompt for poolId
+        const response = await prompts({
+          type: "text",
+          name: "poolId",
+          message: "What poolId do you want to retrieve?",
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+      let startTs = context.flags.startTs || context.input[3];
+      if (!startTs) {
+        // prompt for startTs
+        const response = await prompts({
+          type: "text",
+          name: "startTs",
+          message:
+            "What starting time do you want? (24h, 1d, 1M, 30s, etc. or the timestamp in ms) ",
+          initial: "-24h",
+        });
+        startTs = response.startTs;
+      }
+
+      if (!startTs) {
+        log(chalk.red("startTs is required"));
+        process.exit(1);
+      }
+
+      let endTs = context.flags.endTs || context.input[4];
+      if (!endTs) {
+        endTs = "now";
+      }
+
+      let limit = context.flags.limit || 25;
+      let limitOffset = context.flags.limitOffset || 0;
+
+      let listResults = {};
+      try {
+        const listPromise = context.auth.getEvents({
+          network,
+          poolId,
+          startTs,
+          endTs,
+          limit,
+          limitOffset,
+        });
+        listResults = await waitFor(listPromise, {
+          text: `Fetching pools...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error listing pools: ${error.message}`));
+        process.exit(1);
+      }
+
+      const out = JSON.parse(listResults.response.out);
+
+      log(`${JSON.stringify(out, null, 2)}`);
+
+      break;
+    }
+    case "frozen": {
+      await gatekeep(context, true);
+
+      let poolId = context.flags.poolId || context.input[2];
+      if (!poolId) {
+        // prompt for poolId
+        const response = await prompts({
+          type: "text",
+          name: "poolId",
+          message: "What poolId do you want to retrieve?",
+        });
+        poolId = response.poolId;
+      }
+
+      if (!poolId) {
+        log(chalk.red("PoolId is required"));
+        process.exit(1);
+      }
+
+      let listResults = {};
+      try {
+        const listPromise = context.auth.listFrozenPools({ network, poolId });
+        listResults = await waitFor(listPromise, {
+          text: `Fetching pools...`,
+        });
+      } catch (error) {
+        log(chalk.red(`Error listing pools: ${error.message}`));
+        process.exit(1);
+      }
+
+      const out = JSON.parse(listResults.response.out);
+
       log(`${JSON.stringify(out, null, 2)}`);
 
       break;
@@ -206,10 +312,9 @@ const exec = async (context) => {
     }
     case "ink": {
       // save ("ink") to a pool
-      await gatekeep(context, true, { storageMode: true });
+      await gatekeep(context, true, { networks: ["kudos"] });
 
       const keys = await context.vault.keys();
-
       let sourceAddress;
       const networkParts = network.split(":");
       if (networkParts.length === 1) {

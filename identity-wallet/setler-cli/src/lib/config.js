@@ -7,7 +7,9 @@ import toml from "@iarna/toml";
 export const defaultConfig = {
   _init: false,
   identity: {
-    identResolver: "https://graph.ident.agency",
+    identResolver: "http://localhost:5174",
+
+    //    "https://graph.ident.agency",
   },
   networks: {
     "xrpl:livenet": true,
@@ -63,7 +65,7 @@ export const DEFAULTS = {
   IDENTITY: {
     RESOLVER: "https://graph.ident.agency",
   },
-  POOL_ENDPOINT: "https://api.semicolons.com",
+  POOL_ENDPOINT: "http://localhost:5174", //"https://api.semicolons.com",
   NETWORK: "xrpl:testnet",
 };
 

@@ -9,6 +9,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.9] - 2023-06-07
+
+### Added
+
+- Add message on `setler wallet mnemonic` when no mnemonic exists.
+- `setler wallet init` has message on success unless squelched with --quiet
+- Added option to `gatekey` to only check certain networks, allowing less interaction for kudos-only functions
+- `setler kudos list --poolId ...` to list all the kudos in a pool. To be similar to kudos send usage. May remove `setler pool` equivalent in the future.
+- Add `context.config.auth` to store `SETLER_KEYS`, etc.
+
 ## [0.0.8] - 2023-05-25
 
 ### Fixed
