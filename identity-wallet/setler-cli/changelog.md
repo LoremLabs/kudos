@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.11] - 2023-06-21
+
+## Fixed
+
+- Reset debug statement
+
 ## [0.0.10] - 2023-06-21
 
 ## Changed
