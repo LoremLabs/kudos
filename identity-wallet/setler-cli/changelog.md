@@ -9,6 +9,17 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.10] - 2023-06-21
+
+## Changed
+
+- Prefer `crypto.webcrypto.getRandomValues` api over `crypto.getRandomValues` to support older node versions.
+
+## Fixed
+
+- On wallet init, mkdir needs to happen before writing a file.
+
+
 ## [0.0.9] - 2023-06-07
 
 ### Added
