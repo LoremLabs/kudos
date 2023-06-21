@@ -68,6 +68,7 @@ export const gatekeep = async (
   context.poolEndpoint =
     context.flags.poolEndpoint ||
     process.env.SETLER_POOL_ENDPOINT ||
+    context.config.auth?.SETLER_POOL_ENDPOINT ||
     DEFAULTS.POOL_ENDPOINT;
 
   if (context.flags.verbose) {
