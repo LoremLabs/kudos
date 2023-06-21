@@ -181,7 +181,9 @@ export const gatekeep = async (
       // salt = generate 32 bytes of random data, then hex encode them
       // and store them in the keychain
 
-      const randomBytes = await crypto.getRandomValues(new Uint8Array(32));
+      const randomBytes = await crypto.webcrypto.getRandomValues(
+        new Uint8Array(32)
+      );
       salt = Buffer.from(randomBytes).toString("hex");
 
       await keytar.setPassword("Setler", `${scope ? scope : ""}salt`, salt);
