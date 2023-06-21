@@ -238,14 +238,15 @@ export const gatekeep = async (
         const backupFile = `${seedFile}-${Date.now()}.bak`;
         fs.copyFileSync(seedFile, backupFile);
       }
-      // write seed file
-      const encrypted = encryptAES(mnemonic, salt);
-      fs.writeFileSync(seedFile, encrypted, "utf8");
 
       const seedDir = `${configDir}/state/`;
       if (!fs.existsSync(seedDir)) {
         fs.mkdirSync(seedDir, { recursive: true });
       }
+
+      // write seed file
+      const encrypted = encryptAES(mnemonic, salt);
+      fs.writeFileSync(seedFile, encrypted, "utf8");
 
       return mnemonic;
     };
