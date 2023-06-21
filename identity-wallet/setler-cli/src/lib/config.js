@@ -7,9 +7,8 @@ import toml from "@iarna/toml";
 export const defaultConfig = {
   _init: false,
   identity: {
-    identResolver: "http://localhost:5174",
-
-    //    "https://graph.ident.agency",
+    identResolver: "https://graph.ident.agency",
+    //    , "http://localhost:5174"
   },
   networks: {
     "xrpl:livenet": true,
