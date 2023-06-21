@@ -64,7 +64,7 @@ export const DEFAULTS = {
   IDENTITY: {
     RESOLVER: "https://graph.ident.agency",
   },
-  POOL_ENDPOINT: "http://localhost:5174", //"https://api.semicolons.com",
+  POOL_ENDPOINT: "https://api.semicolons.com", // "http://localhost:5174"
   NETWORK: "xrpl:testnet",
 };
 
