@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.12] - 2023-06-21
+
+## Fixed
+
+- Reset debug default for POOl_ENDPOINT
+
 ## [0.0.11] - 2023-06-21
 
 ## Fixed
@@ -24,7 +30,6 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 ## Fixed
 
 - On wallet init, mkdir needs to happen before writing a file.
-
 
 ## [0.0.9] - 2023-06-07
 
