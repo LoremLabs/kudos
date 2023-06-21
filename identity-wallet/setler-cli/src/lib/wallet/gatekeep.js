@@ -181,7 +181,9 @@ export const gatekeep = async (
       // salt = generate 32 bytes of random data, then hex encode them
       // and store them in the keychain
 
-      const randomBytes = await crypto.getRandomValues(new Uint8Array(32));
+      const randomBytes = await crypto.webcrypto.getRandomValues(
+        new Uint8Array(32)
+      );
       salt = Buffer.from(randomBytes).toString("hex");
 
       await keytar.setPassword("Setler", `${scope ? scope : ""}salt`, salt);
@@ -236,14 +238,15 @@ export const gatekeep = async (
         const backupFile = `${seedFile}-${Date.now()}.bak`;
         fs.copyFileSync(seedFile, backupFile);
       }
-      // write seed file
-      const encrypted = encryptAES(mnemonic, salt);
-      fs.writeFileSync(seedFile, encrypted, "utf8");
 
       const seedDir = `${configDir}/state/`;
       if (!fs.existsSync(seedDir)) {
         fs.mkdirSync(seedDir, { recursive: true });
       }
+
+      // write seed file
+      const encrypted = encryptAES(mnemonic, salt);
+      fs.writeFileSync(seedFile, encrypted, "utf8");
 
       return mnemonic;
     };
