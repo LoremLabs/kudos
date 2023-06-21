@@ -9,25 +9,31 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.13] - 2023-06-21
+
+### Added
+
+- Default from config object
+
 ## [0.0.12] - 2023-06-21
 
-## Fixed
+### Fixed
 
 - Reset debug default for POOl_ENDPOINT
 
 ## [0.0.11] - 2023-06-21
 
-## Fixed
+### Fixed
 
 - Reset debug statement
 
 ## [0.0.10] - 2023-06-21
 
-## Changed
+### Changed
 
 - Prefer `crypto.webcrypto.getRandomValues` api over `crypto.getRandomValues` to support older node versions.
 
-## Fixed
+### Fixed
 
 - On wallet init, mkdir needs to happen before writing a file.
 
@@ -76,7 +82,7 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 - `setler wallet keys env --filter=kudos` command
 
-## Fixed
+### Fixed
 
 - 0.0.4 env mode did not work
 
