@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.14] - 2023-07-03
+
+### Fixed
+
+- Upgrade scure/bip39 in effort to fix './wordlists/english.js' is not defined by "exports"
+
 ## [0.0.13] - 2023-06-21
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "@loremlabs/setler",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "setler command-line tool, a non-custodial identity wallet with kudos support",
   "license": "MIT",
   "type": "module",
@@ -35,7 +35,7 @@
     "@kudos-protocol/short-id": "^0.0.1",
     "@noble/hashes": "^1.2.0",
     "@noble/secp256k1": "1.7.1",
-    "@scure/bip39": "^1.1.1",
+    "@scure/bip39": "^1.2.1",
     "bcrypt": "^5.1.0",
     "better-sqlite3": "^7.5.3",
     "chalk": "^4.1.2",
