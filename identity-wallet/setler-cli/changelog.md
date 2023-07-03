@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.15] - 2023-07-03
+
+### Fixed
+
+- Try pegging scure/bip39 to `1.1.1` to temporarily fix wordlist issue
+
 ## [0.0.14] - 2023-07-03
 
 ### Fixed
