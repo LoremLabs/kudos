@@ -130,10 +130,10 @@
 			<h2
 				class="mx-auto text-center text-3xl font-semibold tracking-tight text-gray-800 md:text-5xl max-w-md"
 			>
-				Be the first to know about our progress
+				Request an Invite
 			</h2>
 			<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-gray-400">
-				Join our low volume email list.
+				We're currently in private beta. Sign up to be notified when we launch.
 			</p>
 			<form class="mx-auto mt-10 flex max-w-md gap-x-4">
 				<label for="email-address" class="sr-only">Email address</label>
