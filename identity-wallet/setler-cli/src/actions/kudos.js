@@ -18,7 +18,7 @@ import { shortId } from "@kudos-protocol/short-id";
 import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
-import { xrpToDrops } from "xrpl";
+import { convertStringToHex, xrpToDrops } from "xrpl";
 
 // import { waitFor } from "../lib/wait.js";
 
@@ -1243,6 +1243,7 @@ const exec = async (context) => {
 
       const addresses = [];
       const weights = [];
+      const kudosMemos = [];
       const totalWeightServer = parseFloat(out.totalWeight); // TODO: compare server weight to local and error if different
 
       // loop through out.identities, setup weights
@@ -1253,6 +1254,13 @@ const exec = async (context) => {
         if (parseFloat(weight) === 0) {
           continue; // skip already processed / zero weight
         }
+
+        // TODO: the kudos memo gets written to the blockchain
+        const kudosMemo = {
+          txt: `anonymous`, // TODO: add a description from summary api result
+          // identity: the identity that got sent the kudos
+        };
+        kudosMemos.push(kudosMemo);
         addresses.push(address);
         weights.push(weight);
       }
@@ -1301,6 +1309,7 @@ const exec = async (context) => {
       if (context.debug) {
         log(`addresses: ${JSON.stringify(addresses)}`);
         log(`weights: ${JSON.stringify(weights)}`);
+        log(`memos: ${JSON.stringify(kudosMemos)}`);
       }
 
       // estimate the fees
@@ -1355,9 +1364,13 @@ const exec = async (context) => {
 
         // get corresponding weight
         const weight = weights[i] ? parseFloat(weights[i]) : 1;
+
+        // add the memo
+        const kudosMemo = kudosMemos[i];
         return {
           address,
           weight,
+          kudosMemo,
         };
       });
 
@@ -1451,9 +1464,15 @@ const exec = async (context) => {
           const isSetlerCreator = creatorPool.find(
             (creator) => creator.id === address.address
           );
+
+          // see if this is a kudos log payment (kudosLogConfig)
+          const isKudosLog = address.kudosLog ? true : false;
+          // console.log("isKudosLog", isKudosLog);
+          // console.log({address});
+
           let output =
             chalk.blueBright(
-              `${address.address}${" ".repeat(
+              `${address.address}[extra]${" ".repeat(
                 longestLength - address.address.length
               )}  `
             ) +
@@ -1476,6 +1495,14 @@ const exec = async (context) => {
               `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
             ) +
             (isSetlerCreator ? chalk.yellow("  (setler fee)") : "");
+
+          if (isKudosLog) {
+            // substitute [extra] for → kudos
+            output = output.replace("[extra]", chalk.redBright(" → kudos"));
+          } else {
+            // substitute [extra] for →
+            output = output.replace("[extra]", "        ");
+          }
 
           if (isSetlerCreator) {
             // dim output
@@ -1549,7 +1576,7 @@ const exec = async (context) => {
           // expand this address
           const did = address.address;
 
-          let directPaymentVia, escrowMethod;
+          let directPaymentVia, escrowMethod, kudosLogConfig;
           try {
             // this throws so we have a red x
             const expandPromise = expandDid({
@@ -1566,13 +1593,14 @@ const exec = async (context) => {
             directPaymentVia = response.directPaymentVia;
             escrowMethod = response.escrowMethod;
           } catch (e) {
-            if (e.message !== "Escrow only") {
+            if (e.message !== "Escrow only" && e.message !== "KudosLog only") {
               log(chalk.red(`Error expanding did ${did}: ${e.message}`));
               process.exit(1);
             }
             // no payment methods found
             directPaymentVia = e.extra.directPaymentVia;
             escrowMethod = e.extra.escrowMethod;
+            kudosLogConfig = e.extra.kudosLogConfig;
           }
 
           // loop through expanded see if any are xrpl addresses with our network
@@ -1582,6 +1610,7 @@ const exec = async (context) => {
                 `Expanded ${did} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
+                  kudosLogConfig,
                 })}`
               )
             );
@@ -1717,6 +1746,66 @@ const exec = async (context) => {
               weightedAddresses[i].weight = 0; // remove from the list
               changedWeights = true;
             }
+          } else if (!directPaymentVia && kudosLogConfig) {
+            if (!confirmAll && !skip) {
+              log("");
+              log(
+                `No direct payment address found for ` +
+                  chalk.blue(`${did}`) +
+                  `.`
+              );
+
+              // suggest we send the payment to the kudos log or skip it
+              const confirm5 = await prompts([
+                {
+                  type: "select",
+                  name: "kudosLog",
+                  message:
+                    "Create public log and send payment to fund Kudos creators instead? ",
+                  choices: [
+                    { title: "Yes", value: "y" },
+                    { title: "No", value: "n" },
+                    { title: "Yes to All", value: "all" },
+                    { title: "Skip Kudos Log", value: "skip" },
+                  ],
+                  initial: 2,
+                },
+              ]);
+              if (confirm5.kudosLog === "n") {
+                weightedAddresses[i].weight = 0; // remove from the list
+                changedWeights = true;
+              } else if (confirm5.kudosLog === "skip") {
+                skip = true;
+                confirmAll = false;
+                weightedAddresses[i].weight = 0; // remove from the list
+                changedWeights = true;
+              } else if (confirm5.kudosLog === "all") {
+                confirmAll = true;
+                skip = false;
+                weightedAddresses[i].expandedAddress = kudosLogConfig.address;
+                weightedAddresses[i].kudosLog = {
+                  ...kudosLogConfig,
+                  originalIdentifier: did,
+                };
+              } else {
+                // send to kudos log
+                weightedAddresses[i].expandedAddress = kudosLogConfig.address;
+                weightedAddresses[i].kudosLog = {
+                  ...kudosLogConfig,
+                  originalIdentifier: did,
+                };
+              }
+            } else if (skip) {
+              weightedAddresses[i].weight = 0; // remove from the list
+              changedWeights = true;
+            } else {
+              // send to kudos log
+              weightedAddresses[i].expandedAddress = kudosLogConfig.address;
+              weightedAddresses[i].kudosLog = {
+                ...kudosLogConfig,
+                originalIdentifier: did,
+              };
+            }
           } else if (!directPaymentVia) {
             log(
               chalk.red(
@@ -1812,10 +1901,13 @@ const exec = async (context) => {
       // log(JSON.stringify(weightedAddresses, null, 2));
 
       const directCount = weightedAddresses.filter(
-        (a) => a.weight > 0 && !a.escrow
+        (a) => a.weight > 0 && !a.escrow && !a.kudosLog
       ).length;
       const escrowCount = weightedAddresses.filter(
         (a) => a.weight > 0 && a.escrow
+      ).length;
+      const kudosLogCount = weightedAddresses.filter(
+        (a) => a.weight > 0 && a.kudosLog
       ).length;
       const skipCount = weightedAddresses.filter((a) => a.weight === 0).length;
 
@@ -1825,6 +1917,7 @@ const exec = async (context) => {
       log("");
       log(`To ${chalk.yellow(weightedAddresses.length)} addresses:`);
       log(chalk.green(` direct : ${directCount}`));
+      log(chalk.cyan(` kudos  : ${kudosLogCount}`));
       log(chalk.magenta(` escrow : ${escrowCount}`));
       log(chalk.yellow(` skipped: ${skipCount}`));
       log(" " + "─".repeat(width - 2));
@@ -1841,21 +1934,32 @@ const exec = async (context) => {
             )} [${chalk.yellow(currentAddress.address)}]`
           );
         } else {
-          log(
-            `  ${currentAddress.amount} ${chalk.green(
-              "direct to "
-            )} [${chalk.yellow(currentAddress.address)}] ${chalk.cyan(
-              currentAddress.expandedAddress
-            )}`
-          );
-          log(
-            " ".repeat(
-              4 +
-                `${currentAddress.amount} [${chalk.yellow(
-                  currentAddress.address
-                )}]`.length
-            ) + stringToColorBlocks(currentAddress.expandedAddress, network)
-          );
+          if (currentAddress.kudosLog) {
+            log(
+              `  ${currentAddress.amount} ${chalk.green(
+                "to kudos log "
+              )} ${chalk.cyan(currentAddress.expandedAddress)} [${chalk.yellow(
+                currentAddress.address
+              )}]`
+            );
+            log(
+              " ".repeat(
+                1 + `  ${currentAddress.amount} to kudos log `.length
+              ) + stringToColorBlocks(currentAddress.expandedAddress, network)
+            );
+          } else {
+            log(
+              `  ${currentAddress.amount} ${chalk.green(
+                "direct to     "
+              )} ${chalk.cyan(currentAddress.expandedAddress)} [${chalk.yellow(
+                currentAddress.address
+              )}]`
+            );
+            log(
+              " ".repeat(3 + `${currentAddress.amount} direct to     `.length) +
+                stringToColorBlocks(currentAddress.expandedAddress, network)
+            );
+          }
         }
       }
       log("");
@@ -1891,6 +1995,9 @@ const exec = async (context) => {
         if (currentAddress.escrow) {
           continue;
         }
+        if (currentAddress.kudosLog) {
+          continue;
+        }
         // log(chalk.yellow(JSON.stringify(currentAddress, null, 2)));
         // log(
         //   `Sending ` +
@@ -1898,6 +2005,28 @@ const exec = async (context) => {
         //     ` to ` +
         //     chalk.blue(`${currentAddress.expandedAddress}`)
         // );
+
+        // setup memos:
+        const Memos = [];
+
+        if (currentAddress.kudosMemo) {
+          // Enter memo data to insert into a transaction
+          const MemoData = convertStringToHex(
+            JSON.stringify(currentAddress.kudosMemo)
+          ).toUpperCase();
+          const MemoType = convertStringToHex("kudos").toUpperCase();
+          // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          const MemoFormat =
+            convertStringToHex("application/json").toUpperCase();
+          Memos.push({
+            Memo: {
+              MemoType,
+              MemoFormat,
+              MemoData,
+            },
+          });
+        }
+
         const dpPromise = context.coins.send({
           network,
           sourceAddress,
@@ -1905,6 +2034,7 @@ const exec = async (context) => {
           amount: currentAddress.amount,
           amountDrops: currentAddress.amountDrops,
           tag: currentAddress.tag,
+          memos: Memos,
         });
 
         const directPayment = await waitFor(dpPromise, {
@@ -1967,7 +2097,7 @@ const exec = async (context) => {
       }
 
       // checkpoint: send receipts
-      if (receipts.length) {
+      if (false && receipts.length) {
         let receiptsResults = {};
         try {
           const receiptsPromise = context.auth.sendReceipts({
@@ -2130,7 +2260,7 @@ const exec = async (context) => {
       }
 
       // checkpoint: send receipts
-      if (receipts.length) {
+      if (false && receipts.length) {
         let receiptsResults = {};
         try {
           const receiptsPromise = context.auth.sendReceipts({
@@ -2165,6 +2295,110 @@ const exec = async (context) => {
             log(JSON.stringify(receipt));
           }
         }
+      }
+
+      let kudosLogSent = 0;
+      for (let i = 0; i < weightedAddresses.length; i++) {
+        let currentAddress = weightedAddresses[i];
+        if (currentAddress.weight === 0) {
+          continue;
+        }
+        if (!currentAddress.kudosLog) {
+          continue;
+        }
+
+        // setup memos:
+        const Memos = [];
+
+        if (currentAddress.kudosMemo) {
+          // Enter memo data to insert into a transaction
+          const memo = currentAddress.kudosMemo || {};
+          if (currentAddress.kudosLog?.identifier) {
+            memo.identifier = currentAddress.kudosLog.identifier; // should be blinded?
+          }
+          const MemoData = convertStringToHex(
+            JSON.stringify(memo)
+          ).toUpperCase();
+          const MemoType = convertStringToHex("kudos").toUpperCase();
+          // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+          const MemoFormat =
+            convertStringToHex("application/json").toUpperCase();
+          Memos.push({
+            Memo: {
+              MemoType,
+              MemoFormat,
+              MemoData,
+            },
+          });
+        }
+
+        const dpPromise = context.coins.send({
+          network,
+          sourceAddress,
+          address: currentAddress.expandedAddress,
+          amount: currentAddress.amount,
+          amountDrops: currentAddress.amountDrops,
+          tag: currentAddress.tag,
+          memos: Memos,
+        });
+
+        const directPayment = await waitFor(dpPromise, {
+          text:
+            `Sending ` +
+            chalk.green(`${currentAddress.amount}`) +
+            " XRP to " +
+            chalk.blue(`${currentAddress.expandedAddress}`) +
+            "\n" +
+            " ".repeat(
+              `  Sending ${currentAddress.amount + ""} XRP to `.length
+            ) +
+            stringToColorBlocks(currentAddress.expandedAddress, network),
+        });
+
+        if (!directPayment) {
+          log(
+            chalk.red(
+              `send: could not send this direct payment. Check transaction history before trying again.`
+            )
+          );
+          process.exit(1);
+        }
+        log(
+          chalk.bold(
+            `Transaction: ` + chalk.green(`${directPayment.result.hash}`)
+          )
+        );
+
+        // create a kudosReceipt
+        let ts = new Date().toISOString();
+        // remove ms
+        ts = ts.replace(/\.\d{3}Z$/, "Z");
+        let weight = parseFloat(weightedAddresses[i].weight) * -1; // negate
+        let kudosReceipt = {
+          identifier: currentAddress.address,
+          weight: weight.toFixed(6),
+          id: shortId(),
+          traceId: setleId,
+          ts,
+          receipt: {
+            type: "kudoslog",
+            amount: currentAddress.amount,
+            address: currentAddress.expandedAddress,
+            tx: directPayment.result.hash,
+          },
+        };
+        receipts.push(kudosReceipt);
+        kudosLogSent++;
+      }
+
+      if (kudosLogSent) {
+        log("");
+        log(
+          chalk.bold(
+            chalk.green(`✔`) + ` Ok, kudos log payments sent successfully.`
+          )
+        );
+        log("");
       }
 
       context.coins.disconnect();

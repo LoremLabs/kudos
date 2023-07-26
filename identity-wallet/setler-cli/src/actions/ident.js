@@ -244,7 +244,6 @@ const exec = async (context) => {
         const response = await waitFor(expandPromise, {
           text: `Looking up address for ` + chalk.blue(`${did}`),
         });
-
         if (response.directPaymentVia) {
           log(`${did} = ` + chalk.yellow(`${response.directPaymentVia}`));
           log(
@@ -264,6 +263,13 @@ const exec = async (context) => {
         // no payment methods found
         // directPaymentVia = e.extra.directPaymentVia;
         // escrowMethod = e.extra.escrowMethod;
+
+        if (e.extra.escrowMethod) {
+          log(`${did} = ` + chalk.yellow(`${e.extra.escrowMethod}`));
+        }
+        if (e.extra.kudosLogConfig) {
+          log(`Kudos Log would write ${did} = ` + chalk.yellow(`${e.extra.kudosLogConfig?.identifier}`));
+        }
       }
 
       break;

@@ -9,6 +9,10 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+### Fixed
+
+- Removed duplicated `expandDid` function 
+
 ## [0.0.15] - 2023-07-03
 
 ### Fixed

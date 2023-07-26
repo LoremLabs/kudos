@@ -328,6 +328,7 @@ Coins.prototype.send = async function ({
   address,
   amount,
   amountDrops,
+  memos
 }) {
   const client = await this.getClient(network);
   // log("send", JSON.stringify({ network, sourceAddress, address, amount }));
@@ -346,6 +347,10 @@ Coins.prototype.send = async function ({
     Amount: xrpl.xrpToDrops(amount),
     Destination: address,
   };
+
+  if (memos) {
+    tx.Memos = memos;
+  }
 
   // Prepare transaction -------------------------------------------------------
   const prepared = await client.autofill(tx);

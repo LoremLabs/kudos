@@ -4,7 +4,7 @@ import { fetchToCurl } from "fetch-to-curl";
 
 const log = console.log;
 
-export const expandDid = async ({ did, identResolver, network, debug }) => {
+export const expandDid = async ({ did, identResolver, network, debug, kudosLog = true }) => {
   // TODO: use a general purpose did resolver, this is hard-coded to kudos dids
 
   let identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
@@ -14,29 +14,41 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
   }
 
   const gqlQuery = {
-    query: `query SocialPay($identifier: String!) {
-        socialPay(identifier: $identifier) {
+    query: `query SocialPay($identifier: String!, $features: SocialPayFeatures) {
+        socialPay(identifier: $identifier, features: $features) {
             paymentMethods {
-                type
-                value
-              }
-              escrowMethods {
-                type
-                address
-                time
-                fee
-                terms
-                onExpiration
-              }
-              status {
-                message
-                code
-              }
+              type
+              value
+              note
+            }
+            
+            escrowMethods {
+              type
+              address
+              time
+              fee
+              terms
+              onExpiration
+            }
+
+            kudosLogMethods {
+              identifier
+              type
+              address
+            }
+
+            status {
+              message
+              code
+            }
         }
        }`,
 
     variables: {
       identifier: did,
+      features: {
+        kudosLog,
+      }
     },
     operationName: "SocialPay",
     extensions: {},
@@ -77,7 +89,9 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
         }
 
         const out = await r.json();
-        // console.log('out', JSON.stringify(out,null,2));
+        if (debug) {
+          console.log('out', JSON.stringify(out,null,2));
+        }
         return out;
       }
     );
@@ -96,11 +110,15 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
     return results;
   }
 
+  // see if we have kudos logs
+  const kudosLogMethods = results?.data?.socialPay?.kudosLogMethods || [];
+  const kudosLogConfig = kudosLogMethods.find((p) => p.type === network);
+
   const payVias = results?.data?.socialPay?.paymentMethods || [];
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
   if (payVia) {
-    return { directPaymentVia: payVia.value, escrowMethod: null };
+    return { directPaymentVia: payVia.value, escrowMethod: null, kudosLogConfig };
   }
 
   // otherwise we search for an escrow that matches
@@ -109,9 +127,15 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
   const escrowMethod = escrowMethods.find((p) => p.type === network);
   if (escrowMethod) {
     const e = new Error("Escrow only");
-    e.extra = { directPaymentVia: null, escrowMethod };
+    e.extra = { directPaymentVia: null, escrowMethod, kudosLogConfig };
     throw e;
   }
 
-  return { directPaymentVia: null, escrowMethod: null };
+  if (kudosLogConfig) {
+    const e = new Error("KudosLog only");
+    e.extra = { directPaymentVia: null, escrowMethod: null, kudosLogConfig };
+    throw e;
+  }
+
+  return { directPaymentVia: null, escrowMethod: null, kudosLogConfig: null };
 };

@@ -39,7 +39,7 @@
 
       // defaultPath: defaultDir,
     });
-    console.log({ filePath });
+    // console.log({ filePath });
     if (filePath) {
       // open new window
       // openShell(`setler://import/${filePath}`);
