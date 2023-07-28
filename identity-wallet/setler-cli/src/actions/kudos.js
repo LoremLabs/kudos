@@ -1587,7 +1587,7 @@ const exec = async (context) => {
             );
           }
 
-          if (!directPaymentVia && escrowMethod) {
+          if (!directPaymentVia && escrowMethod && context.flags.escrow) {
             // ask if we should create an escrow payment
             if (!confirmAll && !skip) {
               log("");
@@ -1662,6 +1662,7 @@ const exec = async (context) => {
               }
               log("");
               log("");
+
               // create escrow payment? y,n,none,all
               const confirm4 = await prompts([
                 {
@@ -1718,12 +1719,20 @@ const exec = async (context) => {
               changedWeights = true;
             }
           } else if (!directPaymentVia) {
+
+            if (context.flags.requireDirect) {
             log(
               chalk.red(
                 `send: Could not expand did ${did}. Remove from list and try again.`
               )
             );
             process.exit(1);
+              }
+
+            // no direct payment method found
+            weightedAddresses[i].weight = 0; // remove from the list
+            changedWeights = true;
+
           } else {
             weightedAddresses[i].expandedAddress = directPaymentVia;
 
@@ -1823,7 +1832,7 @@ const exec = async (context) => {
       log("");
       log(`  ${chalk.green(amountXrp)} XRP`);
       log("");
-      log(`To ${chalk.yellow(weightedAddresses.length)} addresses:`);
+      log(`To ${chalk.yellow(weightedAddresses.length - (skipCount || 0))} addresses:`);
       log(chalk.green(` direct : ${directCount}`));
       log(chalk.magenta(` escrow : ${escrowCount}`));
       log(chalk.yellow(` skipped: ${skipCount}`));

@@ -9,6 +9,14 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+### Added
+
+- Allow flag to create Kudos with Escrow
+
+### Fixed
+
+- Don't include Skipped in total number to send
+
 ## [0.0.15] - 2023-07-03
 
 ### Fixed
