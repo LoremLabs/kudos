@@ -13,7 +13,6 @@ const log = console.log;
 const exec = async (context) => {
   switch (context.input[1]) {
     default: {
-
       await gatekeep(context);
 
       // are we currently logged in? that would be in the config?
@@ -41,11 +40,7 @@ const exec = async (context) => {
       // print out our source address
       log("");
       log(`${sourceAddress} on ${network}`);
-      log(
-        " ".repeat(
-        ``.length
-        ) + stringToColorBlocks(sourceAddress, network)
-      );
+      log(" ".repeat(``.length) + stringToColorBlocks(sourceAddress, network));
 
       break;
     }

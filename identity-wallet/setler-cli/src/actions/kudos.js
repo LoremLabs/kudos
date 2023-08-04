@@ -1808,20 +1808,18 @@ const exec = async (context) => {
               };
             }
           } else if (!directPaymentVia) {
-
             if (context.flags.requireDirect) {
-            log(
-              chalk.red(
-                `send: Could not expand did ${did}. Remove from list and try again.`
-              )
-            );
-            process.exit(1);
-              }
+              log(
+                chalk.red(
+                  `send: Could not expand did ${did}. Remove from list and try again.`
+                )
+              );
+              process.exit(1);
+            }
 
             // no direct payment method found
             weightedAddresses[i].weight = 0; // remove from the list
             changedWeights = true;
-
           } else {
             weightedAddresses[i].expandedAddress = directPaymentVia;
 
@@ -1924,7 +1922,11 @@ const exec = async (context) => {
       log("");
       log(`  ${chalk.green(amountXrp)} XRP`);
       log("");
-      log(`To ${chalk.yellow(weightedAddresses.length - (skipCount || 0))} addresses:`);
+      log(
+        `To ${chalk.yellow(
+          weightedAddresses.length - (skipCount || 0)
+        )} addresses:`
+      );
       log(chalk.green(` direct : ${directCount}`));
       log(chalk.cyan(` kudos  : ${kudosLogCount}`));
       log(chalk.magenta(` escrow : ${escrowCount}`));

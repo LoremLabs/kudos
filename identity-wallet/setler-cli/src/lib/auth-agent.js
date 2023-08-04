@@ -728,4 +728,3 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
 
   return { response, status };
 };
-

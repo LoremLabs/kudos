@@ -4,7 +4,13 @@ import { fetchToCurl } from "fetch-to-curl";
 
 const log = console.log;
 
-export const expandDid = async ({ did, identResolver, network, debug, kudosLog = true }) => {
+export const expandDid = async ({
+  did,
+  identResolver,
+  network,
+  debug,
+  kudosLog = true,
+}) => {
   // TODO: use a general purpose did resolver, this is hard-coded to kudos dids
 
   let identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
@@ -48,7 +54,7 @@ export const expandDid = async ({ did, identResolver, network, debug, kudosLog =
       identifier: did,
       features: {
         kudosLog,
-      }
+      },
     },
     operationName: "SocialPay",
     extensions: {},
@@ -90,7 +96,7 @@ export const expandDid = async ({ did, identResolver, network, debug, kudosLog =
 
         const out = await r.json();
         if (debug) {
-          console.log('out', JSON.stringify(out,null,2));
+          console.log("out", JSON.stringify(out, null, 2));
         }
         return out;
       }
@@ -118,7 +124,11 @@ export const expandDid = async ({ did, identResolver, network, debug, kudosLog =
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
   if (payVia) {
-    return { directPaymentVia: payVia.value, escrowMethod: null, kudosLogConfig };
+    return {
+      directPaymentVia: payVia.value,
+      escrowMethod: null,
+      kudosLogConfig,
+    };
   }
 
   // otherwise we search for an escrow that matches

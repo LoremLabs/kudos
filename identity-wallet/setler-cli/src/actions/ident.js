@@ -273,7 +273,10 @@ const exec = async (context) => {
           log(`${did} = ` + chalk.yellow(`${e.extra.escrowMethod}`));
         }
         if (e.extra.kudosLogConfig) {
-          log(`Kudos Log would write ${did} = ` + chalk.yellow(`${e.extra.kudosLogConfig?.identifier}`));
+          log(
+            `Kudos Log would write ${did} = ` +
+              chalk.yellow(`${e.extra.kudosLogConfig?.identifier}`)
+          );
         }
       }
 
