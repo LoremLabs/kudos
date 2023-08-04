@@ -11,12 +11,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ### Fixed
 
-- Removed duplicated `expandDid` function 
+- Removed duplicated `expandDid` function
 - Don't include Skipped in total number to send
 
 ### Added
 
 - Allow flag to create Kudos with Escrow
+- Extra debugging to ident
+- Add `whoami` action to show current address
+- Add `message` action to debug encrypted messages
+- Add encyprt/decrypt to coins lib
 
 ## [0.0.15] - 2023-07-03
 
