@@ -4,13 +4,7 @@ import { fetchToCurl } from "fetch-to-curl";
 
 const log = console.log;
 
-export const expandDid = async ({
-  did,
-  identResolver,
-  network,
-  debug,
-  kudosLog = true,
-}) => {
+export const expandDid = async ({ did, identResolver, network, debug }) => {
   // TODO: use a general purpose did resolver, this is hard-coded to kudos dids
 
   let identityResolver = identResolver || DEFAULTS.IDENTITY.RESOLVER;
@@ -20,12 +14,11 @@ export const expandDid = async ({
   }
 
   const gqlQuery = {
-    query: `query SocialPay($identifier: String!, $features: SocialPayFeatures) {
-        socialPay(identifier: $identifier, features: $features) {
+    query: `query SocialPay($identifier: String!) {
+        socialPay(identifier: $identifier) {
             paymentMethods {
               type
               value
-              note
             }
             
             escrowMethods {
@@ -37,12 +30,6 @@ export const expandDid = async ({
               onExpiration
             }
 
-            kudosLogMethods {
-              identifier
-              type
-              address
-            }
-
             status {
               message
               code
@@ -52,9 +39,6 @@ export const expandDid = async ({
 
     variables: {
       identifier: did,
-      features: {
-        kudosLog,
-      },
     },
     operationName: "SocialPay",
     extensions: {},
@@ -116,10 +100,6 @@ export const expandDid = async ({
     return results;
   }
 
-  // see if we have kudos logs
-  const kudosLogMethods = results?.data?.socialPay?.kudosLogMethods || [];
-  const kudosLogConfig = kudosLogMethods.find((p) => p.type === network);
-
   const payVias = results?.data?.socialPay?.paymentMethods || [];
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
@@ -127,7 +107,6 @@ export const expandDid = async ({
     return {
       directPaymentVia: payVia.value,
       escrowMethod: null,
-      kudosLogConfig,
     };
   }
 
@@ -137,15 +116,9 @@ export const expandDid = async ({
   const escrowMethod = escrowMethods.find((p) => p.type === network);
   if (escrowMethod) {
     const e = new Error("Escrow only");
-    e.extra = { directPaymentVia: null, escrowMethod, kudosLogConfig };
+    e.extra = { directPaymentVia: null, escrowMethod };
     throw e;
   }
 
-  if (kudosLogConfig) {
-    const e = new Error("KudosLog only");
-    e.extra = { directPaymentVia: null, escrowMethod: null, kudosLogConfig };
-    throw e;
-  }
-
-  return { directPaymentVia: null, escrowMethod: null, kudosLogConfig: null };
+  return { directPaymentVia: null, escrowMethod: null };
 };

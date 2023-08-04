@@ -1257,8 +1257,8 @@ const exec = async (context) => {
 
         // TODO: the kudos memo gets written to the blockchain
         const kudosMemo = {
-          txt: `anonymous`, // TODO: add a description from summary api result
           // identity: the identity that got sent the kudos
+          // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
         };
         kudosMemos.push(kudosMemo);
         addresses.push(address);
@@ -1465,14 +1465,9 @@ const exec = async (context) => {
             (creator) => creator.id === address.address
           );
 
-          // see if this is a kudos log payment (kudosLogConfig)
-          const isKudosLog = address.kudosLog ? true : false;
-          // console.log("isKudosLog", isKudosLog);
-          // console.log({address});
-
           let output =
             chalk.blueBright(
-              `${address.address}[extra]${" ".repeat(
+              `${address.address} ${" ".repeat(
                 longestLength - address.address.length
               )}  `
             ) +
@@ -1495,14 +1490,6 @@ const exec = async (context) => {
               `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
             ) +
             (isSetlerCreator ? chalk.yellow("  (setler fee)") : "");
-
-          if (isKudosLog) {
-            // substitute [extra] for → kudos
-            output = output.replace("[extra]", chalk.redBright(" → kudos"));
-          } else {
-            // substitute [extra] for →
-            output = output.replace("[extra]", "        ");
-          }
 
           if (isSetlerCreator) {
             // dim output
@@ -1576,7 +1563,7 @@ const exec = async (context) => {
           // expand this address
           const did = address.address;
 
-          let directPaymentVia, escrowMethod, kudosLogConfig;
+          let directPaymentVia, escrowMethod;
           try {
             // this throws so we have a red x
             const expandPromise = expandDid({
@@ -1593,14 +1580,13 @@ const exec = async (context) => {
             directPaymentVia = response.directPaymentVia;
             escrowMethod = response.escrowMethod;
           } catch (e) {
-            if (e.message !== "Escrow only" && e.message !== "KudosLog only") {
+            if (e.message !== "Escrow only") {
               log(chalk.red(`Error expanding did ${did}: ${e.message}`));
               process.exit(1);
             }
             // no payment methods found
             directPaymentVia = e.extra.directPaymentVia;
             escrowMethod = e.extra.escrowMethod;
-            kudosLogConfig = e.extra.kudosLogConfig;
           }
 
           // loop through expanded see if any are xrpl addresses with our network
@@ -1610,7 +1596,6 @@ const exec = async (context) => {
                 `Expanded ${did} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
-                  kudosLogConfig,
                 })}`
               )
             );
@@ -1747,7 +1732,7 @@ const exec = async (context) => {
               weightedAddresses[i].weight = 0; // remove from the list
               changedWeights = true;
             }
-          } else if (!directPaymentVia && kudosLogConfig) {
+          } else if (!directPaymentVia) {
             if (!confirmAll && !skip) {
               log("");
               log(
@@ -1756,70 +1741,21 @@ const exec = async (context) => {
                   `.`
               );
 
-              // suggest we send the payment to the kudos log or skip it
-              const confirm5 = await prompts([
-                {
-                  type: "select",
-                  name: "kudosLog",
-                  message:
-                    "Create public log and send payment to fund Kudos creators instead? ",
-                  choices: [
-                    { title: "Yes", value: "y" },
-                    { title: "No", value: "n" },
-                    { title: "Yes to All", value: "all" },
-                    { title: "Skip Kudos Log", value: "skip" },
-                  ],
-                  initial: 2,
-                },
-              ]);
-              if (confirm5.kudosLog === "n") {
-                weightedAddresses[i].weight = 0; // remove from the list
-                changedWeights = true;
-              } else if (confirm5.kudosLog === "skip") {
-                skip = true;
-                confirmAll = false;
-                weightedAddresses[i].weight = 0; // remove from the list
-                changedWeights = true;
-              } else if (confirm5.kudosLog === "all") {
-                confirmAll = true;
-                skip = false;
-                weightedAddresses[i].expandedAddress = kudosLogConfig.address;
-                weightedAddresses[i].kudosLog = {
-                  ...kudosLogConfig,
-                  originalIdentifier: did,
-                };
-              } else {
-                // send to kudos log
-                weightedAddresses[i].expandedAddress = kudosLogConfig.address;
-                weightedAddresses[i].kudosLog = {
-                  ...kudosLogConfig,
-                  originalIdentifier: did,
-                };
-              }
+              weightedAddresses[i].shouldThank = true; // eligible for thank you
+              weightedAddresses[i].originalWeight = weightedAddresses[i].weight;
+              weightedAddresses[i].weight = 0; // remove from the list
+              changedWeights = true;
             } else if (skip) {
               weightedAddresses[i].weight = 0; // remove from the list
               changedWeights = true;
             } else {
-              // send to kudos log
-              weightedAddresses[i].expandedAddress = kudosLogConfig.address;
-              weightedAddresses[i].kudosLog = {
-                ...kudosLogConfig,
-                originalIdentifier: did,
-              };
-            }
-          } else if (!directPaymentVia) {
-            if (context.flags.requireDirect) {
               log(
                 chalk.red(
-                  `send: Could not expand did ${did}. Remove from list and try again.`
+                  `send: [abc] Could not expand did ${did}. Remove from list and try again.`
                 )
               );
               process.exit(1);
             }
-
-            // no direct payment method found
-            weightedAddresses[i].weight = 0; // remove from the list
-            changedWeights = true;
           } else {
             weightedAddresses[i].expandedAddress = directPaymentVia;
 
@@ -1861,6 +1797,16 @@ const exec = async (context) => {
         calcWeights();
         await confirmWeights();
       }
+
+      // ask if we should send a thank you for those that don't have direct payment set
+      const thankYou = await prompts([
+        {
+          type: "confirm",
+          name: "value",
+          message: `Create thank you scores for ids without payment? (Costs 1 Drop/id. Used by leaderboard and notifications.)`,
+          initial: true,
+        },
+      ]);
 
       // see how much we have in this account, to verify it's enough to cover the transaction?
       const getAcctPromise = context.coins.getAccountInfo({
@@ -1908,15 +1854,16 @@ const exec = async (context) => {
       // log(JSON.stringify(weightedAddresses, null, 2));
 
       const directCount = weightedAddresses.filter(
-        (a) => a.weight > 0 && !a.escrow && !a.kudosLog
+        (a) => a.weight > 0 && !a.escrow
       ).length;
       const escrowCount = weightedAddresses.filter(
         (a) => a.weight > 0 && a.escrow
       ).length;
-      const kudosLogCount = weightedAddresses.filter(
-        (a) => a.weight > 0 && a.kudosLog
-      ).length;
       const skipCount = weightedAddresses.filter((a) => a.weight === 0).length;
+      const thanksCount = thankYou.value
+        ? weightedAddresses.filter((a) => a.shouldThank && a.weight === 0)
+            .length
+        : 0;
 
       log(`This transaction will send:`);
       log("");
@@ -1928,9 +1875,12 @@ const exec = async (context) => {
         )} addresses:`
       );
       log(chalk.green(` direct : ${directCount}`));
-      log(chalk.cyan(` kudos  : ${kudosLogCount}`));
       log(chalk.magenta(` escrow : ${escrowCount}`));
-      log(chalk.yellow(` skipped: ${skipCount}`));
+      if (thankYou.value) {
+        log(chalk.yellow(` thanks : ${thanksCount}`));
+      } else {
+        log(chalk.yellow(` skipped: ${skipCount}`));
+      }
       log(" " + "─".repeat(width - 2));
       log("");
       for (let i = 0; i < weightedAddresses.length; i++) {
@@ -1945,32 +1895,17 @@ const exec = async (context) => {
             )} [${chalk.yellow(currentAddress.address)}]`
           );
         } else {
-          if (currentAddress.kudosLog) {
-            log(
-              `  ${currentAddress.amount} ${chalk.green(
-                "to kudos log "
-              )} ${chalk.cyan(currentAddress.expandedAddress)} [${chalk.yellow(
-                currentAddress.address
-              )}]`
-            );
-            log(
-              " ".repeat(
-                1 + `  ${currentAddress.amount} to kudos log `.length
-              ) + stringToColorBlocks(currentAddress.expandedAddress, network)
-            );
-          } else {
-            log(
-              `  ${currentAddress.amount} ${chalk.green(
-                "direct to     "
-              )} ${chalk.cyan(currentAddress.expandedAddress)} [${chalk.yellow(
-                currentAddress.address
-              )}]`
-            );
-            log(
-              " ".repeat(3 + `${currentAddress.amount} direct to     `.length) +
-                stringToColorBlocks(currentAddress.expandedAddress, network)
-            );
-          }
+          log(
+            `  ${currentAddress.amount} ${chalk.green(
+              "direct to     "
+            )} ${chalk.cyan(currentAddress.expandedAddress)} [${chalk.yellow(
+              currentAddress.address
+            )}]`
+          );
+          log(
+            " ".repeat(3 + `${currentAddress.amount} direct to     `.length) +
+              stringToColorBlocks(currentAddress.expandedAddress, network)
+          );
         }
       }
       log("");
@@ -2004,9 +1939,6 @@ const exec = async (context) => {
           continue;
         }
         if (currentAddress.escrow) {
-          continue;
-        }
-        if (currentAddress.kudosLog) {
           continue;
         }
         // log(chalk.yellow(JSON.stringify(currentAddress, null, 2)));
@@ -2105,44 +2037,6 @@ const exec = async (context) => {
           )
         );
         log("");
-      }
-
-      // checkpoint: send receipts
-      if (false && receipts.length) {
-        let receiptsResults = {};
-        try {
-          const receiptsPromise = context.auth.sendReceipts({
-            network: kudosNetwork,
-            address: kudosAddress,
-            poolId,
-            frozenPoolId: context.flags.frozenPoolId || "",
-            receipts,
-          });
-          receiptsResults = await waitFor(receiptsPromise, {
-            text: `Sending receipts...`,
-          });
-          receipts = []; // reset
-          if (context.debug) {
-            log(chalk.bold(`send: receiptsResults:`));
-            log(JSON.stringify(receiptsResults, null, 2));
-          }
-        } catch (error) {
-          log(
-            chalk.red(
-              `Be careful of double processing! Check transaction history, edit pool before trying again.`
-            )
-          );
-          log(chalk.red(`Error saving receipts: ${error.message}`));
-          process.exit(1);
-        }
-      } else {
-        // output as ndjson
-        if (!context.flags.quiet) {
-          for (let i = 0; i < receipts.length; i++) {
-            let receipt = receipts[i];
-            log(JSON.stringify(receipt));
-          }
-        }
       }
 
       // log(chalk.bold(`send: Sending escrow payments`));
@@ -2270,146 +2164,85 @@ const exec = async (context) => {
         receipts.push(kudosReceipt);
       }
 
-      // checkpoint: send receipts
-      if (false && receipts.length) {
-        let receiptsResults = {};
-        try {
-          const receiptsPromise = context.auth.sendReceipts({
-            network: kudosNetwork,
-            address: kudosAddress,
-            poolId,
-            frozenPoolId: context.flags.frozenPoolId || "",
-            receipts,
-          });
-          receiptsResults = await waitFor(receiptsPromise, {
-            text: `Sending receipts...`,
-          });
-          if (context.debug) {
-            log(chalk.bold(`send: receiptsResults:`));
-            log(JSON.stringify(receiptsResults, null, 2));
-          }
-          receipts = []; // reset
-        } catch (error) {
-          log(
-            chalk.red(
-              `Be careful of double processing! Check transaction history, edit pool before trying again.`
-            )
-          );
-          log(chalk.red(`Error saving receipts: ${error.message}`));
-          process.exit(1);
-        }
-      } else {
-        // output as ndjson
-        if (!context.flags.quiet) {
-          for (let i = 0; i < receipts.length; i++) {
-            let receipt = receipts[i];
-            log(JSON.stringify(receipt));
-          }
+      // output as ndjson
+      if (!context.flags.quiet) {
+        for (let i = 0; i < receipts.length; i++) {
+          let receipt = receipts[i];
+          log(JSON.stringify(receipt));
         }
       }
 
-      let kudosLogSent = 0;
-      for (let i = 0; i < weightedAddresses.length; i++) {
-        let currentAddress = weightedAddresses[i];
-        if (currentAddress.weight === 0) {
-          continue;
-        }
-        if (!currentAddress.kudosLog) {
-          continue;
-        }
+      if (thankYou.value) {
+        // send a thank you to the global leaderboard
 
-        // setup memos:
-        const Memos = [];
+        // loop through weights
+        for (let i = 0; i < weightedAddresses.length; i++) {
+          // only send to those that don't have direct payment set
+          let currentAddress = weightedAddresses[i];
+          if (currentAddress.shouldThank) {
+            console.log("sending thank you to", JSON.stringify(currentAddress));
 
-        if (currentAddress.kudosMemo) {
-          // Enter memo data to insert into a transaction
-          const memo = currentAddress.kudosMemo || {};
-          if (currentAddress.kudosLog?.identifier) {
-            memo.identifier = currentAddress.kudosLog.identifier; // should be blinded?
+            const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically
+            const IDENT_PUBLIC_KEY =
+              "02FF4B735099A5CDAB387201E7B67092132D38B07E1F3C04A8FE1FA1C223ECD913";
+
+            const thanksMessage = {
+              ...currentAddress.kudosMemo,
+              id: currentAddress.address,
+              score: currentAddress.originalWeight,
+            };
+
+            // create an encrypted memo
+            const encryptPromise = context.coins.encrypt({
+              publicKey: IDENT_PUBLIC_KEY,
+              message: thanksMessage,
+            });
+            const { encrypted } = await encryptPromise;
+
+            // setup memos:
+            const Memos = [];
+
+            // Enter memo data to insert into a transaction
+            const MemoData = convertStringToHex(encrypted).toUpperCase();
+            const MemoType = convertStringToHex("thanks").toUpperCase();
+            // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+            const MemoFormat = convertStringToHex("kudos/thanks").toUpperCase();
+            Memos.push({
+              Memo: {
+                MemoType,
+                MemoFormat,
+                MemoData,
+              },
+            });
+
+            const txPromise = context.coins.send({
+              network,
+              sourceAddress,
+              address: IDENT_NOTIFY_ADDRESS,
+              amount: "0.000001",
+              amountDrops: xrpToDrops("0.000001"),
+              memos: Memos,
+            });
+
+            const txPayment = await waitFor(txPromise, {
+              text: `Sending thanks to ` + JSON.stringify(currentAddress),
+            });
+
+            if (!txPayment) {
+              log(
+                chalk.red(
+                  `send: could not send this direct payment. Check transaction history before trying again.`
+                )
+              );
+              process.exit(1);
+            }
+            log(
+              chalk.bold(
+                `Transaction: ` + chalk.green(`${txPayment.result.hash}`)
+              )
+            );
           }
-          const MemoData = convertStringToHex(
-            JSON.stringify(memo)
-          ).toUpperCase();
-          const MemoType = convertStringToHex("kudos").toUpperCase();
-          // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-          const MemoFormat =
-            convertStringToHex("application/json").toUpperCase();
-          Memos.push({
-            Memo: {
-              MemoType,
-              MemoFormat,
-              MemoData,
-            },
-          });
         }
-
-        const dpPromise = context.coins.send({
-          network,
-          sourceAddress,
-          address: currentAddress.expandedAddress,
-          amount: currentAddress.amount,
-          amountDrops: currentAddress.amountDrops,
-          tag: currentAddress.tag,
-          memos: Memos,
-        });
-
-        const directPayment = await waitFor(dpPromise, {
-          text:
-            `Sending ` +
-            chalk.green(`${currentAddress.amount}`) +
-            " XRP to " +
-            chalk.blue(`${currentAddress.expandedAddress}`) +
-            "\n" +
-            " ".repeat(
-              `  Sending ${currentAddress.amount + ""} XRP to `.length
-            ) +
-            stringToColorBlocks(currentAddress.expandedAddress, network),
-        });
-
-        if (!directPayment) {
-          log(
-            chalk.red(
-              `send: could not send this direct payment. Check transaction history before trying again.`
-            )
-          );
-          process.exit(1);
-        }
-        log(
-          chalk.bold(
-            `Transaction: ` + chalk.green(`${directPayment.result.hash}`)
-          )
-        );
-
-        // create a kudosReceipt
-        let ts = new Date().toISOString();
-        // remove ms
-        ts = ts.replace(/\.\d{3}Z$/, "Z");
-        let weight = parseFloat(weightedAddresses[i].weight) * -1; // negate
-        let kudosReceipt = {
-          identifier: currentAddress.address,
-          weight: weight.toFixed(6),
-          id: shortId(),
-          traceId: setleId,
-          ts,
-          receipt: {
-            type: "kudoslog",
-            amount: currentAddress.amount,
-            address: currentAddress.expandedAddress,
-            tx: directPayment.result.hash,
-          },
-        };
-        receipts.push(kudosReceipt);
-        kudosLogSent++;
-      }
-
-      if (kudosLogSent) {
-        log("");
-        log(
-          chalk.bold(
-            chalk.green(`✔`) + ` Ok, kudos log payments sent successfully.`
-          )
-        );
-        log("");
       }
 
       context.coins.disconnect();

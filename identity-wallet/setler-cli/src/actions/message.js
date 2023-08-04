@@ -316,7 +316,7 @@ const exec = async (context) => {
 
       // print the decrypted message
       log("");
-      log(decrypted);
+      log(decrypted.toString());
       log("");
 
       await context.coins.disconnect();
