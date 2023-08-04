@@ -58,6 +58,11 @@ const exec = async (context) => {
         process.exit(1);
       }
 
+      if (context.debug) {
+        log(chalk.magenta(`identResolver: ${identResolver}`));
+        log(chalk.magenta(`network: ${network}`));
+      }
+
       let did = context.input[2];
       let didType;
       if (did) {
