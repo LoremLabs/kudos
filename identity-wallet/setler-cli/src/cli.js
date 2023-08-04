@@ -56,6 +56,8 @@ const defaultHelp = `
     Run Commands
     $ ${personality} help
 
+    $ ${personality} whoami
+
     $ ${personality} wallet
     $ ${personality} wallet help
     $ ${personality} wallet help [command]
