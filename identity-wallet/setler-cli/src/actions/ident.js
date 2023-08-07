@@ -244,6 +244,7 @@ const exec = async (context) => {
           did,
           identResolver,
           network,
+          debug: context.debug,
         });
 
         const response = await waitFor(expandPromise, {
@@ -270,7 +271,10 @@ const exec = async (context) => {
         // escrowMethod = e.extra.escrowMethod;
 
         if (e.extra.escrowMethod) {
-          log(`${did} = ` + chalk.yellow(`${e.extra.escrowMethod}`));
+          log(
+            `${did} = ` +
+              chalk.yellow(`${JSON.stringify(e.extra.escrowMethod)}`)
+          );
         }
         if (e.extra.kudosLogConfig) {
           log(

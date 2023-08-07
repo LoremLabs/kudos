@@ -13,6 +13,15 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
     identResolver = identResolver.slice(0, -1);
   }
 
+  // escrowMethods {
+  //   type
+  //   address
+  //   time
+  //   fee
+  //   terms
+  //   onExpiration
+  // }
+
   const gqlQuery = {
     query: `query SocialPay($identifier: String!) {
         socialPay(identifier: $identifier) {
@@ -21,15 +30,6 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
               value
             }
             
-            escrowMethods {
-              type
-              address
-              time
-              fee
-              terms
-              onExpiration
-            }
-
             status {
               message
               code

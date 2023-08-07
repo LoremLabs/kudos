@@ -19,14 +19,13 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 - Allow flag to create Kudos with Escrow
 - Extra debugging to ident
 - `whoami` action to show current address, public key
-- `message` action to debug encrypted messages
+- `message` action to debug encrypted messages including chat mode
 - New functions encryprt/decrypt to coins lib
 - Wallet now has `send` option to send funds to another address
 
 ### Changed
 
 - `setler kudos send` now uses `thanks` method to publish encrypted identity to the blockchain instead of `escrow` option
-
 
 ## [0.0.15] - 2023-07-03
 

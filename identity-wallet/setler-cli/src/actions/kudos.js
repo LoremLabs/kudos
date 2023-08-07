@@ -1259,6 +1259,10 @@ const exec = async (context) => {
         const kudosMemo = {
           // identity: the identity that got sent the kudos
           // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
+          description: identity.description,
+          name: identity.name,
+          package: identity.package,
+          type: identity.type,
         };
         kudosMemos.push(kudosMemo);
         addresses.push(address);
@@ -2182,14 +2186,14 @@ const exec = async (context) => {
           if (currentAddress.shouldThank) {
             console.log("sending thank you to", JSON.stringify(currentAddress));
 
-            const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically
+            const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically, compare with hard coded and warn if different
             const IDENT_PUBLIC_KEY =
               "02FF4B735099A5CDAB387201E7B67092132D38B07E1F3C04A8FE1FA1C223ECD913";
 
             const thanksMessage = {
               ...currentAddress.kudosMemo,
               id: currentAddress.address,
-              score: currentAddress.originalWeight,
+              score: `${currentAddress.originalWeight}`,
             };
 
             // create an encrypted memo
