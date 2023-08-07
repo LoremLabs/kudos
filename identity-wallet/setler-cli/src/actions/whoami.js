@@ -54,12 +54,16 @@ const exec = async (context) => {
         address: sourceAddress,
         network,
       });
-      
+
       log("");
       if (publicKey) {
         log(`${publicKey}`);
       } else {
-        log(chalk.red(`no public key found for ${sourceAddress}. You must have a recent transaction on your account.`));
+        log(
+          chalk.red(
+            `no public key found for ${sourceAddress}. You must have a recent transaction on your account.`
+          )
+        );
       }
 
       // disconnect

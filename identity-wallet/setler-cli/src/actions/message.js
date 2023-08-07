@@ -10,7 +10,7 @@ const log = console.log;
 const help = () => {
   log("");
   log(chalk.bold(`setler: send and receive encrypted messages`));
-  log(`setler message [send | receive]`);
+  log(`setler message [send | receive | chat]`);
   log("");
   log(chalk.bold(`send help: show this help`));
   log("");
@@ -37,7 +37,7 @@ const exec = async (context) => {
 
       // who are we chatting with?
       let address = context.flags.address || context.input.slice(2);
-      if (!address) {
+      if (!address || address.length === 0) {
         log("");
         const response = await prompts([
           {
@@ -68,7 +68,11 @@ const exec = async (context) => {
       });
 
       if (!publicKey) {
-        log(chalk.red(`send: could not get public key for ${address}`));
+        log(
+          chalk.red(
+            `send: could not get public key for ${address}. Recent transaction needed.`
+          )
+        );
         process.exit(1);
       }
 
