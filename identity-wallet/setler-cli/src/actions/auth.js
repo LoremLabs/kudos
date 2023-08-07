@@ -626,7 +626,6 @@ const exec = async (context) => {
       }
 
       log("");
-
       // send the transaction
       const sendPromise = context.coins.sendDirectoryPayment({
         network,

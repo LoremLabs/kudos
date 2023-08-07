@@ -37,7 +37,7 @@ process.emit = function (name, data) {
 const defaultHelp = `
   ${personality}: additional commands
 
-  $ ${personality} --help
+  $ ${personality} --help 
 
   Usage
     $ ${personality} [input]
@@ -56,6 +56,9 @@ const defaultHelp = `
     Run Commands
     $ ${personality} help
 
+    $ ${personality} whoami
+    $ ${personality} whoami publickey
+
     $ ${personality} wallet
     $ ${personality} wallet help
     $ ${personality} wallet help [command]
@@ -64,15 +67,27 @@ const defaultHelp = `
     $ ${personality} wallet mnemonic 
     $ ${personality} wallet mnemonic set
     $ ${personality} wallet mnemonic get
+    $ ${personality} wallet send
+    $ ${personality} wallet receive
+    $ ${personality} wallet balance
 
     $ ${personality} kudos
     $ ${personality} kudos help
+    $ ${personality} kudos send --poolId [poolId] [--poolEndpoint endpointurl]
     $ ${personality} kudos identify
+    $ ${personality} kudos create
+
+    $ ${personality} ident lookup
 
     $ ${personality} auth
     $ ${personality} auth help
     $ ${personality} auth login
     $ ${personality} auth delegate    
+
+    $ ${personality} message
+    $ ${personality} message send
+    $ ${personality} message receive
+    $ ${personality} message chat
 
     $ ${personality} pool
     $ ${personality} pool help
@@ -82,10 +97,18 @@ const defaultHelp = `
     $ ${personality} pool list --poolName [poolName]
     $ ${personality} pool list --poolId [poolId]
     $ ${personality} pool list --profile [profile]
+    $ ${personality} pool ink --poolId [poolId] --inFile [inFile]
+    $ ${personality} pool summary [poolId]
+    $ ${personality} pool events --poolId [poolId] [--startTs="-2d"]
+    $ ${personality} pool frozen --poolId XkaT2LKYSUL6pUAqqTxNxd 
 
     $ ${personality} send
     $ ${personality} send help
     
+    $ ${personality} config
+    $ ${personality} config ident resolver [get | set] [url]
+    $ ${personality} config auth [get | set] 
+
 
     `;
 

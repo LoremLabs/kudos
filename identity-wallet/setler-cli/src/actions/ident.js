@@ -58,6 +58,11 @@ const exec = async (context) => {
         process.exit(1);
       }
 
+      if (context.debug) {
+        log(chalk.magenta(`identResolver: ${identResolver}`));
+        log(chalk.magenta(`network: ${network}`));
+      }
+
       let did = context.input[2];
       let didType;
       if (did) {
@@ -239,12 +244,12 @@ const exec = async (context) => {
           did,
           identResolver,
           network,
+          debug: context.debug,
         });
 
         const response = await waitFor(expandPromise, {
           text: `Looking up address for ` + chalk.blue(`${did}`),
         });
-
         if (response.directPaymentVia) {
           log(`${did} = ` + chalk.yellow(`${response.directPaymentVia}`));
           log(
@@ -264,6 +269,19 @@ const exec = async (context) => {
         // no payment methods found
         // directPaymentVia = e.extra.directPaymentVia;
         // escrowMethod = e.extra.escrowMethod;
+
+        if (e.extra.escrowMethod) {
+          log(
+            `${did} = ` +
+              chalk.yellow(`${JSON.stringify(e.extra.escrowMethod)}`)
+          );
+        }
+        if (e.extra.kudosLogConfig) {
+          log(
+            `Kudos Log would write ${did} = ` +
+              chalk.yellow(`${e.extra.kudosLogConfig?.identifier}`)
+          );
+        }
       }
 
       break;

@@ -23,7 +23,6 @@ const resolveUserFn = async (context) => {
 			return null;
 		}
 		const token = authorization.replace('Bearer ', '');
-		// console.log({token});
 		const user = await validateUser(token);
 		return user;
 	} catch (e) {

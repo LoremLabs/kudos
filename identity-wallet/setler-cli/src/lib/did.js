@@ -13,25 +13,27 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
     identResolver = identResolver.slice(0, -1);
   }
 
+  // escrowMethods {
+  //   type
+  //   address
+  //   time
+  //   fee
+  //   terms
+  //   onExpiration
+  // }
+
   const gqlQuery = {
     query: `query SocialPay($identifier: String!) {
         socialPay(identifier: $identifier) {
             paymentMethods {
-                type
-                value
-              }
-              escrowMethods {
-                type
-                address
-                time
-                fee
-                terms
-                onExpiration
-              }
-              status {
-                message
-                code
-              }
+              type
+              value
+            }
+            
+            status {
+              message
+              code
+            }
         }
        }`,
 
@@ -77,7 +79,9 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
         }
 
         const out = await r.json();
-        // console.log('out', JSON.stringify(out,null,2));
+        if (debug) {
+          console.log("out", JSON.stringify(out, null, 2));
+        }
         return out;
       }
     );
@@ -100,7 +104,10 @@ export const expandDid = async ({ did, identResolver, network, debug }) => {
   // search for our network
   const payVia = payVias.find((p) => p.type === network);
   if (payVia) {
-    return { directPaymentVia: payVia.value, escrowMethod: null };
+    return {
+      directPaymentVia: payVia.value,
+      escrowMethod: null,
+    };
   }
 
   // otherwise we search for an escrow that matches

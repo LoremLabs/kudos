@@ -9,13 +9,26 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
-### Added
-
-- Allow flag to create Kudos with Escrow
+## [0.0.16] - 2023-08-07
 
 ### Fixed
 
+- Removed duplicated `expandDid` function
 - Don't include Skipped in total number to send
+
+### Added
+
+- Allow flag to create Kudos with Escrow
+- Extra debugging to ident
+- `whoami` action to show current address, public key
+- `message` action to debug encrypted messages including chat mode
+- New functions encryprt/decrypt to coins lib
+- Wallet now has `send` option to send funds to another address
+- Added setler help documentation.
+
+### Changed
+
+- `setler kudos send` now uses `thanks` method to publish encrypted identity to the blockchain instead of `escrow` option
 
 ## [0.0.15] - 2023-07-03
 

@@ -22,7 +22,6 @@
   import Sankey from '$lib/components/Sankey.svelte';
 
   import { shortId } from '@kudos-protocol/short-id';
-  import { decorateDistList } from '$lib/distList/payVia.js';
 
   import {
     addFileToDistList,
