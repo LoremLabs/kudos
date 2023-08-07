@@ -9,6 +9,8 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.16] - 2023-08-07
+
 ### Fixed
 
 - Removed duplicated `expandDid` function
@@ -22,6 +24,7 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 - `message` action to debug encrypted messages including chat mode
 - New functions encryprt/decrypt to coins lib
 - Wallet now has `send` option to send funds to another address
+- Added setler help documentation.
 
 ### Changed
 
