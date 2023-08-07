@@ -9,7 +9,7 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
-## [0.0.16] - 2023-08-07
+## [0.0.17] - 2023-08-07
 
 ### Fixed
 
