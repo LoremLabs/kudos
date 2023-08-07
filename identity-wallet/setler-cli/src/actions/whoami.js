@@ -54,9 +54,13 @@ const exec = async (context) => {
         address: sourceAddress,
         network,
       });
-
+      
       log("");
-      log(`${publicKey}`);
+      if (publicKey) {
+        log(`${publicKey}`);
+      } else {
+        log(chalk.red(`no public key found for ${sourceAddress}. You must have a recent transaction on your account.`));
+      }
 
       // disconnect
       await context.coins.disconnect();
