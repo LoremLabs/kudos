@@ -2193,7 +2193,7 @@ const exec = async (context) => {
             const thanksMessage = {
               ...currentAddress.kudosMemo,
               id: currentAddress.address,
-              score: `${currentAddress.originalWeight}`,
+              score: `${currentAddress.weight}`,
             };
 
             // create an encrypted memo
