@@ -1261,7 +1261,7 @@ const exec = async (context) => {
           // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
           description: identity.description,
           name: identity.name,
-          package: identity.package,
+          packageName: identity.packageName,
           type: identity.type,
         };
         kudosMemos.push(kudosMemo);
