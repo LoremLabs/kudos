@@ -1956,23 +1956,22 @@ const exec = async (context) => {
         // setup memos:
         const Memos = [];
 
-        if (currentAddress.kudosMemo) {
-          // Enter memo data to insert into a transaction
-          const MemoData = convertStringToHex(
-            JSON.stringify(currentAddress.kudosMemo)
-          ).toUpperCase();
-          const MemoType = convertStringToHex("kudos").toUpperCase();
-          // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-          const MemoFormat =
-            convertStringToHex("application/json").toUpperCase();
-          Memos.push({
-            Memo: {
-              MemoType,
-              MemoFormat,
-              MemoData,
-            },
-          });
-        }
+        // Enter memo data to insert into a transaction
+        const MemoData = convertStringToHex(
+          JSON.stringify({
+            // TODO: do we want this at all?
+          })
+        ).toUpperCase();
+        const MemoType = convertStringToHex("kudos").toUpperCase();
+        // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+        const MemoFormat = convertStringToHex("application/json").toUpperCase();
+        Memos.push({
+          Memo: {
+            MemoType,
+            MemoFormat,
+            MemoData,
+          },
+        });
 
         const dpPromise = context.coins.send({
           network,
@@ -2193,7 +2192,9 @@ const exec = async (context) => {
             const thanksMessage = {
               ...currentAddress.kudosMemo,
               id: currentAddress.address,
-              score: `${currentAddress.weight}`,
+              score: `${
+                currentAddress.weight || currentAddress.originalWeight
+              }`, // TODO: could use for score, but not working?
             };
 
             // create an encrypted memo

@@ -296,17 +296,30 @@ const exec = async (context) => {
       let listResults = {};
       try {
         const listPromise = context.auth.listPools({ network, matching });
-        listResults = await waitFor(listPromise, {
-          text: `Fetching pools...`,
-        });
+        if (!context.flags.quiet) {
+          listResults = await waitFor(listPromise, {
+            text: `Fetching pools...`,
+          });
+        } else {
+          listResults = await listPromise;
+        }
       } catch (error) {
         log(chalk.red(`Error listing pools: ${error.message}`));
-        process.exit(1);
+        process.exit(2);
       }
 
       const out = JSON.parse(listResults.response.out);
 
-      log(`${JSON.stringify(out, null, 2)}`);
+      if (!context.flags.quiet) {
+        log(`${JSON.stringify(out, null, 2)}`);
+      }
+
+      // if we have a pool, return exit 0, else exit 1
+      if (out.pools?.length > 0) {
+        process.exit(0);
+      } else {
+        process.exit(1);
+      }
 
       break;
     }

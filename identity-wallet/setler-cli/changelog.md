@@ -9,6 +9,20 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.18] - 2023-08-08
+
+### Added
+
+- Quiet mode for `setler pool list --quiet $POOL_ID` returns exit code 0 on found, 1 on not found, 2 on error
+
+### Changed
+
+- Remove PII from kudos memo
+
+### Fixed
+
+- Removed console.log in pool function
+
 ## [0.0.17] - 2023-08-07
 
 ### Fixed

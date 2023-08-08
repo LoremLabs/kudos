@@ -637,8 +637,6 @@ AuthAgent.prototype.sendToPool = async function ({ request }) {
     poolEndpoint = poolEndpoint.slice(0, -1);
   }
 
-  console.log({ poolEndpoint });
-
   const gqlQuery = {
     query: `mutation PoolRequest($requestId: String!, $path: String!, $in: String!, $signature: String!) {
       submitPoolRequest(rid: $requestId, path: $path, in: $in, signature: $signature) {
