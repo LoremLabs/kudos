@@ -18,7 +18,7 @@ import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { convertStringToHex, xrpToDrops } from "xrpl";
-import { getSubjectPayVia } from "../lib/ident-agency.js";
+import { getSubjectPayVia } from "@kudos-protocol/subject-hash";
 
 // import { waitFor } from "../lib/wait.js";
 

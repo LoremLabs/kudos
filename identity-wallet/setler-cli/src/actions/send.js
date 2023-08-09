@@ -1,6 +1,5 @@
 import chalk from "chalk";
 import { detectStringTypes } from "../lib/detect.js";
-import { getSubjectPayVia } from "../lib/ident-agency.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import { notifyEscrow } from "../lib/escrow.js";
@@ -9,6 +8,7 @@ import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { xrpToDrops } from "xrpl";
+import { getSubjectPayVia } from "@kudos-protocol/subject-hash";
 
 const log = console.log;
 

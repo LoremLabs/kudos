@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.21] - 2023-08-09
+
+### Changed
+
+- Use `@kudos-protocol/subject-hash` instead of internal implementation.
+
 ## [0.0.20] - 2023-08-09
 
 ### Changed

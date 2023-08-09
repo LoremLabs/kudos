@@ -10,7 +10,7 @@ import sysOpen from "open";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { convertStringToHex } from "xrpl";
-import { getSubjectSubdomain } from "../lib/ident-agency.js";
+import { getSubjectSubdomain } from "@kudos-protocol/subject-hash";
 
 const log = console.log;
 
