@@ -273,6 +273,7 @@ AuthAgent.prototype.verifyAuthCode = async function ({
   code,
   nonce,
   network,
+  record = {},
 }) {
   const context = this.context;
 
@@ -291,12 +292,12 @@ AuthAgent.prototype.verifyAuthCode = async function ({
 
   let { privateKey, address } = keys;
   privateKey = normalizePrivateKey(privateKey);
-
   const payload = JSON.stringify({
     nonce,
     code,
     rid,
     address, // keep in the payload
+    record,
   });
 
   // sign the payload

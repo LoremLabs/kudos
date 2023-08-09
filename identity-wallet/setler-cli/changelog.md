@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.19] - 2023-08-09
+
+### Added
+
+- `setler ns ...` use Ident.Agency lookup to convert a subject into a DNS entry, including ability to set, get, and lookup subjects
+
 ## [0.0.18] - 2023-08-08
 
 ### Added

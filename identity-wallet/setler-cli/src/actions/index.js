@@ -8,6 +8,7 @@ import * as ident from "./ident.js";
 import * as kudos from "./kudos.js";
 import * as ledger from "./ledger.js";
 import * as message from "./message.js";
+import * as ns from "./ns.js";
 import * as pool from "./pool.js";
 import * as send from "./send.js";
 import * as wallet from "./wallet.js";
@@ -22,8 +23,9 @@ export {
   kudos,
   ledger,
   message,
-  send,
+  ns,
   pool,
+  send,
   wallet,
   whoami,
 };
