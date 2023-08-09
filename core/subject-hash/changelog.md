@@ -9,7 +9,15 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.2] - 2023-08-09
+
+### Added
+
+- The right library index.js file. Hopefully.
+
 ## [0.0.1] - 2023-08-09
+
+The wrong library file was checked in... so we're skipping this version.
 
 ### Added
 
