@@ -9,6 +9,10 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+### Added
+
+- Better example for setler ns set, as network is already in $s
+
 ## [0.0.21] - 2023-08-09
 
 ### Changed

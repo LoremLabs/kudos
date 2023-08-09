@@ -175,8 +175,7 @@ const exec = async (context) => {
         dnsValue = sourceAddress;
       }
       let dnsTtl = context.flags.ttl || 60;
-      let dnsPath =
-        context.flags.path || `${network.replace(":", "-")}.$s.${domain}`;
+      let dnsPath = context.flags.path || `example.$s.${domain}`;
 
       let dnsTypeCount = 0;
       if (dnsType) {
