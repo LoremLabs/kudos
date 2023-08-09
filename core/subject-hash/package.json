@@ -1,0 +1,40 @@
+{
+	"name": "@kudos-protocol/subject-hash",
+	"version": "0.0.1",
+	"description": "A library for generating a Subject-Hash from a subject",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"pretty": "prettier --check .",
+		"format": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+		"pretty:fix": "prettier --write .",
+		"lint": "eslint --ignore-path .gitignore .",
+		"lint:fix": "prettier --write . && eslint --fix --ignore-path .gitignore .",
+		"release": "npm publish --access public",
+		"test": "echo why is jest so hard to configure && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LoremLabs/kudos.git#main"
+	},
+	"keywords": [
+		"kudos",
+		"subject-hash",
+		"ident-agency"
+	],
+	"author": "@loremlabs",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/LoremLabs/kudos/issues"
+	},
+	"homepage": "https://github.com/LoremLabs/kudos/tree/main/core/subject-hash#readme",
+	"dependencies": {
+		"@noble/hashes": "^1.3.1"
+	},
+	"devDependencies": {
+		"eslint": "^8.39.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"prettier": "^2.8.8"
+	}
+}
