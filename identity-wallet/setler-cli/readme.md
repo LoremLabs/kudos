@@ -81,7 +81,7 @@ You can store or _ink_ kudos in a _pool_ at the ident agency with:
 You can create and ink kudos in one step with:
 
 ```
-% npx @loremlabs/setler kudos create --identifier="did:kudos:email:matt@loremlabs.com"  --now | setler pool ink --poolId="AkfENzX4A8nVog5FDh4oGr"
+% npx @loremlabs/setler kudos create --identifier="email:matt@loremlabs.com"  --now | setler pool ink --poolId="AkfENzX4A8nVog5FDh4oGr"
 ```
 
 ### Setle: Distributing Funds to a Kudos Pool
@@ -97,9 +97,9 @@ To setle kudos you need to have a wallet setup and funded. You can then setle ku
 To send to a social identifier (DID) send you need to have a wallet setup and funded. You can then send a social send with:
 
 ```
-% npx @loremlabs/setler send social did:kudos:email:YOUR_EMAIL@YOUR_DOMAIN
+% npx @loremlabs/setler send social email:YOUR_EMAIL@YOUR_DOMAIN
 ```
 
 ```
-% npx @loremlabs/setler send social did:kudos:email:mankins+demo1@gmail.com did:kudos:email:matt+demo2@loremlabs.com...
+% npx @loremlabs/setler send social email:mankins+demo1@gmail.com email:matt+demo2@loremlabs.com...
 ```

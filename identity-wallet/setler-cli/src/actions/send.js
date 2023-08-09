@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { detectStringTypes } from "../lib/detect.js";
-import { expandDid } from "../lib/did.js";
+import { getSubjectPayVia } from "../lib/ident-agency.js";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
 import { notifyEscrow } from "../lib/escrow.js";
@@ -292,7 +292,7 @@ const exec = async (context) => {
       }
 
       // see what type of addresses we have, and send accordingly
-      // addresses can be an xrpl address, or a did (did:kudos:...) if they're not, we should error
+      // addresses can be an xrpl address, or a did subject (email:...) if they're not, we should error
       log("");
 
       let identResolver =
@@ -311,32 +311,34 @@ const exec = async (context) => {
       // loop through addresses and expand if needed
       for (let i = 0; i < weightedAddresses.length; i++) {
         const address = weightedAddresses[i];
-        const types = detectStringTypes(address.address); // is this a did, xrpl address, etc
+        const types = detectStringTypes(address.address); // is this a xrpl address or a subject etc
         if (context.flags.verbose) {
           log(`Detected types ${JSON.stringify(types)}`);
         }
-        if (types.did) {
+        if (types.subject) {
           // expand this address
-          const did = address.address;
+          const subject = address.address;
 
           let directPaymentVia, escrowMethod;
           try {
             // this throws so we have a red x
-            const expandPromise = expandDid({
-              did,
-              identResolver,
+            const payViaPromise = getSubjectPayVia({
+              subject,
               network,
+              debug: context.debug,
             });
 
-            const response = await waitFor(expandPromise, {
-              text: `Looking up address for ` + chalk.blue(`${did}`),
+            const response = await waitFor(payViaPromise, {
+              text: `Looking up address for ` + chalk.blue(`${subject}`),
             });
 
-            directPaymentVia = response.directPaymentVia;
+            directPaymentVia = response.payVia;
             escrowMethod = response.escrowMethod;
           } catch (e) {
             if (e.message !== "Escrow only") {
-              log(chalk.red(`Error expanding did ${did}: ${e.message}`));
+              log(
+                chalk.red(`Error expanding subject ${subject}: ${e.message}`)
+              );
               process.exit(1);
             }
             // no payment methods found
@@ -348,7 +350,7 @@ const exec = async (context) => {
           if (context.flags.verbose) {
             log(
               chalk.gray(
-                `Expanded ${did} to ${JSON.stringify({
+                `Expanded ${subject} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
                 })}`
@@ -359,7 +361,11 @@ const exec = async (context) => {
           if (!directPaymentVia && escrowMethod) {
             // ask if we should create an escrow payment
             log("");
-            log(`No xrpl address found for did ` + chalk.blue(`${did}`) + `.`);
+            log(
+              `No xrpl address found for subject ` +
+                chalk.blue(`${subject}`) +
+                `.`
+            );
             log(
               `Escrow payment available via: ` +
                 chalk.yellow(`${escrowMethod.address} `) +
@@ -437,13 +443,16 @@ const exec = async (context) => {
             if (!confirm4.ok) {
               log(
                 chalk.red(
-                  `send: Could not expand did ${did}. Remove from list and try again.`
+                  `send: Could not expand subject ${subject}. Remove from list and try again.`
                 )
               );
               process.exit(1);
             }
             // mark this address as an escrow
-            weightedAddresses[i].escrow = { identifier: did, ...escrowMethod };
+            weightedAddresses[i].escrow = {
+              identifier: subject,
+              ...escrowMethod,
+            };
             weightedAddresses[i].expandedAddress = escrowMethod.address;
             if (context.flags.verbose) {
               log(chalk.magenta(JSON.stringify(escrowMethod, null, 2)));
@@ -451,7 +460,7 @@ const exec = async (context) => {
           } else if (!directPaymentVia) {
             log(
               chalk.red(
-                `send: Could not expand did ${did}. Remove from list and try again.`
+                `send: Could not expand subject ${subject}! Remove from list and try again.`
               )
             );
             process.exit(1);
@@ -461,10 +470,10 @@ const exec = async (context) => {
             // show user the expanded address
             log("");
             log(
-              chalk.blue(`Expanded ${did} to `) +
+              chalk.blue(`Expanded ${subject} to `) +
                 chalk.yellow(`${directPaymentVia} `) +
                 "\n" +
-                " ".repeat(`Expanded ${did} to `.length) +
+                " ".repeat(`Expanded ${subject} to `.length) +
                 stringToColorBlocks(directPaymentVia, network)
             );
 

@@ -5,7 +5,6 @@ import _glob from "glob";
 import chalk from "chalk";
 import { creatorPool } from "../kudos.js";
 import { detectStringTypes } from "../lib/detect.js";
-import { expandDid } from "../lib/did.js";
 import fs from "fs";
 import { gatekeep } from "../lib/wallet/gatekeep.js";
 import { getExchangeRate } from "../lib/wallet/getExchangeRate.js";
@@ -19,6 +18,7 @@ import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { convertStringToHex, xrpToDrops } from "xrpl";
+import { getSubjectPayVia } from "../lib/ident-agency.js";
 
 // import { waitFor } from "../lib/wait.js";
 
@@ -218,11 +218,6 @@ const exec = async (context) => {
 
         if (!identifier) {
           return;
-        }
-
-        // make sure identifier starts with our did:kudos prefix, making sure not to double prefix
-        if (!identifier.startsWith("did:kudos:")) {
-          identifier = `did:kudos:${identifier}`;
         }
 
         let ts = new Date().toISOString();
@@ -690,7 +685,7 @@ const exec = async (context) => {
           {
             message: "Identifier type?",
             type: "select",
-            name: "didType",
+            name: "subjectType",
             choices: [
               {
                 title: "email",
@@ -833,11 +828,9 @@ const exec = async (context) => {
         ]);
 
         let identifier = "";
-        switch (response.didType) {
+        switch (response.subjectType) {
           case "email":
-            identifier = `did:kudos:email:${response.email
-              .trim()
-              .toLowerCase()}`;
+            identifier = `email:${response.email.trim().toLowerCase()}`;
             break;
           case "twitter": {
             let twitter = response.twitter.trim().toLowerCase();
@@ -845,7 +838,7 @@ const exec = async (context) => {
               twitter = twitter.slice(1);
             }
 
-            identifier = `did:kudos:twitter:${twitter}`;
+            identifier = `twitter:${twitter}`;
             break;
           }
           case "github": {
@@ -854,7 +847,7 @@ const exec = async (context) => {
               github = github.slice(1);
             }
 
-            identifier = `did:kudos:github:${github}`;
+            identifier = `github:${github}`;
             break;
           }
           case "did": {
@@ -862,7 +855,7 @@ const exec = async (context) => {
             break;
           }
           default:
-            throw new Error(`Unknown identifier type: ${response.didType}`);
+            throw new Error(`Unknown identifier type: ${response.subjectType}`);
         }
 
         let description = response.description.trim();
@@ -1249,7 +1242,7 @@ const exec = async (context) => {
       // loop through out.identities, setup weights
       for (let i = 0; i < out.identities.length; i++) {
         const identity = out.identities[i];
-        const address = identity.identifier;
+        const address = identity.identifier.replace(/^did:kudos:/g, "");
         const weight = identity.weight;
         if (parseFloat(weight) === 0) {
           continue; // skip already processed / zero weight
@@ -1545,59 +1538,40 @@ const exec = async (context) => {
       }
 
       // see what type of addresses we have, and send accordingly
-      // addresses can be an xrpl address, or a did (did:kudos:...) if they're not, we should error
+      // addresses can be an xrpl address, or a did subject (email:...) if they're not, we should error
       log("");
-
-      let identResolver =
-        context.flags.identResolver || context.config.identity?.identResolver;
-      // TODO: fix this hack
-      identResolver = identResolver.trim();
-      if (identResolver.endsWith("/")) {
-        identResolver = identResolver.slice(0, -1);
-      }
 
       // loop through addresses and expand if needed
       for (let i = 0; i < weightedAddresses.length; i++) {
         const address = weightedAddresses[i];
         const types = detectStringTypes(address.address); // is this a did, xrpl address, etc
         if (context.flags.verbose) {
-          log(`Detected types ${JSON.stringify(types)}`);
+          log(`Detected types: ${JSON.stringify({ types, address })}`);
         }
-        if (types.did) {
+        if (types.subject) {
           // expand this address
-          const did = address.address;
+          const subject = address.address;
 
           let directPaymentVia, escrowMethod;
-          try {
-            // this throws so we have a red x
-            const expandPromise = expandDid({
-              did,
-              identResolver,
-              network,
-              debug: context.debug,
-            });
+          // this throws so we have a red x
+          const payViaPromise = getSubjectPayVia({
+            subject,
+            network,
+            debug: context.debug,
+          });
 
-            const response = await waitFor(expandPromise, {
-              text: `Looking up address for ` + chalk.blue(`${did}`),
-            });
+          const response = await waitFor(payViaPromise, {
+            text: `Looking up address for ` + chalk.blue(`${subject}`),
+          });
 
-            directPaymentVia = response.directPaymentVia;
-            escrowMethod = response.escrowMethod;
-          } catch (e) {
-            if (e.message !== "Escrow only") {
-              log(chalk.red(`Error expanding did ${did}: ${e.message}`));
-              process.exit(1);
-            }
-            // no payment methods found
-            directPaymentVia = e.extra.directPaymentVia;
-            escrowMethod = e.extra.escrowMethod;
-          }
+          directPaymentVia = response.payVia;
+          escrowMethod = response.escrowMethod;
 
           // loop through expanded see if any are xrpl addresses with our network
           if (context.flags.verbose) {
             log(
               chalk.gray(
-                `Expanded ${did} to ${JSON.stringify({
+                `Expanded ${subject} to ${JSON.stringify({
                   directPaymentVia,
                   escrowMethod,
                 })}`
@@ -1610,7 +1584,9 @@ const exec = async (context) => {
             if (!confirmAll && !skip) {
               log("");
               log(
-                `No xrpl address found for did ` + chalk.blue(`${did}`) + `.`
+                `No xrpl address found for subject ` +
+                  chalk.blue(`${subject}`) +
+                  `.`
               );
               log(
                 `Escrow payment available via: ` +
@@ -1705,7 +1681,7 @@ const exec = async (context) => {
               if (confirm4.escrow === "n") {
                 log(
                   chalk.red(
-                    `send: Could not expand did ${did}. Remove from list and try again.`
+                    `send: Could not expand subject ${subject}. Remove from list and try again.`
                   )
                 );
                 process.exit(1);
@@ -1725,7 +1701,7 @@ const exec = async (context) => {
             if (!skip) {
               // mark this address as an escrow
               weightedAddresses[i].escrow = {
-                identifier: did,
+                identifier: subject,
                 ...escrowMethod,
               };
               weightedAddresses[i].expandedAddress = escrowMethod.address;
@@ -1741,7 +1717,7 @@ const exec = async (context) => {
               log("");
               log(
                 `No direct payment address found for ` +
-                  chalk.blue(`${did}`) +
+                  chalk.blue(`${subject}`) +
                   `.`
               );
 
@@ -1755,7 +1731,7 @@ const exec = async (context) => {
             } else {
               log(
                 chalk.red(
-                  `send: [abc] Could not expand did ${did}. Remove from list and try again.`
+                  `send: [abc] Could not expand ${subject}. Remove from list and try again.`
                 )
               );
               process.exit(1);
@@ -1766,10 +1742,10 @@ const exec = async (context) => {
             // show user the expanded address
             log("");
             log(
-              chalk.blue(`Expanded ${did} to `) +
+              chalk.blue(`Expanded ${subject} to `) +
                 chalk.yellow(`${directPaymentVia} `) +
                 "\n" +
-                " ".repeat(`Expanded ${did} to `.length) +
+                " ".repeat(`Expanded ${subject} to `.length) +
                 stringToColorBlocks(directPaymentVia, network)
             );
 
@@ -1779,7 +1755,13 @@ const exec = async (context) => {
           weightedAddresses[i].expandedAddress = address.address;
         } else {
           log(chalk.red(`\nsend: unknown address type ${address.address}`));
-          process.exit(1);
+          if (context.flags.failOnErrors) {
+            process.exit(1);
+          }
+          // remove this
+          weightedAddresses[i].weight = 0;
+          changedWeights = true;
+          continue;
         }
 
         // skip this if the destination is equal to the source
@@ -2095,7 +2077,6 @@ const exec = async (context) => {
           sequenceNumber: result.result.Sequence,
           escrowId: result.result.hash,
           cancelAfter: escrowTx.CancelAfter,
-          identResolver,
           identifier: currentAddress.escrow.identifier,
         };
         if (context.flags.verbose) {

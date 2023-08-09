@@ -1,5 +1,8 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { bytesToHex as toHex } from "@noble/hashes/utils";
+import { Resolver } from "dns/promises";
+
+const resolver = new Resolver();
 
 export const getSubjectSubdomain = async (subj) => {
   // calculate the sha256 of the subject
@@ -26,4 +29,36 @@ export const getSubjectSubdomain = async (subj) => {
   }
   const subjHash = `${part1}.${part2}`;
   return subjHash;
+};
+
+// lookup a subject, get their payment address via dns
+export const getSubjectPayVia = async ({
+  subject,
+  network,
+  domain = "ident.cash",
+}) => {
+  const subdomain = await getSubjectSubdomain(subject);
+  const host = `${network.replace(":", "-")}.${subdomain}.${domain}`;
+
+  let txtRecord;
+
+  try {
+    const response = await resolver.resolve(host, "TXT");
+    txtRecord = response[0][0];
+    console.log({ txtRecord });
+    if (txtRecord) {
+      // remove any outer quotes
+      txtRecord = txtRecord.replace(/^"(.*)"$/, "$1");
+    }
+  } catch (e) {
+    if (e.message && !e.message.includes("ENODATA")) {
+      console.log(e);
+    }
+  }
+
+  if (txtRecord) {
+    // TODO: support escrow type responses
+    return { payVia: txtRecord };
+  }
+  return {};
 };

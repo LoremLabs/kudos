@@ -7,11 +7,16 @@ export const possibleAccountAddress = new RegExp(
 // eslint-disable-next-line prefer-regex-literals
 export const possibleDid = new RegExp(/^did:/i);
 
+// subjects have the form SOME_TYPE:SOME_VALUE
+// eslint-disable-next-line prefer-regex-literals
+export const possibleSubject = new RegExp(/.*:.*/);
+
 export const detectStringTypes = (string) => {
   const matches = {};
   matches.accountAddress = possibleAccountAddress.test(string);
   matches.did = possibleDid.test(string);
-  matches.unknown = !matches.accountAddress && !matches.did;
+  matches.subject = possibleSubject.test(string);
+  matches.unknown = !matches.accountAddress && !matches.did && !matches.subject;
 
   return matches;
 };

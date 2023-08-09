@@ -701,7 +701,7 @@ class Coins extends EventEmitter {
     //   "network": "xrpl:testnet",
     //   "sourceAddress": "r4bqzg7iZFBGmLyYRa3o6vgtCMDzvVoRCh",
     //   "escrow": {
-    //     "identifier": "did:kudos:matt@loremlabs.com",
+    //     "identifier": "email:mat@loremlabs.com",
     //     "type": "xrpl:testnet",
     //     "address": "raxswZCMXNNoCVd54HJUX36eMstNq7TDCj",
     //     "time": 604800

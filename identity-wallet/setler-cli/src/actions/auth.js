@@ -9,6 +9,8 @@ import { stringToColorBlocks } from "../lib/colorize.js";
 import sysOpen from "open";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
+import { convertStringToHex } from "xrpl";
+import { getSubjectSubdomain } from "../lib/ident-agency.js";
 
 const log = console.log;
 
@@ -169,44 +171,86 @@ const exec = async (context) => {
       break;
     }
     case "login": {
-      await gatekeep(context);
+      // this is similar to ns set, but does not allow .domains or hostnames
 
-      // are we currently logged in? that would be in the config?
+      await gatekeep(context);
       const network =
         context.flags.network || context.config.network || "xrpl:testnet";
+
       const keys = await context.vault.keys();
 
       // convert xrpl:testnet to keys[xrpl][testnet]
       let sourceAddress;
+      // let privateKey, publicKey;
       const networkParts = network.split(":");
       if (networkParts.length === 1) {
         sourceAddress = keys[network].address;
+        // privateKey = keys[network].privateKey;
+        // publicKey = keys[network].publicKey;
       } else {
         sourceAddress = keys[networkParts[0]][networkParts[1]].address;
+        // privateKey = keys[networkParts[0]][networkParts[1]].privateKey;
+        // publicKey = keys[networkParts[0]][networkParts[1]].publicKey;
       }
 
-      if (!sourceAddress) {
-        log(chalk.red(`send: no account found for network ${network}`));
+      const domain = context.flags.domain || "ident.cash";
+
+      let record = [];
+      // what type of record is this?
+      // the subject is authorized to make changes to the sub-tree
+      let dnsType = "TXT";
+      let dnsValue = sourceAddress;
+
+      let dnsTtl = context.flags.ttl || 60;
+      let dnsPath = `$s.${domain}`;
+
+      if (!dnsPath || !dnsType || !dnsValue || !dnsTtl) {
         process.exit(1);
       }
 
-      let did = context.input[2];
-      let didType;
-      if (did) {
-        // set didType from the first part of the did (email, twitter, phone, etc) from did:kudos:email:
-        const didTopType = did.split(":")[1];
-        if (didTopType === "kudos") {
-          didType = did.split(":")[2];
+      if (dnsType === "TXT") {
+        dnsValue = `"${dnsValue}"`;
+      }
+
+      // validate the path
+      const pathParts = dnsPath.split(".");
+      // make sure the path contains $subject
+      if (!pathParts.includes("$s")) {
+        log(
+          chalk.red(
+            `Invalid path: ${dnsPath}. Must include $s. Example: testnet.$s.ident.cash`
+          )
+        );
+        process.exit(1);
+      }
+
+      record = [dnsPath, dnsType, dnsValue];
+      if (dnsTtl !== 60 && dnsTtl) {
+        record.push(dnsTtl);
+      }
+
+      if (context.debug) {
+        log(chalk.magenta(JSON.stringify(record)));
+      }
+
+      // get our subject
+      let subject = context.input[2] || context.flags.subject;
+      let subjectType;
+      if (subject) {
+        // set subjectType from the first part of the subject (email, twitter, phone, etc) from email:
+        const subjectTopType = subject.split(":")[0];
+        if (subjectTopType === "kudos") {
+          subjectType = subject.split(":")[2];
         } else {
-          didType = didTopType;
+          subjectType = subjectTopType;
         }
 
-        if (!didType || did.indexOf("did:") !== 0) {
-          log(chalk.red(`send: invalid did: ${did}`));
+        if (!subjectType) {
+          log(chalk.red(`send: invalid subject: ${subject}`));
           process.exit(1);
         }
       } else {
-        // construct a did by asking some questions:
+        // construct a subject by asking some questions:
         // 1) email, twitter, phone, etc
         log("");
         let initial = 0;
@@ -220,26 +264,26 @@ const exec = async (context) => {
 
         const response = await prompts([
           {
-            message: "What type of identifier do you want to login with?",
+            message: "What subject is responsible for this path?",
             type: "select",
-            name: "didType",
+            name: "subjectType",
             choices: [
               {
                 title: "email",
-                description: "Your email address",
+                description: "An email address",
                 value: "email",
               },
-              {
-                title: "twitter",
-                value: "twitter",
-                disabled: false,
-                description: "Your Twitter username.",
-              },
-              {
-                title: "github",
-                value: "github",
-                description: "Your GitHub handle.",
-              },
+              // {
+              //   title: "twitter",
+              //   value: "twitter",
+              //   disabled: false,
+              //   description: "Your Twitter username.",
+              // },
+              // {
+              //   title: "github",
+              //   value: "github",
+              //   description: "Your GitHub handle.",
+              // },
             ],
             initial,
           },
@@ -316,13 +360,13 @@ const exec = async (context) => {
           },
         ]);
 
-        didType = response.didType;
-        if (!didType) {
+        subjectType = response.subjectType;
+        if (!subjectType) {
           process.exit(1);
         }
-        switch (didType) {
+        switch (subjectType) {
           case "email": {
-            did = `did:kudos:email:${response.email}`;
+            subject = `email:${response.email}`;
             break;
           }
           case "twitter": {
@@ -330,7 +374,7 @@ const exec = async (context) => {
               .replace("@", "")
               .toLowerCase()
               .trim();
-            did = `did:kudos:twitter:${twitterHandle}`;
+            subject = `twitter:${twitterHandle}`;
             break;
           }
           case "github": {
@@ -338,7 +382,7 @@ const exec = async (context) => {
               .replace("@", "")
               .toLowerCase()
               .trim();
-            did = `did:kudos:github:${githubHandle}`;
+            subject = `github:${githubHandle}`;
             break;
           }
           default: {
@@ -348,14 +392,26 @@ const exec = async (context) => {
       }
 
       let data = {};
-
-      switch (didType) {
+      if (context.debug) {
+        log(chalk.magenta(JSON.stringify({ subject, subjectType })));
+      }
+      switch (subjectType) {
         case "email": {
-          // logging in with did message
+          // logging in with subject message
           log("");
-          log(`Logging in with ${chalk.blue(did)}...`);
+          log(`Logging in with ${chalk.blue(subject)}...`);
 
-          const authPromise = context.auth.startAuth({ did, network });
+          const nonce =
+            Math.random().toString(36).substring(2, 15) +
+            Math.random().toString(36).substring(2, 15);
+
+          const email = subject.split(":")[1];
+
+          const authPromise = context.auth.startEmailAuth({
+            email,
+            nonce,
+            network,
+          });
           const authStart = await waitFor(authPromise, {
             text: `Getting authorization...`,
           });
@@ -399,6 +455,7 @@ const exec = async (context) => {
             code: authCode.code,
             nonce: authStart.nonce,
             network,
+            record,
           });
           const verifyAuthCode = await waitFor(verifyAuthCodePromise, {
             text: `Verifying code...`,
@@ -411,14 +468,15 @@ const exec = async (context) => {
             log(chalk.red("Error parsing response from server."));
             process.exit(1);
           }
+
           break;
         }
         case "github":
         case "twitter": {
           log("");
-          log(`Starting authorization for ${chalk.blue(did)}...`);
+          log(`Starting authorization for ${chalk.blue(subject)}...`);
 
-          const authPromise = context.auth.startAuth({ did, network });
+          const authPromise = context.auth.startAuth({ subject, network });
           const authStart = await waitFor(authPromise, {
             text: `Getting authorization...`,
           });
@@ -466,8 +524,10 @@ const exec = async (context) => {
           clearTimeout(timeout);
 
           log("");
-          log(`You have successfully authenticated with ${chalk.blue(did)}.`);
-          // log(data);
+          log(
+            `You have successfully authenticated with ${chalk.blue(subject)}.`
+          );
+          // log({data});
 
           break;
         }
@@ -477,44 +537,15 @@ const exec = async (context) => {
       }
 
       // if we're here, we've successfully logged in, and have a signature from the server saying so
-      // we now ask if the user wants to publish this DID to the XRPL, with meta data
+      // we now ask if the user wants to publish this subject to the XRPL, with meta data
+
+      log({ data });
 
       log("");
       log(
-        `You have successfully associated your ${didType} with your XRPL account.`
-      );
-      log(
-        chalk.gray(`\tThis will expire at: \t`) +
-          chalk.cyan(
-            `${new Date(Date.now() + 86400 * 7 * 1000).toLocaleString(
-              "default",
-              {
-                month: "long",
-                year: "numeric",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-              }
-            )}`
-          )
+        `You have successfully associated your ${subjectType} with your XRPL account.`
       );
 
-      log("");
-      log(
-        `You can extend this mapping until ` +
-          chalk.cyan(
-            `${new Date(
-              Date.now() + data.mapping.expiration * 1000
-            ).toLocaleString("default", {
-              month: "long",
-              year: "numeric",
-              day: "numeric",
-              hour: "numeric",
-              minute: "numeric",
-            })}`
-          ) +
-          ` by using a lookup directory service.`
-      );
       if (data.mapping.terms) {
         log("");
         log(
@@ -626,31 +657,85 @@ const exec = async (context) => {
       }
 
       log("");
-      // send the transaction
-      const sendPromise = context.coins.sendDirectoryPayment({
+      // send the transaction 777
+      // const sendPromise = context.coins.sendDirectoryPayment({
+      //   network,
+      //   sourceAddress,
+      //   address: data.mapping.address,
+      //   amount: amountXrp,
+      //   amountDrops: drops,
+      //   tag: data.mapping.tag || 0,
+      //   credentials: [
+      //     {
+      //       type: "s2s", // send-to-social
+      //       mapping: data["credential-map"],
+      //       signature: data.signature,
+      //       issuer: data.mapping["credential-issuer"] || "s2s", // TODO
+      //     },
+      //   ],
+      // });
+
+      // setup memos:
+      const Memos = [];
+      // Enter memo data to insert into a transaction
+      const MemoData = convertStringToHex(
+        JSON.stringify(data.auth)
+      ).toUpperCase();
+      const MemoType = convertStringToHex("ia").toUpperCase();
+      const MemoFormat = convertStringToHex("ia/v1").toUpperCase();
+      Memos.push({
+        Memo: {
+          MemoType,
+          MemoFormat,
+          MemoData,
+        },
+      });
+
+      if (context.debug) {
+        log(chalk.magenta("memo length: " + MemoData.length));
+      }
+
+      const sendPromise = context.coins.send({
         network,
         sourceAddress,
         address: data.mapping.address,
         amount: amountXrp,
         amountDrops: drops,
         tag: data.mapping.tag || 0,
-        credentials: [
-          {
-            type: "s2s", // send-to-social
-            mapping: data["credential-map"],
-            signature: data.signature,
-            issuer: data.mapping["credential-issuer"] || "s2s", // TODO
-          },
-        ],
+        memos: Memos,
       });
+
       const send = await waitFor(sendPromise, {
         text: `Creating directory entry...`,
       });
       log(send);
       log("");
       log(
-        chalk.green(`🚀 Registered your ${didType} with the directory service.`)
+        chalk.green(
+          `🚀 Registered ${dnsPath} with the directory service. This should be active in the next 5 minutes.`
+        )
       );
+
+      // show the dig command to look up the record
+      log("");
+
+      const subjHash = await getSubjectSubdomain(subject);
+      // create the dns record from the template, record[0], substituting $s with part1.part2
+      const fullHost = dnsPath
+        .replace("$s", `${network.replace(":", "-")}.${subjHash}`)
+        .toLowerCase()
+        .trim();
+
+      // show the dig command to look up the record:
+      log(
+        chalk.gray(
+          `To look up the record, run: ` +
+            chalk.yellow(`% dig ${fullHost} -t ${dnsType}`)
+        )
+      );
+
+      log("");
+
       log(`Transaction: ` + chalk.yellow(`${send.result.hash}\n`));
 
       // see if the user wants to open in the transaction explorer
@@ -670,6 +755,7 @@ const exec = async (context) => {
       }
 
       context.coins.disconnect();
+
       break;
     }
     default: {

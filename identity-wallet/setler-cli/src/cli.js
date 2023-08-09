@@ -77,8 +77,6 @@ const defaultHelp = `
     $ ${personality} kudos identify
     $ ${personality} kudos create
 
-    $ ${personality} ident lookup
-
     $ ${personality} auth
     $ ${personality} auth help
     $ ${personality} auth login

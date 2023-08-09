@@ -9,6 +9,18 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.20] - 2023-08-09
+
+### Changed
+
+- `setler auth login` now uses Ident.Agency based backend, similar to `setler ns set`
+- Use subjects instead of dids as identifier type in kudos send and send
+- Use DNS-based resolution instead of GQL
+
+### Removed
+
+- Removed `setler ident` command
+
 ## [0.0.19] - 2023-08-09
 
 ### Added
