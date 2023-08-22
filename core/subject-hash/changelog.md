@@ -9,6 +9,10 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed documentation formatting.
+
 ## [0.0.2] - 2023-08-09
 
 ### Added

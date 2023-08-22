@@ -6,7 +6,7 @@ A Subject-Hash is a domain name friendly lookup key for a _subject_.
 
 ### Subject-Hash Algorithm:
 
-1. Hash the subject using SHA256. Ex subject: ` email:foo@bar`` ->  `0d32944fed9d463bc9cc9ce57f6aead12e1c1cb699659b45a1510626c957a408`
+1. Hash the subject using SHA256. Ex subject: ` email:foo@bar` ->  `0d32944fed9d463bc9cc9ce57f6aead12e1c1cb699659b45a1510626c957a408`
 
 2. Split the hash in two parts, the first 32 bytes and the last 32 bytes. Ex: `0d32944fed9d463bc9cc9ce57f6aead1` and `2e1c1cb699659b45a1510626c957a408`
 
@@ -22,7 +22,7 @@ A subject can be a person, organization, thing, data model, abstract entity, etc
 
 To make it easier to understand what type of subject it is, we use a prefix. For instance, `email:foo@bar` is an email subject. `twitter:@loremlabs` is a Twitter handle as a subject. `phone:1234567890` is a phone number subject.
 
-Because the subject gets hashed, minor changes to the subject will result in a different hash. For instance, `email:foo@bar` and `email:Foo@bar` will result in different hashes. As such you should apply a normalization to the subject before hashing it. For example when we encounter `email:`` we use lowercase and remove any whitespace.
+Because the subject gets hashed, minor changes to the subject will result in a different hash. For instance, `email:foo@bar` and `email:Foo@bar` will result in different hashes. As such you should apply a normalization to the subject before hashing it. For example when we encounter `email:` we use lowercase and remove any whitespace.
 
 ## Installation
 
