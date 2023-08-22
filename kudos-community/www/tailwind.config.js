@@ -7,11 +7,11 @@ export default {
 		extend: {
 			colors: {
 				...colors,
-				primary: '#389D61',
+				primary: '#4E26DE',
 				primarya: '#5AB06C',
-				secondary: '#D2E6DA',
-				tertiary: '#EEEEEE',
-				quad: '#F4F3ED',
+				secondary: '#FAD471',
+				tertiary: '#ECE7D7',
+				quad: '#F7F7F8',
 				quint: '#A7DDD8',
 				sept: '#D6EAD7'
 			},

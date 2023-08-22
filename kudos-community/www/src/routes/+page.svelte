@@ -63,101 +63,98 @@
 </script>
 
 <Meta />
+<Nav />
 
-<div class="flex flex-col justify-center items-center bg-sept min-h-[80vh] lg:min-h-screen pt-12">
-	<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-2 lg:gap-x-48 w-full md:px-8 xl:px-0 lg:pb-40">
-		<div class="h-full">
-			<div class="mx-auto max-w-2x">
-				<div class="max-w-lg p-8 sm:p-0 h-full bg-red-100z m-auto">
-					<h1 class="mt-10 text-4xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-						A new way to reward creators and coders
+<div class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
+	<div class="relative bg-white">
+		<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
+			<div class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6">
+				<div class="mx-auto max-w-2xl lg:mx-0">
+					<img src="/svg/kudos-logo-11.svg" alt="Kudos" class="h-11" />
+
+					<div class="hidden sm:mt-32 sm:flex lg:mt-16">
+						<div
+							class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+						>
+							Anim aute id magna aliqua ad ad non deserunt sunt. <a
+								href="#"
+								class="whitespace-nowrap font-semibold text-indigo-600"
+								><span class="absolute inset-0" aria-hidden="true" />Read more
+								<span aria-hidden="true">&rarr;</span></a
+							>
+						</div>
+					</div>
+					<h1 class="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
+						Enabling the Compensation of Value
 					</h1>
 					<p class="mt-6 text-lg leading-8 text-gray-600">
-						Kudos is an open protocol that recognizes those that help you. Take the kudos concept
-						for your own projects or build on top of our community code.
+						No matter how small. Sending Pennies for Thoughts.
 					</p>
-					<div class="mt-10 grid md:flex items-center justify-start gap-6 h-full">
+					<div class="mt-10 flex items-center gap-x-6">
 						<a
-							href="https://github.com/LoremLabs/kudos/raw/main/rfcs/000-kudos-sketch/000-kudos-sketch.pdf"
-							class="text-center rounded-full bg-primary px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
-							>Read the Overview</a
+							href="#"
+							class="rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
+							>Get started</a
 						>
-						<a
-							href="https://github.com/orgs/LoremLabs/projects/3/views/3"
-							target="_blank"
-							class="text-sm font-semibold leading-6 text-gray-900"
-							>View our Roadmap on GitHub <span aria-hidden="true">→</span></a
+						<a href="#" class="text-sm font-semibold leading-6 text-gray-900"
+							>Learn more <span aria-hidden="true">→</span></a
 						>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative isolate">
-			<div
-				class="w-[70%] ml-24 -mr-24 h-36 z-0 hidden lg:block absolute"
-				style="background-image: url(/patterns/kudos-06.svg)"
-			/>
-			<div
-				class="w-48 h-48 xl:w-96 xl:h-48 z-0 -ml-4 md:-ml-12 xl:-ml-24 absolute -bottom-4 md:-bottom-12 xl:-bottom-16 rotate-180 hidden lg:block"
-				style="background-image: url(/patterns/kudos-06.svg)"
-			/>
-			<img
-				src="/imgs/kudos-code-01.png"
-				alt="Kudos Code Example"
-				class="overflow-hidden z-10 absolute md:mt-16 max-h-96 h-full shadow-2xl rounded-2xl"
-			/>
-		</div>
-	</div>
-	<div
-		class="-mt-12 mb-12 lg:hidden relative h-96 overflow-hidden mx-8 flex flex-col items-end justify-end isolate"
-	>
-		<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
-		<div class="overflow-hidden max-h-[40vh] h-full z-10 rounded-2xl">
-			<img
-				src="/imgs/kudos-code-01.png"
-				alt="Kudos Code Example"
-				class="overflow-hidden mx-4 rounded-2xl"
-			/>
-		</div>
-		<div class="w-full flex flex-row items-start -ml-4 -mt-8">
-			<div class="h-36 w-48" style="background-image: url(/patterns/kudos-06.svg)" />
+			<div class="flex flex-col items-center justify-center lg:col-span-5 lg:-mr-8 h-full">
+				<div class="absolute">
+					<img
+						class="top-0 bg-gray-50 object-left-top object-cover sm:rounded-xl sm:rotate-0 shadow-xl w-96 h-96 z-10 border-8 border-white"
+						src="/svg/fairtread-sun.svg"
+						alt=""
+					/>
+					<img
+						class="absolute top-24 bg-gray-50 object-cover sm:rounded-xl sm:rotate-3 shadow-xl w-96 h-96 translate-x-12 border-8 border-white inset-8"
+						src="/svg/fairtread-sun.svg"
+						alt=""
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="relative isolate bg-repeat" style="background-image: url(/patterns/kudos-05.svg)">
-	<div class="mx-auto max-w-7xl">
-		<div class="relative isolate overflow-hidden px-6 py-24 sm:px-24 xl:py-32">
-			<h2
-				class="mx-auto text-center text-3xl font-semibold tracking-tight text-gray-800 md:text-5xl max-w-md"
-			>
-				Request an Invite
-			</h2>
-			<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-gray-400">
-				We're currently in private beta. Sign up to be notified when we launch.
-			</p>
-			<form class="mx-auto mt-10 flex max-w-md gap-x-4">
-				<label for="email-address" class="sr-only">Email address</label>
-				<HoneyPot bind:value={honeypot} />
-				<input
-					type="email"
-					name="email-address"
-					id="email-address"
-					autocomplete="email"
-					bind:value={email}
-					required
-					class="min-w-0 flex-auto rounded-md border-1 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/0 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
-					placeholder="Enter your email"
-				/>
-				<button
-					on:click|preventDefault={handleNewEmail}
-					class="flex-none rounded-full bg-primary px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-					><span class="m-auto flex justify-center items-center"> Notify me </span></button
-				>
-			</form>
+<div class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
+	<div class="m-auto max-w-7xl w-full h-full bg-white">
+		<div class="bg-white w-full">
+			<div class="m-auto max-w-2xl px-4 py-12">
+				<div class="relative  overflow-hidden px-6 py-24 bg-secondary rounded-xl">
+					<h2
+						class="mx-auto text-center text-3xl font-semibold tracking-tight text-black md:text-5xl max-w-md"
+					>
+						Request an Invite
+					</h2>
+					<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-black">
+						We're currently in private beta. Sign up to be notified when we launch.
+					</p>
+					<form class="mx-auto mt-10 flex max-w-md gap-x-4">
+						<label for="email-address" class="sr-only">Email address</label>
+						<HoneyPot bind:value={honeypot} />
+						<input
+							type="email"
+							name="email-address"
+							id="email-address"
+							autocomplete="email"
+							bind:value={email}
+							required
+							class="min-w-0 flex-auto rounded-full border-0 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/0 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
+							placeholder="Enter your email"
+						/>
+						<button
+							on:click|preventDefault={handleNewEmail}
+							class="flex-none rounded-full bg-black px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white -ml-16"
+							><span class="m-auto flex justify-center items-center"> Notify me </span></button
+						>
+					</form>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 
 <Footer />
-
-<Nav show={false} />
