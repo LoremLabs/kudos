@@ -4,8 +4,12 @@
 	import Meta from '$lib/components/Meta.svelte';
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import Scroller from '$lib/components/Scroller.svelte';
+	import { typewriter } from '$lib/utils/typewriter';
+	import { VisSingleContainer, VisDonut, VisTooltip } from '@unovis/svelte';
+	import { Donut } from '@unovis/ts';
 
-	//    import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 	import { addToast } from '$lib/stores/toasts';
 
 	import HoneyPot from '$lib/components/HoneyPot.svelte';
@@ -19,6 +23,18 @@
 	let favicon = '/favicon';
 
 	const MAX_FAVICONS = 29;
+
+	let kudosData = [];
+	let kudosValue = (itemCount) => {
+		return itemCount;
+	};
+	let triggers = {
+		[Donut.selectors.segment]: (d) => {
+			return `${kudosValue(d.data)} !`;
+		}
+	};
+	let graphLabel = '';
+	let subGraphLabel = '';
 
 	onMount(() => {
 		faviconItem = parseInt(new URLSearchParams(window.location.search).get('favicon'), 10);
@@ -60,98 +76,307 @@
 
 		return false;
 	};
+
+	let index = 0;
+	let offset = 0;
+	let progress = 0;
+
+	let index2 = 0;
+	let offset2 = 0;
+	let progress2 = 0;
+
+	function updateViewBox(off) {
+		// const x = Math.cos(off * 2 * Math.PI) * 150 + 10;
+		// const y = Math.cos(off * 2 * Math.PI) * 150 + 10;
+
+		const x = 0;
+		const y = 0;
+
+		// zoom out as offset approaches 1
+		// const zoom = 300 + (1 - off) * 300;
+
+		const zoom = 130;
+
+		const viewBox = `${x} ${y} ${zoom} ${zoom}`;
+		return viewBox;
+	}
+
+	function updateRotation(off) {
+		const rotation = `rotate(${parseInt(off * 360, 10)} 150 150)`;
+		return rotation;
+	}
+
+	let viewBox = `0 0 150 150`;
+	let rotation = `rotate(0 150 150)`;
+
+	$: {
+		viewBox = updateViewBox(offset2); // `${parseInt(offset * 400)} ${parseInt(offset * 10)} ${100 - parseInt(offset * 100,10)} ${100 - parseInt(offset * 100,10)}`;
+		rotation = updateRotation(offset2);
+	}
 </script>
 
 <Meta />
-<Nav />
+{#if index >= 1 && progress >= 1}
+	<Nav enableLogin={false} />
+{/if}
+<div class="isolate overflow-hidden">
+	<Scroller
+		flipFocus={true}
+		top={0.0}
+		bottom={1}
+		bind:index
+		bind:offset
+		bind:progress
+		parallax={false}
+	>
+		<div slot="background" class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
+			<div class="relative bg-white h-full">
+				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
+					<div
+						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
+					>
+						<div class="mx-auto max-w-2xl lg:mx-0 text-lg leading-8 text-gray-600">
+							<img src="/svg/kudos-logo-11.svg" alt="Kudos" class="h-11" />
 
-<div class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
-	<div class="relative bg-white">
-		<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
-			<div class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6">
-				<div class="mx-auto max-w-2xl lg:mx-0">
-					<img src="/svg/kudos-logo-11.svg" alt="Kudos" class="h-11" />
-
-					<div class="hidden sm:mt-32 sm:flex lg:mt-16">
-						<div
-							class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
-						>
-							Anim aute id magna aliqua ad ad non deserunt sunt. <a
-								href="#"
-								class="whitespace-nowrap font-semibold text-indigo-600"
-								><span class="absolute inset-0" aria-hidden="true" />Read more
-								<span aria-hidden="true">&rarr;</span></a
+							<div class="hidden sm:mt-32 sm:flex lg:mt-16">
+								<div
+									class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+								>
+									Interested in claiming your identity? <a
+										href="#"
+										class="whitespace-nowrap font-semibold text-primary"
+										><span class="absolute inset-0" aria-hidden="true" />Login
+										<span aria-hidden="true">&rarr;</span></a
+									>
+								</div>
+							</div>
+							<h1
+								class="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl"
 							>
+								Support <span
+									class="typewriter text-gray-700"
+									use:typewriter={{
+										words: ['Devs', 'Creators', 'Everyone Who Helps You'],
+										period: 200
+									}}>Everyone</span
+								>
+							</h1>
+							<p class="mt-6">Kudos is an open algorithm to fund the creators you depend on.</p>
+							<ol class="w-full pt-2 list-decimal px-6">
+								<li class="list-item py-2">
+									<span>Each time someone helps you, record their name.</span>
+								</li>
+								<li class="list-item py-2">
+									At the end of the month, divide your budget between all the names.
+								</li>
+							</ol>
+
+							<div class="mt-10 flex items-center gap-x-6">
+								<a
+									href="#"
+									class="rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
+									>Get Started</a
+								>
+								<a href="#learn" class="text-sm font-semibold leading-6 text-gray-900"
+									>Learn more <span class="rotate-45" aria-hidden="true">↓</span></a
+								>
+							</div>
 						</div>
 					</div>
-					<h1 class="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
-						Enabling the Compensation of Value
-					</h1>
-					<p class="mt-6 text-lg leading-8 text-gray-600">
-						No matter how small. Sending Pennies for Thoughts.
-					</p>
-					<div class="mt-10 flex items-center gap-x-6">
-						<a
-							href="#"
-							class="rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
-							>Get started</a
-						>
-						<a href="#" class="text-sm font-semibold leading-6 text-gray-900"
-							>Learn more <span aria-hidden="true">→</span></a
-						>
-					</div>
-				</div>
-			</div>
-			<div class="flex flex-col items-center justify-center lg:col-span-5 lg:-mr-8 h-full">
-				<div class="absolute">
-					<img
-						class="top-0 bg-gray-50 object-left-top object-cover sm:rounded-xl sm:rotate-0 shadow-xl w-96 h-96 z-10 border-8 border-white"
-						src="/svg/fairtread-sun.svg"
-						alt=""
-					/>
-					<img
-						class="absolute top-24 bg-gray-50 object-cover sm:rounded-xl sm:rotate-3 shadow-xl w-96 h-96 translate-x-12 border-8 border-white inset-8"
-						src="/svg/fairtread-sun.svg"
-						alt=""
-					/>
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-<div class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
-	<div class="m-auto max-w-7xl w-full h-full bg-white">
-		<div class="bg-white w-full">
-			<div class="m-auto max-w-2xl px-4 py-12">
-				<div class="relative  overflow-hidden px-6 py-24 bg-secondary rounded-xl">
-					<h2
-						class="mx-auto text-center text-3xl font-semibold tracking-tight text-black md:text-5xl max-w-md"
+		<div slot="foreground">
+			<section
+				class="h-[100vh] w-full bg-transparent hidden sm:flex flex-row items-center justify-center"
+			>
+				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8 w-full">
+					<div
+						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
 					>
-						Request an Invite
-					</h2>
-					<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-black">
-						We're currently in private beta. Sign up to be notified when we launch.
-					</p>
-					<form class="mx-auto mt-10 flex max-w-md gap-x-4">
-						<label for="email-address" class="sr-only">Email address</label>
-						<HoneyPot bind:value={honeypot} />
-						<input
-							type="email"
-							name="email-address"
-							id="email-address"
-							autocomplete="email"
-							bind:value={email}
-							required
-							class="min-w-0 flex-auto rounded-full border-0 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/0 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
-							placeholder="Enter your email"
-						/>
-						<button
-							on:click|preventDefault={handleNewEmail}
-							class="flex-none rounded-full bg-black px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white -ml-16"
-							><span class="m-auto flex justify-center items-center"> Notify me </span></button
-						>
-					</form>
+						<div class="w-full bg-transparent">&nbsp;</div>
+					</div>
+					<div class="flex flex-col items-center justify-center lg:col-span-5 h-full pt-10">
+						<div class="absolute">
+							<img
+								class="top-0 bg-gray-50 object-left-top object-cover sm:rounded-xl sm:rotate-0 shadow-xl w-96 h-96 z-10 border-8 border-white"
+								src="/svg/fairtread-sun.svg"
+								alt=""
+							/>
+							<img
+								class="hidden sm:block absolute top-24 bg-gray-50 object-cover sm:rounded-xl sm:rotate-3 shadow-xl w-96 h-96 translate-x-12 border-8 border-white inset-8"
+								src="/svg/fairtread-sun.svg"
+								alt=""
+							/>
+						</div>
+					</div>
 				</div>
+			</section>
+			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8 w-full">
+					<div
+						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
+					>
+						<div class="w-full bg-transparent">&nbsp;</div>
+					</div>
+					<div
+						class="hidden sm:flex flex-col items-center justify-center lg:col-span-5 h-full pt-10"
+					>
+						<div class="absolute">
+							{#if index >= 1 && offset < 0.3}
+								<VisSingleContainer
+									data={JSON.parse(
+										'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
+									).kudosData}
+								>
+									<VisTooltip {triggers} />
+									<VisDonut
+										value={kudosValue}
+										arcWidth={30}
+										centralLabel={JSON.parse(
+											'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
+										).graphLabel}
+										centralSubLabel={JSON.parse(
+											'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
+										).subGraphLabel}
+									/>
+								</VisSingleContainer>
+							{:else if index === 1 && offset >= 0.3 && progress < 0.5}
+								<VisSingleContainer
+									data={JSON.parse(
+										'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
+									).kudosData}
+								>
+									<VisTooltip {triggers} />
+									<VisDonut
+										value={kudosValue}
+										arcWidth={30}
+										centralLabel={JSON.parse(
+											'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
+										).graphLabel}
+										centralSubLabel={JSON.parse(
+											'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
+										).subGraphLabel}
+									/>
+								</VisSingleContainer>
+							{:else if index === 1}
+								<VisSingleContainer
+									data={JSON.parse(
+										`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
+									).kudosData}
+								>
+									<VisTooltip {triggers} />
+									<VisDonut
+										value={kudosValue}
+										arcWidth={30}
+										centralLabel={JSON.parse(
+											`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
+										).graphLabel}
+										centralSubLabel={JSON.parse(
+											`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
+										).subGraphLabel}
+									/>
+								</VisSingleContainer>
+							{/if}
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</Scroller>
+</div>
+
+<div class="isolate overflow-hidden">
+	<Scroller
+		flipFocus={false}
+		top={0.0}
+		bottom={1}
+		bind:index={index2}
+		bind:offset={offset2}
+		bind:progress={progress2}
+		parallax={false}
+	>
+		<div
+			slot="background"
+			class="flex flex-col justify-start items-center bg-white sm:bg-tertiary h-[100vh] overflow-hidden"
+		>
+			<div class="mx-auto max-w-7xl w-full">
+				<div class="w-full bg-white h-full">
+					<svg {viewBox} class="w-full h-full">
+						<image href="/svg/example-kudos-1.svg" transform={rotation} />
+					</svg>
+				</div>
+			</div>
+		</div>
+
+		<div slot="foreground">
+			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl w-full">
+					<div class="flex flex-col items-center justify-center h-full">
+						<div class="m-autoz bg-white text-black">
+							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
+								An average GitHub repository uses contributions from 12,500 people!
+							</h1>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl w-full">
+					<div class="flex flex-col items-center justify-center h-full">
+						<div class="m-autoz bg-white text-black">
+							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
+								Kudos enables you to support everyone in proportion to their contributions.
+							</h1>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl w-full">
+					<div class="flex flex-col items-center justify-center h-full">
+						<div class="m-autoz bg-white text-black">
+							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
+								Kudos makes it easy to thank everyone.
+							</h1>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</Scroller>
+</div>
+<div class="isolate flex flex-col justify-center items-center bg-tertiary h-[100vh]">
+	<div class="max-w-7xl w-full h-full bg-white flex flex-col justify-center items-center">
+		<div class="m-auto max-w-2xl px-4 py-12">
+			<div class="px-6 py-24 bg-secondary rounded-xl">
+				<h2
+					class="mx-auto text-center text-3xl font-semibold tracking-tight text-black md:text-5xl max-w-md"
+				>
+					Request an Invite
+				</h2>
+				<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-black">
+					We're currently in private beta. Sign up to be notified when we launch.
+				</p>
+				<form class="mx-auto mt-10 flex max-w-md gap-x-4">
+					<label for="email-address" class="sr-only">Email address</label>
+					<HoneyPot bind:value={honeypot} />
+					<input
+						type="email"
+						name="email-address"
+						id="email-address"
+						autocomplete="email"
+						bind:value={email}
+						required
+						class="min-w-0 flex-auto rounded-full border-0 border-gray-300 bg-white px-5 py-2.5 text-black shadow-sm ring-1 ring-inset ring-white/0 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
+						placeholder="Enter your email"
+					/>
+					<button
+						on:click|preventDefault={handleNewEmail}
+						class="flex-none rounded-full bg-black px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white -ml-16"
+						><span class="m-auto flex justify-center items-center"> Notify me </span></button
+					>
+				</form>
 			</div>
 		</div>
 	</div>

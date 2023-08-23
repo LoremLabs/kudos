@@ -19,6 +19,8 @@
 		"@tailwindcss/line-clamp": "^0.4.4",
 		"@tailwindcss/typography": "^0.5.9",
 		"@twemazing/scss": "^2.0.3",
+		"@unovis/svelte": "^1.2.1",
+		"@unovis/ts": "^1.2.1",
 		"autoprefixer": "^10.4.14",
 		"dotenv": "^16.0.3",
 		"eslint": "^8.28.0",
