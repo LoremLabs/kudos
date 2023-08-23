@@ -43,7 +43,7 @@
 	};
 </script>
 
-<footer class="bg-tertiary" aria-labelledby="footer-heading">
+<footer class="bg-quad" aria-labelledby="footer-heading">
 	<h2 id="footer-heading" class="sr-only">Footer</h2>
 	<div class="mx-auto max-w-7xl px-6 pb-8">
 		{#if showEmail}
@@ -83,8 +83,8 @@
 			<div>
 				<a href="/">
 					<div class="flex flex-row text-xs md:text-sm flex-nowrap">
-						<div class="font-heading font-black">K</div>
-						<div class="font-heading font-black pl-1.5">+</div>
+						<div class="font-heading font-bold">K</div>
+						<div class="font-heading font-bold pl-1.5">+</div>
 						<div class="ml-1 mr-2"><i class="twe twe-purple-heart" /></div>
 						<div class="font-heading font-black">=</div>
 						<img class="mx-2 h-4 md:h-6" src="/svg/kudos-logo-09.svg" alt="Kudos" />

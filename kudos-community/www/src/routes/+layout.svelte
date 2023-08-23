@@ -29,7 +29,7 @@
 		defer
 	></script>
 </svelte:head>
-<div class="min-h-screen bg-quad w-full">
+<div class="min-h-screen bg-white w-full">
 	<slot />
 </div>
 <Toasts />

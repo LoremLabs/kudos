@@ -7,12 +7,12 @@
 	export let linkTxt = '';
 	export let show = true;
 	export let closable = false;
-	export let klass = 'bg-cyan-500';
+	export let klass = 'bg-tertiary';
 </script>
 
 {#if show}
 	<div
-		class={`relative mx-2 mt-4 rounded-md text-black ${klass} cursor-pointer`}
+		class={`relative text-black ${klass} cursor-pointer text-xxs`}
 		on:click={() => {
 			if (linkTxt) {
 				goto(linkHref);
