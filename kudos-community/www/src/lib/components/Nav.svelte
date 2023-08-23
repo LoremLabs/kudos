@@ -43,13 +43,13 @@
 
 {#if !hidden}
 	<nav
-		class=" text-black sticky transition-transform ease-in-out duration-200 z-30"
+		class="text-black sticky transition-transform ease-in-out duration-200 z-30 flex flex-col justify-start items-center bg-tertiary"
 		class:top-0={!showBanner}
 		class:top-12={showBanner}
 		transition:fly={{ y: -100, duration: 250 }}
 	>
 		<div
-			class="flex w-full flex-col overflow-y-auto py-2 pl-4 pr-2 justify-center items-center bg-white"
+			class="mx-auto max-w-7xl flex w-full flex-col overflow-y-auto py-2 pl-4 pr-2 justify-center items-center bg-white"
 		>
 			{#if show}
 				<div

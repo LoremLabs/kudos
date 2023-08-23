@@ -164,11 +164,10 @@
 							<p class="mt-6">Kudos is an open algorithm to fund the creators you depend on.</p>
 							<ol class="w-full pt-2 list-decimal px-6">
 								<li class="list-item py-2">
-									<span>Each time someone helps you, record their name.</span>
+									<span>✍️ Each time someone helps you, record their name.</span>
 								</li>
-								<li class="list-item py-2">
-									At the end of the month, divide your budget between all the names.
-								</li>
+								<li class="list-item py-2">🌈 Divide your budget between all the names.</li>
+								<li>🥳 Each person gets their share of your budget, no matter how small.</li>
 							</ol>
 
 							<div class="mt-10 flex items-center gap-x-6">
@@ -302,7 +301,7 @@
 		>
 			<div class="mx-auto max-w-7xl w-full">
 				<div class="w-full bg-white h-full">
-					<svg {viewBox} class="w-full h-full">
+					<svg {viewBox} class="w-full h-[100vh]">
 						<image href="/svg/example-kudos-1.svg" transform={rotation} />
 					</svg>
 				</div>
@@ -337,7 +336,7 @@
 					<div class="flex flex-col items-center justify-center h-full">
 						<div class="m-autoz bg-white text-black">
 							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
-								Kudos makes it easy to thank everyone.
+								Find a Kudos enabled software to get started today.
 							</h1>
 						</div>
 					</div>
