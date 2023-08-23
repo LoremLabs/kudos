@@ -17,14 +17,19 @@
 	export let showBanner = false;
 	export let brand = 'Kudos';
 	export let enableLogin = true;
+	export let autoHide = true;
 
 	let hidden = true;
 	let translateY = 0;
 	let scrollY = 0;
 
 	$: {
-		hidden = scrollY < 100;
-		translateY = scrollY < 100 ? 0 : -20; // Adjust this value as needed
+		if (autoHide) {
+			hidden = scrollY < 100;
+			translateY = scrollY < 100 ? 0 : -20; // Adjust this value as needed
+		} else {
+			hidden = false;
+		}
 	}
 
 	const navItems = [
@@ -79,6 +84,11 @@
 				</ol>
 
 				<div class="flex items-center justify-end">
+					<a href="https://www.github.com/LoremLabs/kudos" target="_new">
+						<span class="sr-only">@LoremLabs Kudos Repo</span>
+						<Icon name="brand/github" class="w-8 h-8 textblack" />
+					</a>
+
 					{#if enableLogin}
 						{#if $page.data?.loggedIn}
 							<a href="/dashboard" class="px-3 text-cyan-200 underline">

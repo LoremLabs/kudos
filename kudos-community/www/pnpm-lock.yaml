@@ -80,6 +80,9 @@ devDependencies:
   sass:
     specifier: ^1.62.0
     version: 1.62.0
+  string-hash:
+    specifier: ^1.1.3
+    version: 1.1.3
   svelte:
     specifier: ^3.54.0
     version: 3.58.0
@@ -2872,6 +2875,10 @@ packages:
   /streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
+    dev: true
+
+  /string-hash@1.1.3:
+    resolution: {integrity: sha512-kJUvRUFK49aub+a7T1nNE66EJbZBMnBgoC1UbCZ5n6bsZKBRga4KgBRTMn/pFkeCZSYtNeSyMxPDM0AXWELk2A==}
     dev: true
 
   /strip-ansi@6.0.1:

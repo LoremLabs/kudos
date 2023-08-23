@@ -8,6 +8,7 @@
 	import { typewriter } from '$lib/utils/typewriter';
 	import { VisSingleContainer, VisDonut, VisTooltip } from '@unovis/svelte';
 	import { Donut } from '@unovis/ts';
+	import Pill from '$lib/components/Pill.svelte';
 
 	import { browser } from '$app/environment';
 	import { addToast } from '$lib/stores/toasts';
@@ -106,6 +107,14 @@
 		return rotation;
 	}
 
+	function scrollIntoView({ target }) {
+		const el = document.querySelector(target.getAttribute('href'));
+		if (!el) return;
+		el.scrollIntoView({
+			behavior: 'smooth'
+		});
+	}
+
 	let viewBox = `0 0 150 150`;
 	let rotation = `rotate(0 150 150)`;
 
@@ -116,176 +125,235 @@
 </script>
 
 <Meta />
-{#if index >= 1 && progress >= 1}
+{#if index2 >= 0}
 	<Nav enableLogin={false} />
 {/if}
-<div class="isolate overflow-hidden">
-	<Scroller
-		flipFocus={true}
-		top={0.0}
-		bottom={1}
-		bind:index
-		bind:offset
-		bind:progress
-		parallax={false}
-	>
-		<div slot="background" class="flex flex-col justify-start items-center bg-tertiary h-[100vh]">
-			<div class="relative bg-white h-full">
-				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
-					<div
-						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
-					>
-						<div class="mx-auto max-w-2xl lg:mx-0 text-lg leading-8 text-gray-600">
-							<img src="/svg/kudos-logo-11.svg" alt="Kudos" class="h-11" />
+<div class="flex flex-col justify-start items-center bg-tertiary zh-screen">
+	<div class="relative bg-white h-full">
+		<div
+			class="mx-auto max-w-7xl flex flex-col items-center justify-center lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8"
+		>
+			<div class="px-6 py-4 lg:col-span-7 lg:px-0 lg:pt-48 xl:col-span-6 bg-white">
+				<div class="mx-auto max-w-2xl lg:mx-0 text-lg leading-8 text-gray-600">
+					<img src="/svg/kudos-logo-11.svg" alt="Kudos" class="h-11" />
 
-							<div class="hidden sm:mt-32 sm:flex lg:mt-16">
-								<div
-									class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
-								>
-									Interested in claiming your identity? <a
-										href="#"
-										class="whitespace-nowrap font-semibold text-primary"
-										><span class="absolute inset-0" aria-hidden="true" />Login
-										<span aria-hidden="true">&rarr;</span></a
-									>
-								</div>
-							</div>
-							<h1
-								class="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl"
+					<div class="hidden sm:mt-32 sm:flex lg:mt-16">
+						<div
+							class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-500 ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+						>
+							Interested in claiming your identity? <a
+								href="/claim"
+								class="whitespace-nowrap font-semibold text-primary"
+								><span class="absolute inset-0" aria-hidden="true" />Claim Id
+								<span aria-hidden="true">&rarr;</span></a
 							>
-								Support <span
-									class="typewriter text-gray-700"
-									use:typewriter={{
-										words: ['Devs', 'Creators', 'Everyone Who Helps You'],
-										period: 200
-									}}>Everyone</span
-								>
-							</h1>
-							<p class="mt-6">Kudos is an open algorithm to fund the creators you depend on.</p>
-							<ol class="w-full pt-2 list-decimal px-6">
-								<li class="list-item py-2">
-									<span>✍️ Each time someone helps you, record their name.</span>
-								</li>
-								<li class="list-item py-2">🌈 Divide your budget between all the names.</li>
-								<li>🥳 Each person gets their share of your budget, no matter how small.</li>
-							</ol>
-
-							<div class="mt-10 flex items-center gap-x-6">
-								<a
-									href="#"
-									class="rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
-									>Get Started</a
-								>
-								<a href="#learn" class="text-sm font-semibold leading-6 text-gray-900"
-									>Learn more <span class="rotate-45" aria-hidden="true">↓</span></a
-								>
-							</div>
 						</div>
+					</div>
+					<h1 class="mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 sm:text-6xl">
+						Support Everyone Who Helps You
+					</h1>
+					<p class="mt-6">
+						Kudos is an <span
+							class="underline p-2"
+							style="text-decoration-color:#4E26DE; text-decoration-thickness: 2px;"
+							>open algorithm</span
+						> to fund the creators you depend on.
+					</p>
+					<ol class="w-full pt-2 list-decimal leading-loose px-12">
+						<li class="list-item py-2">
+							<span class="px-2">✍️</span> Each time someone helps you, record their name.
+						</li>
+						<li class="list-item py-2">
+							<span class="px-2">🌈</span> Divide your budget between all the names.
+						</li>
+						<li class="list-item py-2">
+							<span class="px-2">🥳</span> Each person gets their share of your budget.
+						</li>
+					</ol>
+
+					<div class="mt-10 pb-24 flex items-center gap-x-6">
+						<a
+							href="/claim"
+							class="rounded-full bg-primary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary/90"
+							>Get Started</a
+						>
+						<a
+							href="#learn"
+							on:click|preventDefault={scrollIntoView}
+							class="text-sm font-semibold leading-6 text-gray-900"
+							>Learn more <span class="rotate-45" aria-hidden="true">↓</span></a
+						>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div slot="foreground">
-			<section
-				class="h-[100vh] w-full bg-transparent hidden sm:flex flex-row items-center justify-center"
-			>
-				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8 w-full">
-					<div
-						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
-					>
-						<div class="w-full bg-transparent">&nbsp;</div>
-					</div>
-					<div class="flex flex-col items-center justify-center lg:col-span-5 h-full pt-10">
-						<div class="absolute">
-							<img
-								class="top-0 bg-gray-50 object-left-top object-cover sm:rounded-xl sm:rotate-0 shadow-xl w-96 h-96 z-10 border-8 border-white"
-								src="/svg/fairtread-sun.svg"
-								alt=""
-							/>
-							<img
-								class="hidden sm:block absolute top-24 bg-gray-50 object-cover sm:rounded-xl sm:rotate-3 shadow-xl w-96 h-96 translate-x-12 border-8 border-white inset-8"
-								src="/svg/fairtread-sun.svg"
-								alt=""
-							/>
-						</div>
-					</div>
+
+			<div class="hidden sm:grid items-center justify-center lg:col-span-5 h-full pt-10">
+				<div class="absolute">
+					<img
+						class="top-0 bg-gray-50 object-left-top object-cover sm:rounded-xl sm:rotate-0 shadow-xl w-96 h-96 z-10 border-8 border-white"
+						src="/svg/fairtread-sun.svg"
+						alt=""
+					/>
+					<img
+						class="hidden sm:block absolute top-24 bg-gray-50 object-cover sm:rounded-xl sm:rotate-3 shadow-xl w-96 h-96 translate-x-12 border-8 border-white inset-8"
+						src="/svg/fairtread-sun.svg"
+						alt=""
+					/>
 				</div>
-			</section>
-			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
-				<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8 w-full">
-					<div
-						class="px-6 pb-24 pt-10 sm:pb-32 lg:col-span-7 lg:px-0 lg:pb-56 lg:pt-48 xl:col-span-6"
-					>
-						<div class="w-full bg-transparent">&nbsp;</div>
-					</div>
-					<div
-						class="hidden sm:flex flex-col items-center justify-center lg:col-span-5 h-full pt-10"
-					>
-						<div class="absolute">
-							{#if index >= 1 && offset < 0.3}
-								<VisSingleContainer
-									data={JSON.parse(
-										'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
-									).kudosData}
-								>
-									<VisTooltip {triggers} />
-									<VisDonut
-										value={kudosValue}
-										arcWidth={30}
-										centralLabel={JSON.parse(
-											'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
-										).graphLabel}
-										centralSubLabel={JSON.parse(
-											'{"kudosData":[1],"graphLabel":"$ 100 split 1 way","subGraphLabel":""}'
-										).subGraphLabel}
-									/>
-								</VisSingleContainer>
-							{:else if index === 1 && offset >= 0.3 && progress < 0.5}
-								<VisSingleContainer
-									data={JSON.parse(
-										'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
-									).kudosData}
-								>
-									<VisTooltip {triggers} />
-									<VisDonut
-										value={kudosValue}
-										arcWidth={30}
-										centralLabel={JSON.parse(
-											'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
-										).graphLabel}
-										centralSubLabel={JSON.parse(
-											'{"kudosData":[1,1],"graphLabel":"$ 100 split 2 ways","subGraphLabel":""}'
-										).subGraphLabel}
-									/>
-								</VisSingleContainer>
-							{:else if index === 1}
-								<VisSingleContainer
-									data={JSON.parse(
-										`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
-									).kudosData}
-								>
-									<VisTooltip {triggers} />
-									<VisDonut
-										value={kudosValue}
-										arcWidth={30}
-										centralLabel={JSON.parse(
-											`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
-										).graphLabel}
-										centralSubLabel={JSON.parse(
-											`{"kudosData":[1,1,10,10,2,2],"graphLabel":"$ 100 split 6 ways","subGraphLabel":"Min: $3.85 Max: $38.46 (Using different weights for each identity)"}`
-										).subGraphLabel}
-									/>
-								</VisSingleContainer>
-							{/if}
-						</div>
-					</div>
-				</div>
-			</section>
+			</div>
 		</div>
-	</Scroller>
+	</div>
+</div>
+<div class="flex sm:hidden items-start justify-center">
+	<div class="">
+		<img class="object-fill w-full h-96" src="/svg/fairtread-sun.svg" alt="" />
+	</div>
 </div>
 
-<div class="isolate overflow-hidden">
+<section
+	class="flex flex-col justify-start items-center bg-tertiary zh-screen w-full"
+	id="ecosystem"
+>
+	<div class="w-full h-full max-w-7xl bg-quad mx-auto px-6 lg:px-8">
+		<h2 class="mt-6 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 max-w-xl">
+			Kudos Ecosystem
+		</h2>
+		<div class="pb-24 lg:pb-36 divide-y-8">
+			<div class="lg:grid lg:grid-cols-12 lg:gap-8 py-12">
+				<div class="lg:col-span-5 pl-6">
+					<h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">Create Kudos</h2>
+
+					<p class="mt-4 text-xs leading-7 text-gray-600">
+						Know another one? <a
+							href="https://github.com/LoremLabs/kudos/pulls"
+							class="font-semibold text-primary hover:text-primary/80"
+							target="_blank">Make a PR</a
+						>.
+					</p>
+				</div>
+				<div class="mt-10 lg:col-span-7 lg:mt-0">
+					<dl class="space-y-10 w-1/2 m-auto">
+						<div>
+							<dt class="text-base font-semibold leading-7 text-gray-900 pb-4">
+								These services help create and fund Kudos from Open Source contributions.
+							</dt>
+							<dd class="mt-2 text-base leading-7 text-gray-600">
+								<div
+									class="-mx-6 grid grid-cols-1 gap-0.5 overflow-hidden sm:mx-0 rounded-full shadow-lg md:grid-cols-1 border border-black group"
+								>
+									<button
+										class="bg-white p-8 sm:p-10 group-hover:bg-primary/10 cursor-pointer"
+										on:click={() => {
+											window.open('https://www.semicolons.com/?utm_src=kudos', '_blank');
+										}}
+									>
+										<img
+											class="max-h-12 w-full object-contain"
+											src="/svg/semicolons-logo-03.svg"
+											alt="Semicolons"
+										/>
+									</button>
+								</div>
+							</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+			<div class="lg:grid lg:grid-cols-12 lg:gap-8 py-12">
+				<div class="lg:col-span-5 pl-6">
+					<h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">
+						Claim Your Identity
+					</h2>
+					<p class="mt-4 text-xs leading-7 text-gray-600">
+						Know another one? <a
+							href="https://github.com/LoremLabs/kudos/pulls"
+							class="font-semibold text-primary hover:text-primary/80"
+							target="_blank">Make a PR</a
+						>.
+					</p>
+				</div>
+				<div class="mt-10 lg:col-span-7 lg:mt-0">
+					<dl class="space-y-10 w-1/2 m-auto">
+						<div>
+							<dt class="text-base font-semibold leading-7 text-gray-900 pb-4">
+								Validate your Identity to claim your share of kudos.
+							</dt>
+							<dd class="mt-2 text-base leading-7 text-gray-600">
+								<div
+									class="-mx-6 grid grid-cols-1 gap-0.5 overflow-hidden sm:mx-0 rounded-full shadow-lg md:grid-cols-1 border border-black group"
+								>
+									<button
+										class="bg-white p-8 sm:p-10 group-hover:bg-primary/10 cursor-pointer"
+										on:click={() => {
+											window.open('https://www.ident.agency/?utm_src=kudos', '_blank');
+										}}
+									>
+										<img
+											src="/svg/ia-logo-05.svg"
+											alt="Ident.Agency"
+											class="max-h-12 w-full object-contain"
+										/>
+									</button>
+								</div>
+							</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+			<div class="lg:grid lg:grid-cols-12 lg:gap-8 py-12">
+				<div class="lg:col-span-5 pl-6">
+					<h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">Kudos Wallets</h2>
+					<p class="mt-4 text-xs leading-7 text-gray-600">
+						Know another one? <a
+							href="https://github.com/LoremLabs/kudos/pulls"
+							class="font-semibold text-primary hover:text-primary/80"
+							target="_blank">Make a PR</a
+						>.
+					</p>
+				</div>
+				<div class="mt-10 lg:col-span-7 lg:mt-0">
+					<dl class="space-y-10 w-1/2 m-auto">
+						<div>
+							<dt class="text-base font-semibold leading-7 text-gray-900 pb-4">
+								These wallets can be used to manage Kudos.
+							</dt>
+							<dd class="mt-2 text-base leading-7 text-gray-600">
+								<div
+									class="-mx-6 grid grid-cols-1 gap-0.5 overflow-hidden sm:mx-0 rounded-full shadow-lg md:grid-cols-1 border border-black group"
+								>
+									<button
+										class="bg-white p-8 sm:p-10 group-hover:bg-primary/10 cursor-pointer"
+										on:click={() => {
+											window.open('https://www.setler.app/?utm_src=kudos', '_blank');
+										}}
+									>
+										<img
+											src="/svg/setler-logo-01.svg"
+											alt="Setler"
+											class="max-h-12 w-full object-contain"
+										/>
+									</button>
+								</div>
+							</dd>
+						</div>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="isolate overflow-hidden" id="learn">
+	<div class="flex flex-col justify-start items-center bg-white sm:bg-tertiary overflow-hidden">
+		<div class="mx-auto max-w-7xl w-full">
+			<div class="w-full bg-white h-full py-12">
+				<h2 class="mt-6 px-8 text-4xl font-bold tracking-tight text-gray-900 sm:mt-10 max-w-xl">
+					Motivation
+				</h2>
+			</div>
+		</div>
+	</div>
+
 	<Scroller
 		flipFocus={false}
 		top={0.0}
@@ -297,11 +365,11 @@
 	>
 		<div
 			slot="background"
-			class="flex flex-col justify-start items-center bg-white sm:bg-tertiary h-[100vh] overflow-hidden"
+			class="flex flex-col justify-start items-center bg-white sm:bg-tertiary h-screen overflow-hidden"
 		>
 			<div class="mx-auto max-w-7xl w-full">
-				<div class="w-full bg-white h-full">
-					<svg {viewBox} class="w-full h-[100vh]">
+				<div class="w-full bg-white h-full py-12">
+					<svg {viewBox} class="w-full h-screen">
 						<image href="/svg/example-kudos-1.svg" transform={rotation} />
 					</svg>
 				</div>
@@ -309,7 +377,7 @@
 		</div>
 
 		<div slot="foreground">
-			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+			<section class="h-screen w-full bg-transparent flex flex-row items-center justify-center">
 				<div class="mx-auto max-w-7xl w-full">
 					<div class="flex flex-col items-center justify-center h-full">
 						<div class="m-autoz bg-white text-black">
@@ -320,23 +388,46 @@
 					</div>
 				</div>
 			</section>
-			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+			<section class="h-screen w-full bg-transparent flex flex-row items-center justify-center">
 				<div class="mx-auto max-w-7xl w-full">
 					<div class="flex flex-col items-center justify-center h-full">
 						<div class="m-autoz bg-white text-black">
 							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
-								Kudos enables you to support everyone in proportion to their contributions.
+								But only 1% of those people get paid.
 							</h1>
 						</div>
 					</div>
 				</div>
 			</section>
-			<section class="h-[100vh] w-full bg-transparent flex flex-row items-center justify-center">
+			<section class="h-screen w-full bg-transparent flex flex-row items-center justify-center">
 				<div class="mx-auto max-w-7xl w-full">
 					<div class="flex flex-col items-center justify-center h-full">
 						<div class="m-autoz bg-white text-black">
 							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
-								Find a Kudos enabled software to get started today.
+								With Kudos we can reward each contribution.
+							</h1>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="h-screen w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl w-full">
+					<div class="flex flex-col items-center justify-center h-full">
+						<div class="mx-12 bg-white text-black">
+							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
+								And we can do it without changing the way we work.
+							</h1>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="h-screen w-full bg-transparent flex flex-row items-center justify-center">
+				<div class="mx-auto max-w-7xl w-full">
+					<div class="flex flex-col items-center justify-center h-full">
+						<div class="mx-12 bg-white text-black">
+							<h1 class="p-2 text-4xl font-bold tracking-tight sm:text-6xl text-center">
+								This visualization is all the contributors of a GitHub repo, but Kudos can be
+								applied to other domains like web content.
 							</h1>
 						</div>
 					</div>
@@ -344,18 +435,18 @@
 			</section>
 		</div>
 	</Scroller>
-</div>
-<div class="isolate flex flex-col justify-center items-center bg-tertiary h-[100vh]">
+</section>
+<div class="isolate flex flex-col justify-center items-center bg-tertiary h-screen overflow-hidden">
 	<div class="max-w-7xl w-full h-full bg-white flex flex-col justify-center items-center">
 		<div class="m-auto max-w-2xl px-4 py-12">
 			<div class="px-6 py-24 bg-secondary rounded-xl">
 				<h2
 					class="mx-auto text-center text-3xl font-semibold tracking-tight text-black md:text-5xl max-w-md"
 				>
-					Request an Invite
+					Join our List
 				</h2>
 				<p class="mx-auto mt-2 max-w-xl text-center text-lg leading-8 text-black">
-					We're currently in private beta. Sign up to be notified when we launch.
+					Stay up to date on the latest Kudos news.
 				</p>
 				<form class="mx-auto mt-10 flex max-w-md gap-x-4">
 					<label for="email-address" class="sr-only">Email address</label>

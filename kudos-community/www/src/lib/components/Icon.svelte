@@ -98,6 +98,7 @@
 
 	export type BrandIcons =
 		| 'brand/facebook'
+		| 'brand/github'
 		| 'brand/google'
 		| 'brand/instagram'
 		| 'brand/nft'
