@@ -4,6 +4,8 @@
 	import Meta from '$lib/components/Meta.svelte';
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import CopyCodeBlock from '$lib/components/CopyCodeBlock.svelte';
+	import '$lib/styles/code.css';
 
 	//    import { page } from '$app/stores';
 	import { addToast } from '$lib/stores/toasts';
@@ -51,8 +53,8 @@
 
 <Meta />
 
-<div class="flex flex-col justify-center items-center bg-sept min-h-[80vh] lg:min-h-screen pt-12">
-	<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-2 lg:gap-x-48 w-full md:px-8 xl:px-0 lg:pb-40">
+<div class="flex flex-col justify-center items-center bg-white min-h-[80vh] lg:min-h-screen pt-12">
+	<div class="mx-auto max-w-7xl lg:grid lg:grid-cols-2 lg:gap-x-48 w-full md:px-8 xl:px-0">
 		<div class="h-full">
 			<div class="mx-auto max-w-2x">
 				<div class="max-w-lg p-8 sm:p-0 h-full m-auto">
@@ -75,14 +77,23 @@
 					</p>
 					<div class="mt-10 grid md:flex items-center justify-start gap-6 h-full">
 						<a
-							href="https://github.com/loremlabs/kudos"
+							href="https://www.npmjs.com/package/@loremlabs/setler"
 							target="_blank"
-							class="text-center rounded-full bg-purple-900 px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-primary/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
-							>Download</a
+							class="text-center rounded-full bg-purple-900 px-5 pt-2.5 pb-2 text-sm font-action font-medium text-white shadow-sm hover:bg-purple-500/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/60"
+							>View on NPM <span aria-hidden="true">→</span></a
 						>
-						<a href="/docs" class="text-sm font-semibold leading-6 text-gray-900"
-							>Setler is a new word <span aria-hidden="true">→</span></a
-						>
+						{#if false}
+							<a href="/docs" class="text-sm font-semibold leading-6 text-gray-900"
+								>Setler is a new word <span aria-hidden="true">→</span></a
+							>
+						{/if}
+					</div>
+					<div class="mt-12">
+						<CopyCodeBlock
+							isShell={true}
+							code={`npx @loremlabs/setler@latest help`}
+							mode="display"
+						/>
 					</div>
 				</div>
 			</div>
@@ -117,6 +128,149 @@
 		</div>
 	</div>
 </div>
+
+<div class="flex flex-col justify-center items-center bg-white py-24">
+	<div class="mx-auto max-w-7xl w-full">
+		<h2 class="text-2xl font-semibold tracking-widest md:text-4xl mb-4">About Setler</h2>
+		<article class="prose pb-6">
+			Setler CLI is a non-custodial identity wallet that is used to send and receive payments as
+			well as "setling" kudos. Setling (intentional new spelling) is the act of distributing a fixed
+			amount to a "pool" of identities. This pool is the accumulation of <a
+				href="https://www.kudos.community/?utm_src=setler">kudos</a
+			>
+			which includes an identity identifier. Because the wallet is non-custodial, the user is in
+			control of their own funds and can send and receive payments as well as setle kudos without
+			the need for a third party.
+
+			<h2 class="text-xl font-semibold md:text-3xl my-4">Getting Started</h2>
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Wallet</h3>
+
+			To use you start by creating a wallet. This is a non-custodial wallet that is used to send and
+			receive payments as well as perform the escrowed payments. Setup a new wallet with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler@latest wallet init`}
+				mode="display"
+			/>
+
+			You will then need to fund your wallet either by sending funds to it:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler wallet receive`}
+				mode="display"
+			/>
+
+			Or by using a test network and funding it with the built in faucet:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler wallet fund`}
+				mode="display"
+			/>
+
+			To check your wallet balance:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler wallet balance`}
+				mode="display"
+			/>
+
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Creating Kudos</h3>
+
+			You can create kudos with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler kudos create`}
+				mode="display"
+			/>
+
+			This creates the data structure of a kudos. You can save it by appending to a file with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler kudos create --outFile "kudos.ndjson"`}
+				mode="display"
+			/>
+
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Storing Kudos: Pools</h3>
+
+			Kudos can be stored in a pool. This is the accumulation of kudos that you've created. You can
+			create a pool with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler pool create`}
+				mode="display"
+			/>
+
+			You can see the pools you have created with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler pool list`}
+				mode="display"
+			/>
+
+			You can store (also called "inking") kudos in a pool with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler pool ink --inFile kudos.ndjson`}
+				mode="display"
+			/>
+
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Setling Pools</h3>
+
+			You can setle ("send money") to a pool with:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler kudos send --poolId POOL_ID`}
+				mode="display"
+			/>
+
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Sending Money to an Identifier</h3>
+
+			Setler also enables you to send funds to an identity:
+
+			<CopyCodeBlock
+				class="my-6"
+				isShell={true}
+				code={`npx @loremlabs/setler send social email:YOUR_EMAIL@YOUR_DOMAIN`}
+				mode="display"
+			/>
+
+			Setler uses the
+			<a class="underline" target="_blank" href="https://www.ident.agency/?utm_src=setler"
+				>Ident.Agency</a
+			>
+			to lookup identities and their corresponding wallet addresses.
+
+			<h3 class="text-lg font-bold md:text-2xl mb-4">Setler Example</h3>
+
+			<img
+				src="https://user-images.githubusercontent.com/170588/227736633-93f70b05-56d2-4993-9de2-9a446d19404c.gif"
+				class="w-full"
+				alt="Screen of Setler"
+			/>
+		</article>
+	</div>
+</div>
+
 <div class="lg:p-3">
 	<div
 		class="relative isolate bg-repeat bg-quad/5 bg-opacity-10"

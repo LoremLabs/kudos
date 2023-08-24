@@ -30,7 +30,7 @@
 
 <nav class="m-auto">
 	<div
-		class="fixed top-0 z-90 flex w-full flex-col overflow-y-auto py-2 pl-4 pr-2 justify-center items-center bg-sept"
+		class="fixed top-0 z-90 flex w-full flex-col overflow-y-auto py-2 pl-4 pr-2 justify-center items-center bg-white"
 	>
 		{#if show}
 			<div class="fixed inset-0 z-[-1] h-full w-full bg-black/30" on:click={() => (show = !show)} />
