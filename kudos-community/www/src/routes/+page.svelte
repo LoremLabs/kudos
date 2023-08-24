@@ -436,7 +436,63 @@
 		</div>
 	</Scroller>
 </section>
-<div class="isolate flex flex-col justify-center items-center bg-tertiary h-screen overflow-hidden">
+<section
+	class="isolate flex flex-col justify-center items-center bg-tertiary overflow-hidden h-screen"
+>
+	<div class="max-w-7xl w-full h-full bg-primary flex flex-col justify-center items-center">
+		<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+			<div class="mx-auto max-w-2xl text-center">
+				<h2 class="text-3xl font-bold tracking-tight leading-relaxed text-white sm:text-4xl">
+					Get more from your digital life.<br />Give Kudos.
+				</h2>
+				<p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-primary/50">
+					Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim id veniam aliqua
+					proident excepteur commodo do ea.
+				</p>
+				<div class="mt-10 flex items-center justify-center gap-x-6">
+					<a
+						href="/create"
+						class="rounded-full bg-white px-3.5 py-2.5 text-sm font-semibold text-primary shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+						>Get started</a
+					>
+					<a href="/claim" class="text-sm font-semibold leading-6 text-white"
+						>Claim my id <span aria-hidden="true">→</span></a
+					>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="isolate flex flex-col justify-center items-center bg-tertiary overflow-hidden">
+	<div class="max-w-7xl w-full h-full bg-white flex flex-col justify-center items-center">
+		<div class="bg-quad w-full py-24">
+			<div class="mx-auto max-w-7xl px-6 lg:px-8">
+				<h2 class="text-center text-lg font-semibold leading-8 text-gray-900">
+					Kudos was made possible with the support of the following organizations.
+				</h2>
+				<div
+					class="mx-auto mt-10 grid max-w-lg grid-cols-2 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-2 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-2"
+				>
+					<img
+						class="col-span-2 max-h-24 w-full object-contain lg:col-span-1"
+						src="/svg/mozilla-foundation-logo-01.svg"
+						alt="Mozilla Foundation"
+					/>
+					<img
+						class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
+						src="/svg/xrpl-ledger-logo-01.svg"
+						alt="XRPL Ledger"
+					/>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section
+	class="isolate flex flex-col justify-center items-center bg-tertiary h-screen overflow-hidden"
+>
 	<div class="max-w-7xl w-full h-full bg-white flex flex-col justify-center items-center">
 		<div class="m-auto max-w-2xl px-4 py-12">
 			<div class="px-6 py-24 bg-secondary rounded-xl">
@@ -470,6 +526,6 @@
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <Footer />
