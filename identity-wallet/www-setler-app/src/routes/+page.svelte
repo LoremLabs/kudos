@@ -98,13 +98,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative isolate">
+		<div class="mt-20 sm:mt-24 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 relative isolate group">
 			<div class="hidden lg:block mask w-full aspect-[1/1]">
 				<picture>
 					<source type="image/webp" srcset="/imgs/joao-guimaraes-9b4jtcBEP4A-unsplash.webp" />
 					<img
-						class="w-full h-full object-cover"
-						style="filter: grayscale(10);"
+						class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 ease-in-out"
 						alt=""
 						src="/imgs/joao-guimaraes-9b4jtcBEP4A-unsplash.jpg"
 					/>
@@ -138,9 +137,9 @@
 			amount to a "pool" of identities. This pool is the accumulation of <a
 				href="https://www.kudos.community/?utm_src=setler">kudos</a
 			>
-			which includes an identity identifier. Because the wallet is non-custodial, the user is in
-			control of their own funds and can send and receive payments as well as setle kudos without
-			the need for a third party.
+			which includes an identity identifier. Because the wallet is non-custodial, the user is in control
+			of their own funds and can send and receive payments as well as setle kudos without the need for
+			a third party.
 
 			<h2 class="text-xl font-semibold md:text-3xl my-4">Getting Started</h2>
 			<h3 class="text-lg font-bold md:text-2xl mb-4">Wallet</h3>
