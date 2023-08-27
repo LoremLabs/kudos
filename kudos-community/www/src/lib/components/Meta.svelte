@@ -1,9 +1,9 @@
 <script>
 	const OPENGRAPH = {
-		title: 'Kudos Community: Support the creators you love',
-		description: 'Kudos Community: Support the creators you love',
+		title: 'Kudos Community: Support everyone who creates',
+		description: 'Kudos Community: Support open source, creators, and the open web',
 		keywords:
-			'kudos, xrpl, xrp, webmon, web monetization, creator, creator economy, creator support, creator funding',
+			'kudos, xrpl, xrp, creator, creator economy, creator support, creator funding, open source, oss',
 		siteName: 'Kudos.Community',
 		shareImage: `https://www.kudos.community/share.png`
 	};
