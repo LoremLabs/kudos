@@ -5,12 +5,8 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Scroller from '$lib/components/Scroller.svelte';
-	import { typewriter } from '$lib/utils/typewriter';
-	import { VisSingleContainer, VisDonut, VisTooltip } from '@unovis/svelte';
 	import { Donut } from '@unovis/ts';
-	import Pill from '$lib/components/Pill.svelte';
 
-	import { browser } from '$app/environment';
 	import { addToast } from '$lib/stores/toasts';
 
 	import HoneyPot from '$lib/components/HoneyPot.svelte';
@@ -440,15 +436,11 @@
 	class="isolate flex flex-col justify-center items-center bg-tertiary overflow-hidden h-screen"
 >
 	<div class="max-w-7xl w-full h-full bg-primary flex flex-col justify-center items-center">
-		<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-			<div class="mx-auto max-w-2xl text-center">
+		<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8 m-auto">
+			<div class="m-auto max-w-2xl text-center">
 				<h2 class="text-3xl font-bold tracking-tight leading-relaxed text-white sm:text-4xl">
 					Get more from your digital life.<br />Give Kudos.
 				</h2>
-				<p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-primary/50">
-					Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim id veniam aliqua
-					proident excepteur commodo do ea.
-				</p>
 				<div class="mt-10 flex items-center justify-center gap-x-6">
 					<a
 						href="/create"
