@@ -6,7 +6,7 @@ A Subject-Hash is a domain name friendly lookup key for a _subject_.
 
 ### Subject-Hash Algorithm:
 
-1. Hash the subject using SHA256. Ex subject: ` email:foo@bar` ->  `0d32944fed9d463bc9cc9ce57f6aead12e1c1cb699659b45a1510626c957a408`
+1. Hash the subject using SHA256. Ex subject: ` email:foo@bar` -> `0d32944fed9d463bc9cc9ce57f6aead12e1c1cb699659b45a1510626c957a408`
 
 2. Split the hash in two parts, the first 32 bytes and the last 32 bytes. Ex: `0d32944fed9d463bc9cc9ce57f6aead1` and `2e1c1cb699659b45a1510626c957a408`
 
@@ -33,6 +33,20 @@ npm install @kudos-protocol/subject-hash
 ```
 
 ## Usage
+
+```javascript
+import { getSubjectHash } from './index.js';
+
+async function main() {
+	const result = await getSubjectHash('email:foo@example.com');
+
+	console.log(result);
+
+	// this converts a subject to a subject hash
+}
+```
+
+## API
 
 ```javascript
 import { getSubjectSubdomain } from '@kudos-protocol/subject-hash';

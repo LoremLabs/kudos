@@ -9,9 +9,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-08-28
+
 ### Fixed
 
 - Fixed documentation formatting.
+
+### Added
+
+- Added `getSubjectHash` function to the library, converting between subject and subject hash.
+- Added `lookupMetadata` function to the library, looking up metadata for a subject hash.
 
 ## [0.0.2] - 2023-08-09
 
