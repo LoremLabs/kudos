@@ -92,14 +92,10 @@ To setle kudos you need to have a wallet setup and funded. You can then setle ku
 % npx @loremlabs/setler kudos send --poolId POOL_ID
 ```
 
-### Social Send
+### Setle: Distributing Funds to Kudos from a URL
 
-To send to a social identifier (DID) send you need to have a wallet setup and funded. You can then send a social send with:
-
-```
-% npx @loremlabs/setler send social email:YOUR_EMAIL@YOUR_DOMAIN
-```
+You can also setle kudos from a URL containing an ndjson list of kudos with:
 
 ```
-% npx @loremlabs/setler send social email:mankins+demo1@gmail.com email:matt+demo2@loremlabs.com...
+% npx @loremlabs/setler kudos send --url https://raw.githubusercontent.com/loremlabs/kudos/main/docs/example-kudos.ndjson
 ```
