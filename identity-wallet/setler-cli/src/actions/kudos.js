@@ -54,7 +54,9 @@ const help = () => {
   log("  setler kudos address");
   log("  setler kudos create");
   log("  setler kudos identify .");
-  log("  setler kudos send --poolId abcd123 [--frozenPoolId abcd123]");
+  log(
+    "  setler kudos send [--url kudosurl] [--poolId abcd123] [--frozenPoolId abcd123]"
+  );
   log("  setler kudos list --poolId abcd123");
   log("");
   log("Kudos to kudos:");
@@ -1094,93 +1096,6 @@ const exec = async (context) => {
         process.exit(1);
       }
 
-      let poolId = context.flags.poolId || context.input[2];
-      if (!poolId) {
-        let matching = context.flags.poolMatch || "";
-
-        if (context.flags.poolName) {
-          matching = context.flags.poolName;
-
-          if (Array.isArray(matching)) {
-            log(chalk.red(`Can only specify one pool name`));
-            process.exit(1);
-          }
-
-          // add n: prefix if it's not already there
-          if (!matching.startsWith("n:")) {
-            matching = "n:" + matching;
-          }
-        } else if (context.flags.poolId) {
-          matching = context.flags.poolId;
-
-          if (Array.isArray(matching)) {
-            log(chalk.red(`Can only specify one pool id`));
-            process.exit(1);
-          }
-
-          // add i: prefix if it's not already there
-          if (!matching.startsWith("i:")) {
-            matching = "i:" + matching;
-          }
-        }
-
-        let listResults = {};
-        try {
-          const listPromise = context.auth.listPools({
-            network: kudosNetwork,
-            matching,
-          });
-          listResults = await waitFor(listPromise, {
-            text: `Fetching pools...`,
-          });
-        } catch (error) {
-          log(chalk.red(`Error listing pools: ${error.message}`));
-          process.exit(1);
-        }
-
-        const out = JSON.parse(listResults.response.out);
-        // log(`${JSON.stringify(out, null, 2)}`);
-        // out.pools is an array of {id,name}
-        // use that to construct a prompt
-
-        let choices = out.pools.map((pool) => {
-          return {
-            title: `${pool.name}`,
-            description: `[${pool.id}]`,
-            value: pool.id,
-          };
-        });
-        // sort choices by title alphabetically
-        choices = choices.sort((a, b) => {
-          if (a.title < b.title) {
-            return -1;
-          }
-          if (a.title > b.title) {
-            return 1;
-          }
-          return 0;
-        });
-
-        if (choices.length === 0) {
-          log(chalk.red(`No pools found`));
-          process.exit(1);
-        }
-
-        // prompt for poolId
-        const response = await prompts({
-          type: "select",
-          name: "poolId",
-          message: "What poolId do you want to send to?",
-          choices,
-        });
-        poolId = response.poolId;
-      }
-
-      if (!poolId) {
-        log(chalk.red("PoolId is required"));
-        process.exit(1);
-      }
-
       let amount = parseFloat(context.flags.amount).toFixed(6).toString();
       if (!amount || parseFloat(amount).toString() === "NaN") {
         // ask for the amount
@@ -1207,100 +1122,460 @@ const exec = async (context) => {
       const drops = parseFloat(amountXrp) * 1000000;
       log(chalk.gray(`\tAmount in drops: \t${drops.toLocaleString()}`));
 
-      // get the pool
-      let getResults = {};
-      try {
-        const getPromise = context.auth.getPoolSummary({
-          network: kudosNetwork,
-          address: kudosAddress,
-          poolId,
-          frozenPoolId: context.flags.frozenPoolId || "",
-          // amount,
-        });
-        getResults = await waitFor(getPromise, {
-          text: `Retrieving pool...`,
-        });
-      } catch (error) {
-        log(chalk.red(`Error getting pool: ${error.message}`));
-        process.exit(1);
-      }
-
-      const out = JSON.parse(getResults.response.out);
-
-      if (context.debug) {
-        log(`${JSON.stringify(out, null, 2)}`);
-      }
+      const addresses = [];
+      const weights = [];
+      const kudosMemos = [];
       let kudosCreatorsAdded = false;
       let shouldAddKudosCreators =
         context.flags.dontSendKudosToSetlerTeam !== true; // defaults to send kudos to setler team
 
-      const addresses = [];
-      const weights = [];
-      const kudosMemos = [];
-      const totalWeightServer = parseFloat(out.totalWeight); // TODO: compare server weight to local and error if different
+      if (context.flags.url) {
+        // fetch url
+        const url = context.flags.url;
+        const response = await fetch(url);
 
-      // loop through out.identities, setup weights
-      for (let i = 0; i < out.identities.length; i++) {
-        const identity = out.identities[i];
-        const address = identity.identifier.replace(/^did:kudos:/g, "");
-        const weight = identity.weight;
-        if (parseFloat(weight) === 0) {
-          continue; // skip already processed / zero weight
+        // handle errors
+        if (!response.ok) {
+          log(chalk.red(`Error fetching url: ${response.statusText}`));
+          process.exit(1);
         }
 
-        // TODO: the kudos memo gets written to the blockchain
-        const kudosMemo = {
-          // identity: the identity that got sent the kudos
-          // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
-          description: identity.description,
-          name: identity.name,
-          packageName: identity.packageName,
-          type: identity.type,
-        };
-        kudosMemos.push(kudosMemo);
-        addresses.push(address);
-        weights.push(weight);
-      }
+        // check that the mime type is application/x-ndjson
+        // const contentType = response.headers.get("content-type");
+        // if (!contentType || !contentType.startsWith("application/x-ndjson")) {
+        //   log(
+        //     chalk.red(
+        //       `Error fetching url: expected application/x-ndjson, got ${contentType}`
+        //     )
+        //   );
+        //   process.exit(1);
+        // }
 
-      if (shouldAddKudosCreators && !kudosCreatorsAdded) {
-        // push our own id onto the list to pay ourselves via kudos
+        let pool = [];
+        const text = await response.text();
+        const lines = text.split("\n");
+        for (let i = 0; i < lines.length; i += 1) {
+          const line = lines[i];
 
-        // scale based on addresses.length, approaching the average weight. scale = 0 for only 1 address
-        let scaleFactor = Math.log(addresses.length) / 3;
-        if (scaleFactor > 1) {
-          scaleFactor = 1;
+          try {
+            const kudo = JSON.parse(line);
+            pool.push(kudo);
+          } catch (e) {
+            if (flags.fail) {
+              log(chalk.red(`Error parsing line ${i}: ${e.message}`));
+              process.exit(1);
+            }
+            // ignore
+            log(
+              chalk.red(`Error parsing line ${i}: ${e.message}...Continuing...`)
+            );
+          }
         }
+
+        const stackResults = {};
+        // now summarize
+        let totalWeight = Object.values(pool).reduce((acc, kudo) => {
+          return acc + parseFloat(kudo.weight);
+        }, 0);
+
+        // get the weight by Identifier
+        const weightByIdentifier = Object.values(pool).reduce((acc, kudo) => {
+          const { identifier, weight } = kudo;
+          if (acc[identifier]) {
+            acc[identifier] += parseFloat(weight);
+          } else {
+            acc[identifier] = parseFloat(weight);
+          }
+
+          return acc;
+        }, {});
+
+        // convert weight back into string
+        for (const key in weightByIdentifier) {
+          weightByIdentifier[key] = weightByIdentifier[key]
+            .toFixed(6)
+            .toString();
+        }
+
+        // concat descriptions for each identifier
+        const identifierDescriptions = Object.values(pool).reduce(
+          (acc, kudo) => {
+            const { identifier } = kudo;
+            let { description } = kudo;
+            description = description || "";
+            if (description) {
+              if (!acc[identifier]) {
+                acc[identifier] = description; // first one wins
+              }
+
+              // limit chars
+              const LIMIT_CHARS = 100;
+              if (acc[identifier].length > LIMIT_CHARS) {
+                acc[identifier] = acc[identifier].substring(0, LIMIT_CHARS);
+              }
+            }
+
+            return acc;
+          },
+          {}
+        );
+
+        // these summary additions are weird, this needs a refactor/(re)think...
+        // "maybe" summary shouldn't be used for send so we can get rid of this
+        const identifierName = Object.values(pool).reduce((acc, kudo) => {
+          const { identifier } = kudo;
+          let { name } = kudo;
+          name = name || "";
+          if (name) {
+            if (!acc[identifier]) {
+              acc[identifier] = name; // first one wins
+            }
+
+            // limit chars
+            const LIMIT_CHARS = 100;
+            if (acc[identifier].length > LIMIT_CHARS) {
+              acc[identifier] = acc[identifier].substring(0, LIMIT_CHARS);
+            }
+          }
+
+          return acc;
+        }, {});
+
+        const identifierType = Object.values(pool).reduce((acc, kudo) => {
+          const { identifier } = kudo;
+          let { type: kudoType } = kudo;
+          kudoType = kudoType || "";
+          if (kudoType) {
+            if (!acc[identifier]) {
+              acc[identifier] = kudoType; // first one wins
+            }
+
+            // limit chars
+            const LIMIT_CHARS = 100;
+            if (acc[identifier].length > LIMIT_CHARS) {
+              acc[identifier] = acc[identifier].substring(0, LIMIT_CHARS);
+            }
+          }
+
+          return acc;
+        }, {});
+
+        const identifierPackage = Object.values(pool).reduce((acc, kudo) => {
+          const { identifier } = kudo;
+          let { packageName } = kudo;
+          packageName = packageName || "";
+          if (packageName) {
+            if (!acc[identifier]) {
+              acc[identifier] = packageName; // first one wins
+            }
+
+            // limit chars
+            const LIMIT_CHARS = 100;
+            if (acc[identifier].length > LIMIT_CHARS) {
+              acc[identifier] = acc[identifier].substring(0, LIMIT_CHARS);
+            }
+          }
+
+          return acc;
+        }, {});
+
+        // let slivers = 0;
+        let amount = 100;
+        stackResults.kudos = Object.entries(weightByIdentifier)
+          .sort((a, b) => {
+            return b[1] - a[1];
+          })
+          .map(([identifier, weight]) => {
+            const description = identifierDescriptions[identifier];
+            const name = identifierName[identifier];
+            const type = identifierType[identifier];
+            const packageName = identifierPackage[identifier];
+
+            const share = parseFloat(weight) / parseFloat(totalWeight);
+            if (share && share > 0 && amount) {
+              const sliver = (share * parseFloat(amount || 0))
+                .toFixed(6)
+                .toString();
+              // slivers += share * parseFloat(amount || 0);
+              if (sliver !== "NaN") {
+                return {
+                  identifier,
+                  weight,
+                  sliver,
+                  description,
+                  name,
+                  type,
+                  packageName,
+                };
+              } else {
+                return {
+                  identifier,
+                  weight,
+                  description,
+                  name,
+                  type,
+                  packageName,
+                };
+              }
+            } else {
+              return {
+                identifier,
+                weight,
+                description,
+                name,
+                type,
+                packageName,
+              };
+            }
+          });
+
+        for (const kudo of stackResults.kudos || []) {
+          // kudo.identifier = await getSubjectHash(kudo.identifier);
+          // kudos.push(kudo);
+
+          // const addresses = [];
+          // const weights = [];
+          // const kudosMemos = [];
+
+          const address = kudo.identifier; // .replace(/^did:kudos:/g, "");
+          const weight = kudo.weight;
+          if (parseFloat(weight) === 0) {
+            continue; // skip already processed / zero weight
+          }
+
+          // TODO: the kudos memo gets written to the blockchain
+          const kudosMemo = {
+            // identity: the identity that got sent the kudos
+            // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
+            description: kudo.description,
+            name: kudo.name,
+            packageName: kudo.packageName,
+            type: kudo.type,
+          };
+          kudosMemos.push(kudosMemo);
+          addresses.push(address);
+          weights.push(weight);
+        }
+
+        if (shouldAddKudosCreators && !kudosCreatorsAdded) {
+          // push our own id onto the list to pay ourselves via kudos
+
+          // scale based on addresses.length, approaching the average weight. scale = 0 for only 1 address
+          let scaleFactor = Math.log(addresses.length) / 3;
+          if (scaleFactor > 1 || scaleFactor <= 0) {
+            scaleFactor = 1;
+          }
+
+          if (context.debug) {
+            log(`scaleFactor: ${scaleFactor}`);
+          }
+
+          let setlerWeight = (totalWeight / addresses.length) * scaleFactor;
+
+          // add the setler team found in creatorPool
+          for (let i = 0; i < creatorPool.length; i++) {
+            let setlerCreator = creatorPool[i].id;
+            let setlerCreatorWeight = creatorPool[i].weight;
+            if (setlerCreatorWeight === 0) {
+              continue;
+            }
+            if (!setlerCreatorWeight) {
+              setlerCreatorWeight = 1;
+            }
+            if (setlerCreatorWeight > 1) {
+              setlerCreatorWeight = 1;
+            }
+
+            let thisWeight = setlerCreatorWeight * setlerWeight;
+            if (thisWeight > 1) {
+              thisWeight = 1;
+            }
+
+            if (thisWeight > 0) {
+              addresses.push(setlerCreator);
+              weights.push(thisWeight.toFixed(6));
+            }
+          }
+
+          kudosCreatorsAdded = true;
+        }
+      } else {
+        let poolId = context.flags.poolId || context.input[2];
+        if (!poolId) {
+          let matching = context.flags.poolMatch || "";
+
+          if (context.flags.poolName) {
+            matching = context.flags.poolName;
+
+            if (Array.isArray(matching)) {
+              log(chalk.red(`Can only specify one pool name`));
+              process.exit(1);
+            }
+
+            // add n: prefix if it's not already there
+            if (!matching.startsWith("n:")) {
+              matching = "n:" + matching;
+            }
+          } else if (context.flags.poolId) {
+            matching = context.flags.poolId;
+
+            if (Array.isArray(matching)) {
+              log(chalk.red(`Can only specify one pool id`));
+              process.exit(1);
+            }
+
+            // add i: prefix if it's not already there
+            if (!matching.startsWith("i:")) {
+              matching = "i:" + matching;
+            }
+          }
+
+          let listResults = {};
+          try {
+            const listPromise = context.auth.listPools({
+              network: kudosNetwork,
+              matching,
+            });
+            listResults = await waitFor(listPromise, {
+              text: `Fetching pools...`,
+            });
+          } catch (error) {
+            log(chalk.red(`Error listing pools: ${error.message}`));
+            process.exit(1);
+          }
+
+          const out = JSON.parse(listResults.response.out);
+          // log(`${JSON.stringify(out, null, 2)}`);
+          // out.pools is an array of {id,name}
+          // use that to construct a prompt
+
+          let choices = out.pools.map((pool) => {
+            return {
+              title: `${pool.name}`,
+              description: `[${pool.id}]`,
+              value: pool.id,
+            };
+          });
+          // sort choices by title alphabetically
+          choices = choices.sort((a, b) => {
+            if (a.title < b.title) {
+              return -1;
+            }
+            if (a.title > b.title) {
+              return 1;
+            }
+            return 0;
+          });
+
+          if (choices.length === 0) {
+            log(chalk.red(`No pools found`));
+            process.exit(1);
+          }
+
+          // prompt for poolId
+          const response = await prompts({
+            type: "select",
+            name: "poolId",
+            message: "What poolId do you want to send to?",
+            choices,
+          });
+          poolId = response.poolId;
+        }
+
+        if (!poolId) {
+          log(chalk.red("PoolId is required"));
+          process.exit(1);
+        }
+
+        // get the pool
+        let getResults = {};
+        try {
+          const getPromise = context.auth.getPoolSummary({
+            network: kudosNetwork,
+            address: kudosAddress,
+            poolId,
+            frozenPoolId: context.flags.frozenPoolId || "",
+            // amount,
+          });
+          getResults = await waitFor(getPromise, {
+            text: `Retrieving pool...`,
+          });
+        } catch (error) {
+          log(chalk.red(`Error getting pool: ${error.message}`));
+          process.exit(1);
+        }
+
+        const out = JSON.parse(getResults.response.out);
+
         if (context.debug) {
-          log(`scaleFactor: ${scaleFactor}`);
+          log(`${JSON.stringify(out, null, 2)}`);
         }
 
-        let setlerWeight = (totalWeightServer / addresses.length) * scaleFactor;
-        // add the setler team found in creatorPool
-        for (let i = 0; i < creatorPool.length; i++) {
-          let setlerCreator = creatorPool[i].id;
-          let setlerCreatorWeight = creatorPool[i].weight;
-          if (setlerCreatorWeight === 0) {
-            continue;
-          }
-          if (!setlerCreatorWeight) {
-            setlerCreatorWeight = 1;
-          }
-          if (setlerCreatorWeight > 1) {
-            setlerCreatorWeight = 1;
+        const totalWeightServer = parseFloat(out.totalWeight); // TODO: compare server weight to local and error if different
+
+        // loop through out.identities, setup weights
+        for (let i = 0; i < out.identities.length; i++) {
+          const identity = out.identities[i];
+          const address = identity.identifier; // .replace(/^did:kudos:/g, "");
+          const weight = identity.weight;
+          if (parseFloat(weight) === 0) {
+            continue; // skip already processed / zero weight
           }
 
-          let thisWeight = setlerCreatorWeight * setlerWeight;
-          if (thisWeight > 1) {
-            thisWeight = 1;
-          }
-
-          if (thisWeight > 0) {
-            addresses.push(setlerCreator);
-            weights.push(thisWeight.toFixed(6));
-          }
+          // TODO: the kudos memo gets written to the blockchain
+          const kudosMemo = {
+            // identity: the identity that got sent the kudos
+            // TODO: get the poolId ... but we also want the package that the kudos came from, so may need to refactor
+            description: identity.description,
+            name: identity.name,
+            packageName: identity.packageName,
+            type: identity.type,
+          };
+          kudosMemos.push(kudosMemo);
+          addresses.push(address);
+          weights.push(weight);
         }
 
-        kudosCreatorsAdded = true;
+        if (shouldAddKudosCreators && !kudosCreatorsAdded) {
+          // push our own id onto the list to pay ourselves via kudos
+          // scale based on addresses.length, approaching the average weight. scale = 0 for only 1 address
+          let scaleFactor = Math.log(addresses.length) / 3;
+          if (scaleFactor > 1) {
+            scaleFactor = 1;
+          }
+          if (context.debug) {
+            log(`scaleFactor: ${scaleFactor}`);
+          }
+
+          let setlerWeight =
+            (totalWeightServer / addresses.length) * scaleFactor;
+          // add the setler team found in creatorPool
+          for (let i = 0; i < creatorPool.length; i++) {
+            let setlerCreator = creatorPool[i].id;
+            let setlerCreatorWeight = creatorPool[i].weight;
+            if (setlerCreatorWeight === 0) {
+              continue;
+            }
+            if (!setlerCreatorWeight) {
+              setlerCreatorWeight = 1;
+            }
+            if (setlerCreatorWeight > 1) {
+              setlerCreatorWeight = 1;
+            }
+
+            let thisWeight = setlerCreatorWeight * setlerWeight;
+            if (thisWeight > 1) {
+              thisWeight = 1;
+            }
+
+            if (thisWeight > 0) {
+              addresses.push(setlerCreator);
+              weights.push(thisWeight.toFixed(6));
+            }
+          }
+
+          kudosCreatorsAdded = true;
+        }
       }
 
       if (context.debug) {
@@ -1785,14 +2060,15 @@ const exec = async (context) => {
       }
 
       // ask if we should send a thank you for those that don't have direct payment set
-      const thankYou = await prompts([
-        {
-          type: "confirm",
-          name: "value",
-          message: `Create thank you scores for ids without payment? (Costs 1 Drop/id. Used by leaderboard and notifications.)`,
-          initial: true,
-        },
-      ]);
+      // const thankYou = await prompts([
+      //   {
+      //     type: "confirm",
+      //     name: "value",
+      //     message: `Create thank you scores for ids without payment? (Costs 1 Drop/id. Used by leaderboard and notifications.)`,
+      //     initial: true,
+      //   },
+      // ]);
+      const thankYou = { value: flags.skipThankYou ? false : true };
 
       // see how much we have in this account, to verify it's enough to cover the transaction?
       const getAcctPromise = context.coins.getAccountInfo({
@@ -2149,7 +2425,7 @@ const exec = async (context) => {
       }
 
       // output as ndjson
-      if (!context.flags.quiet) {
+      if (context.flags.showReceipts) {
         for (let i = 0; i < receipts.length; i++) {
           let receipt = receipts[i];
           log(JSON.stringify(receipt));
@@ -2164,7 +2440,7 @@ const exec = async (context) => {
           // only send to those that don't have direct payment set
           let currentAddress = weightedAddresses[i];
           if (currentAddress.shouldThank) {
-            console.log("sending thank you to", JSON.stringify(currentAddress));
+            // console.log("sending thank you to", JSON.stringify(currentAddress));
 
             const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically, compare with hard coded and warn if different
             const IDENT_PUBLIC_KEY =
