@@ -590,13 +590,14 @@ const exec = async (context) => {
             text: `Verifying code...`,
           });
 
-          log(verifyAuthCode);
+          // log(verifyAuthCode);
           try {
             data = JSON.parse(verifyAuthCode.response?.out);
           } catch (e) {
             log(chalk.red("Error parsing response from server."));
             process.exit(1);
           }
+          log(data);
 
           break;
         }
