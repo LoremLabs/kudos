@@ -9,9 +9,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.22] - 2023-09-01
+
 ### Added
 
 - Better example for setler ns set, as network is already in $s
+- Setle Kudos via url: `kudos send --url`
+
+### Changed
+
+- Tried to make logging better for ns and auth.
 
 ## [0.0.21] - 2023-08-09
 
