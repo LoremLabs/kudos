@@ -9,6 +9,16 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.23] - 2023-09-02
+
+### Added
+
+- Bootstrap mode to send unspent budget to the bootstrap address to support general kudos development, etc.
+
+### Removed
+
+- Removed the "thanks" method, as it's replaced by bootstrap mode.
+
 ## [0.0.22] - 2023-09-01
 
 ### Added

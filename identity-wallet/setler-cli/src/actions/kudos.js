@@ -18,7 +18,7 @@ import { stringToColorBlocks } from "../lib/colorize.js";
 import { waitFor } from "../lib/wait.js";
 import windowSize from "window-size";
 import { convertStringToHex, xrpToDrops } from "xrpl";
-import { getSubjectPayVia } from "@kudos-protocol/subject-hash";
+import { getSubjectPayVia, lookupMetadata } from "@kudos-protocol/subject-hash";
 
 // import { waitFor } from "../lib/wait.js";
 
@@ -1664,6 +1664,8 @@ const exec = async (context) => {
 
       let skip = false;
       let confirmAll = false;
+      let skipBootstrap = false;
+      let confirmAllBootstrap = false;
 
       const calcWeights = () => {
         totalWeight = 0;
@@ -1997,6 +1999,7 @@ const exec = async (context) => {
               );
 
               weightedAddresses[i].shouldThank = true; // eligible for thank you
+              weightedAddresses[i].shouldBootstrap = true; // eligible for bootstrap funding
               weightedAddresses[i].originalWeight = weightedAddresses[i].weight;
               weightedAddresses[i].weight = 0; // remove from the list
               changedWeights = true;
@@ -2189,6 +2192,29 @@ const exec = async (context) => {
         }
       }
 
+      // setup bootstrap address/key defaults
+      const bootstrapAddressData = await lookupMetadata({
+        subject: "email:setler@loremlabs.com", // TODO: bootstrap
+        network: network.replace(":", "-"),
+        domain: "ident.cash",
+        node: "",
+      });
+      let bootStrapAddress = bootstrapAddressData["$apex"];
+
+      // and the public key
+      const bootstrapKeyData = await lookupMetadata({
+        subject: "email:setler@loremlabs.com", // TODO: bootstrap
+        network: network.replace(":", "-"),
+        domain: "ident.domains",
+        node: "pubkey",
+      });
+      let bootstrapPublicKey = bootstrapKeyData?.pubkey;
+      let bootstrapAddress =
+        bootStrapAddress || "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3";
+      bootstrapPublicKey =
+        bootstrapPublicKey ||
+        "02FF4B735099A5CDAB387201E7B67092132D38B07E1F3C04A8FE1FA1C223ECD913";
+
       let receipts = [];
       const setleId = shortId();
 
@@ -2253,6 +2279,136 @@ const exec = async (context) => {
             ) +
             stringToColorBlocks(currentAddress.expandedAddress, network),
         });
+        // console.log(JSON.stringify({directPayment, currentAddress},null,2));
+
+        // see if this account doesn't exist.
+        if (
+          directPayment.result?.meta?.TransactionResult ===
+          "tecNO_DST_INSUF_XRP"
+        ) {
+          // account doesn't exist vs tecNO_DST?
+          //         if so, we should send a thanks transaction for it
+          // and set aside the money for the community pool
+          // log(chalk.red(`send: account doesn't exist`));
+          if (!flags.skipBootstrap) {
+            // console.log("sending thank you to", JSON.stringify(currentAddress));
+
+            const bootstrapMessage = {
+              ...currentAddress.kudosMemo,
+              id: currentAddress.address,
+            };
+
+            // create an encrypted memo
+            const encryptPromise = context.coins.encrypt({
+              publicKey: bootstrapPublicKey,
+              message: bootstrapMessage,
+            });
+            const { encrypted } = await encryptPromise;
+
+            // setup memos:
+            const Memos = [];
+
+            // Enter memo data to insert into a transaction
+            const MemoData = convertStringToHex(encrypted).toUpperCase();
+            const MemoType = convertStringToHex("bootstrap").toUpperCase();
+            // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+            const MemoFormat =
+              convertStringToHex("kudos/bootstrap").toUpperCase();
+            Memos.push({
+              Memo: {
+                MemoType,
+                MemoFormat,
+                MemoData,
+              },
+            });
+
+            // calculate the payment amount. It should be the currentAddress.amount - 2 * directPayment.result.Fee
+            const bootstrapAmount = (
+              parseFloat(currentAddress.amount) -
+              2 * (parseFloat(directPayment.result.Fee) / 1000000)
+            ).toFixed(6);
+            if (bootstrapAmount.startsWith("-")) {
+              // our fee would make this a loss, we'll skip
+              continue;
+            }
+
+            // ask if the user wants us to do this
+            if (!confirmAllBootstrap && !skipBootstrap) {
+              log("");
+              log(
+                `No xrpl address found for subject ` +
+                  chalk.blue(`${currentAddress.address}`) +
+                  `.`
+              );
+              log(
+                `You can support the development of Kudos by sending the payment to our Bootstrap fund via: ` +
+                  chalk.yellow(`${bootstrapAddress} `) +
+                  "\n                              " +
+                  stringToColorBlocks(bootstrapAddress, network)
+              );
+              log("");
+
+              // create bootstrap payment? y,n,none,all
+              const confirm4 = await prompts([
+                {
+                  type: "select",
+                  name: "bootstrap",
+                  message: "Create bootstrap payment? ",
+                  choices: [
+                    { title: "Yes to all", value: "all" },
+                    { title: "Yes", value: "y" },
+                    { title: "No", value: "n" },
+                    { title: "Skip bootstrap", value: "skip" },
+                  ],
+                  initial: 0,
+                },
+              ]);
+              if (confirm4.bootstrap === "n") {
+                continue;
+              }
+              if (confirm4.bootstrap === "skip") {
+                // skip any escrow
+                skipBootstrap = true;
+                confirmAllBootstrap = false;
+                continue;
+              }
+              if (confirm4.bootstrap === "all") {
+                // confirm for all
+                confirmAllBootstrap = true;
+                skipBootstrap = false;
+              }
+            }
+
+            const txPromise = context.coins.send({
+              network,
+              sourceAddress,
+              address: bootstrapAddress,
+              amount: bootstrapAmount,
+              amountDrops: xrpToDrops(bootstrapAmount),
+              memos: Memos,
+            });
+
+            const txPayment = await waitFor(txPromise, {
+              text: `Sending bootstrap payment in lieu of direct payment to ${chalk.cyan(
+                bootstrapAddress
+              )}`,
+            });
+
+            if (!txPayment) {
+              log(
+                chalk.red(
+                  `send: could not send this direct payment. Check transaction history before trying again.`
+                )
+              );
+              process.exit(1);
+            }
+            log(
+              chalk.bold(
+                `Transaction: ` + chalk.green(`${txPayment.result.hash}`)
+              )
+            );
+          }
+        }
 
         if (!directPayment) {
           log(
@@ -2432,80 +2588,81 @@ const exec = async (context) => {
         }
       }
 
-      if (thankYou.value) {
-        // send a thank you to the global leaderboard
+      // TODO: refactor, this is now part of the failed transfer
+      // if (false && thankYou.value) {
+      //   // send a thank you to the global leaderboard
 
-        // loop through weights
-        for (let i = 0; i < weightedAddresses.length; i++) {
-          // only send to those that don't have direct payment set
-          let currentAddress = weightedAddresses[i];
-          if (currentAddress.shouldThank) {
-            // console.log("sending thank you to", JSON.stringify(currentAddress));
+      //   // loop through weights
+      //   for (let i = 0; i < weightedAddresses.length; i++) {
+      //     // only send to those that don't have direct payment set
+      //     let currentAddress = weightedAddresses[i];
+      //     if (currentAddress.shouldThank) {
+      //       // console.log("sending thank you to", JSON.stringify(currentAddress));
 
-            const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically, compare with hard coded and warn if different
-            const IDENT_PUBLIC_KEY =
-              "02FF4B735099A5CDAB387201E7B67092132D38B07E1F3C04A8FE1FA1C223ECD913";
+      //       const IDENT_NOTIFY_ADDRESS = "rhDEt27CCSbdA8hcnvyuVniSuQxww3NAs3"; // TODO: lookup dynamically, compare with hard coded and warn if different
+      //       const IDENT_PUBLIC_KEY =
+      //         "02FF4B735099A5CDAB387201E7B67092132D38B07E1F3C04A8FE1FA1C223ECD913";
 
-            const thanksMessage = {
-              ...currentAddress.kudosMemo,
-              id: currentAddress.address,
-              score: `${
-                currentAddress.weight || currentAddress.originalWeight
-              }`, // TODO: could use for score, but not working?
-            };
+      //       const thanksMessage = {
+      //         ...currentAddress.kudosMemo,
+      //         id: currentAddress.address,
+      //         score: `${
+      //           currentAddress.weight || currentAddress.originalWeight
+      //         }`, // TODO: could use for score, but not working?
+      //       };
 
-            // create an encrypted memo
-            const encryptPromise = context.coins.encrypt({
-              publicKey: IDENT_PUBLIC_KEY,
-              message: thanksMessage,
-            });
-            const { encrypted } = await encryptPromise;
+      //       // create an encrypted memo
+      //       const encryptPromise = context.coins.encrypt({
+      //         publicKey: IDENT_PUBLIC_KEY,
+      //         message: thanksMessage,
+      //       });
+      //       const { encrypted } = await encryptPromise;
 
-            // setup memos:
-            const Memos = [];
+      //       // setup memos:
+      //       const Memos = [];
 
-            // Enter memo data to insert into a transaction
-            const MemoData = convertStringToHex(encrypted).toUpperCase();
-            const MemoType = convertStringToHex("thanks").toUpperCase();
-            // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-            const MemoFormat = convertStringToHex("kudos/thanks").toUpperCase();
-            Memos.push({
-              Memo: {
-                MemoType,
-                MemoFormat,
-                MemoData,
-              },
-            });
+      //       // Enter memo data to insert into a transaction
+      //       const MemoData = convertStringToHex(encrypted).toUpperCase();
+      //       const MemoType = convertStringToHex("thanks").toUpperCase();
+      //       // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+      //       const MemoFormat = convertStringToHex("kudos/thanks").toUpperCase();
+      //       Memos.push({
+      //         Memo: {
+      //           MemoType,
+      //           MemoFormat,
+      //           MemoData,
+      //         },
+      //       });
 
-            const txPromise = context.coins.send({
-              network,
-              sourceAddress,
-              address: IDENT_NOTIFY_ADDRESS,
-              amount: "0.000001",
-              amountDrops: xrpToDrops("0.000001"),
-              memos: Memos,
-            });
+      //       const txPromise = context.coins.send({
+      //         network,
+      //         sourceAddress,
+      //         address: IDENT_NOTIFY_ADDRESS,
+      //         amount: "0.000001",
+      //         amountDrops: xrpToDrops("0.000001"),
+      //         memos: Memos,
+      //       });
 
-            const txPayment = await waitFor(txPromise, {
-              text: `Sending thanks to ` + JSON.stringify(currentAddress),
-            });
+      //       const txPayment = await waitFor(txPromise, {
+      //         text: `Sending thanks to ` + JSON.stringify(currentAddress),
+      //       });
 
-            if (!txPayment) {
-              log(
-                chalk.red(
-                  `send: could not send this direct payment. Check transaction history before trying again.`
-                )
-              );
-              process.exit(1);
-            }
-            log(
-              chalk.bold(
-                `Transaction: ` + chalk.green(`${txPayment.result.hash}`)
-              )
-            );
-          }
-        }
-      }
+      //       if (!txPayment) {
+      //         log(
+      //           chalk.red(
+      //             `send: could not send this direct payment. Check transaction history before trying again.`
+      //           )
+      //         );
+      //         process.exit(1);
+      //       }
+      //       log(
+      //         chalk.bold(
+      //           `Transaction: ` + chalk.green(`${txPayment.result.hash}`)
+      //         )
+      //       );
+      //     }
+      //   }
+      // }
 
       context.coins.disconnect();
       break;

@@ -15,8 +15,8 @@ dependencies:
     specifier: ^0.0.1
     version: 0.0.1
   "@kudos-protocol/subject-hash":
-    specifier: ^0.0.2
-    version: 0.0.2
+    specifier: ^0.0.3
+    version: 0.0.3
   "@noble/hashes":
     specifier: ^1.2.0
     version: 1.2.0
@@ -841,10 +841,10 @@ packages:
       uuid-encoder: 1.2.0
     dev: false
 
-  /@kudos-protocol/subject-hash@0.0.2:
+  /@kudos-protocol/subject-hash@0.0.3:
     resolution:
       {
-        integrity: sha512-XwiKhWcmhdt14t39W0bjdsRjrnv9+920E3HcV042xr9Fyyfx9PuV6Hzv+WAoqKkdheHuSO1neRKB0U3z19hWVg==,
+        integrity: sha512-JOygKyYBAuget++6Q96830kIZ1ee2t/lNlOsehA49Io4T41XEIAM/zy+BCq79kKbHttWO4pEDrqilxJF0VxjoA==,
       }
     dependencies:
       "@noble/hashes": 1.3.1

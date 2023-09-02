@@ -140,7 +140,7 @@ export async function deriveKeys({
   // generate hierarchical deterministic key
   const hdkey = createHdKeyFromMnemonic(mnemonic, passPhrase);
 
-  manager.xrpl = await deriveXrplKeys({ mnemonic, hdkey, id });
+  manager.xrpl = await deriveXrplKeys({ mnemonic, hdkey, id }); // why is this hdkey and not passPhrase?
   manager.kudos = await deriveKudosKeys({ mnemonic, passPhrase, id });
   manager.id = id ? id : 0;
 
