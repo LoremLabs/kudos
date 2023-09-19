@@ -69,7 +69,7 @@
       // https://kit.svelte.dev/docs#routing-params
 
       openShell(
-        'https://www.loremlabs.com/?app=setler&utm_campaign=app&utm_src=setler'
+        'https://www.loremlabs.com/?app=setler&utm_campaign=app&utm_source=setler'
       );
     });
 

@@ -135,7 +135,7 @@
 			Setler CLI is a non-custodial identity wallet that is used to send and receive payments as
 			well as "setling" kudos. Setling (intentional new spelling) is the act of distributing a fixed
 			amount to a "pool" of identities. This pool is the accumulation of <a
-				href="https://www.kudos.community/?utm_src=setler">kudos</a
+				href="https://www.kudos.community/?utm_source=setler">kudos</a
 			>
 			which includes an identity identifier. Because the wallet is non-custodial, the user is in control
 			of their own funds and can send and receive payments as well as setle kudos without the need for
@@ -254,7 +254,7 @@
 			/>
 
 			Setler uses the
-			<a class="underline" target="_blank" href="https://www.ident.agency/?utm_src=setler"
+			<a class="underline" target="_blank" href="https://www.ident.agency/?utm_source=setler"
 				>Ident.Agency</a
 			>
 			to lookup identities and their corresponding wallet addresses.

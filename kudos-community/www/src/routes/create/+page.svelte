@@ -157,7 +157,7 @@
 						<button
 							class="bg-white p-8 sm:p-10 group-hover:bg-primary/10 cursor-pointer"
 							on:click={() => {
-								window.open('https://www.semicolons.com/?utm_src=kudos', '_blank');
+								window.open('https://www.semicolons.com/?utm_source=kudos', '_blank');
 							}}
 						>
 							<img
