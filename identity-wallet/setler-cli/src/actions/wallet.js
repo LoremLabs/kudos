@@ -460,15 +460,15 @@ const exec = async (context) => {
               chalk.blue(`${walletAddress}`) +
               ` on ` +
               chalk.magenta(`${network}\n`) +
-              " ".repeat(`To fund this wallet you will need to transfer XRP to the address: `.length) +
+              " ".repeat(
+                `To fund this wallet you will need to transfer XRP to the address: `
+                  .length
+              ) +
               stringToColorBlocks(walletAddress, network)
-
           )
         );
         process.exit(1);
       }
-
-
 
       // input[2] could be {address}, in which case we should fund that address
       // ask for the address

@@ -2378,7 +2378,9 @@ const exec = async (context) => {
             const Memos = [];
 
             // Enter memo data to insert into a transaction
-            const MemoData = convertStringToHex(JSON.stringify(encrypted)).toUpperCase();
+            const MemoData = convertStringToHex(
+              JSON.stringify(encrypted)
+            ).toUpperCase();
             const MemoType = convertStringToHex("bootstrap").toUpperCase();
             // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
             const MemoFormat =
