@@ -46,6 +46,20 @@ You can also receive payments to your wallet with:
 % npx @loremlabs/setler wallet receive
 ```
 
+### Network
+
+By default the wallet will use the testnet. You can switch to the livenet with:
+
+```
+% npx @loremlabs/setler config network set xrpl:livenet
+```
+
+You can also pass in the `--network` flag to any command to override the default network:
+
+```
+% npx @loremlabs/setler wallet fund --network xrpl:testnet
+```
+
 ### Kudos
 
 You can create kudos with:
@@ -98,4 +112,12 @@ You can also setle kudos from a URL containing an ndjson list of kudos with:
 
 ```
 % npx @loremlabs/setler kudos send --url https://raw.githubusercontent.com/loremlabs/kudos/main/docs/example-kudos.ndjson
+```
+
+### Setle: Distributing Funds directly to a Subject
+
+You can also setle kudos directly to a subject with:
+
+```
+% npx @loremlabs/setler kudos send --to "email:someone@example.com"
 ```
