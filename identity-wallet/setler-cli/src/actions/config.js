@@ -254,7 +254,10 @@ const exec = async (context) => {
     }
     default: {
       // usage
-      log(chalk.bold(`Usage: setler config [get|endpoint|ident|auth]`));
+      log(chalk.bold(`Usage: setler config [get|endpoint|ident|auth|network]`));
+
+      // example
+      log(chalk.bold(`Example: setler config network set`));
       break;
     }
   }
