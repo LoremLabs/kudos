@@ -9,7 +9,6 @@ import * as ledger from "./ledger.js";
 import * as message from "./message.js";
 import * as ns from "./ns.js";
 import * as pool from "./pool.js";
-import * as send from "./send.js";
 import * as wallet from "./wallet.js";
 import * as whoami from "./whoami.js";
 
@@ -23,7 +22,6 @@ export {
   message,
   ns,
   pool,
-  send,
   wallet,
   whoami,
 };
