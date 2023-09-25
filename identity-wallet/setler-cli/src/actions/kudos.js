@@ -1129,7 +1129,15 @@ const exec = async (context) => {
       let shouldAddKudosCreators =
         context.flags.dontSendKudosToSetlerTeam !== true; // defaults to send kudos to setler team
 
-      if (context.flags.url) {
+      if (context.flags.to) {
+        let kudosMemo = {};
+        let address = context.flags.to; // email:matt@...
+        let weight = 1.0;
+
+        kudosMemos.push(kudosMemo);
+        addresses.push(address);
+        weights.push(weight);
+      } else if (context.flags.url) {
         // fetch url
         const url = context.flags.url;
         const response = await fetch(url);
@@ -1352,6 +1360,13 @@ const exec = async (context) => {
             packageName: kudo.packageName,
             type: kudo.type,
           };
+          // truncate fields to no more than 200 chars, full memodata limited to < 1k
+          // could probably do this more equitably, but this is a start
+          for (const key in kudosMemo) {
+            if (kudosMemo[key] && kudosMemo[key].length > 200) {
+              kudosMemo[key] = kudosMemo[key].substring(0, 200);
+            }
+          }
           kudosMemos.push(kudosMemo);
           addresses.push(address);
           weights.push(weight);
@@ -1390,6 +1405,13 @@ const exec = async (context) => {
             if (thisWeight > 1) {
               thisWeight = 1;
             }
+
+            // add in kudos memo
+            const kudosMemo = {
+              ua: `setler/${context.version || "0.0.0"}`,
+              type: "kudos/infra",
+            };
+            kudosMemos.push(kudosMemo);
 
             if (thisWeight > 0) {
               addresses.push(setlerCreator);
@@ -1818,6 +1840,8 @@ const exec = async (context) => {
       // addresses can be an xrpl address, or a did subject (email:...) if they're not, we should error
       log("");
 
+      // TODO: lookup all of these all at once and then ask for individual confirmation, should be faster?
+
       // loop through addresses and expand if needed
       for (let i = 0; i < weightedAddresses.length; i++) {
         const address = weightedAddresses[i];
@@ -2240,15 +2264,60 @@ const exec = async (context) => {
         // setup memos:
         const Memos = [];
 
+        const subject = currentAddress.address;
+
+        // we attempt to lookup the public key for this address
+        // if it exists, we encrypt extra information in the memo
+        const pubKeyData = await lookupMetadata({
+          subject,
+          network,
+          domain: "ident.domains",
+          node: "pubkey",
+        });
+        let currentAddressPublicKey = pubKeyData?.pubkey;
+        if (!currentAddressPublicKey && !context.flags.skipMemo) {
+          // default to the bootstrap key to be able to show in ui
+          // NB: makes this data available to the bootstrap account
+          currentAddressPublicKey = bootstrapPublicKey;
+        }
+
+        if (context.debug) {
+          log(
+            chalk.gray(
+              `send: pubkey for ${subject} on ${network}: ${currentAddressPublicKey}`
+            )
+          );
+        }
+
+        // see if we have a public key, if so, create an encrypted memo
+        let memoValue = JSON.stringify({});
+        let memoMime = "application/json"; // application/octet-stream
+
+        if (
+          currentAddressPublicKey &&
+          currentAddress.kudosMemo &&
+          !context.flags.skipMemo
+        ) {
+          // create an encrypted memo
+          const encryptPromise = context.coins.encrypt({
+            publicKey: currentAddressPublicKey,
+            message: {
+              ...currentAddress.kudosMemo,
+              subject: currentAddress.address.slice(0, 200),
+            },
+          });
+          const { encrypted } = await encryptPromise;
+
+          memoValue = JSON.stringify(encrypted); // adds quotes
+          memoMime = "kudos/enc";
+        }
+
+        // console.log('debug', {memoValue, memoMime, currentAddressPublicKey, currentAddress, network, sourceAddress, address: currentAddress.expandedAddress, amount: currentAddress.amount, amountDrops: currentAddress.amountDrops});
+
         // Enter memo data to insert into a transaction
-        const MemoData = convertStringToHex(
-          JSON.stringify({
-            // TODO: do we want this at all?
-          })
-        ).toUpperCase();
+        const MemoData = convertStringToHex(memoValue).toUpperCase();
         const MemoType = convertStringToHex("kudos").toUpperCase();
-        // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-        const MemoFormat = convertStringToHex("application/json").toUpperCase();
+        const MemoFormat = convertStringToHex(memoMime).toUpperCase();
         Memos.push({
           Memo: {
             MemoType,
@@ -2295,7 +2364,7 @@ const exec = async (context) => {
 
             const bootstrapMessage = {
               ...currentAddress.kudosMemo,
-              id: currentAddress.address,
+              subject: currentAddress.address.slice(0, 200),
             };
 
             // create an encrypted memo
@@ -2309,7 +2378,7 @@ const exec = async (context) => {
             const Memos = [];
 
             // Enter memo data to insert into a transaction
-            const MemoData = convertStringToHex(encrypted).toUpperCase();
+            const MemoData = convertStringToHex(JSON.stringify(encrypted)).toUpperCase();
             const MemoType = convertStringToHex("bootstrap").toUpperCase();
             // MemoFormat values: # MemoFormat values: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
             const MemoFormat =
