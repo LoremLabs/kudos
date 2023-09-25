@@ -9,6 +9,19 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.24] - 2023-09-25
+
+### Removed
+
+- Removed unused `send` top level command
+
+### Added
+
+- Added `setler kudos send --to email:me@example.com` to send directly to a subject.
+- Readme now includes information on changing the default network.
+- Readme includes information on sending directly to a subject.
+- Kudos memodata now includes encrypted kudos information in memo using subject's pubkey or bootstrap's default.
+
 ## [0.0.23] - 2023-09-02
 
 ### Added

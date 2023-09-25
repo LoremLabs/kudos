@@ -1,6 +1,6 @@
 {
   "name": "@loremlabs/setler",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "setler command-line tool, a non-custodial identity wallet with kudos support",
   "license": "MIT",
   "type": "module",
@@ -92,7 +92,7 @@
   },
   "homepage": "https://github.com/LoremLabs/kudos/tree/main/identity-wallet/setler-cli#readme",
   "author": {
-    "name": "matt mankins",
-    "email": "mankins@gmail.com"
+    "name": "Lorem Labs",
+    "email": "setler@loremlabs.com"
   }
 }
