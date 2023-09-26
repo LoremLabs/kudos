@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.26] - 2023-09-26
+
+### Changed
+
+- move dependency from dev to regular
+
 ## [0.0.25] - 2023-09-26
 
 ### Added
