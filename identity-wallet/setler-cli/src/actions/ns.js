@@ -20,7 +20,8 @@ const exec = async (context) => {
     case "lookup":
     case "get": {
       await gatekeep(context);
-      const network = context.flags.network || "xrpl:testnet";
+      const network =
+        context.flags.network || context.config.network || "xrpl:testnet";
 
       const domain = context.flags.domain || "ident.cash";
 

@@ -81,7 +81,16 @@ export const gatekeep = async (
 
   // see if we have a pw as a flag or process.env
   let userPw = context.flags.password || process.env.SETLER_PASSWORD; // TODO: not a good idea?
-  const envKey = context.config.auth[`SETLER_KEYS_${profile}`];
+  if (context.flags.noPassword) {
+    // always a password, but use this one as a default
+    userPw = "password";
+  }
+  const envKey =
+    context.config.auth[
+      `SETLER_KEYS_${
+        parseInt(context.scope, 10) ? context.scope + "_" : ""
+      }${profile}`
+    ];
 
   const hasEnvKey = envKey ? true : false;
 
@@ -94,52 +103,67 @@ export const gatekeep = async (
         process.exit(1);
       }
 
-      // prompt to set one
-      const response = await prompts([
-        {
-          type: "confirm",
-          name: "ok",
-          message: `A password is required to continue. Set ${scope} password?`,
-          initial: false,
-        },
-      ]);
-      if (!response.ok) {
-        process.exit(1);
+      if (userPw) {
+        const bcrypted = await bcrypt.hash(userPw, 12);
+        await keytar.setPassword(
+          "Setler",
+          `${scope ? scope : ""}pass`,
+          bcrypted
+        );
+        hash = await keytar.getPassword("Setler", `${scope ? scope : ""}pass`);
       } else {
-        // set a password
+        // prompt to set one
         const response = await prompts([
           {
-            type: "password",
-            name: "password",
-            message: `Setler Password: `,
-            initial: false,
-          },
-          {
-            type: "password",
-            name: "password2",
-            message: `Confirm Password: `,
+            type: "confirm",
+            name: "ok",
+            message: `A password is required to continue. Set scope ${parseInt(
+              scope,
+              10
+            )}'s password?`,
             initial: false,
           },
         ]);
-        if (
-          response &&
-          response.password &&
-          response.password === response.password2
-        ) {
-          const bcrypted = await bcrypt.hash(response.password, 12);
-          await keytar.setPassword(
-            "Setler",
-            `${scope ? scope : ""}pass`,
-            bcrypted
-          );
-          log(chalk.green(`Password set`));
-          hash = await keytar.getPassword(
-            "Setler",
-            `${scope ? scope : ""}pass`
-          );
-        } else if (response.password !== response.password2) {
-          log(chalk.red(`Passwords do not match`));
+        if (!response.ok) {
           process.exit(1);
+        } else {
+          // set a password
+          const response = await prompts([
+            {
+              type: "password",
+              name: "password",
+              message: `Setler Password: `,
+              initial: false,
+            },
+            {
+              type: "password",
+              name: "password2",
+              message: `Confirm Password: `,
+              initial: false,
+            },
+          ]);
+
+          if (
+            response &&
+            response.password &&
+            response.password === response.password2
+          ) {
+            const bcrypted = await bcrypt.hash(response.password, 12);
+            userPw = response.password;
+            await keytar.setPassword(
+              "Setler",
+              `${scope ? scope : ""}pass`,
+              bcrypted
+            );
+            log(chalk.green(`Password set`));
+            hash = await keytar.getPassword(
+              "Setler",
+              `${scope ? scope : ""}pass`
+            );
+          } else if (response.password !== response.password2) {
+            log(chalk.red(`Passwords do not match`));
+            process.exit(1);
+          }
         }
       }
     }
@@ -200,7 +224,9 @@ export const gatekeep = async (
     }).data;
     // log(`Looking for: ${JSON.stringify(envPaths("setler"))}`);
     const seedFile = `${configDir}/state/setlr-${scope}.seed`;
-
+    if (context.debug) {
+      log(chalk.gray(`Looking for seed file: ${seedFile}`));
+    }
     const createSeed = async () => {
       if (!shouldCreate) {
         log(chalk.red(`No seed found for ${scope}`));
@@ -253,7 +279,9 @@ export const gatekeep = async (
     };
 
     let mnemonic = "";
-    // log(`Looking for seed file: ${seedFile}`);
+    if (context.debug) {
+      log(chalk.gray(`Looking for seed file: ${seedFile}`));
+    }
     if (fs.existsSync(seedFile)) {
       const data = fs.readFileSync(seedFile, "utf8");
       // log(`Seed found for ${profile}: ${data} salt: ${salt}`);
@@ -276,8 +304,19 @@ export const gatekeep = async (
     context.mnemonic = mnemonic;
   };
 
+  if (hasEnvKey && shouldCreate) {
+    log(
+      chalk.red(
+        `Cannot create a new wallet with an env key. unset ${`SETLER_KEYS_${profile}`} ${envKey}? to continue`
+      )
+    );
+    process.exit(1);
+  }
+
   if (secureMode) {
+    // log(chalk.yellow(`--secure mode--`));
     if (!hasEnvKey) {
+      // log(chalk.yellow(`--no env key--`));
       await checkConfig();
     } else if (!context.flags.skipLocalConfig) {
       // read in salt without user input
@@ -291,6 +330,9 @@ export const gatekeep = async (
           suffix: "",
         }).data;
         const seedFile = `${configDir}/state/setlr-${scope}.seed`;
+        if (context.debug) {
+          log(chalk.gray(`Looking for seed file: ${seedFile}`));
+        }
         if (fs.existsSync(seedFile)) {
           const data = fs.readFileSync(seedFile, "utf8");
           if (data) {

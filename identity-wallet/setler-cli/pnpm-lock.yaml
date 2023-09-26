@@ -166,6 +166,9 @@ devDependencies:
   prettier:
     specifier: 2.4.1
     version: 2.4.1
+  xrpl-tagged-address-codec:
+    specifier: ^0.2.1
+    version: 0.2.1
 
 packages:
   /@babel/code-frame@7.18.6:
@@ -1278,6 +1281,13 @@ packages:
       {
         integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==,
       }
+
+  /base-x@1.1.0:
+    resolution:
+      {
+        integrity: sha512-c0WLeG3K5OlL4Skz2/LVdS+MjggByKhowxQpG+JpCLA48s/bGwIDyzA1naFjywtNvp/37fLK0p0FpjTNNLLUXQ==,
+      }
+    dev: true
 
   /base-x@3.0.9:
     resolution:
@@ -2922,7 +2932,6 @@ packages:
     dependencies:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
-    dev: false
 
   /hmac-drbg@1.0.1:
     resolution:
@@ -3735,7 +3744,6 @@ packages:
       {
         integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==,
       }
-    dev: false
 
   /minimalistic-crypto-utils@1.0.1:
     resolution:
@@ -4535,6 +4543,17 @@ packages:
       inherits: 2.0.4
     dev: false
 
+  /ripple-address-codec@2.0.1:
+    resolution:
+      {
+        integrity: sha512-vTyIpxqLRVnhJWvxEpKLc17EjZVQkw8UiOYCMnhVFcu5EwUijL/0LJMbuNmw0o2bdzaAxgoOcWvMSnwea5+F+g==,
+      }
+    engines: { node: ">=0.12.0" }
+    dependencies:
+      hash.js: 1.1.7
+      x-address-codec: 0.7.2
+    dev: true
+
   /ripple-address-codec@4.2.5:
     resolution:
       {
@@ -5302,6 +5321,16 @@ packages:
         optional: true
     dev: false
 
+  /x-address-codec@0.7.2:
+    resolution:
+      {
+        integrity: sha512-PhjUB6v8oFDTxQKJbemVhTn5Y4lDgP9jAMxkypZmDR/iuE8oGoZfeZoy93d2o/uk6xQ0JNzln5R+/evBmHMVtg==,
+      }
+    engines: { node: ">=0.12.0" }
+    dependencies:
+      base-x: 1.1.0
+    dev: true
+
   /xdg-basedir@4.0.0:
     resolution:
       {
@@ -5309,6 +5338,15 @@ packages:
       }
     engines: { node: ">=8" }
     dev: false
+
+  /xrpl-tagged-address-codec@0.2.1:
+    resolution:
+      {
+        integrity: sha512-M08cVxORk4gd3bXmPc4B0BOvkKKrzrSyd1TtpAiR4WpfQqaAShd0EBTliiZrrf6nMznfTX1h+Wy27L8JaZPbKg==,
+      }
+    dependencies:
+      ripple-address-codec: 2.0.1
+    dev: true
 
   /xrpl@2.7.0:
     resolution:

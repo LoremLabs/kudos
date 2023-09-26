@@ -141,7 +141,9 @@ Vault.prototype.keys = async function () {
   // seed from env variable, base64decoded
   const envKey =
     this.context.config.auth[
-      `SETLER_KEYS_${parseInt(this.context.profile, 10)}`
+      `SETLER_KEYS_${
+        parseInt(this.context.scope, 10) ? this.context.scope + "_" : ""
+      }${parseInt(this.context.profile, 10)}`
     ];
   this.context.keysEnv = this.context.keysEnv || {};
   this.context.keys = this.context.keys || {};

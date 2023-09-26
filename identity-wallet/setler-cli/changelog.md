@@ -9,6 +9,19 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.25] - 2023-09-26
+
+### Added
+
+- Scope now works through more functions allowing for multiple mnemonic wallets to be used.
+- noPassword option for `setler wallet init` to allow for automated wallet creation with password of "password". This is not recommended for production use, but helps standardize seeds.
+- SourceTag now included to identify transactions as coming from the Kudos Setler.
+- X-addresses now supported for sending
+
+### Changed
+
+- Minimums for `setler kudos send` are now 2 \* the current send fee.
+
 ## [0.0.24] - 2023-09-25
 
 ### Removed

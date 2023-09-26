@@ -81,11 +81,23 @@ const exec = async (context) => {
       // SETLER_KEYS_0="e..."
       config.auth = config.auth || {};
 
+      let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
+      scope = parseInt(scope, 10);
+      context.scope = `${scope}`;
+
       if (context.input[2] === "get") {
         const profile = context.profile || 0;
         const keys =
-          config.auth?.[`SETLER_KEYS_${profile}`] ||
-          process.env[`SETLER_KEYS_${profile}`];
+          config.auth?.[
+            `SETLER_KEYS_${
+              parseInt(context.scope, 10) ? context.scope + "_" : ""
+            }${profile}`
+          ] ||
+          process.env[
+            `SETLER_KEYS_${
+              parseInt(context.scope, 10) ? context.scope + "_" : ""
+            }${profile}`
+          ];
 
         log(`SETLER_KEYS_${profile}="${keys}"`);
 
@@ -106,18 +118,36 @@ const exec = async (context) => {
               {
                 type: "text",
                 name: "token",
-                message: `Enter SETLER_KEYS_${profile}: `,
+                message: `Enter SETLER_KEYS_${
+                  parseInt(context.scope, 10) ? context.scope + "_" : ""
+                }${profile}: `,
                 initial:
-                  process.env[`SETLER_KEYS_${profile}`] ||
-                  config.auth?.[`SETLER_KEYS_${profile}`],
+                  process.env[
+                    `SETLER_KEYS_${
+                      parseInt(context.scope, 10) ? context.scope + "_" : ""
+                    }${profile}`
+                  ] ||
+                  config.auth?.[
+                    `SETLER_KEYS_${
+                      parseInt(context.scope, 10) ? context.scope + "_" : ""
+                    }${profile}`
+                  ],
               },
             ]);
             if (!response.token) {
               process.exit(1);
             }
-            config.auth[`SETLER_KEYS_${profile}`] = response.token;
+            config.auth[
+              `SETLER_KEYS_${
+                parseInt(context.scope, 10) ? context.scope + "_" : ""
+              }${profile}`
+            ] = response.token;
           } else {
-            config.auth[`SETLER_KEYS_${profile}`] = token;
+            config.auth[
+              `SETLER_KEYS_${
+                parseInt(context.scope, 10) ? context.scope + "_" : ""
+              }${profile}`
+            ] = token;
           }
 
           // write

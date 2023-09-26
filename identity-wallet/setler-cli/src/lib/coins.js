@@ -4,6 +4,7 @@ import cryptoCondition from "five-bells-condition"; // TODO: use crypto-conditio
 import fetch from "node-fetch";
 import xrpl from "xrpl";
 import { bytesToHex } from "@noble/hashes/utils";
+import { Decode as XAddressDecode } from "xrpl-tagged-address-codec";
 
 import { encrypt, decrypt } from "eciesjs";
 import { EventEmitter } from "events";
@@ -325,7 +326,19 @@ class Coins extends EventEmitter {
       Account: wallet.classicAddress,
       Amount: xrpl.xrpToDrops(amount),
       Destination: address,
+      SourceTag: 75856879, // kudo (no such thing as a kudo...h/t stpeter)
     };
+
+    // see if our destination is an xAddress and if so add the destination tag
+    if (address.startsWith("X")) {
+      const xAddress = XAddressDecode(address);
+      if (xAddress.tag) {
+        tx.DestinationTag = Number(xAddress.tag);
+      }
+      if (xAddress.account) {
+        tx.Destination = xAddress.account;
+      }
+    }
 
     // Prepare transaction -------------------------------------------------------
     const prepared = await client.autofill(tx);
@@ -351,7 +364,21 @@ class Coins extends EventEmitter {
       Account: wallet.classicAddress,
       Amount: xrpl.xrpToDrops(amount),
       Destination: address,
+      SourceTag: 75856879, // kudo (no such thing as a kudo...h/t stpeter)
     };
+
+    // see if our destination is an xAddress and if so add the destination tag
+    if (address.startsWith("X")) {
+      const xAddress = XAddressDecode(address);
+      if (xAddress.tag) {
+        tx.DestinationTag = Number(xAddress.tag);
+      }
+      if (xAddress.account) {
+        tx.Destination = xAddress.account;
+      }
+      // console.log("xAddress", xAddress);
+      // console.log("tx", tx);
+    }
 
     if (memos) {
       tx.Memos = memos;
@@ -423,7 +450,19 @@ class Coins extends EventEmitter {
       Amount: xrpl.xrpToDrops(amount),
       Destination: address,
       Memos,
+      SourceTag: 75856879, // kudo (no such thing as a kudo...h/t stpeter)
     };
+
+    // see if our destination is an xAddress and if so add the destination tag
+    if (address.startsWith("X")) {
+      const xAddress = XAddressDecode(address);
+      if (xAddress.tag) {
+        tx.DestinationTag = Number(xAddress.tag);
+      }
+      if (xAddress.account) {
+        tx.Destination = xAddress.account;
+      }
+    }
 
     // console.log("chat tx", tx);
 
@@ -667,7 +706,18 @@ class Coins extends EventEmitter {
       Amount: xrpl.xrpToDrops(amount),
       Destination: address,
       Memos,
+      SourceTag: 75856879, // kudo (no such thing as a kudo...h/t stpeter)
     };
+    // see if our destination is an xAddress and if so add the destination tag
+    if (address.startsWith("X")) {
+      const xAddress = XAddressDecode(address);
+      if (xAddress.tag) {
+        tx.DestinationTag = Number(xAddress.tag);
+      }
+      if (xAddress.account) {
+        tx.Destination = xAddress.account;
+      }
+    }
 
     // Prepare transaction -------------------------------------------------------
     const prepared = await client.autofill(tx);
@@ -766,7 +816,18 @@ class Coins extends EventEmitter {
       Condition: condition,
       // DestinationTag: 12345,
       Memos, // shows up in tx history, used as source for relayto.identifier
+      SourceTag: 75856879, // kudo (no such thing as a kudo...h/t stpeter)
     };
+    // see if our destination is an xAddress and if so add the destination tag
+    if (address.startsWith("X")) {
+      const xAddress = XAddressDecode(address);
+      if (xAddress.tag) {
+        escrowTx.DestinationTag = Number(xAddress.tag);
+      }
+      if (xAddress.account) {
+        escrowTx.Destination = xAddress.account;
+      }
+    }
 
     const prepared = await client.autofill(escrowTx);
     const signed = wallet.sign(prepared);

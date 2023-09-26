@@ -545,7 +545,9 @@ const exec = async (context) => {
 
       if (context.input[2] === "env") {
         // display env var version of key
-        const envKey = `SETLER_KEYS_${parseInt(context.profile, 10)}`;
+        const envKey = `SETLER_KEYS_${
+          parseInt(context.scope, 10) ? context.scope + "_" : ""
+        }${parseInt(context.profile, 10)}`;
         // encodedKeys should be Base64Url encoded JSON of filteredKeys
         const encodedKeys = JSON.stringify(filteredKeys);
         const encodedKeysBase64 =

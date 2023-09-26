@@ -941,7 +941,11 @@ const exec = async (context) => {
           JSON.stringify({ kudos: context.keys.kudos })
         ).toString("base64url");
 
-        log(`SETLER_KEYS_${context.profile}="${kudosKeysExportBase64}"`);
+        log(
+          `SETLER_KEYS_${
+            parseInt(context.scope, 10) ? context.scope + "_" : ""
+          }${context.profile}="${kudosKeysExportBase64}"`
+        );
       }
       break;
     }
@@ -1070,8 +1074,9 @@ const exec = async (context) => {
     case "send": {
       await gatekeep(context);
 
-      const network =
+      let network =
         context.flags.network || context.config.network || "xrpl:testnet";
+      network = network.replace("-", ":"); // nonsense
       const kudosNetwork = context.flags.kudosNetwork || "kudos";
       const keys = await context.vault.keys();
 
@@ -1632,7 +1637,10 @@ const exec = async (context) => {
         text: "Fetching current exchange rate",
       });
 
-      const amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(2);
+      let amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(2);
+      if (amountUsd === "0.00") {
+        amountUsd = parseFloat(amountXrp * exchangeRate).toFixed(5);
+      }
       log(chalk.gray(`\tAmount in usd  : \t$${amountUsd}\n`));
 
       // confirm
@@ -1707,9 +1715,9 @@ const exec = async (context) => {
             (totalDropsBeforeFees * address.weight) / totalWeight
           ); // TODO: validate the drops usage is correct
           // see if we're below minimus threshold
-          if (amountDrops < 750) {
-            // don't try to send less than 0.0000075 XRP
-            // if the amount is less than 0.0000075 XRP, then we need to adjust the weight of this address
+          if (amountDrops < totalFeeEstimateDrops * 2) {
+            // don't try to send less than 2x the fee estimate
+            // if the amount is less than requirement, then we need to adjust the weight of this address
             // and recalculate the weights
             address.weight = 0;
             changedWeights = true;
@@ -1719,7 +1727,9 @@ const exec = async (context) => {
                 165,
                 0
               )(
-                `send: amount for ${address.address} is less than 0.0000075 XRP. Will skip this address.`
+                `send: amount for ${address.address} is less than ${
+                  (totalFeeEstimateDrops * 2) / 1000000
+                } XRP. Will skip this address.`
               )
             );
           }
@@ -1761,6 +1771,11 @@ const exec = async (context) => {
             (creator) => creator.id === address.address
           );
 
+          let amountUsd = parseFloat(address.amount * exchangeRate).toFixed(2);
+          if (amountUsd === "0.00") {
+            amountUsd = parseFloat(address.amount * exchangeRate).toFixed(5);
+          }
+
           let output =
             chalk.blueBright(
               `${address.address} ${" ".repeat(
@@ -1782,9 +1797,7 @@ const exec = async (context) => {
             )}  ` +
             chalk.greenBright(`${address.amount} XRP`) +
             "  ~  " +
-            chalk.cyanBright(
-              `$${parseFloat(address.amount * exchangeRate).toFixed(2)}`
-            ) +
+            chalk.cyanBright(`$${amountUsd}`) +
             (isSetlerCreator ? chalk.yellow("  (setler fee)") : "");
 
           if (isSetlerCreator) {
