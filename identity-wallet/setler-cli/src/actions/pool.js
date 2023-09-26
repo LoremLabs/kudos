@@ -22,7 +22,7 @@ const help = () => {
     "  --profile <profile> - default: 0, 1, 2, ... Same mnemonic, different keys"
   );
   log(
-    "  --scope <scope> - default: 0, 1, 2, ... Different mnemonic, different keys"
+    "  --wallet <wallet> - default: 0, 1, 2, ... Different mnemonic, different keys"
   );
   log("  --passPhrase <passPhrase> - default: ''");
   log("  --yes - default: false");

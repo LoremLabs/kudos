@@ -18,7 +18,7 @@ export const Vault = function ({ context }) {
   this.configDir = envPaths("setler", {
     suffix: "",
   }).data;
-  this.seedFile = `${this.configDir}/state/setlr-${context.scope}.seed`;
+  this.seedFile = `${this.configDir}/state/setlr-${context.wallet}.seed`;
 };
 
 Vault.prototype.set = async function (key, value) {
@@ -142,7 +142,7 @@ Vault.prototype.keys = async function () {
   const envKey =
     this.context.config.auth[
       `SETLER_KEYS_${
-        parseInt(this.context.scope, 10) ? this.context.scope + "_" : ""
+        parseInt(this.context.wallet, 10) ? this.context.wallet + "_" : ""
       }${parseInt(this.context.profile, 10)}`
     ];
   this.context.keysEnv = this.context.keysEnv || {};

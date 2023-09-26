@@ -28,17 +28,17 @@ export const help = () => {
     "  --profile <profile> - default: 0, 1, 2, ... Same mnemonic, different keys"
   );
   log(
-    "  --scope <scope> - default: 0, 1, 2, ... Different mnemonic, different keys"
+    "  --wallet <wallet> - default: 0, 1, 2, ... Different mnemonic, different keys"
   );
   log("  --passPhrase <passPhrase> - default: ''");
   log("  --yes - default: false");
   log("");
   log("Examples:");
-  log("  setler wallet init --profile 0 --scope 5");
-  log("  setler wallet keys --profile 1 --scope 5");
-  log("  setler wallet keys env --filter kudos --profile 1 --scope 5");
-  log("  setler wallet mnemonic --yes --scope 0");
-  log("  setler wallet mnemonic set --scope 1");
+  log("  setler wallet init --profile 0 --wallet 5");
+  log("  setler wallet keys --profile 1 --wallet 5");
+  log("  setler wallet keys env --filter kudos --profile 1 --wallet 5");
+  log("  setler wallet mnemonic --yes --wallet 0");
+  log("  setler wallet mnemonic set --wallet 1");
   log("  setler wallet balance --network xrpl:testnet --profile 0");
   log("");
 
@@ -546,7 +546,7 @@ const exec = async (context) => {
       if (context.input[2] === "env") {
         // display env var version of key
         const envKey = `SETLER_KEYS_${
-          parseInt(context.scope, 10) ? context.scope + "_" : ""
+          parseInt(context.wallet, 10) ? context.wallet + "_" : ""
         }${parseInt(context.profile, 10)}`;
         // encodedKeys should be Base64Url encoded JSON of filteredKeys
         const encodedKeys = JSON.stringify(filteredKeys);

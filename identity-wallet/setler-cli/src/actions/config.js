@@ -81,21 +81,21 @@ const exec = async (context) => {
       // SETLER_KEYS_0="e..."
       config.auth = config.auth || {};
 
-      let scope = context.flags.scope || process.env.SETLER_SCOPE || 0; // changing the scope will generate a new mnemonic and hd wallet
-      scope = parseInt(scope, 10);
-      context.scope = `${scope}`;
+      let wallet = context.flags.wallet || process.env.SETLER_WALLET || 0; // changing the wallet will generate a new mnemonic and hd wallet
+      wallet = parseInt(wallet, 10);
+      context.wallet = `${wallet}`;
 
       if (context.input[2] === "get") {
         const profile = context.profile || 0;
         const keys =
           config.auth?.[
             `SETLER_KEYS_${
-              parseInt(context.scope, 10) ? context.scope + "_" : ""
+              parseInt(context.wallet, 10) ? context.wallet + "_" : ""
             }${profile}`
           ] ||
           process.env[
             `SETLER_KEYS_${
-              parseInt(context.scope, 10) ? context.scope + "_" : ""
+              parseInt(context.wallet, 10) ? context.wallet + "_" : ""
             }${profile}`
           ];
 
@@ -119,17 +119,17 @@ const exec = async (context) => {
                 type: "text",
                 name: "token",
                 message: `Enter SETLER_KEYS_${
-                  parseInt(context.scope, 10) ? context.scope + "_" : ""
+                  parseInt(context.wallet, 10) ? context.wallet + "_" : ""
                 }${profile}: `,
                 initial:
                   process.env[
                     `SETLER_KEYS_${
-                      parseInt(context.scope, 10) ? context.scope + "_" : ""
+                      parseInt(context.wallet, 10) ? context.wallet + "_" : ""
                     }${profile}`
                   ] ||
                   config.auth?.[
                     `SETLER_KEYS_${
-                      parseInt(context.scope, 10) ? context.scope + "_" : ""
+                      parseInt(context.wallet, 10) ? context.wallet + "_" : ""
                     }${profile}`
                   ],
               },
@@ -139,13 +139,13 @@ const exec = async (context) => {
             }
             config.auth[
               `SETLER_KEYS_${
-                parseInt(context.scope, 10) ? context.scope + "_" : ""
+                parseInt(context.wallet, 10) ? context.wallet + "_" : ""
               }${profile}`
             ] = response.token;
           } else {
             config.auth[
               `SETLER_KEYS_${
-                parseInt(context.scope, 10) ? context.scope + "_" : ""
+                parseInt(context.wallet, 10) ? context.wallet + "_" : ""
               }${profile}`
             ] = token;
           }

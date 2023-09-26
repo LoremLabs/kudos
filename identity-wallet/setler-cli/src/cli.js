@@ -62,7 +62,7 @@ const defaultHelp = `
     $ ${personality} wallet
     $ ${personality} wallet help
     $ ${personality} wallet help [command]
-    $ ${personality} wallet init --profile [profile] --scope [scope]
+    $ ${personality} wallet init --profile [profile] --wallet [wallet]
     $ ${personality} wallet keys
     $ ${personality} wallet mnemonic 
     $ ${personality} wallet mnemonic set

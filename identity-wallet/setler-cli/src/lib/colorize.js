@@ -63,7 +63,7 @@ export const paletteSolid = [
 export const stringToColorBlocks = (str, extra) => {
   let extraShift = 0;
   if (extra) {
-    // convert extra into an amount to shift by (for instance to have different colors for different scopes)
+    // convert extra into an amount to shift by (for instance to have different colors for different wallets)
     const chars = extra.split("");
     const ascii = chars.map((char) => char.charCodeAt(0));
     extraShift = ascii.reduce((a, b) => a + b, 0);

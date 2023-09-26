@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.27] - 2023-09-26
+
+### Changed
+
+- renamed --scope to --wallet to be more clear about what it does
+
 ## [0.0.26] - 2023-09-26
 
 ### Changed
