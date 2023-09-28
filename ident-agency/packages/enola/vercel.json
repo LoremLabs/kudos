@@ -1,12 +1,4 @@
 {
 	"crons": [
-		{
-			"path": "/api/v1/calcLeaderboards",
-			"schedule": "*/15 * * * *"
-		},
-		{
-			"path": "/api/v1/events?key=67c32bcc36b35a19aa077f730b98c29b2c2d40aa&network=xrpl:testnet",
-			"schedule": "* * * * *"
-		}
 	]
 }
