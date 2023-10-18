@@ -1131,8 +1131,9 @@ const exec = async (context) => {
       const weights = [];
       const kudosMemos = [];
       let kudosCreatorsAdded = false;
-      let shouldAddKudosCreators =
-        context.flags.dontSendKudosToSetlerTeam ? false: true; // defaults to send kudos to setler team
+      let shouldAddKudosCreators = context.flags.dontSendKudosToSetlerTeam
+        ? false
+        : true; // defaults to send kudos to setler team
 
       if (context.flags.to) {
         let kudosMemo = {};

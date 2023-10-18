@@ -9,16 +9,14 @@ import meow from "meow";
 import path from "path";
 import setler from "./index.js";
 // const __dirname = new URL(".", import.meta.url).pathname;
-const __dirname = fileURLToPath(new URL(".", import.meta.url))
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 let personality = __dirname.split("/").slice(-3)[0];
 personality = personality.replace("-cli", "");
 
 dotenv.config({ path: path.join(__dirname, "..", "/.env") });
 
-const pkgPath = path.join(__dirname, '..', 'package.json');
-const pkgJson = JSON.parse(
-  fs.readFileSync(pkgPath)
-);
+const pkgPath = path.join(__dirname, "..", "package.json");
+const pkgJson = JSON.parse(fs.readFileSync(pkgPath));
 
 // squelch experimental warnings
 const originalEmit = process.emit;

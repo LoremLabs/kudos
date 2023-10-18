@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.28] - 2023-10-18
+
+### Added
+
+- Support for Windows paths
+
 ## [0.0.27] - 2023-09-26
 
 ### Changed
