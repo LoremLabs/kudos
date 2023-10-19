@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 
 // import updateNotifier from "update-notifier";
-import { URL } from "url";
+import { URL, fileURLToPath } from "url";
 import config from "./config.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import meow from "meow";
 import path from "path";
 import setler from "./index.js";
-const __dirname = new URL(".", import.meta.url).pathname;
+// const __dirname = new URL(".", import.meta.url).pathname;
+const __dirname = fileURLToPath(new URL(".", import.meta.url))
 let personality = __dirname.split("/").slice(-3)[0];
 personality = personality.replace("-cli", "");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.join(__dirname, "..", "/.env") });
 
+const pkgPath = path.join(__dirname, '..', 'package.json');
 const pkgJson = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../package.json"))
+  fs.readFileSync(pkgPath)
 );
 
 // squelch experimental warnings
