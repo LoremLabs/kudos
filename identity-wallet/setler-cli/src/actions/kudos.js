@@ -651,7 +651,8 @@ const exec = async (context) => {
       break;
     }
     case "create": {
-      await gatekeep(context, true, { networks: ["kudos"] });
+      // await gatekeep(context, true, { networks: ["kudos"] });
+      await gatekeep(context);
 
       let outData = "";
       let creators = [];
