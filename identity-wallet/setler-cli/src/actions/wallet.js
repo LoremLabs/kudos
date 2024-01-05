@@ -455,7 +455,7 @@ const exec = async (context) => {
 
       if (network === "xrpl:livenet") {
         log(
-          chalk.red(
+          chalk.white(
             `To fund this wallet you will need to transfer XRP to the address: ` +
               chalk.blue(`${walletAddress}`) +
               ` on ` +
@@ -467,7 +467,54 @@ const exec = async (context) => {
               stringToColorBlocks(walletAddress, network)
           )
         );
-        process.exit(1);
+
+        // open in browser window
+        const url = `https://www.setler.app/prompts/onramper?wallet=${walletAddress}&network=${network}`;
+        sysOpen(url);
+
+        // subscribe to the websocket to get notified when the wallet is funded
+        const client = await context.coins.getClient(network);
+        await client.request({
+          command: "subscribe",
+          accounts: [walletAddress],
+        });
+
+        // wait for the websocket to notify us that the wallet is funded
+        const fundedPromise = new Promise((resolve) => {
+          client.on("transaction", (data) => {
+            // check if there's a payment
+            if (
+              data.transaction &&
+              data.transaction.TransactionType === "Payment" &&
+              data.transaction.Destination === walletAddress
+            ) {
+              resolve(data);
+            }
+            // resolve(data);
+          });
+        });
+        const funded = await waitFor(fundedPromise, {
+          text:
+            `Waiting for ` +
+            chalk.blue(`${walletAddress}`) +
+            ` to be funded on ` +
+            chalk.magenta(`${network}\n`) +
+            " ".repeat(`Waiting for   `.length) +
+            stringToColorBlocks(walletAddress, network),
+        });
+        if (!funded) {
+          log(chalk.red(`Subscription failed.`));
+          process.exit(1);
+        }
+        // report the amount funded
+        const fundedAmount = parseInt(funded.transaction.Amount, 10) / 1000000;
+        log(
+          chalk.bold(
+            `\nFunded: ` + chalk.green(`${fundedAmount.toLocaleString()} XRP`)
+          )
+        );
+
+        process.exit(0);
       }
 
       // input[2] could be {address}, in which case we should fund that address
