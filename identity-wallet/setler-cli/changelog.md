@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.29] - 2024-01-05
+
+### Added
+
+- Wallet fund for livenet via Onramper Widget
+
 ## [0.0.28] - 2023-10-18
 
 ### Added
