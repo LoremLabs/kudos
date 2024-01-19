@@ -6,8 +6,13 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import Icon from '$lib/components/Icon.svelte';
   import { addToast } from '$lib/stores/toasts';
+  import KudosStartImport from '$lib/components/KudosStartImport.svelte';
+  // import Panel from '$lib/components/Panel.svelte';
+  import Modal from '$lib/components/Modal.svelte';
 
   import ModalShowQr from '$lib/components/ModalShowQr.svelte';
+
+  let opener: HTMLElement | null | true = null;
 
   export let networkName = 'xrpl:livenet';
   export let address = '';
@@ -166,6 +171,32 @@
             <div class="">Fund via Faucet</div>
           </button>
         {/if}
+        {#if ['xrpl:livenet'].includes(networkName)}
+          <button
+            class="block flex w-full flex-row items-center justify-start px-4 py-2 text-sm text-gray-700 hover:bg-slate-400"
+            id={`net-${networkName}-menu-item`}
+            on:click={async () => {
+              addToast({
+                type: 'info',
+                msg: `Starting purchase in browser. Come back when done.`,
+                duration: 5000,
+              });
+              const url = `https://www.setler.app/prompts/onramper?wallet=${address}&network=${networkName}`;
+              openShell(url);
+
+              // todo waiter http server to do this
+              // dispatch('action', {
+              //   action: 'update:balance',
+              //   params: {},
+              // });
+            }}
+          >
+            <div class="w-6">
+              <Icon name="credit-card" class="mr-2 h-4 w-4" />
+            </div>
+            <div class="">Fund</div>
+          </button>
+        {/if}
       </div>
     </div>
     <button on:click={async () => {}}>
@@ -222,6 +253,22 @@
           <span class="text-sm font-medium text-slate-700">Send</span>
         </button>
       {/if}
+      {#if true}
+        <button
+          class="opener-kudos mr-8 flex flex-col items-center justify-center"
+          on:click={() => {
+            opener = document.querySelectorAll('.opener-kudos')[0];
+            console.log('opener', opener);
+          }}
+        >
+          <div
+            class="m-auto flex h-10 w-10 flex-col items-center justify-center rounded-full bg-slate-300 hover:bg-slate-400"
+          >
+            <Icon name="brand/kudos" class="h-4 w-4" />
+          </div>
+          <span class="text-sm font-medium text-slate-700">Kudos</span>
+        </button>
+      {/if}
       <button
         class="flex flex-col items-center justify-center"
         on:click={() => {
@@ -251,10 +298,10 @@
 </div>
 <ModalShowQr
   bind:open={showQrModal}
+  cancelActive={true}
+  buyActive={false}
   {address}
-  handleConfirm={() => {
-    showQrModal = false;
-  }}
+  network={networkName}
   handleCancel={() => {}}
 >
   <div slot="header">
@@ -283,3 +330,31 @@
     </h3>
   </div>
 </ModalShowQr>
+<Modal
+  heading="Kudos Import"
+  open={opener ? true : false}
+  on:hide={() => {
+    console.log('hide');
+  }}
+  ariaLabelledBy="modal-headline"
+  class="max-w-4xl rounded-sm bg-white pl-4 pt-5 pr-8 pb-16 shadow-xl sm:p-6"
+>
+  <KudosStartImport />
+
+  <div slot="footer">
+    <button
+      on:click={async () => {
+        // save config
+        console.log('closing');
+        opener = null;
+      }}
+      type="submit"
+      class="cursor-pointer rounded-full border border-gray-300 bg-gray-700 py-2
+px-4 text-sm font-medium text-white
+shadow-sm transition delay-150 ease-in-out hover:bg-blue-700
+focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+    >
+      Close
+    </button>
+  </div>
+</Modal>

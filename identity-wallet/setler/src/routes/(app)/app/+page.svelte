@@ -44,12 +44,12 @@
       //   display: 'Events',
       //   class: 'h-5 w-5',
       // },
-      {
-        id: 'Ident',
-        icon: 'solid/identification',
-        display: 'Ident',
-        class: 'h-5 w-5',
-      },
+      // {
+      //   id: 'Ident',
+      //   icon: 'solid/identification',
+      //   display: 'Ident',
+      //   class: 'h-5 w-5',
+      // },
       {
         id: 'Assets',
         icon: 'mini/banknotes',
@@ -188,7 +188,7 @@
           </button>
         </Tooltip>
 
-        <div class="w-full text-slate-300">
+        <div class="hidden w-full text-slate-300">
           <div class="relative">
             <div class="absolute inset-0 flex items-center" aria-hidden="true">
               <div class="w-full border-t border-slate-500" />
@@ -297,9 +297,11 @@
           />
         </TabPanel>
       {/if}
-      <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">
-        <IdentLedgerPane {sidebarWidth} {sidebarHeight} />
-      </TabPanel>
+      {#if false}
+        <TabPanel class="min-h-screen w-full bg-slate-900" id="Ident">
+          <IdentLedgerPane {sidebarWidth} {sidebarHeight} />
+        </TabPanel>
+      {/if}
       <TabPanel class="min-h-screen w-full bg-slate-900" id="Assets">
         <AssetsPane {sidebarWidth} {sidebarHeight} />
       </TabPanel>

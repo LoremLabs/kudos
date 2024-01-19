@@ -5,14 +5,19 @@
   import { buttonClass, buttonInactiveClass } from '$lib/tokens';
   import QrCode from '$lib/components/QrCode.svelte';
   import { addToast } from '$lib/stores/toasts';
+  import { open as openShell } from '@tauri-apps/api/shell';
 
   import { onMount } from 'svelte';
 
   export let address = '';
+  export let network = '';
   export let open = false;
   export let handleCancel = () => {};
   export let handleConfirm = async () => {
     // console.log('saving', JSON.stringify(formData));
+    processing = false;
+    open = false;
+
     modalDone(formData);
     // reset
     done = new Promise((resolve) => {
@@ -86,6 +91,7 @@
   };
 
   export let formData = {};
+  export let buyActive = false;
 
   let processing = false;
   let value = '';
@@ -147,14 +153,16 @@
     </div>
   </div>
   <div class="mt-4 ml-4 flex flex-row-reverse">
-    <button on:click={handleConfirm} type="button" class={`${buttonClass}`}>
-      Ok
-      {#if processing}
-        <span aria-label={'processing'} class="ml-2 mr-3 animate-spin">
-          <Icon name="misc/spinner" class="text-primary-500 h-5 w-5" />
-        </span>
-      {/if}
-    </button>
+    {#if buyActive}
+      <button on:click={handleConfirm} type="button" class={`${buttonClass}`}>
+        Buy XRP
+        {#if processing}
+          <span aria-label={'processing'} class="ml-2 mr-3 animate-spin">
+            <Icon name="misc/spinner" class="text-primary-500 h-5 w-5" />
+          </span>
+        {/if}
+      </button>
+    {/if}
     {#if cancelActive}
       <button
         on:click={() => {
@@ -163,7 +171,7 @@
         type="button"
         class={`${buttonInactiveClass} mr-2`}
       >
-        Cancel
+        Close
       </button>
     {/if}
   </div>

@@ -124,7 +124,9 @@
         Add value to your <span
           class="cursor-pointer text-cyan-800 underline"
           on:click={() => {
-            goto('https://www.loremlabs.com/');
+            goto(
+              'https://www.kudos.community/?utm_source=setler&utm_medium=app&utm_campaign=import'
+            );
           }}>kudos</span
         >. After importing, you can send money to your a collection of kudos, or
         you can recognize them publicly for their work by publishing.
@@ -135,7 +137,7 @@
       >
         <li class="flow-root">
           <div
-            class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
+            class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-0 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
               class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-700"
@@ -159,7 +161,7 @@
 
         <li class="flow-root">
           <div
-            class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-2 focus-within:ring-cyan-500 hover:bg-gray-50"
+            class="relative -m-2 flex items-center space-x-4 rounded-xl p-2 focus-within:ring-0 focus-within:ring-cyan-500 hover:bg-gray-50"
           >
             <div
               class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-cyan-500"
