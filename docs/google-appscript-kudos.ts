@@ -37,7 +37,8 @@ function generateShortUuid() {
 }
 
 function showFileDialog() {
-  var htmlOutput = HtmlService.createHtmlOutput(`
+  var htmlOutput = HtmlService.createHtmlOutput(
+    `
     <style>
       .file-upload-container {
         display: flex;
@@ -92,13 +93,13 @@ function showFileDialog() {
         alert('Error: ' + error);
       }
     </script>
-  `)
+  `
+  )
     .setWidth(400) // Adjust the width as needed
     .setHeight(300); // Adjust the height as needed
 
   SpreadsheetApp.getUi().showModalDialog(htmlOutput, "Import Kudos File");
 }
-
 
 function showFileDialogv1() {
   var htmlOutput = HtmlService.createHtmlOutput(
@@ -123,7 +124,6 @@ function showFileDialogv1() {
 }
 
 function addSummarySheet() {
-
   let sourceSheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   let fileName = sourceSheet.getName();
 
@@ -134,7 +134,9 @@ function addSummarySheet() {
   }
 
   // see if this sheet already has a summary sheet
-  let summarySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(`${fileName}-summary`);
+  let summarySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(
+    `${fileName}-summary`
+  );
   if (summarySheet) {
     // clear sheet and re-create
     summarySheet.clear();
@@ -148,7 +150,7 @@ function addSummarySheet() {
       summarySheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(
         `${fileName}-summary-${Date.now()}`
       );
-    }  
+    }
   }
 
   // read in fields from sourceSheet
@@ -160,10 +162,10 @@ function addSummarySheet() {
   //createSummarySection(sourceSheet, fields, summarySheet);
 
   // Example usage for grouping by identifier
-createSummarySection(sourceSheet, fields, summarySheet, "identifier");
+  createSummarySection(sourceSheet, fields, summarySheet, "identifier");
 
-// Example usage for grouping by description
-createSummarySection(sourceSheet, fields, summarySheet, "description");
+  // Example usage for grouping by description
+  createSummarySection(sourceSheet, fields, summarySheet, "description");
 }
 
 function importKudosToSheet(e) {
@@ -180,7 +182,6 @@ function importKudosToSheet(e) {
 
   // Create a new sheet with the filename as the name
   let newSheet;
-  let newSheetSummary;
   try {
     newSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(fileName);
   } catch (error) {
@@ -199,9 +200,8 @@ function importKudosToSheet(e) {
     fields.push("traceId");
   }
 
-  for (let i = 0; i < fields.length; i++) {
-    newSheet.getRange(1, i + 1).setValue(fields[i]);
-  }
+  const headerRange = newSheet.getRange(1, 1, 1, fields.length);
+  headerRange.setValues([fields]);
 
   // Freeze the first row
   newSheet.setFrozenRows(1);
@@ -209,10 +209,10 @@ function importKudosToSheet(e) {
   // generate trace for this import
   const traceId = generateShortUuid();
 
+  const dataRows = [];
+
   // Write dataObjects to the new sheet
   dataObjects.forEach(function (dataObject, index) {
-    var row = index + 2; // Start from the second row
-
     // Generate a short UUID if "id" field is not present
     if (!dataObject.hasOwnProperty("id")) {
       dataObject.id = generateShortUuid();
@@ -221,16 +221,20 @@ function importKudosToSheet(e) {
       dataObject.traceId = traceId;
     }
 
-    for (var key in dataObject) {
-      if (dataObject.hasOwnProperty(key)) {
-        newSheet
-          .getRange(row, fields.indexOf(key) + 1)
-          .setValue(dataObject[key]);
-        // Auto-size the columns after writing each value
-        newSheet.autoResizeColumn(fields.indexOf(key) + 1);
-      }
-    }
+    const rowData = fields.map((key) => dataObject[key]);
+    dataRows.push(rowData);
   });
+
+  const dataRange = newSheet.getRange(2, 1, dataRows.length, fields.length);
+  dataRange.setValues(dataRows);
+
+  // Auto-size the columns after writing the entire range
+  for (let i = 1; i <= fields.length; i++) {
+    newSheet.autoResizeColumn(i);
+  }
+
+  // Flush the spreadsheet to ensure changes are applied
+  SpreadsheetApp.flush();
 }
 
 function createSummarySection(sheet, fields, summarySheet, groupBy) {
@@ -242,195 +246,94 @@ function createSummarySection(sheet, fields, summarySheet, groupBy) {
   }
 
   const summary = {};
-  let firstRow = summarySheet.getLastRow() + 1;
+  const firstRow = summarySheet.getLastRow() + 1;
   let currentRow = firstRow;
-  let inputRow = currentRow;
-  const defaultBudget = 100.000000;
+  const inputRow = 2; // fixed
+  const defaultBudget = 100.0;
 
   if (firstRow === 1) {
-    const userInput = summarySheet.getRange(inputRow, 2).setValue(`$${defaultBudget}`);
+    const userInput = summarySheet
+      .getRange(inputRow, 2)
+      .setValue(`$${defaultBudget}`);
     userInput.setNumberFormat("$0.000000");
     summarySheet.getRange(inputRow, 1).setValue("Total Budget");
     summarySheet.getRange(inputRow, 1, 1, 2).setBackground("#D3D3D3");
     currentRow += 2;
-  }    
+  }
 
   let totalWeight = 0;
 
-  for (let row = 2; row <= sheet.getLastRow(); row++) {
-    const groupKey = sheet.getRange(row, fields.indexOf(groupBy) + 1).getValue();
-    const weight = sheet.getRange(row, weightColumnIndex + 1).getValue();
+  const dataRange = sheet
+    .getRange(2, 1, sheet.getLastRow() - 1, fields.length)
+    .getValues();
+
+  for (let row = 0; row < dataRange.length; row++) {
+    const groupKey = dataRange[row][fields.indexOf(groupBy)];
+    const weight = dataRange[row][weightColumnIndex];
 
     if (!summary[groupKey]) {
-      summary[groupKey] = { weight: 0, row: `${row}` };
+      summary[groupKey] = { weight: 0, row: row + 2 }; // Adding 2 to row to match sheet index
     }
 
     summary[groupKey].weight += weight;
     totalWeight += weight;
   }
 
-  summarySheet.getRange(currentRow, 1).setValue("Total Weights");
-  summarySheet.getRange(currentRow, 2).setValue(totalWeight);
-  let totalWeightRow = currentRow;
-
   currentRow += 1;
 
   const amounts = {};
   for (const groupKey in summary) {
-    amounts[groupKey] = `=B${inputRow} * ${summary[groupKey].weight} / ${totalWeight}`;
+    amounts[
+      groupKey
+    ] = `=B${inputRow} * ${summary[groupKey].weight} / ${totalWeight}`;
   }
 
   currentRow += 1;
 
-  summarySheet.getRange(currentRow, 1).setValue("Summary");
-  summarySheet.getRange(currentRow, 1).setFontWeight("bold");
-  currentRow += 1;
-  summarySheet.getRange(currentRow, 1).setValue(groupBy.charAt(0).toUpperCase() + groupBy.slice(1));
-  summarySheet.getRange(currentRow, 2).setValue("Payment");
-  summarySheet.getRange(currentRow, 3).setValue("Total Weight");
-  currentRow += 1;
-
-  let summaryRow = currentRow;
+  const valuesToUpdate = [];
+  const summaryRow = currentRow;
   Object.entries(summary)
     .sort(([, a], [, b]) => b.weight - a.weight)
     .forEach(([groupKey, data]) => {
-      summarySheet.getRange(currentRow, 1).setValue(groupKey);
-      summarySheet.getRange(currentRow, 2).setFormula(amounts[groupKey]);
-      summarySheet.getRange(currentRow, 2).setNumberFormat("$0.000000");
-      summarySheet.getRange(currentRow, 3).setValue(data.weight);
-      currentRow++;
+      valuesToUpdate.push([
+        groupKey,
+        `=B${inputRow} * ${data.weight} / ${totalWeight}`,
+        data.weight,
+      ]);
     });
 
-  currentRow++;
+  summarySheet
+    .getRange(currentRow, 1, valuesToUpdate.length, 3)
+    .setValues(valuesToUpdate);
 
-  const chartRange = summarySheet.getRange(summaryRow, 1, currentRow - summaryRow, 3);
-  const chartTitle = `Distribution by ${groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}`;
+  summarySheet
+    .getRange(currentRow, 2, valuesToUpdate.length, 1)
+    .setNumberFormat("$0.000000");
 
-  const chart = sheet
-    .newChart()
-    .setChartType(Charts.ChartType.PIE)
-    .addRange(chartRange)
-    .setPosition((firstRow === 1) ? 3 : 25, 6, 0, 0)
-    .setOption("pieHole", 0.7)
-    .setOption("pieSliceText", "value")
-    .setOption('title', chartTitle)
-    .build();
+  currentRow += valuesToUpdate.length;
 
-  summarySheet.insertChart(chart);
-
-  summarySheet.autoResizeColumn(1);
-  summarySheet.autoResizeColumn(2);
-  summarySheet.autoResizeColumn(3);
-  sheet.autoResizeColumn(1);
-  sheet.autoResizeColumn(2);
-  sheet.autoResizeColumn(3);
-}
-
-function createSummarySectionv1(sheet, fields, summarySheet) {
-  // Find the column index of the "weight" column
-  const weightColumnIndex = fields.indexOf("weight");
-
-  // If "weight" column is not present, return
-  if (weightColumnIndex === -1) {
-    console.error("No 'weight' column found for summary section.");
-    return;
-  }
-
-  // Create a summary object to store total weights for each identifier
-  const summary = {};
-
-  let currentRow = 1;
-  let inputRow = currentRow;
-
-  // Get the user input for the amount
-  const defaultBudget = 100.000000;
-  const userInput = summarySheet.getRange(inputRow, 2).setValue(`$${defaultBudget}`);
-  userInput.setNumberFormat("$0.000000");
-  summarySheet.getRange(inputRow, 1).setValue("Total Budget");
-  // make background of row grey
-  summarySheet.getRange(inputRow, 1, 1, 2).setBackground("#D3D3D3");
-
-  currentRow += 2;
-
-  let totalWeight = 0;
-
-  // Iterate through rows to calculate total weights for each identifier
-  for (let row = 2; row <= sheet.getLastRow(); row++) {
-    const identifier = sheet
-      .getRange(row, fields.indexOf("identifier") + 1)
-      .getValue();
-    const weight = sheet.getRange(row, weightColumnIndex + 1).getValue();
-
-    if (!summary[identifier]) {
-      summary[identifier] = { weight: 0, row: `${row}` };
-    }
-
-    summary[identifier].weight += weight;
-    totalWeight += weight;
-  }
-
-
-  summarySheet.getRange(currentRow, 1).setValue("Total Weights");
-  summarySheet.getRange(currentRow, 2).setValue(totalWeight);
-  let totalWeightRow = currentRow;
-
-  currentRow += 1;
-
-  // Calculate the amount for each identifier
-  const amounts = {};
-  for (const identifier in summary) {
-    // amounts[identifier] = (
-    //   defaultBudget *
-    //   (summary[identifier] / totalWeight)
-    // ).toFixed(2);
-    amounts[identifier] = `=B${inputRow} * ${summary[identifier].weight} / ${totalWeight}`;
-  }
-
-  currentRow += 1;
-
-  // Write summary section headers
-  summarySheet.getRange(currentRow, 1).setValue("Summary");
-  // make a bold header
-  summarySheet.getRange(currentRow, 1).setFontWeight("bold");
-  currentRow += 1;
-  summarySheet.getRange(currentRow, 1).setValue("Identifier");
-  summarySheet.getRange(currentRow, 2).setValue("Payment");
-  summarySheet.getRange(currentRow, 3).setValue("Total Weight");
-  currentRow += 1;
-
-  // Write summary data to the sheet
-  let summaryRow = currentRow;
-  Object.entries(summary)
-  .sort(([, a], [, b]) => b.weight - a.weight)
-  .forEach(([identifier, data]) => {
-    summarySheet.getRange(currentRow, 1).setValue(identifier);
-    summarySheet.getRange(currentRow, 2).setFormula(amounts[identifier]);
-    summarySheet.getRange(currentRow, 2).setNumberFormat("$0.000000");
-    summarySheet.getRange(currentRow, 3).setValue(data.weight);
-    currentRow++;
-  });
-
-  currentRow++;
-
-  // Create the pie chart
   const chartRange = summarySheet.getRange(
     summaryRow,
     1,
     currentRow - summaryRow,
     3
-  ); // Adjust the range to include all columns
+  );
+  const chartTitle = `Distribution by ${
+    groupBy.charAt(0).toUpperCase() + groupBy.slice(1)
+  }`;
 
   const chart = sheet
     .newChart()
     .setChartType(Charts.ChartType.PIE)
     .addRange(chartRange)
-    .setPosition(3, 6, 0, 0)
+    .setPosition(firstRow === 1 ? 3 : 35, 6, 0, 0)
     .setOption("pieHole", 0.7)
-    .setOption("pieSliceText", "value") // Display actual values as labels
-    .setOption('title', 'Distribution by Identifier') 
-    // .setOption("backgroundColor", "none")
+    .setOption("pieSliceText", "value")
+    .setOption("title", chartTitle)
+    .setOption("width", 600 * 1.5)
+    .setOption("height", 400 * 1.5)
     .build();
-  
+
   summarySheet.insertChart(chart);
 
   summarySheet.autoResizeColumn(1);
@@ -549,7 +452,11 @@ function displayText_(sheetName, text) {
   var filename = (sheetName || "kudos") + ".kudos";
 
   var output = HtmlService.createHtmlOutput(
-    "<button style='margin-bottom: 6px;' onclick='downloadAndClose()'>Download</button><br/><textarea style='font-face:mono;width:100%;' rows='20'>" +
+    "<button style='margin-bottom: 6px;' onclick='downloadAndClose(\"" +
+      encodeURIComponent(text) +
+      '", "' +
+      filename +
+      "\")'>Download</button><br/><textarea style='font-face:mono;width:100%;' rows='20'>" +
       text +
       "</textarea>" +
       "<script>" +
