@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.30] - 2024-03-02
+
+### Added
+
+- Kudos send takes --file option
+
 ## [0.0.29] - 2024-01-05
 
 ### Added
