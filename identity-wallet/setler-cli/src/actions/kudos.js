@@ -1144,30 +1144,45 @@ const exec = async (context) => {
         kudosMemos.push(kudosMemo);
         addresses.push(address);
         weights.push(weight);
-      } else if (context.flags.url) {
-        // fetch url
-        const url = context.flags.url;
-        const response = await fetch(url);
+      } else if (context.flags.file || context.flags.url) {
+        let pool = [];
+        let text = "";
 
-        // handle errors
-        if (!response.ok) {
-          log(chalk.red(`Error fetching url: ${response.statusText}`));
-          process.exit(1);
+        if (context.flags.url) {
+          // fetch url
+          const url = context.flags.url;
+          const response = await fetch(url);
+
+          // handle errors
+          if (!response.ok) {
+            log(chalk.red(`Error fetching url: ${response.statusText}`));
+            process.exit(1);
+          }
+
+          // check that the mime type is application/x-ndjson
+          // const contentType = response.headers.get("content-type");
+          // if (!contentType || !contentType.startsWith("application/x-ndjson")) {
+          //   log(
+          //     chalk.red(
+          //       `Error fetching url: expected application/x-ndjson, got ${contentType}`
+          //     )
+          //   );
+          //   process.exit(1);
+          // }
+
+          text = await response.text();
+        } else {
+          // read file
+          // test if the file exists, if not error
+          if (!fs.existsSync(context.flags.file)) {
+            log(chalk.red(`File not found: ${context.flags.file}`));
+            process.exit(1);
+          }
+
+          const file = context.flags.file;
+          text = fs.readFileSync(file).toString();
         }
 
-        // check that the mime type is application/x-ndjson
-        // const contentType = response.headers.get("content-type");
-        // if (!contentType || !contentType.startsWith("application/x-ndjson")) {
-        //   log(
-        //     chalk.red(
-        //       `Error fetching url: expected application/x-ndjson, got ${contentType}`
-        //     )
-        //   );
-        //   process.exit(1);
-        // }
-
-        let pool = [];
-        const text = await response.text();
         const lines = text.split("\n");
         for (let i = 0; i < lines.length; i += 1) {
           const line = lines[i];
