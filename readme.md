@@ -2,26 +2,49 @@
 
 # Kudos
 
-Kudos is an attribution-based allocation system.
+Kudos is a reference implementation of an **attribution-based allocation system**.
 
-It allows people to record who helped them and later allocate a fixed
-budget proportionally to those attributions.
+It enables people to record who helped them — across the web, in software, in collaboration — and later allocate a fixed budget proportionally to those attributions.
 
-Kudos separates:
+Kudos is not a token.
+Kudos is not a cryptocurrency.
+Kudos is not a payment network.
 
--   **Signal** --- who helped you
--   **Allocation** --- how weight is calculated
--   **Settlement** --- how funds are distributed
+Kudos is an **allocation engine**.
 
-Kudos is not a token or cryptocurrency.
-It is a deterministic allocation engine used by [In a Moon](https://www.inamoon.com).
+It separates:
+
+- Signal (who helped you)
+- Allocation (how much weight they receive)
+- Settlement (how money is distributed)
+
+## The Key Insight
+
+Attribution is free.
+Allocation is computed later.
+Money follows patterns, not clicks.
+
+said another way:
+
+Creative work should not require a price tag at every interaction.
+
+Value is measured over time.
+Settlement is a proportional reflection of recorded contribution.
 
 ------------------------------------------------------------------------
 
 ## The Model
 
-1.  Record attribution events ("kudos") for identifiers.
-2.  At the end of a cycle, split a fixed budget proportionally.
+At its core, Kudos is:
+
+1. **Fix a budget for a class of value**
+   For example: You may budget $100/month for open source.
+
+2. **Record attribution events**  
+   Users or their software generate kudos for identifiers (email, username, DID, etc.).
+
+3. **Allocate a budget proportionally**  
+   At the end of a cycle (e.g., monthly / lunation), a fixed budget is split across all recorded attributions based on weight.
 
 Formula:
 
@@ -31,6 +54,14 @@ Attribution precedes money.
 Settlement is a function of recorded attribution.
 
 ------------------------------------------------------------------------
+
+## High-level system:
+
+- Clients emit attribution signals
+- Server records and indexes kudos
+- Cycles compute proportional allocations
+- Settlement layer applies compliance rules
+- Funds are optionally distributed via supported rails
 
 ## Architecture
 
@@ -80,6 +111,10 @@ At settlement time:
 This separation allows attribution to remain flexible while settlement remains deterministic and compliant.
 
 ------------------------------------------------------------------------
+
+## Usage
+
+[In a Moon](https://www.inamoon.com) is built using kudos.
 
 ## License
 
