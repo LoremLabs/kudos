@@ -2,52 +2,84 @@
 
 # Kudos
 
-`Kudos` is a new way for rewarding creation while keeping the best parts of the "free Internet". Kudos creates an _attribution economy_ where end users record those who help them, and then later optionally fund their accounts with a monthly fee which will be proportionally distributed to all kudos attributions they generate for that month.
+Kudos is an attribution-based allocation system.
 
-At its core, Kudos is two steps:
+It allows people to record who helped them and later allocate a fixed
+budget proportionally to those attributions.
 
-1. Recording the identifiers of those that help you.
-2. Splitting a monthly budget between those identifiers.
+Kudos separates:
 
-Kudos is made possible because of a few key technologies:
+-   **Signal** --- who helped you
+-   **Allocation** --- how weight is calculated
+-   **Settlement** --- how funds are distributed
 
-- [XRPL](https://xrpl.org/) - The XRPL is a decentralized, open-source, and permissionless ledger that allows for fast, cheap, and secure transactions. Crucially, XRPL makes [micropayments](https://xrpl.org/currency-formats.html#xrp-amounts) and [escrow](https://xrpl.org/escrow.html) possible.
-- [Hierarchical Deterministic Wallets (HD Wallet)](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) - HD Wallets allow for the creation of multiple accounts from a single seed. This allows for the creation of multiple accounts without the need to store multiple seeds.
-- [Decentralized Identifiers (DIDs)](https://www.w3.org/TR/did-core/) - A DID is a decentralized identifier that can be used to identify a person, organization, or thing. It is used to associate a payment address with a person or organization.
-- [Verifiable Credentials](https://www.w3.org/TR/vc-data-model/) - Verifiable Credentials are a way to associate a DID with a payment address. They are signed by a trusted party (such as a bank) and can be verified by anyone.
+Kudos is not a token or cryptocurrency.
+It is a deterministic allocation engine used by [In a Moon](https://www.inamoon.com).
 
-## Repo Structure
+------------------------------------------------------------------------
 
-This repo contains several sub-components of the reference implementation of Kudos:
+## The Model
 
-- `kudos-for-code` - A reference implementation of Kudos to support open source code contributions
-- `kudos-for-content` - A reference implementation of Kudos to support content creators
-- `ident-agency` - Reference backend GraphQL and API services
-- `identity-wallet` - Examples of `identity wallets` that allows users to send and receive payments but also manager their Identities, and of course settle Kudos. `Setler` is available as both a CLI and GUI application.
-- `rfcs` - A collection of RFCs that describe the Kudos protocol and its components.
+1.  Record attribution events ("kudos") for identifiers.
+2.  At the end of a cycle, split a fixed budget proportionally.
 
-## Overview Architecture
+Formula:
 
-![Overview Flow](./docs/kudos-overview-flow.svg)
+recipient_share = (recipient_weight / total_weight) \* budget
 
-<img width="828" alt="Screenshot 2023-03-25 at 20 44 39" src="https://user-images.githubusercontent.com/170588/227738308-fb03c70a-2a45-4765-b917-d14af2b56d50.png">
+Attribution precedes money.
+Settlement is a function of recorded attribution.
 
+------------------------------------------------------------------------
 
-Further details on the motivation for Kudos can be found in the [Kudos Sketch](./rfcs/000-kudos-sketch/000-kudos-sketch.md).
+## Architecture
 
-## History
+### Signal Layer
 
-Kudos owes its start to the [In-a-Moon](https://www.slideshare.net/mankins/inamoon-overview) project from 2009. In-a-Moon required websites to include an identifier which would be used to split up a monthly payment. For In-a-Moon to be successful required adding JavaScript to every website on the web, a task that became increasingly difficult as the web grew. Atri was the second attempt to solve the same problem but without the need to add JavaScript to every website. Atri was a browser extension that would record the social media handles already embedded in websites that a user visited. While Atri solved In-a-Moon's problem, it was difficult to split up the monthly payment between the social media handles as there wasn't a viable micropayment solution at the time. Kudos solves this problem by using the XRPL and its escrow capabilities which make delayed access micropayments possible.
+Clients emit append-only kudos events.
+
+### Allocation Layer
+
+Cycles aggregate events and compute proportional distributions
+deterministically.
+
+### Settlement Layer
+
+Identifiers resolve to verified subjects.
+Compliance and eligibility rules are enforced before payout.
+
+------------------------------------------------------------------------
+
+## Identity & Subjects
+
+Kudos uses a canonical identity abstraction called a **Subject**.
+
+A Subject is:
+
+type + opaque identifier
+
+Example:
+
+email:matt@example.com
+
+Other examples:
+
+github:octocat  
+domain:example.com  
+subject:3f9a8c2e...
+
+At the signal layer, any valid subject can receive kudos.
+
+At settlement time:
+
+- Subjects resolve to verified canonical entities.
+- Routing changes apply only to future cycles.
+- Compliance and eligibility checks occur before payout.
+
+This separation allows attribution to remain flexible while settlement remains deterministic and compliant.
+
+------------------------------------------------------------------------
 
 ## License
 
-Kudos is licensed under the MIT License. See [LICENSE](./LICENSE) for the full license text.
-
-## Contributing
-
-We welcome contributions from the community. Please see [CONTRIBUTING](./CONTRIBUTING.md) for details on how to contribute.
-
-## Code of Conduct
-
-This project adheres to the Contributor Covenant [code of conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. 
-
+MIT License. See LICENSE.

@@ -1,7 +1,0 @@
-{
-  "name": "Kudos for Code",
-  "description": "Find contributors and Ink Kudos",
-  "iconName": "octicon people",
-  "categories": ["monitoring"],
-  "filePatterns": ["package.json$"]
-}
