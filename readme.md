@@ -6,9 +6,11 @@ Kudos is a reference implementation of an **attribution-based allocation system*
 
 It enables people to record who helped them — across the web, in software, in collaboration — and later allocate a fixed budget proportionally to those attributions.
 
-> Kudos is not a token.
-> Kudos is not a cryptocurrency.
-> Kudos is not a payment network.
+> Kudos is not a token.  
+>
+> Kudos is not a cryptocurrency.  
+>
+> Kudos is not a payment network.  
 
 Kudos is an allocation engine that makes generosity automatic.
 
@@ -20,15 +22,19 @@ It separates:
 
 ## The Key Insight
 
-> Attribution is free.
-> Allocation is computed later.
-> Money follows patterns, not clicks.
+> Attribution is free.  
+>
+> Allocation is computed later.  
+>
+> Money follows patterns, not clicks.  
 
 said another way:
 
-> Creative work should not require a price tag at every interaction.
-> Value is measured over time.
-> Settlement is a proportional reflection of recorded contribution.
+> Creative work should not require a price tag at every interaction.  
+>
+> Value is measured over time.  
+>
+> Settlement is a proportional reflection of recorded contribution.  
 
 ------------------------------------------------------------------------
 
