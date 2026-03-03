@@ -52,7 +52,7 @@ Compliance and eligibility rules are enforced before payout.
 
 ## Identity & Subjects
 
-Kudos uses a canonical identity abstraction called a **Subject**.
+Kudos uses a light-weight canonical identity abstraction called a **Subject**.
 
 A Subject is:
 
@@ -60,13 +60,14 @@ type + opaque identifier
 
 Example:
 
-email:matt@example.com
+`email:matt@example.com`
 
 Other examples:
 
-github:octocat  
-domain:example.com  
-subject:3f9a8c2e...
+`github:octocat`
+`domain:example.com`  
+`subject:3f9a8c2e...`
+`pool:https://pool.server...`
 
 At the signal layer, any valid subject can receive kudos.
 
