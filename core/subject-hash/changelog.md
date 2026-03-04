@@ -9,6 +9,13 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-03-04
+
+### Fixed
+
+- CLI now processes all lines from stdin (was only first line).
+- Fixed CLI executable permissions in published package.
+
 ## [1.0.0] - 2026-03-04
 
 ### Changed
@@ -22,7 +29,7 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 ### Added
 
 - Support for multiple output formats: `"base64url"` (default), `"hex"`, `"bigint"`.
-- CLI: `npx @kudos-protocol/subject-hash <subject> [--hex|--bigint]`.
+- CLI with `--hex`, `--bigint`, `--json` flags and stdin support.
 
 ### Removed
 

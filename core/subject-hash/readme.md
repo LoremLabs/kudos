@@ -116,14 +116,30 @@ console.log(hash)
 The package includes a CLI for quick lookups:
 
 ``` bash
-npx @kudos-protocol/subject-hash email:user@example.com
+subject-hash email:user@example.com
 # tmwIJmeStJDSo9giG47rcw
 
-npx @kudos-protocol/subject-hash email:user@example.com --hex
+subject-hash --hex email:user@example.com
 # b66c08266792b490d2a3d8221b8eeb73
 
-npx @kudos-protocol/subject-hash email:user@example.com --bigint
+subject-hash --bigint email:user@example.com
 # 242480428595577766886520952605903874931
+
+subject-hash --json email:user@example.com
+# {"subject":"email:user@example.com","format":"base64url","hash":"tmwIJmeStJDSo9giG47rcw"}
+```
+
+Reads from stdin when piped:
+
+``` bash
+echo email:user@example.com | subject-hash
+# tmwIJmeStJDSo9giG47rcw
+```
+
+Or run via npx without installing:
+
+``` bash
+npx @kudos-protocol/subject-hash email:user@example.com
 ```
 
 ------------------------------------------------------------------------
