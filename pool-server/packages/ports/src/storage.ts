@@ -39,4 +39,5 @@ export interface StoragePort {
   appendEvents(poolId: string, events: Event[]): Promise<AppendResult>;
   readEvents(options: ReadEventsOptions): Promise<ReadEventsResult>;
   readSummary(poolId: string, limit: number): Promise<ReadSummaryResult>;
+  ping(): Promise<void>;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@kudos-protocol/server",
+  "name": "@kudos-protocol/storage-postgres",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -11,17 +11,21 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@kudos-protocol/core": "workspace:*",
     "@kudos-protocol/ports": "workspace:*",
-    "fastify": "^5",
-    "fastify-plugin": "^5",
-    "zod": "^3.24"
+    "drizzle-orm": "^0.39",
+    "pg": "^8"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3",
+    "@types/pg": "^8",
     "@types/node": "^22",
+    "drizzle-kit": "^0.30",
     "typescript": "^5.8",
     "vitest": "^2.1"
   }

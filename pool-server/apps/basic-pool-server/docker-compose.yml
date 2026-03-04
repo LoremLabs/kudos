@@ -1,0 +1,17 @@
+services:
+  pool-server:
+    build:
+      context: ../..
+      dockerfile: apps/basic-pool-server/Dockerfile
+    ports:
+      - "5859:5859"
+    environment:
+      - PORT=5859
+      - HOST=0.0.0.0
+      - DB_PATH=/data/pool-server.db
+      - AUTH_TOKEN=change-me-in-production
+    volumes:
+      - pool-data:/data
+
+volumes:
+  pool-data:

@@ -15,6 +15,8 @@ export class InMemoryStorage implements StoragePort {
   /** poolId → Event[] (sorted ts DESC, id DESC) */
   private pools = new Map<string, Event[]>();
 
+  async ping(): Promise<void> {}
+
   async appendEvents(poolId: string, events: Event[]): Promise<AppendResult> {
     if (!this.pools.has(poolId)) {
       this.pools.set(poolId, []);

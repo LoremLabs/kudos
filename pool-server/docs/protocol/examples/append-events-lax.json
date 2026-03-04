@@ -47,7 +47,7 @@
       ],
       "events": [
         {
-          "id": "kudos:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "id": "kudos:AZMx0HYQcBCaqFLN4VZH0A",
           "recipient": "email:bob@example.com",
           "sender": "email:alice@example.com",
           "ts": "2026-03-03T14:30:00.000Z",
@@ -59,7 +59,7 @@
           "meta": null
         },
         {
-          "id": "kudos:b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "id": "kudos:AZMx0HkRdDGbsMO5WaI1Bw",
           "recipient": "email:carol@example.com",
           "sender": "email:alice@example.com",
           "ts": "2026-03-03T14:30:00.000Z",

@@ -1,5 +1,5 @@
 {
-  "name": "@kudos-protocol/server",
+  "name": "@kudos-protocol/worker-outbox",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -15,12 +15,10 @@
   },
   "dependencies": {
     "@kudos-protocol/core": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*",
-    "fastify": "^5",
-    "fastify-plugin": "^5",
-    "zod": "^3.24"
+    "@kudos-protocol/ports": "workspace:*"
   },
   "devDependencies": {
+    "@kudos-protocol/storage-sqlite": "workspace:*",
     "@types/node": "^22",
     "typescript": "^5.8",
     "vitest": "^2.1"
