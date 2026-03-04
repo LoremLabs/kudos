@@ -1,90 +1,159 @@
-# Subject-Hash
+# @kudos-protocol/subject-hash
 
-## Overview
+This library converts a subject identifier (for example
+`email:user@example.com`) into a **stable 128-bit identifier** suitable
+for use in databases, ledgers, routing systems, etc.
 
-A Subject-Hash is a domain name friendly lookup key for a _subject_.
+It is the reference implementation of the **Subject Hash** used across
+the Kudos Protocol ecosystem.
 
-### Subject-Hash Algorithm:
+------------------------------------------------------------------------
 
-1. Hash the subject using SHA256. Ex subject: ` email:foo@bar` -> `0d32944fed9d463bc9cc9ce57f6aead12e1c1cb699659b45a1510626c957a408`
+# Install
 
-2. Split the hash in two parts, the first 32 bytes and the last 32 bytes. Ex: `0d32944fed9d463bc9cc9ce57f6aead1` and `2e1c1cb699659b45a1510626c957a408`
-
-3. For most cases, this is it. To use as a domain name component, concatenate the parts with a `.` to form part of a hierarchy.
-
-4. There are some edge cases, as a host cannot be all numeric. If it is, we add a prefix of the hash algorithm to the start of the part. For instance: `sha256-00000000000000000000000000000000`.
-
-SubjectHashes are used by the [Ident.Agency](https://www.ident.agency) to allow users to lookup information about a subject and for subjects to be able to store information about themselves.
-
-### What's a Subject?
-
-A subject can be a person, organization, thing, data model, abstract entity, etc. It's a generic term for an entity that can be identified.
-
-To make it easier to understand what type of subject it is, we use a prefix. For instance, `email:foo@bar` is an email subject. `twitter:@loremlabs` is a Twitter handle as a subject. `phone:1234567890` is a phone number subject.
-
-Because the subject gets hashed, minor changes to the subject will result in a different hash. For instance, `email:foo@bar` and `email:Foo@bar` will result in different hashes. As such you should apply a normalization to the subject before hashing it. For example when we encounter `email:` we use lowercase and remove any whitespace.
-
-## Installation
-
-```bash
-
+``` bash
 npm install @kudos-protocol/subject-hash
-
 ```
 
-## Usage
+------------------------------------------------------------------------
 
-```javascript
-import { getSubjectHash } from './index.js';
+# Overview
 
-async function main() {
-	const result = await getSubjectHash('email:foo@example.com');
+A **Subject** in the Kudos Protocol is a canonical identifier for an
+entity:
 
-	console.log(result);
+    type:opaque_id
 
-	// this converts a subject to a subject hash
-}
+Examples:
+
+    email:user@example.com
+    github:octocat
+    pool:https://kps.example.com/pool/abc
+    subject-hash:tmwIJmeStJDSo9giG47rcw
+
+Subject hashes provide a compact, fixed-length identifier derived from
+the subject string.
+
+------------------------------------------------------------------------
+
+# Algorithm
+
+The Subject Hash algorithm is defined as:
+
+    SubjectHash(subject) :=
+        base64url( SHA256(trim(subject))[0..15] )
+
+Steps:
+
+1.  Convert input to string and trim whitespace
+2.  Compute SHA-256 of the subject
+3.  Take the **first 16 bytes (128 bits)** of the digest
+4.  Encode using **Base64 URL-safe encoding (RFC 4648, no padding)**
+
+This produces a **22-character identifier**.
+
+Example:
+
+    email:user@example.com
+    ↓
+    tmwIJmeStJDSo9giG47rcw
+
+------------------------------------------------------------------------
+
+# Usage
+
+## Default (base64url)
+
+``` javascript
+import { getSubjectHash } from "@kudos-protocol/subject-hash"
+
+const hash = getSubjectHash("email:user@example.com")
+
+console.log(hash)
+// tmwIJmeStJDSo9giG47rcw
 ```
 
-## API
+------------------------------------------------------------------------
 
-```javascript
-import { getSubjectSubdomain } from '@kudos-protocol/subject-hash';
+## Hex output
 
-async function getHostForSubject(subject) {
-	const subdomain = await getSubjectSubdomain(subject);
-	const host = `xrpl-mainnet.${subdomain}.ident.domains`;
-	return host;
-}
+``` javascript
+const hash = getSubjectHash("email:user@example.com", "hex")
 
-async function main() {
-	const host = await getHostForSubject('email:foo@bar');
-	console.log(host); //  xrpl-mainnet.0d32944fed9d463bc9cc9ce57f6aead1.2e1c1cb699659b45a1510626c957a408.ident.cash
-}
-
-main();
+console.log(hash)
+// b66c08266792b490d2a3d8221b8eeb73
 ```
 
-You can also lookup a subject's `payVia` entry:
+------------------------------------------------------------------------
 
-```javascript
-import { getSubjectPayVia } from './index.js';
+## BigInt output
 
-async function main() {
-	const result = await getSubjectPayVia({
-		subject: 'email:foo@bar',
-		network: 'xrpl-mainnet',
-		domain: 'ident.cash'
-	});
+``` javascript
+const hash = getSubjectHash("email:user@example.com", "bigint")
 
-	console.log(result.payVia); // rEt8yCY2rcbY94vyGrUDUAiRfea1cncpYU
-
-	// you could use this to send a payment to the subject's xrpl address for instance
-}
-
-main();
+console.log(hash)
+// 242480428595577766886520952605903874931n
 ```
 
-## License
+------------------------------------------------------------------------
+
+# Output formats
+
+  --------------------------------------------------------------------------------------------
+  Format                  Length                  Example
+  ----------------------- ----------------------- --------------------------------------------
+  base64url               22 chars                `tmwIJmeStJDSo9giG47rcw`
+
+  hex                     32 chars                `b66c08266792b490d2a3d8221b8eeb73`
+
+  bigint                  128-bit integer         `242480428595577766886520952605903874931n`
+  --------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# CLI
+
+The package includes a CLI for quick lookups:
+
+``` bash
+npx @kudos-protocol/subject-hash email:user@example.com
+# tmwIJmeStJDSo9giG47rcw
+
+npx @kudos-protocol/subject-hash email:user@example.com --hex
+# b66c08266792b490d2a3d8221b8eeb73
+
+npx @kudos-protocol/subject-hash email:user@example.com --bigint
+# 242480428595577766886520952605903874931
+```
+
+------------------------------------------------------------------------
+
+# Normalization
+
+The library performs **minimal normalization**:
+
+    subject = String(subject).trim()
+
+No other canonicalization is applied.
+
+For example:
+
+    email:Matt@example.com
+    email:matt@example.com
+
+produce **different hashes**.
+
+Systems that require canonicalization (for example email case
+normalization) should perform it **before hashing**.
+
+------------------------------------------------------------------------
+
+# See Also
+
+- [Kudos](https://www.kudos.community)
+- [In a Moon](https://www.inamoon.com)
+- [Lorem Labs](https://www.loremlabs.com)
+
+# License
 
 MIT

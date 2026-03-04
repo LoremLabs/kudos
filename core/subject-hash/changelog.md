@@ -9,6 +9,28 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-04
+
+### Changed
+
+- **BREAKING**: `getSubjectHash()` is now synchronous (was async).
+- **BREAKING**: Default output is now 22-char base64url (was DNS-friendly hex split).
+- **BREAKING**: Uses Node.js `crypto` module instead of `@noble/hashes`.
+- **BREAKING**: Input is trimmed but not lowercased — caller is responsible for normalization.
+- Rewritten in TypeScript with type declarations.
+
+### Added
+
+- Support for multiple output formats: `"base64url"` (default), `"hex"`, `"bigint"`.
+- CLI: `npx @kudos-protocol/subject-hash <subject> [--hex|--bigint]`.
+
+### Removed
+
+- **BREAKING**: Removed `getSubjectSubdomain()` function.
+- **BREAKING**: Removed `lookupMetadata()` function.
+- **BREAKING**: Removed `getSubjectPayVia()` function.
+- Removed `@noble/hashes` dependency (no runtime dependencies).
+
 ## [0.0.3] - 2023-08-28
 
 ### Fixed
