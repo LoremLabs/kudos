@@ -1,5 +1,17 @@
 # @kudos-protocol/pool-server
 
+## 0.0.4
+
+### Patch Changes
+
+- a48d69d: chore: npm build"
+  - @kudos-protocol/server@0.0.4
+  - @kudos-protocol/storage-sqlite@0.0.4
+  - @kudos-protocol/storage-postgres@0.0.4
+  - @kudos-protocol/worker-outbox@0.0.4
+  - @kudos-protocol/ports@0.0.4
+  - @kudos-protocol/pool-core@0.0.4
+
 ## 0.0.3
 
 ### Patch Changes
