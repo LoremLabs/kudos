@@ -1,5 +1,5 @@
-import { PoolServerError, ErrorCode } from "@kudos-protocol/pool-core";
-import type { AuthPort, AuthResult } from "@kudos-protocol/ports";
+import { PoolServerError, ErrorCode } from "@kudos-protocol/pool-server";
+import type { AuthPort, AuthResult } from "@kudos-protocol/pool-server";
 
 export class StaticTokenAuth implements AuthPort {
   constructor(private secret: string) {}

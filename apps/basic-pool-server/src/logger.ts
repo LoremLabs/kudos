@@ -1,5 +1,5 @@
-import log from "@kudos-protocol/logging";
-import type { LoggerPort } from "@kudos-protocol/ports";
+import { logger as log } from "@kudos-protocol/pool-server";
+import type { LoggerPort } from "@kudos-protocol/pool-server";
 
 export const logger: LoggerPort = {
   debug(msg: string, data?: Record<string, unknown>) { log.debug(msg, data); },

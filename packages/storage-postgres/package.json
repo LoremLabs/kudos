@@ -2,6 +2,9 @@
   "name": "@kudos-protocol/storage-postgres",
   "version": "0.0.1",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",

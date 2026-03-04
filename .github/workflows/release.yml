@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Enable Corepack (pnpm)
+        run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Compute release lane
+        id: lane
+        shell: bash
+        run: |
+          pnpm changeset status --output changeset-status.json || true
+
+          node - <<'NODE'
+          const fs = require("fs");
+          let status;
+          try {
+            status = JSON.parse(fs.readFileSync("changeset-status.json", "utf8"));
+          } catch {
+            status = { releases: [] };
+          }
+          const releasing = new Set((status.releases ?? []).map(r => r.name));
+
+          const POOL_STACK = new Set([
+            "@kudos-protocol/pool-server",
+            "@kudos-protocol/server",
+            "@kudos-protocol/storage-sqlite",
+            "@kudos-protocol/storage-postgres",
+            "@kudos-protocol/worker-outbox",
+            "@kudos-protocol/ports",
+            "@kudos-protocol/pool-core",
+          ]);
+
+          const PRIMITIVES = new Set([
+            "@kudos-protocol/subject-hash",
+            "@kudos-protocol/logging",
+          ]);
+
+          const poolChanged = [...POOL_STACK].some(p => releasing.has(p));
+          const primitivesChanged = [...PRIMITIVES].some(p => releasing.has(p));
+          const anythingChanged = releasing.size > 0;
+
+          let lane = "none";
+          if (poolChanged) lane = "pool";
+          else if (primitivesChanged) lane = "primitives";
+
+          const out = process.env.GITHUB_OUTPUT;
+          fs.appendFileSync(out, `lane=${lane}\n`);
+          fs.appendFileSync(out, `anythingChanged=${anythingChanged}\n`);
+          fs.appendFileSync(out, `poolChanged=${poolChanged}\n`);
+          fs.appendFileSync(out, `primitivesChanged=${primitivesChanged}\n`);
+          console.log(`lane=${lane} anythingChanged=${anythingChanged}`);
+          NODE
+
+      - name: Skip (nothing to release)
+        if: steps.lane.outputs.anythingChanged != 'true'
+        run: echo "No packages queued for release."
+
+      - name: Build (pool stack lane)
+        if: steps.lane.outputs.lane == 'pool'
+        run: pnpm -r --filter "./packages/**" run build
+
+      - name: Test (pool stack lane)
+        if: steps.lane.outputs.lane == 'pool'
+        run: pnpm -r --filter "./packages/**" run test
+
+      - name: Build (primitives lane)
+        if: steps.lane.outputs.lane == 'primitives'
+        run: pnpm -r --filter @kudos-protocol/subject-hash --filter @kudos-protocol/logging run build
+
+      - name: Test (primitives lane)
+        if: steps.lane.outputs.lane == 'primitives'
+        run: pnpm -r --filter @kudos-protocol/subject-hash --filter @kudos-protocol/logging run test
+
+      - name: Changesets (version PR / publish)
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

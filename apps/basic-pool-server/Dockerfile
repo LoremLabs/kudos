@@ -23,6 +23,8 @@ COPY --from=builder /app/packages/storage-sqlite/dist/ packages/storage-sqlite/d
 COPY --from=builder /app/packages/storage-sqlite/drizzle/ packages/storage-sqlite/drizzle/
 COPY --from=builder /app/packages/worker-outbox/package.json packages/worker-outbox/package.json
 COPY --from=builder /app/packages/worker-outbox/dist/ packages/worker-outbox/dist/
+COPY --from=builder /app/packages/pool-server/package.json packages/pool-server/package.json
+COPY --from=builder /app/packages/pool-server/dist/ packages/pool-server/dist/
 COPY --from=builder /app/apps/basic-pool-server/package.json apps/basic-pool-server/package.json
 COPY --from=builder /app/apps/basic-pool-server/dist/ apps/basic-pool-server/dist/
 

@@ -1,7 +1,6 @@
 import Fastify from "fastify";
-import { poolServerPlugin, adminPlugin } from "@kudos-protocol/server";
-import { SqliteStorage } from "@kudos-protocol/storage-sqlite";
-import { OutboxWorker, ConsoleSink } from "@kudos-protocol/worker-outbox";
+import { poolServerPlugin, adminPlugin, OutboxWorker, ConsoleSink } from "@kudos-protocol/pool-server";
+import { SqliteStorage } from "@kudos-protocol/pool-server/sqlite";
 import { StaticTokenAuth } from "./auth.js";
 import { logger } from "./logger.js";
 

@@ -8,12 +8,7 @@
     "dev": "node --import tsx src/main.ts"
   },
   "dependencies": {
-    "@kudos-protocol/pool-core": "workspace:*",
-    "@kudos-protocol/logging": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*",
-    "@kudos-protocol/server": "workspace:*",
-    "@kudos-protocol/storage-sqlite": "workspace:*",
-    "@kudos-protocol/worker-outbox": "workspace:*",
+    "@kudos-protocol/pool-server": "workspace:*",
     "fastify": "^5"
   },
   "devDependencies": {

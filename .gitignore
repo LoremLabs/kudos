@@ -11,4 +11,4 @@ coverage
 tmp
 *.log
 log
-docs/INTERNAL-ARCHITECTURE.md
+docs/INTERNAL-*

@@ -1,0 +1,39 @@
+{
+  "name": "@kudos-protocol/pool-server",
+  "version": "0.0.1",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./sqlite": {
+      "import": "./dist/sqlite.js",
+      "types": "./dist/sqlite.d.ts"
+    },
+    "./postgres": {
+      "import": "./dist/postgres.js",
+      "types": "./dist/postgres.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kudos-protocol/logging": "workspace:*",
+    "@kudos-protocol/pool-core": "workspace:*",
+    "@kudos-protocol/ports": "workspace:*",
+    "@kudos-protocol/server": "workspace:*",
+    "@kudos-protocol/storage-postgres": "workspace:*",
+    "@kudos-protocol/storage-sqlite": "workspace:*",
+    "@kudos-protocol/subject-hash": "workspace:*",
+    "@kudos-protocol/worker-outbox": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8"
+  }
+}
