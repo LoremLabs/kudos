@@ -26,7 +26,8 @@
 	"author": "@loremlabs",
 	"license": "MIT",
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"provenance": true
 	},
 	"bugs": {
 		"url": "https://github.com/LoremLabs/kudos/issues"
