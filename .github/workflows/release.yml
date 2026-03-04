@@ -25,7 +25,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: "https://registry.npmjs.org"
+          # Do NOT set registry-url here — it injects NODE_AUTH_TOKEN=GITHUB_TOKEN
+          # which poisons npm auth and breaks trusted publishing (OIDC).
+
       - name: Upgrade npm (trusted publishing requires >= 11.5.1)
         run: |
           npm install -g npm@latest
@@ -135,8 +137,13 @@ jobs:
       - name: Publish to npm (trusted publishing)
         if: steps.changesets.outputs.hasChangesets == 'false'
         shell: bash
+        env:
+          NODE_AUTH_TOKEN: ""
+          NPM_TOKEN: ""
         run: |
-          # Clear any auth token that changesets/action may have injected
+          # Remove any .npmrc that setup-node may have created
+          rm -f /home/runner/work/_temp/.npmrc
+          rm -f ~/.npmrc
           unset NODE_AUTH_TOKEN
           unset NPM_TOKEN
           echo "npm $(npm --version)"
