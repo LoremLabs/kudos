@@ -25,10 +25,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
       - name: Upgrade npm (trusted publishing requires >= 11.5.1)
-        run: npm install -g npm@latest
+        run: |
+          npm install -g npm@latest
+          echo "npm version: $(npm --version)"
 
       - name: Enable Corepack (pnpm)
         run: corepack enable
@@ -103,10 +104,36 @@ jobs:
         if: steps.lane.outputs.lane == 'primitives'
         run: pnpm -r --filter @kudos-protocol/subject-hash --filter @kudos-protocol/logging run test
 
-      - name: Changesets (version PR / publish)
+      # Version PR only — no publish here
+      - name: Changesets (version PR)
+        id: changesets
         uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
+
+      # Publish using npm directly (npm 11 handles OIDC natively)
+      - name: Publish to npm (trusted publishing)
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        shell: bash
+        run: |
+          echo "npm $(npm --version)"
+          for pkg in packages/*/; do
+            PKG_NAME=$(node -p "require('./$pkg/package.json').name")
+            PKG_VERSION=$(node -p "require('./$pkg/package.json').version")
+            PKG_PRIVATE=$(node -p "require('./$pkg/package.json').private ?? false")
+
+            if [ "$PKG_PRIVATE" = "true" ]; then
+              echo "⏭ Skipping $PKG_NAME (private)"
+              continue
+            fi
+
+            # Check if this version is already on npm
+            PUBLISHED=$(npm view "$PKG_NAME@$PKG_VERSION" version 2>/dev/null || echo "")
+            if [ "$PUBLISHED" = "$PKG_VERSION" ]; then
+              echo "⏭ Skipping $PKG_NAME@$PKG_VERSION (already published)"
+              continue
+            fi
+
+            echo "📦 Publishing $PKG_NAME@$PKG_VERSION..."
+            (cd "$pkg" && npm publish --provenance --access public)
+          done
