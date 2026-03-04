@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Upgrade npm (trusted publishing requires >= 11.5.1)
+        run: npm install -g npm@latest
+
       - name: Enable Corepack (pnpm)
         run: corepack enable
 
