@@ -2,6 +2,11 @@
   "name": "@kudos-protocol/worker-outbox",
   "version": "0.0.4",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoremLabs/kudos.git",
+    "directory": "packages/worker-outbox"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true

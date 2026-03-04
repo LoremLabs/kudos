@@ -2,6 +2,11 @@
   "name": "@kudos-protocol/storage-sqlite",
   "version": "0.0.4",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoremLabs/kudos.git",
+    "directory": "packages/storage-sqlite"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true

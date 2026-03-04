@@ -2,6 +2,11 @@
   "name": "@kudos-protocol/pool-server",
   "version": "0.0.4",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoremLabs/kudos.git",
+    "directory": "packages/pool-server"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
