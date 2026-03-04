@@ -116,34 +116,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Publish using npm directly (npm 11 handles OIDC natively)
-      - name: Debug npm environment
+      - name: Prepare npm for trusted publishing
         if: steps.changesets.outputs.hasChangesets == 'false'
         shell: bash
         run: |
-          echo "=== npm version ==="
-          npm --version
-          echo "=== which npm ==="
-          which npm
+          echo "=== Before cleanup ==="
+          echo "NPM_CONFIG_USERCONFIG: ${NPM_CONFIG_USERCONFIG:-<unset>}"
+          echo "NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:+(set)}"
+          cat "${NPM_CONFIG_USERCONFIG:-/dev/null}" 2>/dev/null || true
+
+          # Remove _authToken from .npmrc so npm sees NO token configured
+          # and falls through to OIDC. Keep registry URL.
+          if [ -n "$NPM_CONFIG_USERCONFIG" ] && [ -f "$NPM_CONFIG_USERCONFIG" ]; then
+            sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
+            sed -i '/always-auth/d' "$NPM_CONFIG_USERCONFIG"
+          fi
+
+          echo "=== After cleanup ==="
+          cat "${NPM_CONFIG_USERCONFIG:-/dev/null}" 2>/dev/null || true
           echo "=== OIDC available ==="
           echo "ACTIONS_ID_TOKEN_REQUEST_URL: ${ACTIONS_ID_TOKEN_REQUEST_URL:+(set)}"
           echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+(set)}"
           echo "=== npm config ==="
           npm config list
-          echo "=== .npmrc files ==="
-          cat /home/runner/work/_temp/.npmrc 2>/dev/null || echo "(no temp .npmrc)"
-          cat ~/.npmrc 2>/dev/null || echo "(no user .npmrc)"
-          cat .npmrc 2>/dev/null || echo "(no project .npmrc)"
-          echo "=== NODE_AUTH_TOKEN ==="
-          echo "NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:+(set)}"
 
       - name: Publish to npm (trusted publishing)
         if: steps.changesets.outputs.hasChangesets == 'false'
         shell: bash
         env:
-          # Override GITHUB_TOKEN that setup-node injected as NODE_AUTH_TOKEN.
-          # Empty string lets npm detect OIDC and use trusted publishing.
+          # Clear any auth tokens so npm uses OIDC
           NODE_AUTH_TOKEN: ""
         run: |
+          # Ensure NODE_AUTH_TOKEN is truly absent (not empty string)
+          unset NODE_AUTH_TOKEN
+          unset NPM_TOKEN
           echo "npm $(npm --version)"
           for pkg in packages/*/; do
             PKG_NAME=$(node -p "require('./$pkg/package.json').name")
@@ -163,5 +169,10 @@ jobs:
             fi
 
             echo "📦 Publishing $PKG_NAME@$PKG_VERSION..."
-            (cd "$pkg" && npm publish --provenance --access public)
+            (cd "$pkg" && npm publish --provenance --access public --loglevel verbose) || {
+              echo "::group::npm debug log"
+              cat /home/runner/.npm/_logs/*-debug-*.log 2>/dev/null || echo "(no debug log)"
+              echo "::endgroup::"
+              exit 1
+            }
           done
