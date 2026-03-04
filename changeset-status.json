@@ -1,0 +1,108 @@
+{
+  "changesets": [
+    {
+      "releases": [
+        {
+          "name": "@kudos-protocol/pool-core",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/pool-server",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/ports",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/server",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/storage-postgres",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/storage-sqlite",
+          "type": "patch"
+        },
+        {
+          "name": "@kudos-protocol/worker-outbox",
+          "type": "patch"
+        }
+      ],
+      "summary": "initial pool server build",
+      "id": "olive-lines-play"
+    }
+  ],
+  "releases": [
+    {
+      "name": "@kudos-protocol/pool-core",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/pool-server",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/ports",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/server",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/storage-postgres",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/storage-sqlite",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/worker-outbox",
+      "type": "patch",
+      "oldVersion": "0.0.1",
+      "changesets": [
+        "olive-lines-play"
+      ],
+      "newVersion": "0.0.2"
+    },
+    {
+      "name": "@kudos-protocol/basic-pool-server",
+      "type": "none",
+      "changesets": []
+    }
+  ]
+}
