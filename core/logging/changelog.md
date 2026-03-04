@@ -9,6 +9,12 @@ Subsections: (Added, Changed, Deprecated, Removed, Fixed, Security)
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-03-04
+
+### Added
+
+- Types
+
 ## [0.0.3] - 2023-05-01
 
 ### Added
