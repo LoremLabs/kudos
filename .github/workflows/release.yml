@@ -103,6 +103,7 @@ jobs:
       - name: Changesets (version PR / publish)
         uses: changesets/action@v1
         with:
-          publish: pnpm changeset publish --provenance
+          publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
