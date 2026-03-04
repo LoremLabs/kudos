@@ -1,8 +1,14 @@
-.DS_Store
 node_modules
+dist
+coverage
+*.tsbuildinfo
+.DS_Store
 .env
 .env.local
+.env.*.local
+*.db
 *.tmp
 tmp
 *.log
 log
+docs/INTERNAL-ARCHITECTURE.md

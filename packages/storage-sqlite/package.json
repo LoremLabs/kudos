@@ -1,0 +1,31 @@
+{
+  "name": "@kudos-protocol/storage-sqlite",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@kudos-protocol/pool-core": "workspace:*",
+    "@kudos-protocol/ports": "workspace:*",
+    "better-sqlite3": "^11",
+    "drizzle-orm": "^0.39"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7",
+    "@types/node": "^22",
+    "drizzle-kit": "^0.30",
+    "typescript": "^5.8",
+    "vitest": "^2.1"
+  }
+}

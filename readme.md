@@ -88,6 +88,39 @@ Compliance and eligibility rules are enforced before payout.
 
 ------------------------------------------------------------------------
 
+## Repo Structure
+
+```
+packages/
+  pool-core/        Pure logic: schemas, validation, normalization, errors
+  ports/            Interface contracts: StoragePort, AuthPort, SinkPort, etc.
+  server/           Fastify HTTP server + plugin for /core/v1/* routes
+  storage-sqlite/   SQLite storage adapter (reference)
+  storage-postgres/ PostgreSQL storage adapter (production)
+  worker-outbox/    Outbox polling worker + ConsoleSink
+  logging/          Structured logger
+  subject-hash/     Deterministic subject hashing
+apps/
+  basic-pool-server/  Reference app: SQLite + outbox + static-token auth
+test/               Integration / end-to-end tests
+docs/               Architecture notes & legacy READMEs
+```
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| `@kudos-protocol/pool-core` | Pure logic: schemas, validation, normalization, errors |
+| `@kudos-protocol/ports` | Interface contracts: StoragePort, AuthPort, SinkPort, etc. |
+| `@kudos-protocol/server` | Fastify HTTP server + plugin for `/core/v1/*` routes |
+| `@kudos-protocol/storage-sqlite` | SQLite storage adapter (reference) |
+| `@kudos-protocol/storage-postgres` | PostgreSQL storage adapter (production) |
+| `@kudos-protocol/worker-outbox` | Outbox polling worker + ConsoleSink |
+| `@kudos-protocol/logging` | Structured logger |
+| `@kudos-protocol/subject-hash` | Deterministic subject hashing |
+
+------------------------------------------------------------------------
+
 ## Identity & Subjects
 
 Kudos uses a light-weight canonical identity abstraction called a **Subject**.
