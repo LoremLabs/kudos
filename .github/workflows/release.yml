@@ -25,8 +25,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          # Do NOT set registry-url here — it injects NODE_AUTH_TOKEN=GITHUB_TOKEN
-          # which poisons npm auth and breaks trusted publishing (OIDC).
+          registry-url: "https://registry.npmjs.org"
+          # setup-node creates .npmrc with //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+          # and sets NODE_AUTH_TOKEN=GITHUB_TOKEN. The publish step overrides
+          # NODE_AUTH_TOKEN to empty so npm falls back to OIDC trusted publishing.
 
       - name: Upgrade npm (trusted publishing requires >= 11.5.1)
         run: |
@@ -138,14 +140,10 @@ jobs:
         if: steps.changesets.outputs.hasChangesets == 'false'
         shell: bash
         env:
+          # Override GITHUB_TOKEN that setup-node injected as NODE_AUTH_TOKEN.
+          # Empty string lets npm detect OIDC and use trusted publishing.
           NODE_AUTH_TOKEN: ""
-          NPM_TOKEN: ""
         run: |
-          # Remove any .npmrc that setup-node may have created
-          rm -f /home/runner/work/_temp/.npmrc
-          rm -f ~/.npmrc
-          unset NODE_AUTH_TOKEN
-          unset NPM_TOKEN
           echo "npm $(npm --version)"
           for pkg in packages/*/; do
             PKG_NAME=$(node -p "require('./$pkg/package.json').name")
