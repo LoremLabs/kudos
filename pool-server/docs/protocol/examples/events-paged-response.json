@@ -1,0 +1,55 @@
+{
+  "$comment": "Example: paged events response with cursor for next page",
+  "request": {
+    "method": "GET",
+    "path": "/core/v1/pools/pool_abc123/events?limit=3",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJFUzI1NiIs..."
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "events": [
+        {
+          "id": "kudos:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "recipient": "email:bob@example.com",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T14:30:00.000Z",
+          "scopeId": null,
+          "kudos": 100,
+          "emoji": "\ud83d\udc4d",
+          "title": "Great PR review",
+          "visibility": "RECIPIENT_SUMMARY",
+          "meta": null
+        },
+        {
+          "id": "kudos:b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "recipient": "email:carol@example.com",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T14:25:00.000Z",
+          "scopeId": "dp:2026-03-03",
+          "kudos": 50,
+          "emoji": null,
+          "title": "Helpful docs update",
+          "visibility": "PRIVATE",
+          "meta": null
+        },
+        {
+          "id": "kudos:c3d4e5f6-a7b8-9012-cdef-123456789012",
+          "recipient": "twitter:dave_dev",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T14:20:00.000Z",
+          "scopeId": null,
+          "kudos": 200,
+          "emoji": "\ud83d\ude80",
+          "title": "Shipped it",
+          "visibility": "PUBLIC_SUMMARY",
+          "meta": "{\"source\":\"web\",\"campaign\":\"q1-launch\"}"
+        }
+      ],
+      "nextCursor": "eyJ0cyI6IjIwMjYtMDMtMDNUMTQ6MjA6MDAuMDAwWiIsImlkIjoia3Vkb3M6YzNkNGU1ZjYifQ",
+      "hasMore": true
+    }
+  }
+}

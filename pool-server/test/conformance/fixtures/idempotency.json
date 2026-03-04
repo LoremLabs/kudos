@@ -1,0 +1,64 @@
+{
+  "$comment": "Fixture: submitting the same event twice should result in the second being a no-op (not an error, not a duplicate).",
+  "setup": {
+    "poolId": "test-pool-idem",
+    "sender": "email:alice@example.com"
+  },
+  "steps": [
+    {
+      "action": "appendEvents",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:idem-001",
+            "recipient": "email:bob@example.com",
+            "kudos": 100,
+            "ts": "2026-03-03T10:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1,
+        "rejected": 0
+      }
+    },
+    {
+      "action": "appendEvents",
+      "$comment": "Same event ID resubmitted — should be a no-op",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:idem-001",
+            "recipient": "email:bob@example.com",
+            "kudos": 100,
+            "ts": "2026-03-03T10:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1,
+        "rejected": 0,
+        "$comment": "accepted=1 (idempotent), not rejected, not duplicated in storage"
+      }
+    },
+    {
+      "action": "getPoolSummary",
+      "expect": {
+        "totalKudos": 100,
+        "summary": [
+          {
+            "recipient": "email:bob@example.com",
+            "kudos": 100
+          }
+        ],
+        "$comment": "Total should be 100 (not 200) because the second append was idempotent"
+      }
+    }
+  ]
+}

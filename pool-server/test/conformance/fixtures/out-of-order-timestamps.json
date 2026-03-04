@@ -1,0 +1,76 @@
+{
+  "$comment": "Fixture: events appended with non-monotonic timestamps are handled correctly. Both events should be stored and visible in the event log.",
+  "setup": {
+    "poolId": "test-pool-ooo",
+    "sender": "email:alice@example.com"
+  },
+  "steps": [
+    {
+      "action": "appendEvents",
+      "$comment": "Append a 'newer' event first",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:ooo-002",
+            "recipient": "email:bob@example.com",
+            "kudos": 200,
+            "ts": "2026-03-03T14:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1
+      }
+    },
+    {
+      "action": "appendEvents",
+      "$comment": "Now append an 'older' event",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:ooo-001",
+            "recipient": "email:carol@example.com",
+            "kudos": 100,
+            "ts": "2026-03-03T10:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1
+      }
+    },
+    {
+      "action": "listEvents",
+      "request": {
+        "limit": 10
+      },
+      "expect": {
+        "events": [
+          {
+            "id": "kudos:ooo-002",
+            "$comment": "Newer event first (ts DESC ordering)"
+          },
+          {
+            "id": "kudos:ooo-001",
+            "$comment": "Older event second"
+          }
+        ],
+        "hasMore": false,
+        "$comment": "Both events are present, ordered by ts DESC"
+      }
+    },
+    {
+      "action": "getPoolSummary",
+      "expect": {
+        "totalKudos": 300,
+        "$comment": "Both events contribute (different recipients, no scopeId overlap)"
+      }
+    }
+  ]
+}

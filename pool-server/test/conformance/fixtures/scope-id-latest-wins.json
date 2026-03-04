@@ -1,0 +1,64 @@
+{
+  "$comment": "Fixture: two events with the same (recipient, scopeId) — only the newer one contributes to projections.",
+  "setup": {
+    "poolId": "test-pool-scope",
+    "sender": "email:alice@example.com"
+  },
+  "steps": [
+    {
+      "action": "appendEvents",
+      "$comment": "First event: 50 kudos for daily-prompt scope",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:scope-001",
+            "recipient": "email:bob@example.com",
+            "scopeId": "dp:2026-03-03",
+            "kudos": 50,
+            "ts": "2026-03-03T10:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1
+      }
+    },
+    {
+      "action": "appendEvents",
+      "$comment": "Second event: same recipient+scopeId but newer timestamp and different kudos value",
+      "request": {
+        "sender": "email:alice@example.com",
+        "mode": "lax",
+        "events": [
+          {
+            "id": "kudos:scope-002",
+            "recipient": "email:bob@example.com",
+            "scopeId": "dp:2026-03-03",
+            "kudos": 200,
+            "ts": "2026-03-03T14:00:00.000Z"
+          }
+        ]
+      },
+      "expect": {
+        "status": "ok",
+        "accepted": 1
+      }
+    },
+    {
+      "action": "getPoolSummary",
+      "expect": {
+        "totalKudos": 200,
+        "summary": [
+          {
+            "recipient": "email:bob@example.com",
+            "kudos": 200
+          }
+        ],
+        "$comment": "Total is 200 (latest wins), not 250 (sum of both)"
+      }
+    }
+  ]
+}

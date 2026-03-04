@@ -1,0 +1,50 @@
+{
+  "$comment": "Example: strict-mode batch that fails validation — entire batch rejected",
+  "request": {
+    "method": "POST",
+    "path": "/core/v1/pools/pool_abc123/events",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJFUzI1NiIs...",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "sender": "email:alice@example.com",
+      "mode": "strict",
+      "events": [
+        {
+          "recipient": "email:bob@example.com",
+          "kudos": 100,
+          "title": "Good work"
+        },
+        {
+          "recipient": "not-a-valid-subject",
+          "kudos": 50
+        },
+        {
+          "recipient": "email:carol@example.com",
+          "kudos": 9999,
+          "title": "Exceeds max kudos value"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "error",
+      "accepted": 0,
+      "rejected": 3,
+      "errors": [
+        {
+          "index": 1,
+          "message": "Invalid recipient format. Expected 'type:id' (e.g. 'email:user@example.com')."
+        },
+        {
+          "index": 2,
+          "message": "Kudos value 9999 exceeds maximum of 5000."
+        }
+      ],
+      "events": []
+    }
+  }
+}

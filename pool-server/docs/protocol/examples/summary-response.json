@@ -1,0 +1,42 @@
+{
+  "$comment": "Example: pool summary with several recipients",
+  "request": {
+    "method": "GET",
+    "path": "/core/v1/pools/pool_abc123/summary?limit=50",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJFUzI1NiIs..."
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "totalKudos": 1250,
+      "summary": [
+        {
+          "recipient": "email:bob@example.com",
+          "kudos": 500,
+          "emojis": ["\ud83d\udc4d", "\ud83c\udf1f"],
+          "percent": 40.0
+        },
+        {
+          "recipient": "email:carol@example.com",
+          "kudos": 400,
+          "emojis": ["\ud83d\ude80"],
+          "percent": 32.0
+        },
+        {
+          "recipient": "twitter:dave_dev",
+          "kudos": 200,
+          "emojis": ["\u2764\ufe0f", "\ud83d\udc4f"],
+          "percent": 16.0
+        },
+        {
+          "recipient": "email:eve@example.com",
+          "kudos": 150,
+          "emojis": [],
+          "percent": 12.0
+        }
+      ]
+    }
+  }
+}

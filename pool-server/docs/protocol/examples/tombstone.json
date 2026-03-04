@@ -1,0 +1,46 @@
+{
+  "$comment": "Example: tombstone (delete) a previous kudos entry by setting kudos:0 with matching scopeId",
+  "request": {
+    "method": "POST",
+    "path": "/core/v1/pools/pool_abc123/events",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJFUzI1NiIs...",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "sender": "email:alice@example.com",
+      "mode": "lax",
+      "events": [
+        {
+          "recipient": "email:bob@example.com",
+          "scopeId": "review:pr-1042",
+          "kudos": 0,
+          "title": "Retracted"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "accepted": 1,
+      "rejected": 0,
+      "errors": [],
+      "events": [
+        {
+          "id": "kudos:d4e5f6a7-b8c9-0123-defa-234567890123",
+          "recipient": "email:bob@example.com",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T15:00:00.000Z",
+          "scopeId": "review:pr-1042",
+          "kudos": 0,
+          "emoji": null,
+          "title": "Retracted",
+          "visibility": "PRIVATE",
+          "meta": null
+        }
+      ]
+    }
+  }
+}

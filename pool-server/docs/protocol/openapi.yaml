@@ -1,0 +1,555 @@
+openapi: 3.1.0
+info:
+  title: PoolServer Core API
+  version: 1.0.0
+  description: |
+    The PoolServer `/core/v1` protocol for appending and reading kudos events.
+
+    PoolServer is an open-source event ledger for recognition ("kudos") pools.
+    This spec defines the stable protocol surface — framework-agnostic,
+    storage-agnostic, and vendor-agnostic.
+
+    ## Key concepts
+
+    - **Pool**: A named container for kudos events, identified by `poolId`.
+    - **Event**: A single kudos entry recording recognition from a sender to a recipient.
+    - **Sender**: The authenticated principal appending events (format `type:id`, e.g. `email:alice@example.com`).
+    - **Recipient**: The subject receiving kudos (same format).
+    - **scopeId**: Optional key for "latest-wins" semantics — only the newest event per `(poolId, recipient, scopeId)` contributes to projections.
+    - **Tombstone**: An event with `kudos: 0` that zeroes out a previous entry.
+
+    ## Authentication
+
+    All endpoints require a Bearer JWT in the `Authorization` header.
+
+    ## Modes
+
+    - **lax** (default): Accepts valid events and skips invalid ones, returning per-item errors.
+    - **strict**: Rejects the entire batch if any event is invalid.
+
+    ## Legacy compatibility
+
+    The deprecated `/api/pool/store` and `/api/pool/get` endpoints are not part of the core protocol.
+    They are implemented as a compatibility layer (Phase 6) that maps to these core endpoints,
+    including `amount`/`scale` → `kudos` normalization.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Events
+    description: Append and read pool events
+  - name: Summary
+    description: Read aggregated pool summaries
+
+paths:
+  /core/v1/pools/{poolId}/events:
+    post:
+      operationId: appendEvents
+      summary: Append events to a pool
+      description: |
+        Bulk-append one or more kudos events to the specified pool.
+
+        In **lax** mode (default), valid events are accepted and invalid ones are
+        skipped with per-item errors. In **strict** mode, the entire batch is
+        rejected if any event fails validation.
+
+        Events are idempotent by `id` — resubmitting an event with the same `id`
+        is a no-op (not an error).
+
+        ### Limits
+        - Maximum 10,000 events per request.
+        - `kudos` value range: 0–5000 (0 = tombstone).
+        - `emoji`: max 3 grapheme clusters.
+        - `title`: max 128 bytes UTF-8.
+        - `ts` cannot be in the future.
+      tags: [Events]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppendEventsRequest'
+            examples:
+              laxBatch:
+                summary: Lax-mode batch with mixed results
+                externalValue: examples/append-events-lax.json
+              strictBatch:
+                summary: Strict-mode batch that fails validation
+                externalValue: examples/append-events-strict.json
+              tombstone:
+                summary: Tombstone (delete) an entry
+                externalValue: examples/tombstone.json
+      responses:
+        '200':
+          description: Events processed (check `status` for partial failures in lax mode)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppendEventsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+    get:
+      operationId: listEvents
+      summary: Read events from a pool
+      description: |
+        Returns a paged list of events from the specified pool, ordered by
+        timestamp descending (newest first).
+
+        Use `cursor` for stable pagination across large result sets.
+        Use `since`/`until` to filter by time range.
+      tags: [Events]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+        - name: cursor
+          in: query
+          description: Opaque pagination cursor from a previous response's `nextCursor`.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of events to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 200
+        - name: since
+          in: query
+          description: Only return events with `ts` at or after this ISO 8601 timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          description: Only return events with `ts` before this ISO 8601 timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: includeTombstones
+          in: query
+          description: 'Include tombstone events (kudos=0) in results.'
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Paged list of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventsResponse'
+              examples:
+                paged:
+                  summary: Paged response with cursor
+                  externalValue: examples/events-paged-response.json
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /core/v1/pools/{poolId}/summary:
+    get:
+      operationId: getPoolSummary
+      summary: Read aggregated pool summary
+      description: |
+        Returns an aggregated summary of the pool: total kudos and a ranked
+        list of recipients with their totals, emoji collections, and
+        percentage share.
+
+        The summary reflects the current projection state, which accounts for
+        `scopeId` latest-wins semantics and tombstones.
+      tags: [Summary]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+        - name: limit
+          in: query
+          description: Maximum number of recipients to return in the summary.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+      responses:
+        '200':
+          description: Pool summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolSummaryResponse'
+              examples:
+                summary:
+                  summary: Summary for a pool with several recipients
+                  externalValue: examples/summary-response.json
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT issued by the configured auth provider.
+
+  parameters:
+    poolId:
+      name: poolId
+      in: path
+      required: true
+      description: The unique identifier of the pool.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 255
+
+  schemas:
+    # ── Request schemas ──────────────────────────────────────────────
+
+    AppendEventsRequest:
+      type: object
+      required: [sender, events]
+      properties:
+        sender:
+          type: string
+          description: |
+            The principal appending events, in subject format `type:id`
+            (e.g. `email:alice@example.com`). Must match the authenticated user.
+          pattern: '^[a-zA-Z]{1,32}:[\S]{1,254}$'
+          examples:
+            - 'email:alice@example.com'
+        mode:
+          type: string
+          description: |
+            Error handling mode.
+            - `lax` (default): accept valid events, skip invalid ones with per-item errors.
+            - `strict`: reject the entire batch if any event is invalid.
+          enum: [lax, strict]
+          default: lax
+        events:
+          type: array
+          description: One or more kudos events to append.
+          minItems: 1
+          maxItems: 10000
+          items:
+            $ref: '#/components/schemas/EventInput'
+
+    EventInput:
+      type: object
+      required: [recipient]
+      properties:
+        id:
+          type: string
+          description: |
+            Opaque string, no whitespace, max 255 bytes. If omitted, the
+            server generates `kudos:<base64url-uuidv7>` (time-sortable,
+            22 characters). Resubmitting an existing `id` is idempotent
+            (no-op, not an error).
+          maxLength: 255
+          examples:
+            - 'kudos:AZMx0HYQcBCaqFLN4VZH0A'
+        recipient:
+          type: string
+          description: The subject receiving kudos, in `type:id` format.
+          pattern: '^[a-zA-Z]{1,32}:[\S]{1,254}$'
+          examples:
+            - 'email:bob@example.com'
+        ts:
+          type: string
+          format: date-time
+          description: |
+            ISO 8601 timestamp. Defaults to the current server time.
+            Cannot be in the future.
+          examples:
+            - '2026-03-03T12:00:00Z'
+        scopeId:
+          type: string
+          description: |
+            Optional scope key for "latest-wins" semantics. When set, only
+            the newest event per `(poolId, recipient, scopeId)` contributes
+            to projections.
+          maxLength: 255
+          examples:
+            - 'dp:2026-03-03'
+        kudos:
+          type: integer
+          description: |
+            Kudos value. Range 0–5000. A value of `0` is a tombstone that
+            zeroes out a previous entry (requires matching `scopeId`).
+          minimum: 0
+          maximum: 5000
+          default: 1
+          examples:
+            - 100
+        emoji:
+          type: string
+          description: Emoji decoration. Max 3 grapheme clusters, max 64 bytes UTF-8.
+          examples:
+            - "\U0001F44D"
+        title:
+          type: string
+          description: Short title or label for the event. Max 128 bytes UTF-8.
+          maxLength: 128
+          examples:
+            - 'Great work'
+        visibility:
+          type: string
+          description: Controls who can see this event.
+          enum:
+            - PRIVATE
+            - RECIPIENT_SUMMARY
+            - RECIPIENT_ALL
+            - PUBLIC_SUMMARY
+            - PUBLIC_ALL
+          default: PRIVATE
+        meta:
+          type: string
+          description: |
+            Optional metadata as a JSON string. The protocol treats this as
+            an opaque blob — validation of the JSON structure is the
+            caller's responsibility.
+          examples:
+            - '{"source":"web","campaign":"q1-launch"}'
+
+    # ── Response schemas ─────────────────────────────────────────────
+
+    AppendEventsResponse:
+      type: object
+      required: [status, accepted, rejected]
+      properties:
+        status:
+          type: string
+          description: |
+            Overall result.
+            - `ok`: all events accepted.
+            - `partial`: some events accepted, some rejected (lax mode only).
+            - `error`: no events accepted (strict mode, or all invalid).
+          enum: [ok, partial, error]
+        accepted:
+          type: integer
+          description: Number of events successfully accepted.
+          minimum: 0
+        rejected:
+          type: integer
+          description: Number of events rejected.
+          minimum: 0
+        errors:
+          type: array
+          description: Per-event errors (present when `rejected > 0`).
+          items:
+            $ref: '#/components/schemas/EventError'
+        events:
+          type: array
+          description: |
+            Echo of accepted events with server-normalized fields
+            (generated `id`, `ts`, `sender`, defaults applied).
+          items:
+            $ref: '#/components/schemas/Event'
+
+    EventError:
+      type: object
+      required: [index, message]
+      properties:
+        eventId:
+          type: string
+          description: The `id` of the rejected event, if one was provided.
+        index:
+          type: integer
+          description: Zero-based index of the rejected event in the request array.
+          minimum: 0
+        message:
+          type: string
+          description: Human-readable error description.
+
+    Event:
+      type: object
+      required: [id, recipient, sender, ts, kudos, visibility]
+      properties:
+        id:
+          type: string
+          examples:
+            - 'kudos:550e8400-e29b-41d4-a716-446655440000'
+        recipient:
+          type: string
+          examples:
+            - 'email:bob@example.com'
+        sender:
+          type: string
+          examples:
+            - 'email:alice@example.com'
+        ts:
+          type: string
+          format: date-time
+          examples:
+            - '2026-03-03T12:00:00Z'
+        scopeId:
+          type:
+            - string
+            - 'null'
+        kudos:
+          type: integer
+          minimum: 0
+          maximum: 5000
+        emoji:
+          type:
+            - string
+            - 'null'
+        title:
+          type:
+            - string
+            - 'null'
+        visibility:
+          type: string
+          enum:
+            - PRIVATE
+            - RECIPIENT_SUMMARY
+            - RECIPIENT_ALL
+            - PUBLIC_SUMMARY
+            - PUBLIC_ALL
+        meta:
+          type:
+            - string
+            - 'null'
+
+    ListEventsResponse:
+      type: object
+      required: [events, hasMore]
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        nextCursor:
+          type:
+            - string
+            - 'null'
+          description: Opaque cursor for the next page. `null` if no more results.
+        hasMore:
+          type: boolean
+          description: Whether there are more events beyond this page.
+
+    PoolSummaryResponse:
+      type: object
+      required: [totalKudos, summary]
+      properties:
+        totalKudos:
+          type: integer
+          description: Total kudos across all recipients in the pool.
+          minimum: 0
+        summary:
+          type: array
+          description: Ranked list of recipients by kudos total (descending).
+          items:
+            $ref: '#/components/schemas/RecipientSummary'
+
+    RecipientSummary:
+      type: object
+      required: [recipient, kudos, emojis, percent]
+      properties:
+        recipient:
+          type: string
+          description: Recipient subject in `type:id` format.
+          examples:
+            - 'email:bob@example.com'
+        kudos:
+          type: integer
+          description: Total kudos for this recipient (after scopeId and tombstone resolution).
+          minimum: 0
+        emojis:
+          type: array
+          description: Distinct emojis received (from the most recent events).
+          items:
+            type: string
+        percent:
+          type: number
+          format: float
+          description: This recipient's share of total pool kudos as a percentage (0–100).
+          minimum: 0
+          maximum: 100
+
+    ErrorResponse:
+      type: object
+      required: [status, code, message]
+      properties:
+        status:
+          type: string
+          enum: [error]
+        code:
+          type: string
+          description: Machine-readable error code.
+          examples:
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - VALIDATION_ERROR
+            - BATCH_TOO_LARGE
+        message:
+          type: string
+          description: Human-readable error description.
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            code: UNAUTHORIZED
+            message: Missing or invalid Bearer token.
+
+    Forbidden:
+      description: Authenticated but not authorized for this pool.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            code: FORBIDDEN
+            message: You do not have write access to this pool.
+
+    NotFound:
+      description: Pool not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            code: NOT_FOUND
+            message: Pool 'nonexistent' not found.
+
+    UnprocessableEntity:
+      description: Request body failed validation (strict mode, or structural issues).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            status: error
+            code: VALIDATION_ERROR
+            message: 'Batch exceeds maximum size of 10000 events.'

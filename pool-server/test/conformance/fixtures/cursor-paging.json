@@ -1,0 +1,95 @@
+{
+  "$comment": "Fixture: cursor-based pagination returns correct pages. Sort order is (ts DESC, id DESC). Cursor resumes after the last item on the page.",
+  "setup": {
+    "poolId": "test-pool-cursor",
+    "sender": "email:alice@example.com",
+    "seed": {
+      "$comment": "Pre-load 5 events with known timestamps and IDs",
+      "events": [
+        {
+          "id": "kudos:cur-001",
+          "recipient": "email:bob@example.com",
+          "kudos": 10,
+          "ts": "2026-03-03T10:00:00.000Z"
+        },
+        {
+          "id": "kudos:cur-002",
+          "recipient": "email:carol@example.com",
+          "kudos": 20,
+          "ts": "2026-03-03T11:00:00.000Z"
+        },
+        {
+          "id": "kudos:cur-003",
+          "recipient": "email:dave@example.com",
+          "kudos": 30,
+          "ts": "2026-03-03T12:00:00.000Z"
+        },
+        {
+          "id": "kudos:cur-004",
+          "recipient": "email:eve@example.com",
+          "kudos": 40,
+          "ts": "2026-03-03T13:00:00.000Z"
+        },
+        {
+          "id": "kudos:cur-005",
+          "recipient": "email:frank@example.com",
+          "kudos": 50,
+          "ts": "2026-03-03T14:00:00.000Z"
+        }
+      ]
+    }
+  },
+  "steps": [
+    {
+      "action": "listEvents",
+      "$comment": "First page: limit=2, no cursor",
+      "request": {
+        "limit": 2
+      },
+      "expect": {
+        "events": [
+          { "id": "kudos:cur-005" },
+          { "id": "kudos:cur-004" }
+        ],
+        "hasMore": true,
+        "nextCursor": {
+          "$comment": "Opaque cursor encoding { ts: '2026-03-03T13:00:00.000Z', id: 'kudos:cur-004' }",
+          "$decodedPayload": {
+            "ts": "2026-03-03T13:00:00.000Z",
+            "id": "kudos:cur-004"
+          }
+        }
+      }
+    },
+    {
+      "action": "listEvents",
+      "$comment": "Second page: use cursor from previous response",
+      "request": {
+        "limit": 2,
+        "cursor": "$previousNextCursor"
+      },
+      "expect": {
+        "events": [
+          { "id": "kudos:cur-003" },
+          { "id": "kudos:cur-002" }
+        ],
+        "hasMore": true
+      }
+    },
+    {
+      "action": "listEvents",
+      "$comment": "Third page: final page",
+      "request": {
+        "limit": 2,
+        "cursor": "$previousNextCursor"
+      },
+      "expect": {
+        "events": [
+          { "id": "kudos:cur-001" }
+        ],
+        "hasMore": false,
+        "nextCursor": null
+      }
+    }
+  ]
+}

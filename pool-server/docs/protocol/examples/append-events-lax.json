@@ -1,0 +1,76 @@
+{
+  "$comment": "Example: lax-mode batch append with mixed results (2 accepted, 1 rejected)",
+  "request": {
+    "method": "POST",
+    "path": "/core/v1/pools/pool_abc123/events",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJFUzI1NiIs...",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "sender": "email:alice@example.com",
+      "mode": "lax",
+      "events": [
+        {
+          "recipient": "email:bob@example.com",
+          "kudos": 100,
+          "emoji": "\ud83d\udc4d",
+          "title": "Great PR review",
+          "visibility": "RECIPIENT_SUMMARY"
+        },
+        {
+          "recipient": "email:carol@example.com",
+          "kudos": 50,
+          "title": "Helpful docs update",
+          "scopeId": "dp:2026-03-03"
+        },
+        {
+          "recipient": "email:alice@example.com",
+          "kudos": 200,
+          "title": "Self-send not allowed"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "partial",
+      "accepted": 2,
+      "rejected": 1,
+      "errors": [
+        {
+          "eventId": null,
+          "index": 2,
+          "message": "Sender and recipient cannot be the same."
+        }
+      ],
+      "events": [
+        {
+          "id": "kudos:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          "recipient": "email:bob@example.com",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T14:30:00.000Z",
+          "scopeId": null,
+          "kudos": 100,
+          "emoji": "\ud83d\udc4d",
+          "title": "Great PR review",
+          "visibility": "RECIPIENT_SUMMARY",
+          "meta": null
+        },
+        {
+          "id": "kudos:b2c3d4e5-f6a7-8901-bcde-f12345678901",
+          "recipient": "email:carol@example.com",
+          "sender": "email:alice@example.com",
+          "ts": "2026-03-03T14:30:00.000Z",
+          "scopeId": "dp:2026-03-03",
+          "kudos": 50,
+          "emoji": null,
+          "title": "Helpful docs update",
+          "visibility": "PRIVATE",
+          "meta": null
+        }
+      ]
+    }
+  }
+}
