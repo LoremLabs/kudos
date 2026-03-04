@@ -1,5 +1,13 @@
 # @kudos-protocol/server
 
+## 0.0.3
+
+### Patch Changes
+
+- 311bd6d: npm automation
+  - @kudos-protocol/ports@0.0.3
+  - @kudos-protocol/pool-core@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes
