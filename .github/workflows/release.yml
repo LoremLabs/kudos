@@ -115,6 +115,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Build before publish — the lane-based builds above only run when
+      # changesets are pending; this build runs on the publish merge.
+      - name: Build (pre-publish)
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm -r --filter "./packages/**" run build
+
       # Publish using npm directly (npm 11 OIDC trusted publishing)
       - name: Publish to npm (trusted publishing)
         if: steps.changesets.outputs.hasChangesets == 'false'
