@@ -1,5 +1,12 @@
 # @kudos-protocol/ports
 
+## 0.1.7
+
+### Patch Changes
+
+- 6380b34: bump
+  - @kudos-protocol/pool-core@0.1.7
+
 ## 0.1.6
 
 ### Patch Changes
