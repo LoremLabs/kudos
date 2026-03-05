@@ -24,14 +24,20 @@ describe("SubjectSchema", () => {
     expect(SubjectSchema.safeParse("email:bob@example.com").success).toBe(true);
     expect(SubjectSchema.safeParse("twitter:dave_dev").success).toBe(true);
     expect(SubjectSchema.safeParse("did:abc:123").success).toBe(true);
+    expect(SubjectSchema.safeParse("UPPER:case").success).toBe(true);
+    expect(SubjectSchema.safeParse("email+hash:user@example.com").success).toBe(true);
+    expect(SubjectSchema.safeParse("did.web:example.com").success).toBe(true);
+    expect(SubjectSchema.safeParse("X509:cert-id").success).toBe(true);
+    expect(SubjectSchema.safeParse("type123:id").success).toBe(true);
   });
 
   it("rejects invalid subjects", () => {
     expect(SubjectSchema.safeParse("").success).toBe(false);
     expect(SubjectSchema.safeParse("nocolon").success).toBe(false);
-    expect(SubjectSchema.safeParse("UPPER:case").success).toBe(false);
     expect(SubjectSchema.safeParse(":notype").success).toBe(false);
     expect(SubjectSchema.safeParse("email: space").success).toBe(false);
+    expect(SubjectSchema.safeParse("has space:id").success).toBe(false);
+    expect(SubjectSchema.safeParse("a".repeat(129) + ":id").success).toBe(false);
   });
 });
 

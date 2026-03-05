@@ -1,14 +1,14 @@
 import { z } from "zod";
 
 /**
- * Subject format: `type:id` where type is `[a-z]{1,32}` (lowercase only)
+ * Subject format: `type:id` where type is 1-128 characters (no colon or whitespace)
  * and id is 1-254 non-whitespace characters.
  */
-const SUBJECT_PATTERN = /^[a-z]{1,32}:\S{1,254}$/;
+const SUBJECT_PATTERN = /^[^:\s]{1,128}:\S{1,254}$/;
 
 export const SubjectSchema = z
   .string()
-  .regex(SUBJECT_PATTERN, "Invalid subject format. Expected 'type:id' (e.g. 'email:user@example.com').");
+  .regex(SUBJECT_PATTERN, "Invalid subject format. Expected 'type:id' where type is 1-128 chars (no colon/whitespace) and id is 1-254 non-whitespace chars.");
 
 export interface ParsedSubject {
   type: string;

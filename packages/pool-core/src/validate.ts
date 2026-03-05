@@ -39,7 +39,7 @@ export function validateEvent(
 ): ValidationResult {
   const p = { ...DEFAULT_POLICY, ...policy };
 
-  // 1. Subject shape: type portion must be lowercase
+  // 1. Subject shape
   let parsed: ReturnType<typeof parseSubject>;
   try {
     parsed = parseSubject(event.recipient);
@@ -47,13 +47,6 @@ export function validateEvent(
     return {
       ok: false,
       message: `Invalid recipient format. Expected 'type:id' (e.g. 'email:user@example.com').`,
-    };
-  }
-
-  if (parsed.type !== parsed.type.toLowerCase()) {
-    return {
-      ok: false,
-      message: `Subject type must be lowercase: '${parsed.type}'.`,
     };
   }
 
@@ -65,13 +58,6 @@ export function validateEvent(
     return {
       ok: false,
       message: `Invalid sender format. Expected 'type:id' (e.g. 'email:user@example.com').`,
-    };
-  }
-
-  if (senderParsed.type !== senderParsed.type.toLowerCase()) {
-    return {
-      ok: false,
-      message: `Sender type must be lowercase: '${senderParsed.type}'.`,
     };
   }
 

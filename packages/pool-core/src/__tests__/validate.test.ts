@@ -36,8 +36,13 @@ describe("validateEvent", () => {
 
   describe("subject validation", () => {
     it("rejects invalid recipient format", () => {
-      const result = validateEvent(makeEvent({ recipient: "UPPER:case" as any }));
+      const result = validateEvent(makeEvent({ recipient: "no-colon" as any }));
       expect(result.ok).toBe(false);
+    });
+
+    it("accepts uppercase type in recipient", () => {
+      const result = validateEvent(makeEvent({ recipient: "UPPER:case" }));
+      expect(result.ok).toBe(true);
     });
 
     it("rejects email without @", () => {
