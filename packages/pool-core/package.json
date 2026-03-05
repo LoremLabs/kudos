@@ -11,6 +11,7 @@
     "access": "public",
     "provenance": true
   },
+  "files": ["dist"],
   "exports": {
     ".": {
       "import": "./dist/index.js",
