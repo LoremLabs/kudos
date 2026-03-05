@@ -23,11 +23,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kudos-protocol/pool-core": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*"
+    "@kudos-protocol/pool-core": "workspace:^",
+    "@kudos-protocol/ports": "workspace:^"
   },
   "devDependencies": {
-    "@kudos-protocol/storage-sqlite": "workspace:*",
+    "@kudos-protocol/storage-sqlite": "workspace:^",
     "@types/node": "^22",
     "typescript": "^5.8",
     "vitest": "^2.1"

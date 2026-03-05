@@ -30,14 +30,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kudos-protocol/logging": "workspace:*",
-    "@kudos-protocol/pool-core": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*",
-    "@kudos-protocol/server": "workspace:*",
-    "@kudos-protocol/storage-postgres": "workspace:*",
-    "@kudos-protocol/storage-sqlite": "workspace:*",
-    "@kudos-protocol/subject-hash": "workspace:*",
-    "@kudos-protocol/worker-outbox": "workspace:*"
+    "@kudos-protocol/logging": "workspace:^",
+    "@kudos-protocol/pool-core": "workspace:^",
+    "@kudos-protocol/ports": "workspace:^",
+    "@kudos-protocol/server": "workspace:^",
+    "@kudos-protocol/storage-postgres": "workspace:^",
+    "@kudos-protocol/storage-sqlite": "workspace:^",
+    "@kudos-protocol/subject-hash": "workspace:^",
+    "@kudos-protocol/worker-outbox": "workspace:^"
   },
   "devDependencies": {
     "typescript": "^5.8"

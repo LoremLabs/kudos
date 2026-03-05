@@ -23,8 +23,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kudos-protocol/pool-core": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*",
+    "@kudos-protocol/pool-core": "workspace:^",
+    "@kudos-protocol/ports": "workspace:^",
     "fastify": "^5",
     "fastify-plugin": "^5",
     "zod": "^3.24"

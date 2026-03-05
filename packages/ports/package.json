@@ -22,7 +22,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kudos-protocol/pool-core": "workspace:*"
+    "@kudos-protocol/pool-core": "workspace:^"
   },
   "devDependencies": {
     "typescript": "^5.8"

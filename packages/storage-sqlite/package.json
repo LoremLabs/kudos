@@ -25,8 +25,8 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
-    "@kudos-protocol/pool-core": "workspace:*",
-    "@kudos-protocol/ports": "workspace:*",
+    "@kudos-protocol/pool-core": "workspace:^",
+    "@kudos-protocol/ports": "workspace:^",
     "better-sqlite3": "^11",
     "drizzle-orm": "^0.39"
   },
