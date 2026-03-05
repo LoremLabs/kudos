@@ -1,6 +1,6 @@
 {
   "name": "@kudos-protocol/storage-sqlite",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "repository": {
     "type": "git",
@@ -12,7 +12,8 @@
     "provenance": true
   },
   "files": [
-    "dist"
+    "dist",
+    "drizzle"
   ],
   "exports": {
     ".": {
