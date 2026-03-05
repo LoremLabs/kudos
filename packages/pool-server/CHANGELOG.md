@@ -1,5 +1,18 @@
 # @kudos-protocol/pool-server
 
+## 0.1.2
+
+### Patch Changes
+
+- 29549b8: Add `"files": ["dist"]` so compiled output is included in published tarballs. Previous releases excluded `dist/` because it was in `.gitignore` and no `files` field was set.
+- Updated dependencies [29549b8]
+  - @kudos-protocol/server@0.1.2
+  - @kudos-protocol/storage-sqlite@0.1.2
+  - @kudos-protocol/storage-postgres@0.1.2
+  - @kudos-protocol/worker-outbox@0.1.2
+  - @kudos-protocol/ports@0.1.2
+  - @kudos-protocol/pool-core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes
