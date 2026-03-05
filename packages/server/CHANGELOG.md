@@ -1,5 +1,14 @@
 # @kudos-protocol/server
 
+## 0.1.3
+
+### Patch Changes
+
+- 699da10: Fix npm publish: resolve workspace refs in-place before publishing from the package directory, restoring OIDC trusted publishing compatibility. Add `"files": ["dist"]` and pre-publish build step so compiled output is included in tarballs.
+- Updated dependencies [699da10]
+  - @kudos-protocol/ports@0.1.3
+  - @kudos-protocol/pool-core@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
