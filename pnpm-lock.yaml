@@ -75,28 +75,28 @@ importers:
   packages/pool-server:
     dependencies:
       '@kudos-protocol/logging':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../logging
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
       '@kudos-protocol/ports':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ports
       '@kudos-protocol/server':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../server
       '@kudos-protocol/storage-postgres':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../storage-postgres
       '@kudos-protocol/storage-sqlite':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../storage-sqlite
       '@kudos-protocol/subject-hash':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../subject-hash
       '@kudos-protocol/worker-outbox':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../worker-outbox
     devDependencies:
       typescript:
@@ -106,7 +106,7 @@ importers:
   packages/ports:
     dependencies:
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
     devDependencies:
       typescript:
@@ -116,10 +116,10 @@ importers:
   packages/server:
     dependencies:
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
       '@kudos-protocol/ports':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ports
       fastify:
         specifier: ^5
@@ -144,10 +144,10 @@ importers:
   packages/storage-postgres:
     dependencies:
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
       '@kudos-protocol/ports':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ports
       drizzle-orm:
         specifier: ^0.39
@@ -178,10 +178,10 @@ importers:
   packages/storage-sqlite:
     dependencies:
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
       '@kudos-protocol/ports':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ports
       better-sqlite3:
         specifier: ^11
@@ -230,14 +230,14 @@ importers:
   packages/worker-outbox:
     dependencies:
       '@kudos-protocol/pool-core':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../pool-core
       '@kudos-protocol/ports':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../ports
     devDependencies:
       '@kudos-protocol/storage-sqlite':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../storage-sqlite
       '@types/node':
         specifier: ^22
