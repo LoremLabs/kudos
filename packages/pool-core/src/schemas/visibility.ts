@@ -14,9 +14,9 @@ export const VisibilitySchema = z.enum(VISIBILITIES);
 
 /** Numeric rank for ordering comparisons (higher = more public). */
 export const VISIBILITY_RANK: Record<Visibility, number> = {
-  PRIVATE: 0,
-  RECIPIENT_SUMMARY: 1,
-  RECIPIENT_ALL: 2,
-  PUBLIC_SUMMARY: 3,
-  PUBLIC_ALL: 4,
+  PRIVATE: 1,
+  RECIPIENT_SUMMARY: 2,
+  RECIPIENT_ALL: 3,
+  PUBLIC_SUMMARY: 4,
+  PUBLIC_ALL: 5,
 };
