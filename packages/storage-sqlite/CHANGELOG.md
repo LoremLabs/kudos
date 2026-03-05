@@ -1,5 +1,14 @@
 # @kudos-protocol/storage-sqlite
 
+## 0.1.4
+
+### Patch Changes
+
+- 4fdcfed: deploy woes
+- Updated dependencies [4fdcfed]
+  - @kudos-protocol/pool-core@0.1.4
+  - @kudos-protocol/ports@0.1.4
+
 ## 0.1.3
 
 ### Patch Changes
