@@ -1,5 +1,18 @@
 # @kudos-protocol/pool-server
 
+## 0.1.1
+
+### Patch Changes
+
+- 1ff4e5e: Fix missing compiled output in published packages. The 0.1.0 release contained only TypeScript source files because the build step was skipped during the publish run. Added a pre-publish build step to the release workflow.
+- Updated dependencies [1ff4e5e]
+  - @kudos-protocol/server@0.1.1
+  - @kudos-protocol/storage-sqlite@0.1.1
+  - @kudos-protocol/storage-postgres@0.1.1
+  - @kudos-protocol/worker-outbox@0.1.1
+  - @kudos-protocol/ports@0.1.1
+  - @kudos-protocol/pool-core@0.1.1
+
 ## 0.1.0
 
 ### Patch Changes
