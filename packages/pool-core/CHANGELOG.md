@@ -1,5 +1,11 @@
 # @kudos-protocol/pool-core
 
+## 0.1.6
+
+### Patch Changes
+
+- 3386052: Build pipeline bump
+
 ## 0.1.5
 
 ### Patch Changes
