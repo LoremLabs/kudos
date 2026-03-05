@@ -1,5 +1,12 @@
 # @kudos-protocol/server
 
+## 0.1.9
+
+### Patch Changes
+
+- @kudos-protocol/ports@0.1.9
+- @kudos-protocol/pool-core@0.1.9
+
 ## 0.1.7
 
 ### Patch Changes
