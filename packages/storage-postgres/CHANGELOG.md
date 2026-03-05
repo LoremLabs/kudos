@@ -1,5 +1,15 @@
 # @kudos-protocol/storage-postgres
 
+## 0.1.0
+
+### Patch Changes
+
+- 4f251bb: Fix published packages containing literal `workspace:*` in their dependencies instead of real version numbers. Use `pnpm pack` to build tarballs (which resolves workspace references) before publishing with `npm publish`. Also change all internal dependencies from `workspace:*` to `workspace:^` so published versions get proper semver ranges like `^0.0.4`.
+- Updated dependencies [4f251bb]
+- Updated dependencies [7839455]
+  - @kudos-protocol/ports@0.1.0
+  - @kudos-protocol/pool-core@0.1.0
+
 ## 0.0.4
 
 ### Patch Changes
