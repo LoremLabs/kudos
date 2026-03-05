@@ -1,10 +1,18 @@
 # @kudos-protocol/storage-sqlite
 
+## 0.1.9
+
+### Patch Changes
+
+- 81ae7ec: missing migrations folder for package
+  - @kudos-protocol/ports@0.1.9
+  - @kudos-protocol/pool-core@0.1.9
+
 ## 0.1.8
 
 ### Patch Changes
 
-- Include `drizzle/` migrations folder in published package. Previous releases only included `dist/` in the `files` field, causing `SqliteStorage` to crash on startup with "Can't find meta/_journal.json" because the drizzle migration files were missing from the npm tarball.
+- Include `drizzle/` migrations folder in published package. Previous releases only included `dist/` in the `files` field, causing `SqliteStorage` to crash on startup with "Can't find meta/\_journal.json" because the drizzle migration files were missing from the npm tarball.
 
 ## 0.1.7
 
