@@ -136,7 +136,45 @@ jobs:
           unset NODE_AUTH_TOKEN
           unset NPM_TOKEN
 
-          mkdir -p "$GITHUB_WORKSPACE/tmp-tarballs"
+          # Resolve workspace:^ references to real version numbers in each package.json
+          node - <<'RESOLVE'
+          const fs = require("fs");
+          const path = require("path");
+          const pkgDirs = fs.readdirSync("packages", { withFileTypes: true })
+            .filter(d => d.isDirectory())
+            .map(d => path.join("packages", d.name));
+
+          // Build a map of package name -> version
+          const versions = {};
+          for (const dir of pkgDirs) {
+            const pkg = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
+            versions[pkg.name] = pkg.version;
+          }
+
+          // Replace workspace:^ with ^<version> in each package.json
+          for (const dir of pkgDirs) {
+            const pkgPath = path.join(dir, "package.json");
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+            let changed = false;
+            for (const depField of ["dependencies", "devDependencies", "peerDependencies"]) {
+              if (!pkg[depField]) continue;
+              for (const [name, ver] of Object.entries(pkg[depField])) {
+                if (ver.startsWith("workspace:")) {
+                  const realVer = versions[name];
+                  if (realVer) {
+                    const prefix = ver.replace("workspace:", "") === "^" ? "^" : "";
+                    pkg[depField][name] = prefix + realVer;
+                    changed = true;
+                  }
+                }
+              }
+            }
+            if (changed) {
+              fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+              console.log("  Resolved workspace refs in " + pkgPath);
+            }
+          }
+          RESOLVE
 
           for pkg in packages/*/; do
             PKG_NAME=$(node -p "require('./$pkg/package.json').name")
@@ -156,6 +194,5 @@ jobs:
             fi
 
             echo "📦 Publishing $PKG_NAME@$PKG_VERSION..."
-            TARBALL=$(cd "$pkg" && pnpm pack --pack-destination "$GITHUB_WORKSPACE/tmp-tarballs" 2>/dev/null | tail -1)
-            npm publish "$TARBALL" --provenance --access public
+            (cd "$pkg" && npm publish --provenance --access public)
           done
