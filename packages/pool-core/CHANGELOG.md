@@ -1,5 +1,15 @@
 # @kudos-protocol/pool-core
 
+## 0.1.0
+
+### Minor Changes
+
+- 7839455: Relax subject type restriction from lowercase ASCII letters only (`[a-z]{1,32}`) to any non-colon, non-whitespace characters (`[^:\s]{1,128}`). This allows subject types like `email+hash`, `did.web`, `X509`, and types with digits. Downstream consumers can enforce stricter rules via the `validateSubject` policy hook.
+
+### Patch Changes
+
+- 4f251bb: Fix published packages containing literal `workspace:*` in their dependencies instead of real version numbers. Use `pnpm pack` to build tarballs (which resolves workspace references) before publishing with `npm publish`. Also change all internal dependencies from `workspace:*` to `workspace:^` so published versions get proper semver ranges like `^0.0.4`.
+
 ## 0.0.4
 
 ## 0.0.3
