@@ -1,5 +1,25 @@
 # @kudos-protocol/server
 
+## 0.3.0
+
+### Minor Changes
+
+- d741ff3: Add settlement-grade distribution endpoint
+
+  - `POST /core/v1/pools/{poolId}/distribution` — computes deterministic integer allocation of `totalPie` across pool recipients using largest-remainder method with bigint math
+  - All settlement values on the wire are base-10 strings (via new `bigintToString` helper)
+  - New `computeDistribution()` pure function in pool-core
+  - New `readRecipientTotals()` storage method returns bigint-native data without lossy Number() conversion
+  - Zero-allocation recipients are excluded from the response
+  - Invariant: `sum(points) === totalPie` (exact, no rounding loss)
+  - OpenAPI spec updated with full endpoint documentation
+
+### Patch Changes
+
+- Updated dependencies [d741ff3]
+  - @kudos-protocol/pool-core@0.3.0
+  - @kudos-protocol/ports@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
