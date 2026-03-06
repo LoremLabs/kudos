@@ -396,6 +396,7 @@ export class PostgresStorage implements StoragePort, OutboxPort {
             WHERE "delivered" = 0
               AND "attempts" < ${maxAttempts}
               AND ("leased_at" IS NULL OR "leased_at" <= now() - interval '${sql.raw(String(leaseTtlSeconds))} seconds')
+              AND ("next_retry_at" IS NULL OR "next_retry_at" <= now())
             ORDER BY "created_at" ASC
             LIMIT ${limit}
             FOR UPDATE SKIP LOCKED`,
@@ -450,11 +451,14 @@ export class PostgresStorage implements StoragePort, OutboxPort {
     leaseId: string,
   ): Promise<void> {
     if (ids.length === 0) return;
+    // Exponential backoff: 5s, 20s, 80s, 320s, 1280s (~21min), capped at 1h
+    // Formula: min(5 * 4^attempts, 3600) seconds from now
     await this.db
       .update(schema.outbox)
       .set({
         attempts: sql`${schema.outbox.attempts} + 1`,
         lastError: error,
+        nextRetryAt: sql`now() + make_interval(secs => least(5 * power(4, ${schema.outbox.attempts}), 3600))`,
       })
       .where(
         and(

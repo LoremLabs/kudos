@@ -1,0 +1,1 @@
+ALTER TABLE "outbox" ADD COLUMN "next_retry_at" timestamp with time zone;

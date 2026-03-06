@@ -88,6 +88,7 @@ export const outbox = pgTable(
     lastError: text("last_error"),
     leasedAt: timestamp("leased_at", { withTimezone: true }),
     leaseId: text("lease_id"),
+    nextRetryAt: timestamp("next_retry_at", { withTimezone: true }),
   },
   (table) => [
     index("idx_outbox_pending").on(table.delivered, table.createdAt),
