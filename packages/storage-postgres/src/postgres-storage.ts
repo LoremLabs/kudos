@@ -7,6 +7,8 @@ import type {
   ReadEventsOptions,
   ReadEventsResult,
   ReadSummaryResult,
+  ReadRecipientTotalsResult,
+  RecipientTotal,
   OutboxPort,
   OutboxRow,
 } from "@kudos-protocol/ports";
@@ -310,6 +312,31 @@ export class PostgresStorage implements StoragePort, OutboxPort {
     }));
 
     return { totalKudos, summary };
+  }
+
+  async readRecipientTotals(poolId: string): Promise<ReadRecipientTotalsResult> {
+    const [totalsRow] = await this.db
+      .select({ kudos: schema.poolTotals.kudos })
+      .from(schema.poolTotals)
+      .where(eq(schema.poolTotals.poolId, poolId));
+
+    const totalKudos = totalsRow ? BigInt(totalsRow.kudos) : 0n;
+
+    const rows = await this.db
+      .select({
+        recipient: schema.poolRecipientTotals.recipient,
+        kudos: schema.poolRecipientTotals.kudos,
+      })
+      .from(schema.poolRecipientTotals)
+      .where(eq(schema.poolRecipientTotals.poolId, poolId))
+      .orderBy(desc(schema.poolRecipientTotals.kudos), schema.poolRecipientTotals.recipient);
+
+    const recipients: RecipientTotal[] = rows.map((row) => ({
+      recipient: row.recipient,
+      kudos: BigInt(row.kudos),
+    }));
+
+    return { totalKudos, recipients };
   }
 
   // ─── Pool Metadata ─────────────────────────────────────────────────────

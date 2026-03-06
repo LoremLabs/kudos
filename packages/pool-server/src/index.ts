@@ -26,6 +26,7 @@ export {
   ListEventsQuerySchema,
   SummaryQuerySchema,
   PoolMetadataSchema,
+  DistributionRequestSchema,
 } from "@kudos-protocol/pool-core";
 
 // @kudos-protocol/pool-core — policy, normalize, validate, cursor, errors
@@ -37,6 +38,22 @@ export {
   decodeCursor,
   PoolServerError,
   ErrorCode,
+} from "@kudos-protocol/pool-core";
+
+// @kudos-protocol/pool-core — serialization
+export { bigintToJSON, bigintToString, serializeEvent, serializeDistribution } from "@kudos-protocol/pool-core";
+
+// @kudos-protocol/pool-core — distribution
+export { computeDistribution } from "@kudos-protocol/pool-core";
+
+// @kudos-protocol/pool-core — pool permissions
+export {
+  getSimplifiedPermissions,
+  canRead,
+  canWrite,
+  canAdmin,
+  isPoolFrozen,
+  makeOwnerPermissions,
 } from "@kudos-protocol/pool-core";
 
 // @kudos-protocol/pool-core — types
@@ -63,6 +80,10 @@ export type {
   EventValidationResult,
   CursorPayload,
   PoolMetadata,
+  DistributionRequest,
+  DistributionInput,
+  DistributionItem,
+  DistributionResult,
 } from "@kudos-protocol/pool-core";
 
 // @kudos-protocol/ports
@@ -72,6 +93,8 @@ export type {
   ReadEventsOptions,
   ReadEventsResult,
   ReadSummaryResult,
+  RecipientTotal,
+  ReadRecipientTotalsResult,
   AuthPort,
   AuthResult,
   SinkPort,

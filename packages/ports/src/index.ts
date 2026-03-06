@@ -4,6 +4,8 @@ export type {
   ReadEventsOptions,
   ReadEventsResult,
   ReadSummaryResult,
+  RecipientTotal,
+  ReadRecipientTotalsResult,
 } from "./storage.js";
 
 export type { AuthPort, AuthResult } from "./auth.js";

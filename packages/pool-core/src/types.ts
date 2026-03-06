@@ -10,3 +10,4 @@ export type { PoolId, ListEventsQuery, SummaryQuery } from "./schemas/query-para
 export type { Visibility } from "./schemas/visibility.js";
 export type { ParsedSubject } from "./schemas/subject.js";
 export type { PoolMetadata } from "./schemas/pool-metadata.js";
+export type { DistributionRequest } from "./schemas/distribution.js";

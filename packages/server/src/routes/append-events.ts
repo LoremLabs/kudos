@@ -6,6 +6,8 @@ import {
   PoolServerError,
   ErrorCode,
   DEFAULT_POLICY,
+  canWrite,
+  isPoolFrozen,
 } from "@kudos-protocol/pool-core";
 import type {
   Event,
@@ -15,6 +17,7 @@ import type {
 } from "@kudos-protocol/pool-core";
 import type { StoragePort, SinkPort } from "@kudos-protocol/ports";
 import type { LoggerPort } from "@kudos-protocol/ports";
+import { getSubjectHash } from "@kudos-protocol/subject-hash";
 
 interface AppendDeps {
   storage: StoragePort;
@@ -40,6 +43,24 @@ export function registerAppendEvents(app: FastifyInstance, deps: AppendDeps): vo
       }
       const body = parseResult.data;
       const { poolId } = request.params;
+
+      // Pool permission check
+      const poolMeta = await storage.getPoolMetadata(poolId);
+      if (poolMeta?.permissions) {
+        const subjectHash = getSubjectHash(request.sender);
+        if (!canWrite(poolMeta.permissions, subjectHash)) {
+          throw new PoolServerError(
+            ErrorCode.FORBIDDEN,
+            "You do not have write permission on this pool.",
+          );
+        }
+        if (isPoolFrozen(poolMeta.config ?? null)) {
+          throw new PoolServerError(
+            ErrorCode.FORBIDDEN,
+            "This pool is frozen and cannot accept new events.",
+          );
+        }
+      }
 
       // Sender mismatch check
       if (request.sender !== body.sender) {

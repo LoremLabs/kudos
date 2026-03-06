@@ -48,6 +48,8 @@ tags:
     description: Append and read pool events
   - name: Summary
     description: Read aggregated pool summaries
+  - name: Distribution
+    description: Settlement-grade deterministic allocation
   - name: Metadata
     description: Read and update pool metadata
 
@@ -207,6 +209,105 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /core/v1/pools/{poolId}/distribution:
+    post:
+      operationId: computeDistribution
+      summary: Compute deterministic distribution for a pool
+      description: |
+        Computes a settlement-grade, deterministic integer allocation of
+        `totalPie` across all pool recipients using the largest-remainder
+        method with bigint math.
+
+        **All settlement values on the wire are base-10 strings** — this
+        avoids JSON number precision loss for large values.
+
+        ### Algorithm
+
+        1. Each recipient's base allocation: `floor(kudos * totalPie / totalKudos)`
+        2. Leftover units (`totalPie - sum(basePoints)`) are distributed one
+           at a time to recipients ranked by remainder descending.
+        3. Ties are broken by recipient name ascending (deterministic).
+        4. **Invariant**: `sum(points) === totalPie` (exact, no rounding loss).
+
+        ### Zero-allocation filtering
+
+        Recipients whose computed `points` would be `"0"` are excluded from
+        the response `items` array.
+      tags: [Distribution]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DistributionRequest'
+            examples:
+              basic:
+                summary: Distribute 1,000,000 units
+                value:
+                  totalPie: "1000000"
+              large:
+                summary: Large settlement value
+                value:
+                  totalPie: "1000000000000000000"
+      responses:
+        '200':
+          description: Distribution computed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DistributionResponse'
+              examples:
+                threeWaySplit:
+                  summary: Three recipients with remainder allocation
+                  value:
+                    status: success
+                    poolId: zQp2OoUUsLCqGV-RGvfLkg
+                    totalPie: "1000000"
+                    totalKudos: "10000"
+                    allocated: "1000000"
+                    remainder: "0"
+                    itemCount: 3
+                    roundingMode: LARGEST_REMAINDER
+                    items:
+                      - recipient: "email:carol@example.com"
+                        kudos: "5000"
+                        points: "500000"
+                        shareNumerator: "5000"
+                        shareDenominator: "10000"
+                        remainderRank: 0
+                      - recipient: "email:alice@example.com"
+                        kudos: "3000"
+                        points: "300000"
+                        shareNumerator: "3000"
+                        shareDenominator: "10000"
+                        remainderRank: 0
+                      - recipient: "email:bob@example.com"
+                        kudos: "2000"
+                        points: "200000"
+                        shareNumerator: "2000"
+                        shareDenominator: "10000"
+                        remainderRank: 0
+                emptyPool:
+                  summary: Empty pool — all goes to remainder
+                  value:
+                    status: success
+                    poolId: emptyPoolId
+                    totalPie: "5000"
+                    totalKudos: "0"
+                    allocated: "0"
+                    remainder: "5000"
+                    itemCount: 0
+                    roundingMode: LARGEST_REMAINDER
+                    items: []
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
   /core/v1/pools/{poolId}/metadata:
     get:
@@ -562,6 +663,90 @@ components:
           description: This recipient's share of total pool kudos as a percentage (0–100).
           minimum: 0
           maximum: 100
+
+    # ── Distribution schemas ─────────────────────────────────────────
+
+    DistributionRequest:
+      type: object
+      required: [totalPie]
+      properties:
+        totalPie:
+          type: string
+          description: |
+            Total units to distribute, as a base-10 integer string.
+            Must be a positive integer (no leading zeros, no sign).
+            Maximum 78 digits (operational clamp).
+          pattern: '^[1-9]\d*$'
+          examples:
+            - "1000000"
+            - "5000000000000000000"
+
+    DistributionResponse:
+      type: object
+      required: [status, poolId, totalPie, totalKudos, allocated, remainder, itemCount, roundingMode, items]
+      properties:
+        status:
+          type: string
+          enum: [success]
+        poolId:
+          type: string
+          description: The pool this distribution was computed for.
+        totalPie:
+          type: string
+          description: Echo of the requested totalPie (base-10 string).
+        totalKudos:
+          type: string
+          description: Sum of all recipient kudos in the pool (base-10 string).
+        allocated:
+          type: string
+          description: Total points allocated across all items (base-10 string). Equals totalPie when totalKudos > 0.
+        remainder:
+          type: string
+          description: Unallocated units (base-10 string). Always "0" when totalKudos > 0.
+        itemCount:
+          type: integer
+          description: Number of items in the response (excludes zero-allocation recipients).
+          minimum: 0
+        roundingMode:
+          type: string
+          enum: [LARGEST_REMAINDER]
+          description: The rounding algorithm used.
+        items:
+          type: array
+          description: Distribution items, ordered by remainder rank. Zero-allocation recipients are excluded.
+          items:
+            $ref: '#/components/schemas/DistributionItem'
+
+    DistributionItem:
+      type: object
+      required: [recipient, kudos, points, shareNumerator, shareDenominator, remainderRank]
+      properties:
+        recipient:
+          type: string
+          description: Recipient subject in `type:id` format.
+          examples:
+            - "email:alice@example.com"
+        kudos:
+          type: string
+          description: This recipient's total kudos in the pool (base-10 string).
+        points:
+          type: string
+          description: Allocated points from totalPie (base-10 string). Invariant — sum of all points equals totalPie.
+        shareNumerator:
+          type: string
+          description: Numerator of the recipient's share fraction (base-10 string). Equals kudos.
+        shareDenominator:
+          type: string
+          description: Denominator of the recipient's share fraction (base-10 string). Equals totalKudos.
+        remainderRank:
+          type: integer
+          description: |
+            1-based rank in the remainder distribution round. Recipients who
+            received an extra unit have rank >= 1. Recipients who did not
+            receive an extra unit have rank 0.
+          minimum: 0
+
+    # ── Pool metadata schemas ─────────────────────────────────────────
 
     PoolMetadata:
       type: object

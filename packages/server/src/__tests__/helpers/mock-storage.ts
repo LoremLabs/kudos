@@ -1,10 +1,12 @@
-import type { Event, CursorPayload, RecipientSummary } from "@kudos-protocol/pool-core";
+import type { Event, CursorPayload, RecipientSummary, PoolMetadata } from "@kudos-protocol/pool-core";
 import type {
   StoragePort,
   AppendResult,
   ReadEventsOptions,
   ReadEventsResult,
   ReadSummaryResult,
+  ReadRecipientTotalsResult,
+  RecipientTotal,
 } from "@kudos-protocol/ports";
 
 /**
@@ -14,6 +16,7 @@ import type {
 export class InMemoryStorage implements StoragePort {
   /** poolId → Event[] (sorted ts DESC, id DESC) */
   private pools = new Map<string, Event[]>();
+  private metadata = new Map<string, PoolMetadata>();
 
   async ping(): Promise<void> {}
 
@@ -131,6 +134,45 @@ export class InMemoryStorage implements StoragePort {
     };
   }
 
+  async readRecipientTotals(poolId: string): Promise<ReadRecipientTotalsResult> {
+    const pool = this.pools.get(poolId) ?? [];
+
+    const totals = new Map<string, bigint>();
+    for (const event of pool) {
+      const prev = totals.get(event.recipient) ?? 0n;
+      totals.set(event.recipient, prev + BigInt(event.kudos));
+    }
+
+    let totalKudos = 0n;
+    const recipients: RecipientTotal[] = [];
+    for (const [recipient, kudos] of totals) {
+      totalKudos += kudos;
+      recipients.push({ recipient, kudos });
+    }
+
+    // Sort by kudos DESC, recipient ASC
+    recipients.sort((a, b) => {
+      if (b.kudos !== a.kudos) return b.kudos > a.kudos ? 1 : -1;
+      return a.recipient.localeCompare(b.recipient);
+    });
+
+    return { totalKudos, recipients };
+  }
+
+  async getPoolMetadata(poolId: string): Promise<PoolMetadata | null> {
+    return this.metadata.get(poolId) ?? null;
+  }
+
+  async setPoolMetadata(poolId: string, partial: Partial<PoolMetadata>): Promise<void> {
+    const existing = this.metadata.get(poolId);
+    const merged: PoolMetadata = {
+      name: partial.name ?? existing?.name ?? null,
+      permissions: partial.permissions ?? existing?.permissions ?? null,
+      config: partial.config ?? existing?.config ?? null,
+    };
+    this.metadata.set(poolId, merged);
+  }
+
   /** Test helper: get all events for a pool */
   getPool(poolId: string): Event[] {
     return this.pools.get(poolId) ?? [];
@@ -139,5 +181,6 @@ export class InMemoryStorage implements StoragePort {
   /** Test helper: clear all data */
   clear(): void {
     this.pools.clear();
+    this.metadata.clear();
   }
 }

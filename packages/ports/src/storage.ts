@@ -1,5 +1,15 @@
 import type { Event, CursorPayload, RecipientSummary, PoolMetadata } from "@kudos-protocol/pool-core";
 
+export interface RecipientTotal {
+  recipient: string;
+  kudos: bigint;
+}
+
+export interface ReadRecipientTotalsResult {
+  totalKudos: bigint;
+  recipients: RecipientTotal[];
+}
+
 export interface AppendResult {
   /** Events newly written to storage. */
   inserted: number;
@@ -39,6 +49,7 @@ export interface StoragePort {
   appendEvents(poolId: string, events: Event[]): Promise<AppendResult>;
   readEvents(options: ReadEventsOptions): Promise<ReadEventsResult>;
   readSummary(poolId: string, limit: number): Promise<ReadSummaryResult>;
+  readRecipientTotals(poolId: string): Promise<ReadRecipientTotalsResult>;
   getPoolMetadata(poolId: string): Promise<PoolMetadata | null>;
   setPoolMetadata(poolId: string, metadata: Partial<PoolMetadata>): Promise<void>;
   ping(): Promise<void>;

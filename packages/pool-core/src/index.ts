@@ -18,6 +18,7 @@ export {
   ListEventsQuerySchema,
   SummaryQuerySchema,
   PoolMetadataSchema,
+  DistributionRequestSchema,
 } from "./schemas/index.js";
 
 // Types (re-exported from schemas)
@@ -37,6 +38,7 @@ export type {
   ListEventsQuery,
   SummaryQuery,
   PoolMetadata,
+  DistributionRequest,
 } from "./types.js";
 
 // Policy
@@ -61,3 +63,24 @@ export type { CursorPayload } from "./cursor.js";
 
 // Errors
 export { PoolServerError, ErrorCode } from "./errors.js";
+
+// Serialization
+export { bigintToJSON, bigintToString, serializeEvent, serializeDistribution } from "./serialize.js";
+
+// Distribution
+export { computeDistribution } from "./distribution.js";
+export type {
+  DistributionInput,
+  DistributionItem,
+  DistributionResult,
+} from "./distribution.js";
+
+// Pool Permissions
+export {
+  getSimplifiedPermissions,
+  canRead,
+  canWrite,
+  canAdmin,
+  isPoolFrozen,
+  makeOwnerPermissions,
+} from "./pool-permissions.js";

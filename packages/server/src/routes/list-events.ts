@@ -5,8 +5,10 @@ import {
   ErrorCode,
   decodeCursor,
   encodeCursor,
+  canRead,
 } from "@kudos-protocol/pool-core";
 import type { StoragePort } from "@kudos-protocol/ports";
+import { getSubjectHash } from "@kudos-protocol/subject-hash";
 
 interface ListDeps {
   storage: StoragePort;
@@ -27,6 +29,19 @@ export function registerListEvents(app: FastifyInstance, deps: ListDeps): void {
       }
 
       const { poolId } = request.params;
+
+      // Pool permission check
+      const poolMeta = await storage.getPoolMetadata(poolId);
+      if (poolMeta?.permissions) {
+        const subjectHash = getSubjectHash(request.sender);
+        if (!canRead(poolMeta.permissions, subjectHash)) {
+          throw new PoolServerError(
+            ErrorCode.FORBIDDEN,
+            "You do not have read permission on this pool.",
+          );
+        }
+      }
+
       const query = parseResult.data;
 
       // Decode cursor if present (throws INVALID_CURSOR on bad input)
