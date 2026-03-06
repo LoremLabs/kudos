@@ -1,0 +1,1 @@
+ALTER TABLE `outbox` ADD `next_retry_at` text;

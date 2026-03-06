@@ -88,6 +88,7 @@ export const outbox = sqliteTable(
     lastError: text("last_error"),
     leasedAt: text("leased_at"),
     leaseId: text("lease_id"),
+    nextRetryAt: text("next_retry_at"),
   },
   (table) => [
     index("idx_outbox_pending").on(table.delivered, table.createdAt),

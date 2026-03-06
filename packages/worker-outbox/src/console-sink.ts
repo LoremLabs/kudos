@@ -9,11 +9,13 @@ export class ConsoleSink implements SinkPort {
   }
 
   async publish(poolId: string, events: Event[]): Promise<void> {
-    const message = `[ConsoleSink] poolId=${poolId} events=${events.length}`;
-    if (this.logger) {
-      this.logger.info(message, { poolId, count: events.length });
-    } else {
-      console.log(message);
+    for (const e of events) {
+      const message = `[ConsoleSink] pool=${poolId} id=${e.id} sender=${e.sender} recipient=${e.recipient} kudos=${e.kudos} emoji=${e.emoji ?? ""}`;
+      if (this.logger) {
+        this.logger.info(message, { poolId, id: e.id, sender: e.sender, recipient: e.recipient, kudos: e.kudos, emoji: e.emoji });
+      } else {
+        console.log(message);
+      }
     }
   }
 }

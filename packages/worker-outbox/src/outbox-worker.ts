@@ -30,7 +30,7 @@ export class OutboxWorker {
     this.logger = options.logger;
     this.pollIntervalMs = options.pollIntervalMs ?? 1000;
     this.batchSize = options.batchSize ?? 100;
-    this.maxAttempts = options.maxAttempts ?? 5;
+    this.maxAttempts = options.maxAttempts ?? 10;
     this.leaseTtlSeconds = options.leaseTtlSeconds ?? 60;
     this.leaseId = randomLeaseId();
   }
