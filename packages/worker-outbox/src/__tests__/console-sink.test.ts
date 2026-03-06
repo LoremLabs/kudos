@@ -31,8 +31,8 @@ describe("ConsoleSink", () => {
 
     expect(logger.info).toHaveBeenCalledTimes(1);
     expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining("pool-1"),
-      expect.objectContaining({ poolId: "pool-1", count: 1 }),
+      expect.stringContaining("pool=pool-1"),
+      expect.objectContaining({ poolId: "pool-1", sender: "email:alice@example.com", recipient: "email:bob@example.com" }),
     );
   });
 
