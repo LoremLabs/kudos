@@ -496,6 +496,22 @@ export class SqliteStorage implements StoragePort, OutboxPort {
       )
       .run();
   }
+
+  async purgeOld(maxAgeSeconds: number, maxAttempts: number): Promise<number> {
+    const result = this.db
+      .delete(schema.outbox)
+      .where(
+        and(
+          sql`${schema.outbox.createdAt} <= datetime('now', '-${sql.raw(String(maxAgeSeconds))} seconds')`,
+          or(
+            eq(schema.outbox.delivered, 1),
+            gte(schema.outbox.attempts, maxAttempts),
+          ),
+        ),
+      )
+      .run();
+    return result.changes;
+  }
 }
 
 function rowToEvent(row: typeof schema.events.$inferSelect): Event {

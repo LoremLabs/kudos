@@ -9,6 +9,10 @@ export interface OutboxWorkerOptions {
   batchSize?: number;
   maxAttempts?: number;
   leaseTtlSeconds?: number;
+  /** How often to purge old delivered/dead-lettered rows (default: 1 hour) */
+  purgeIntervalMs?: number;
+  /** Max age of delivered/dead rows before purge (default: 86400 = 1 day) */
+  purgeMaxAgeSeconds?: number;
 }
 
 export class OutboxWorker {
@@ -23,6 +27,9 @@ export class OutboxWorker {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private draining: Promise<number> | null = null;
   private running = false;
+  private purgeIntervalMs: number;
+  private purgeMaxAgeSeconds: number;
+  private lastPurgeTime = 0;
 
   constructor(options: OutboxWorkerOptions) {
     this.outbox = options.outbox;
@@ -32,6 +39,8 @@ export class OutboxWorker {
     this.batchSize = options.batchSize ?? 100;
     this.maxAttempts = options.maxAttempts ?? 10;
     this.leaseTtlSeconds = options.leaseTtlSeconds ?? 60;
+    this.purgeIntervalMs = options.purgeIntervalMs ?? 60 * 60 * 1000; // 1 hour
+    this.purgeMaxAgeSeconds = options.purgeMaxAgeSeconds ?? 86400; // 1 day
     this.leaseId = randomLeaseId();
   }
 
@@ -134,6 +143,20 @@ export class OutboxWorker {
     return delivered;
   }
 
+  private async maybePurge(): Promise<void> {
+    const now = Date.now();
+    if (now - this.lastPurgeTime < this.purgeIntervalMs) return;
+    this.lastPurgeTime = now;
+    try {
+      const deleted = await this.outbox.purgeOld(this.purgeMaxAgeSeconds, this.maxAttempts);
+      if (deleted > 0) {
+        this.logger?.info(`[OutboxWorker] Purged ${deleted} old rows`);
+      }
+    } catch (e) {
+      this.logger?.warn(`[OutboxWorker] Purge failed: ${e}`);
+    }
+  }
+
   private scheduleNext(): void {
     if (!this.running) return;
     this.timer = setTimeout(async () => {
@@ -142,6 +165,11 @@ export class OutboxWorker {
         await this.draining;
       } catch {
         // errors logged inside drain; keep polling
+      }
+      try {
+        await this.maybePurge();
+      } catch {
+        // non-critical
       } finally {
         this.draining = null;
         this.scheduleNext();

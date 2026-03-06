@@ -463,6 +463,21 @@ export class PostgresStorage implements StoragePort, OutboxPort {
         ),
       );
   }
+
+  async purgeOld(maxAgeSeconds: number, maxAttempts: number): Promise<number> {
+    const result = await this.db
+      .delete(schema.outbox)
+      .where(
+        and(
+          sql`${schema.outbox.createdAt} <= now() - interval '${sql.raw(String(maxAgeSeconds))} seconds'`,
+          or(
+            eq(schema.outbox.delivered, 1),
+            gte(schema.outbox.attempts, maxAttempts),
+          ),
+        ),
+      );
+    return result.count ?? 0;
+  }
 }
 
 function rowToEvent(row: typeof schema.events.$inferSelect): Event {

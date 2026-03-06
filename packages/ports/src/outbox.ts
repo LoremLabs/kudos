@@ -25,4 +25,7 @@ export interface OutboxPort {
 
   /** Mark rows as failed (increment attempts, record error). Only succeeds if leaseId matches. */
   markFailed(ids: number[], error: string, leaseId: string): Promise<void>;
+
+  /** Delete delivered rows and dead-lettered rows older than `maxAgeSeconds`. Returns count deleted. */
+  purgeOld(maxAgeSeconds: number, maxAttempts: number): Promise<number>;
 }

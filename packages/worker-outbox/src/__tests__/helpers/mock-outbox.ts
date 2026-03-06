@@ -58,4 +58,13 @@ export class MockOutbox implements OutboxPort {
       }
     }
   }
+
+  async purgeOld(maxAgeSeconds: number, maxAttempts: number): Promise<number> {
+    const cutoff = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
+    const before = this.rows.length;
+    this.rows = this.rows.filter(
+      (r) => !(r.createdAt <= cutoff && (r.delivered || r.attempts >= maxAttempts)),
+    );
+    return before - this.rows.length;
+  }
 }
