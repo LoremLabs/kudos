@@ -1,5 +1,21 @@
 # @kudos-protocol/pool-server
 
+## 0.2.0
+
+### Minor Changes
+
+- 7c74d02: Add pool meta
+
+### Patch Changes
+
+- Updated dependencies [7c74d02]
+  - @kudos-protocol/storage-postgres@0.2.0
+  - @kudos-protocol/storage-sqlite@0.2.0
+  - @kudos-protocol/pool-core@0.2.0
+  - @kudos-protocol/server@0.2.0
+  - @kudos-protocol/ports@0.2.0
+  - @kudos-protocol/worker-outbox@0.2.0
+
 ## 0.1.9
 
 ### Patch Changes

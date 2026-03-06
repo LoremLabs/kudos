@@ -1,5 +1,13 @@
 # @kudos-protocol/worker-outbox
 
+## 0.2.0
+
+### Patch Changes
+
+- Updated dependencies [7c74d02]
+  - @kudos-protocol/pool-core@0.2.0
+  - @kudos-protocol/ports@0.2.0
+
 ## 0.1.9
 
 ### Patch Changes
