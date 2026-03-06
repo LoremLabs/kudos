@@ -1,5 +1,17 @@
 # @kudos-protocol/pool-server
 
+## 0.4.2
+
+### Patch Changes
+
+- Updated dependencies [fc45902]
+  - @kudos-protocol/storage-postgres@0.4.2
+  - @kudos-protocol/server@0.4.2
+  - @kudos-protocol/storage-sqlite@0.4.2
+  - @kudos-protocol/worker-outbox@0.4.2
+  - @kudos-protocol/ports@0.4.2
+  - @kudos-protocol/pool-core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
