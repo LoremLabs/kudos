@@ -25,6 +25,7 @@ export {
   PoolIdSchema,
   ListEventsQuerySchema,
   SummaryQuerySchema,
+  PoolMetadataSchema,
 } from "@kudos-protocol/pool-core";
 
 // @kudos-protocol/pool-core — policy, normalize, validate, cursor, errors
@@ -61,6 +62,7 @@ export type {
   ValidationFail,
   EventValidationResult,
   CursorPayload,
+  PoolMetadata,
 } from "@kudos-protocol/pool-core";
 
 // @kudos-protocol/ports

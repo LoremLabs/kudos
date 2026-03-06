@@ -1,6 +1,6 @@
 import { eq, and, desc, ne, gte, lt, or, sql, inArray } from "drizzle-orm";
 import type { PgDatabase } from "drizzle-orm/pg-core";
-import type { Event, CursorPayload, RecipientSummary } from "@kudos-protocol/pool-core";
+import type { Event, CursorPayload, RecipientSummary, PoolMetadata } from "@kudos-protocol/pool-core";
 import type {
   StoragePort,
   AppendResult,
@@ -310,6 +310,47 @@ export class PostgresStorage implements StoragePort, OutboxPort {
     }));
 
     return { totalKudos, summary };
+  }
+
+  // ─── Pool Metadata ─────────────────────────────────────────────────────
+
+  async getPoolMetadata(poolId: string): Promise<PoolMetadata | null> {
+    const [row] = await this.db
+      .select()
+      .from(schema.pools)
+      .where(eq(schema.pools.poolId, poolId));
+
+    if (!row) return null;
+
+    return {
+      name: row.name ?? null,
+      permissions: row.permissions ? JSON.parse(row.permissions) : null,
+      config: row.config ?? null,
+    };
+  }
+
+  async setPoolMetadata(poolId: string, metadata: Partial<PoolMetadata>): Promise<void> {
+    const values: Record<string, unknown> = {};
+    if (metadata.name !== undefined) values.name = metadata.name;
+    if (metadata.permissions !== undefined)
+      values.permissions = metadata.permissions ? JSON.stringify(metadata.permissions) : null;
+    if (metadata.config !== undefined) values.config = metadata.config;
+
+    await this.db
+      .insert(schema.pools)
+      .values({
+        poolId,
+        name: (values.name as string) ?? null,
+        permissions: (values.permissions as string) ?? null,
+        config: (values.config as string) ?? null,
+      })
+      .onConflictDoUpdate({
+        target: schema.pools.poolId,
+        set: {
+          ...values,
+          updatedAt: sql`now()`,
+        },
+      });
   }
 
   // ─── OutboxPort Implementation ──────────────────────────────────────────

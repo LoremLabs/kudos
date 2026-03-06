@@ -48,6 +48,8 @@ tags:
     description: Append and read pool events
   - name: Summary
     description: Read aggregated pool summaries
+  - name: Metadata
+    description: Read and update pool metadata
 
 paths:
   /core/v1/pools/{poolId}/events:
@@ -205,6 +207,78 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /core/v1/pools/{poolId}/metadata:
+    get:
+      operationId: getPoolMetadata
+      summary: Read pool metadata
+      description: |
+        Returns the metadata for a pool, including its name, permissions,
+        and configuration blob. Returns default null values if no metadata
+        has been set.
+      tags: [Metadata]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+      responses:
+        '200':
+          description: Pool metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolMetadata'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    patch:
+      operationId: setPoolMetadata
+      summary: Update pool metadata
+      description: |
+        Partially updates the metadata for a pool. Only the fields provided
+        in the request body are updated; omitted fields are left unchanged.
+
+        If the pool has no metadata row yet, one is created.
+      tags: [Metadata]
+      parameters:
+        - $ref: '#/components/parameters/poolId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolMetadataUpdate'
+            examples:
+              setName:
+                summary: Set pool name
+                value:
+                  name: "Engineering Team"
+              setPermissions:
+                summary: Set pool permissions
+                value:
+                  permissions: ["read", "write"]
+              setConfig:
+                summary: Set pool config blob
+                value:
+                  config: '{"tags":["team"],"notifications":{"email":true}}'
+      responses:
+        '200':
+          description: Metadata updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+                    enum: [true]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
 components:
   securitySchemes:
@@ -488,6 +562,57 @@ components:
           description: This recipient's share of total pool kudos as a percentage (0–100).
           minimum: 0
           maximum: 100
+
+    PoolMetadata:
+      type: object
+      properties:
+        name:
+          type:
+            - string
+            - 'null'
+          description: Human-readable pool name.
+          maxLength: 255
+          examples:
+            - 'Engineering Team'
+        permissions:
+          type:
+            - array
+            - 'null'
+          description: List of permission strings for the pool.
+          items:
+            type: string
+          examples:
+            - ['read', 'write']
+        config:
+          type:
+            - string
+            - 'null'
+          description: |
+            Opaque JSON blob for additional pool configuration (tags,
+            notifications, forms, meta). The protocol treats this as an
+            opaque string — structure is the caller's responsibility.
+          examples:
+            - '{"tags":["team"],"notifications":{"email":true}}'
+
+    PoolMetadataUpdate:
+      type: object
+      description: Partial update — only provided fields are changed.
+      properties:
+        name:
+          type:
+            - string
+            - 'null'
+          maxLength: 255
+        permissions:
+          type:
+            - array
+            - 'null'
+          items:
+            type: string
+        config:
+          type:
+            - string
+            - 'null'
 
     ErrorResponse:
       type: object

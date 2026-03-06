@@ -59,6 +59,19 @@ export const poolTotals = sqliteTable("pool_totals", {
   kudos: integer("kudos").notNull().default(0),
 });
 
+export const pools = sqliteTable("pools", {
+  poolId: text("pool_id").primaryKey(),
+  name: text("name"),
+  permissions: text("permissions"),
+  config: text("config"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
 export const outbox = sqliteTable(
   "outbox",
   {

@@ -17,6 +17,7 @@ export {
   PoolIdSchema,
   ListEventsQuerySchema,
   SummaryQuerySchema,
+  PoolMetadataSchema,
 } from "./schemas/index.js";
 
 // Types (re-exported from schemas)
@@ -35,6 +36,7 @@ export type {
   PoolId,
   ListEventsQuery,
   SummaryQuery,
+  PoolMetadata,
 } from "./types.js";
 
 // Policy

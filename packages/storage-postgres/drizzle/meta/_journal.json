@@ -8,6 +8,13 @@
       "when": 1772634254415,
       "tag": "0000_old_pyro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772794833351,
+      "tag": "0001_legal_iron_lad",
+      "breakpoints": true
     }
   ]
 }

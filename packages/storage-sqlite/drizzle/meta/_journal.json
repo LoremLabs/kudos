@@ -15,6 +15,13 @@
       "when": 1772630797735,
       "tag": "0001_wooden_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1772794831894,
+      "tag": "0002_stormy_agent_brand",
+      "breakpoints": true
     }
   ]
 }

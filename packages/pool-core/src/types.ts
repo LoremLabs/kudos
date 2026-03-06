@@ -9,3 +9,4 @@ export type { ErrorResponse } from "./schemas/error-response.js";
 export type { PoolId, ListEventsQuery, SummaryQuery } from "./schemas/query-params.js";
 export type { Visibility } from "./schemas/visibility.js";
 export type { ParsedSubject } from "./schemas/subject.js";
+export type { PoolMetadata } from "./schemas/pool-metadata.js";

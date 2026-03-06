@@ -59,6 +59,19 @@ export const poolTotals = pgTable("pool_totals", {
   kudos: bigint("kudos", { mode: "number" }).notNull().default(0),
 });
 
+export const pools = pgTable("pools", {
+  poolId: text("pool_id").primaryKey(),
+  name: text("name"),
+  permissions: text("permissions"),
+  config: text("config"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const outbox = pgTable(
   "outbox",
   {

@@ -4,7 +4,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { eq, and, desc, ne, gte, lt, or, sql, inArray } from "drizzle-orm";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import type { Event, CursorPayload, RecipientSummary } from "@kudos-protocol/pool-core";
+import type { Event, CursorPayload, RecipientSummary, PoolMetadata } from "@kudos-protocol/pool-core";
 import type {
   StoragePort,
   AppendResult,
@@ -323,6 +323,59 @@ export class SqliteStorage implements StoragePort, OutboxPort {
     }));
 
     return { totalKudos, summary };
+  }
+
+  // ─── Pool Metadata ─────────────────────────────────────────────────────
+
+  async getPoolMetadata(poolId: string): Promise<PoolMetadata | null> {
+    const row = this.db
+      .select()
+      .from(schema.pools)
+      .where(eq(schema.pools.poolId, poolId))
+      .get();
+
+    if (!row) return null;
+
+    return {
+      name: row.name ?? null,
+      permissions: row.permissions ? JSON.parse(row.permissions) : null,
+      config: row.config ?? null,
+    };
+  }
+
+  async setPoolMetadata(poolId: string, metadata: Partial<PoolMetadata>): Promise<void> {
+    const existing = this.db
+      .select()
+      .from(schema.pools)
+      .where(eq(schema.pools.poolId, poolId))
+      .get();
+
+    const values: Record<string, unknown> = {};
+    if (metadata.name !== undefined) values.name = metadata.name;
+    if (metadata.permissions !== undefined)
+      values.permissions = metadata.permissions ? JSON.stringify(metadata.permissions) : null;
+    if (metadata.config !== undefined) values.config = metadata.config;
+
+    if (!existing) {
+      this.db
+        .insert(schema.pools)
+        .values({
+          poolId,
+          name: (values.name as string) ?? null,
+          permissions: (values.permissions as string) ?? null,
+          config: (values.config as string) ?? null,
+        })
+        .run();
+    } else {
+      this.db
+        .update(schema.pools)
+        .set({
+          ...values,
+          updatedAt: sql`(datetime('now'))`,
+        })
+        .where(eq(schema.pools.poolId, poolId))
+        .run();
+    }
   }
 
   // ─── OutboxPort Implementation ──────────────────────────────────────────

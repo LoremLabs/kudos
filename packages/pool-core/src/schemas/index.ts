@@ -34,3 +34,6 @@ export {
   SummaryQuerySchema,
 } from "./query-params.js";
 export type { PoolId, ListEventsQuery, SummaryQuery } from "./query-params.js";
+
+export { PoolMetadataSchema } from "./pool-metadata.js";
+export type { PoolMetadata } from "./pool-metadata.js";
