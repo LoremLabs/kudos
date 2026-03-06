@@ -1,5 +1,13 @@
 # @kudos-protocol/server
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [d3715b9]
+  - @kudos-protocol/ports@0.4.1
+  - @kudos-protocol/pool-core@0.4.1
+
 ## 0.4.0
 
 ### Patch Changes

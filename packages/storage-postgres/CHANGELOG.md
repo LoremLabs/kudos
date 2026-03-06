@@ -1,5 +1,14 @@
 # @kudos-protocol/storage-postgres
 
+## 0.4.1
+
+### Patch Changes
+
+- d3715b9: Cleanup worker outbox
+- Updated dependencies [d3715b9]
+  - @kudos-protocol/ports@0.4.1
+  - @kudos-protocol/pool-core@0.4.1
+
 ## 0.4.0
 
 ### Patch Changes
