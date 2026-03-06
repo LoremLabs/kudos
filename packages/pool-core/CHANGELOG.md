@@ -1,5 +1,11 @@
 # @kudos-protocol/pool-core
 
+## 0.2.0
+
+### Minor Changes
+
+- 7c74d02: Add pool meta
+
 ## 0.1.9
 
 ## 0.1.7
