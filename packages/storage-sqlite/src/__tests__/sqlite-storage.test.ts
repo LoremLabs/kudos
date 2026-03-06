@@ -1114,7 +1114,14 @@ describe("outbox", () => {
     const rows = await outboxStorage.leasePending(100, 5, "test-lease", 60);
     await outboxStorage.markFailed(rows.map((r) => r.id), "Connection timeout", "test-lease");
 
-    // Re-lease with TTL=0 to get the row back
+    // Row should NOT be immediately available due to exponential backoff
+    const rowsBackoff = await outboxStorage.leasePending(100, 5, "test-lease-backoff", 0);
+    expect(rowsBackoff).toHaveLength(0);
+
+    // Manually reset next_retry_at to the past to simulate backoff expiry
+    (outboxStorage as any).db.run((await import("drizzle-orm")).sql`UPDATE outbox SET next_retry_at = '2000-01-01T00:00:00.000Z'`);
+
+    // Now the row should be leasable again
     const rows2 = await outboxStorage.leasePending(100, 5, "test-lease-2", 0);
     expect(rows2).toHaveLength(1);
     expect(rows2[0].attempts).toBe(1);
