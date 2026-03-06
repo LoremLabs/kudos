@@ -1,5 +1,13 @@
 # @kudos-protocol/storage-postgres
 
+## 0.4.2
+
+### Patch Changes
+
+- fc45902: PostgreSQL exponential backoff
+  - @kudos-protocol/ports@0.4.2
+  - @kudos-protocol/pool-core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @kudos-protocol/worker-outbox
 
+## 0.4.2
+
+### Patch Changes
+
+- @kudos-protocol/ports@0.4.2
+- @kudos-protocol/pool-core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
